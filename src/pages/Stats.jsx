@@ -18,25 +18,9 @@ export default function Stats() {
   const stats = calculateStats();
   const unlockedAchievements = achievements.length;
 
-  // Calculate testament progress
-  const oldTestamentBooks = BIBLE_BOOKS.filter(b => b.testament === 'old');
-  const newTestamentBooks = BIBLE_BOOKS.filter(b => b.testament === 'new');
-  
-  const oldTestamentChaptersRead = oldTestamentBooks.reduce((sum, book) => {
-    const progress = getProgressForBook(book.name);
-    return sum + (progress?.chapters_read?.length || 0);
-  }, 0);
-  
-  const newTestamentChaptersRead = newTestamentBooks.reduce((sum, book) => {
-    const progress = getProgressForBook(book.name);
-    return sum + (progress?.chapters_read?.length || 0);
-  }, 0);
-
-  const oldTestamentTotalChapters = oldTestamentBooks.reduce((sum, b) => sum + b.chapters, 0);
-  const newTestamentTotalChapters = newTestamentBooks.reduce((sum, b) => sum + b.chapters, 0);
-
-  const oldTestamentPercent = Math.round((oldTestamentChaptersRead / oldTestamentTotalChapters) * 100);
-  const newTestamentPercent = Math.round((newTestamentChaptersRead / newTestamentTotalChapters) * 100);
+  // Calculate testament progress from stats
+  const oldTestamentPercent = Math.round((stats.oldTestamentChaptersRead / stats.oldTestamentTotalChapters) * 100);
+  const newTestamentPercent = Math.round((stats.newTestamentChaptersRead / stats.newTestamentTotalChapters) * 100);
 
   // Books currently in progress
   const booksInProgress = BIBLE_BOOKS.filter(book => {
@@ -129,7 +113,7 @@ export default function Stats() {
               <span className="text-sm font-bold text-black dark:text-white">{oldTestamentPercent}%</span>
             </ProgressRing>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              {oldTestamentChaptersRead}/{oldTestamentTotalChapters} chapters
+              {stats.oldTestamentChaptersRead}/{stats.oldTestamentTotalChapters} chapters
             </p>
           </motion.div>
 
@@ -147,7 +131,7 @@ export default function Stats() {
               <span className="text-sm font-bold text-black dark:text-white">{newTestamentPercent}%</span>
             </ProgressRing>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-              {newTestamentChaptersRead}/{newTestamentTotalChapters} chapters
+              {stats.newTestamentChaptersRead}/{stats.newTestamentTotalChapters} chapters
             </p>
           </motion.div>
         </div>

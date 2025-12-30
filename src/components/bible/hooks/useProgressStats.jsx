@@ -31,11 +31,26 @@ export function useProgressStats(progressData, bibleProgress) {
 
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
     let totalChaptersRead = 0;
-    Object.values(chaptersMap).forEach(chapters => {
+    let oldTestamentChaptersRead = 0;
+    let newTestamentChaptersRead = 0;
+
+    Object.entries(chaptersMap).forEach(([bookIndexStr, chapters]) => {
       if (Array.isArray(chapters)) {
-        totalChaptersRead += chapters.length;
+        const bookIndex = parseInt(bookIndexStr);
+        const book = BIBLE_BOOKS.find(b => b.index === bookIndex);
+        if (book) {
+          totalChaptersRead += chapters.length;
+          if (book.testament === 'old') {
+            oldTestamentChaptersRead += chapters.length;
+          } else if (book.testament === 'new') {
+            newTestamentChaptersRead += chapters.length;
+          }
+        }
       }
     });
+
+    const oldTestamentTotalChapters = BIBLE_BOOKS.filter(b => b.testament === 'old').reduce((sum, b) => sum + b.chapters, 0);
+    const newTestamentTotalChapters = BIBLE_BOOKS.filter(b => b.testament === 'new').reduce((sum, b) => sum + b.chapters, 0);
 
     return {
       totalChaptersRead,
@@ -44,6 +59,10 @@ export function useProgressStats(progressData, bibleProgress) {
       newTestamentComplete,
       fullBibleComplete,
       overallProgress: Math.round((totalChaptersRead / TOTAL_CHAPTERS) * 100),
+      oldTestamentChaptersRead,
+      newTestamentChaptersRead,
+      oldTestamentTotalChapters,
+      newTestamentTotalChapters,
     };
   };
 
