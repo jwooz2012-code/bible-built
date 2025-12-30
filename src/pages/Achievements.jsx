@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import ThemeToggle from '@/components/ThemeToggle';
 import AchievementCard from '@/components/bible/AchievementCard';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { ACHIEVEMENTS } from '@/components/bible/bibleData';
