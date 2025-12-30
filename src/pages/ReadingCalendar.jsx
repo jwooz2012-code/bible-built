@@ -166,14 +166,14 @@ export default function ReadingCalendar() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
+          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-gray-200 dark:border-slate-700/50"
         >
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-2 mb-3">
+          <div className="grid grid-cols-7 gap-1.5 mb-4">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
               <div
                 key={i}
-                className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400"
+                className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 py-1"
               >
                 {day}
               </div>
@@ -181,7 +181,7 @@ export default function ReadingCalendar() {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-7 gap-1.5">
             {calendarDays.map((dayData, index) => {
               if (!dayData) {
                 return <div key={`empty-${index}`} className="aspect-square" />;
@@ -198,26 +198,27 @@ export default function ReadingCalendar() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleDayClick(dayData)}
                   className={`
-                    aspect-square rounded-2xl flex items-center justify-center
+                    aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5
                     transition-all duration-200 relative
                     ${hasReading
-                      ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 shadow-md'
-                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-slate-700/30'
+                      ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 shadow-lg hover:shadow-xl hover:scale-105'
+                      : 'hover:bg-gray-100 dark:hover:bg-slate-700/30'
                     }
-                    ${isToday ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-blue-400' : ''}
+                    ${isToday && !hasReading ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+                    ${isToday && hasReading ? 'ring-2 ring-blue-400' : ''}
                   `}
                 >
                   {hasReading ? (
                     <>
-                      <span className="text-2xl font-bold text-white">
-                        {dayData.count}
-                      </span>
-                      <span className="absolute top-1 right-1.5 text-[10px] font-medium text-white/70">
+                      <span className="text-[10px] font-medium text-white/60">
                         {dayData.day}
+                      </span>
+                      <span className="text-xl font-bold text-white leading-none">
+                        {dayData.count}
                       </span>
                     </>
                   ) : (
-                    <span className="text-base font-semibold text-gray-700 dark:text-slate-300">
+                    <span className="text-sm font-medium text-gray-600 dark:text-slate-400">
                       {dayData.day}
                     </span>
                   )}
