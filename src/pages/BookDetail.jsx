@@ -62,7 +62,7 @@ export default function BookDetail() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50 p-4">
+      <div className="min-h-screen bg-white p-4">
         <div className="max-w-lg mx-auto space-y-6">
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-48 w-full rounded-3xl" />
@@ -77,7 +77,7 @@ export default function BookDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -91,8 +91,8 @@ export default function BookDetail() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-stone-800">{book.name}</h1>
-            <p className="text-sm text-stone-500 capitalize">{book.testament} Testament</p>
+            <h1 className="text-xl font-bold text-black">{book.name}</h1>
+            <p className="text-sm text-gray-500 capitalize">{book.testament} Testament</p>
           </div>
         </motion.div>
 
@@ -101,25 +101,25 @@ export default function BookDetail() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-amber-50 via-white to-amber-50 rounded-3xl p-6 shadow-lg border border-amber-100 mb-6"
+          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-stone-500 mb-1">Current Progress</p>
-              <p className="text-3xl font-bold text-amber-700">{percentComplete}%</p>
-              <p className="text-sm text-stone-500 mt-1">
+              <p className="text-sm text-gray-500 mb-1">Current Progress</p>
+              <p className="text-3xl font-bold text-black">{percentComplete}%</p>
+              <p className="text-sm text-gray-500 mt-1">
                 {chaptersRead.length} of {book.chapters} chapters
               </p>
               
               {completionCount > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-xs font-medium px-3 py-1.5 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-medium px-3 py-1.5 rounded-full">
                   <Trophy className="w-3 h-3" />
                   Completed {completionCount}x
                 </div>
               )}
             </div>
             <ProgressRing progress={percentComplete} size={100} strokeWidth={8}>
-              <span className="text-xl font-bold text-amber-700">{percentComplete}%</span>
+              <span className="text-xl font-bold text-black">{percentComplete}%</span>
             </ProgressRing>
           </div>
 
@@ -128,7 +128,7 @@ export default function BookDetail() {
               variant="ghost"
               size="sm"
               onClick={handleRestart}
-              className="mt-4 text-stone-500 hover:text-stone-700"
+              className="mt-4 text-gray-500 hover:text-black"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Start Over
@@ -142,7 +142,7 @@ export default function BookDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h3 className="font-semibold text-stone-800 mb-4">Chapters</h3>
+          <h3 className="font-semibold text-black mb-4">Chapters</h3>
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapterNum, index) => {
               const isRead = chaptersRead.includes(chapterNum);
@@ -157,8 +157,8 @@ export default function BookDetail() {
                     aspect-square rounded-xl font-medium text-sm
                     flex items-center justify-center transition-all duration-200
                     ${isRead
-                      ? 'bg-gradient-to-br from-amber-400 to-amber-600 text-white shadow-md'
-                      : 'bg-white border border-stone-200 text-stone-600 hover:border-amber-300 hover:bg-amber-50'
+                      ? 'bg-green-500 text-white shadow-md'
+                      : 'bg-white border border-gray-200 text-black hover:border-gray-400 hover:bg-gray-50'
                     }
                   `}
                 >
@@ -178,7 +178,7 @@ export default function BookDetail() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-sm text-stone-400 mt-6"
+          className="text-center text-sm text-gray-400 mt-6"
         >
           Tap a chapter to mark it as read
         </motion.p>
@@ -188,14 +188,14 @@ export default function BookDetail() {
       <Dialog open={showCelebration} onOpenChange={setShowCelebration}>
         <DialogContent className="sm:max-w-md text-center">
           <DialogHeader>
-            <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-gradient-to-br from-amber-100 to-amber-200 flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-amber-600" />
+            <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-green-600" />
             </div>
             <DialogTitle className="text-2xl">Congratulations! 🎉</DialogTitle>
             <DialogDescription className="text-base">
-              You've completed <span className="font-semibold text-amber-700">{book.name}</span>!
+              You've completed <span className="font-semibold text-green-700">{book.name}</span>!
               <br />
-              <span className="text-lg font-semibold text-stone-800">
+              <span className="text-lg font-semibold text-black">
                 Total completions: {celebrationCount}
               </span>
             </DialogDescription>
@@ -206,7 +206,7 @@ export default function BookDetail() {
                 setShowCelebration(false);
                 handleRestart();
               }}
-              className="bg-amber-600 hover:bg-amber-700"
+              className="bg-green-600 hover:bg-green-700"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Read Again
