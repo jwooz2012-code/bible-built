@@ -5,6 +5,11 @@ import { BIBLE_BOOKS, ACHIEVEMENTS, TOTAL_CHAPTERS, OLD_TESTAMENT_BOOKS, NEW_TES
 export function useBookProgress() {
   const queryClient = useQueryClient();
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: progressData = [], isLoading } = useQuery({
     queryKey: ['bookProgress'],
     queryFn: () => base44.entities.BookProgress.list(),
@@ -13,6 +18,14 @@ export function useBookProgress() {
   const { data: achievements = [] } = useQuery({
     queryKey: ['achievements'],
     queryFn: () => base44.entities.Achievement.list(),
+  });
+
+  const { data: bibleProgress } = useQuery({
+    queryKey: ['bibleProgress'],
+    queryFn: async () => {
+      const results = await base44.entities.BibleProgress.list();
+      return results[0] || null;
+    },
   });
 
   const createProgressMutation = useMutation({
@@ -28,6 +41,16 @@ export function useBookProgress() {
   const unlockAchievementMutation = useMutation({
     mutationFn: (data) => base44.entities.Achievement.create(data),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['achievements'] }),
+  });
+
+  const createBibleProgressMutation = useMutation({
+    mutationFn: (data) => base44.entities.BibleProgress.create(data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bibleProgress'] }),
+  });
+
+  const updateBibleProgressMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bibleProgress'] }),
   });
 
   const getProgressForBook = (bookName) => {
@@ -58,7 +81,7 @@ export function useBookProgress() {
     const newTestamentComplete = newTestamentBooksComplete >= NEW_TESTAMENT_BOOKS ?
       Math.floor(newTestamentBooksComplete / NEW_TESTAMENT_BOOKS) : 0;
     
-    const fullBibleComplete = Math.min(oldTestamentComplete, newTestamentComplete);
+    const fullBibleComplete = bibleProgress?.bible_completion_count || 0;
 
     return {
       totalChaptersRead,
@@ -72,7 +95,7 @@ export function useBookProgress() {
 
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book) return;
+    if (!book || !user) return;
 
     let progress = getProgressForBook(bookName);
     let chaptersRead = progress?.chapters_read || [];
@@ -95,11 +118,15 @@ export function useBookProgress() {
       if (isComplete) {
         updateData.completion_count = (progress.completion_count || 0) + 1;
         updateData.chapters_read = [];
+        
+        // Update Bible progress
+        await updateBibleProgress(book.index);
       }
       
       await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
     } else {
       const createData = {
+        user_id: user.id,
         book_name: bookName,
         book_index: book.index,
         testament: book.testament,
@@ -109,13 +136,67 @@ export function useBookProgress() {
         last_read_date: new Date().toISOString(),
       };
       await createProgressMutation.mutateAsync(createData);
+      
+      if (isComplete) {
+        await updateBibleProgress(book.index);
+      }
     }
 
     // Check achievements after update
     setTimeout(() => checkAchievements(), 500);
   };
 
+  const updateBibleProgress = async (completedBookIndex) => {
+    if (!user) return;
+
+    let currentBooksCompleted = bibleProgress?.books_completed_in_current_bible_run || [];
+    
+    // Add book to current run if not already there
+    if (!currentBooksCompleted.includes(completedBookIndex)) {
+      currentBooksCompleted = [...currentBooksCompleted, completedBookIndex];
+      
+      // Check if all 66 books are completed
+      if (currentBooksCompleted.length === 66) {
+        const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
+        
+        if (bibleProgress) {
+          await updateBibleProgressMutation.mutateAsync({
+            id: bibleProgress.id,
+            data: {
+              bible_completion_count: newCompletionCount,
+              books_completed_in_current_bible_run: [],
+              last_completed_at: new Date().toISOString(),
+            }
+          });
+        } else {
+          await createBibleProgressMutation.mutateAsync({
+            user_id: user.id,
+            bible_completion_count: newCompletionCount,
+            books_completed_in_current_bible_run: [],
+            last_completed_at: new Date().toISOString(),
+          });
+        }
+      } else {
+        // Just update the books list
+        if (bibleProgress) {
+          await updateBibleProgressMutation.mutateAsync({
+            id: bibleProgress.id,
+            data: { books_completed_in_current_bible_run: currentBooksCompleted }
+          });
+        } else {
+          await createBibleProgressMutation.mutateAsync({
+            user_id: user.id,
+            bible_completion_count: 0,
+            books_completed_in_current_bible_run: currentBooksCompleted,
+          });
+        }
+      }
+    }
+  };
+
   const checkAchievements = async () => {
+    if (!user) return;
+    
     const stats = calculateStats();
     const unlockedIds = achievements.map(a => a.achievement_id);
 
@@ -123,6 +204,7 @@ export function useBookProgress() {
       if (!unlockedIds.includes(achievement.id)) {
         if (achievement.condition(stats, progressData)) {
           await unlockAchievementMutation.mutateAsync({
+            user_id: user.id,
             achievement_id: achievement.id,
             unlocked_at: new Date().toISOString(),
           });
@@ -144,6 +226,7 @@ export function useBookProgress() {
   return {
     progressData,
     achievements,
+    bibleProgress,
     isLoading,
     getProgressForBook,
     calculateStats,
