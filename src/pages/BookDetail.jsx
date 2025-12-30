@@ -18,6 +18,7 @@ export default function BookDetail() {
   const { progressData, isLoading, getProgressForBook, toggleChapter, restartBook } = useBookProgress();
   const [showCelebration, setShowCelebration] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [celebrationCount, setCelebrationCount] = useState(0);
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
   const progress = getProgressForBook(bookName);
@@ -42,6 +43,10 @@ export default function BookDetail() {
   const handleChapterToggle = async (chapterNum) => {
     const wasComplete = chaptersRead.length === book.chapters - 1;
     const willComplete = !chaptersRead.includes(chapterNum) && wasComplete;
+    
+    if (willComplete) {
+      setCelebrationCount(completionCount + 1);
+    }
     
     await toggleChapter(bookName, chapterNum);
     
@@ -191,7 +196,7 @@ export default function BookDetail() {
               You've completed <span className="font-semibold text-amber-700">{book.name}</span>!
               <br />
               <span className="text-lg font-semibold text-stone-800">
-                Total completions: {completionCount + 1}
+                Total completions: {celebrationCount}
               </span>
             </DialogDescription>
           </DialogHeader>
