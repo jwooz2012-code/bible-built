@@ -166,14 +166,14 @@ export default function ReadingCalendar() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-5 shadow-lg border border-gray-200 dark:border-slate-700/50"
+          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
         >
           {/* Day headers */}
-          <div className="grid grid-cols-7 gap-3 mb-4">
+          <div className="grid grid-cols-7 gap-4 mb-5">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
               <div
                 key={i}
-                className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 h-6 flex items-center justify-center"
+                className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center"
               >
                 {day}
               </div>
@@ -181,7 +181,7 @@ export default function ReadingCalendar() {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-3">
+          <div className="grid grid-cols-7 gap-4">
             {calendarDays.map((dayData, index) => {
               if (!dayData) {
                 return <div key={`empty-${index}`} className="aspect-square" />;
@@ -204,18 +204,18 @@ export default function ReadingCalendar() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleDayClick(dayData)}
                   className={`
-                    w-full aspect-square rounded-lg flex items-center justify-center
+                    w-full aspect-square rounded-xl flex items-center justify-center p-2
                     transition-all duration-200
                     ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 shadow-sm' : ''}
                     ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
                     ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
                     ${intensity === 'none' ? 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
                     ${hasReading ? 'hover:scale-105' : ''}
-                    ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-1' : ''}
+                    ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                   `}
                 >
                   {hasReading ? (
-                    <span className="text-lg font-bold text-white">
+                    <span className="text-base font-bold text-white">
                       {dayData.count}
                     </span>
                   ) : (
