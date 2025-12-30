@@ -112,10 +112,24 @@ export function useBookProgress() {
     
     if (isAdding) {
       chaptersRead = [...chaptersRead, chapterNum];
+      const now = new Date();
+      const isoString = now.toISOString();
+      const localDate = now.toLocaleDateString('en-CA'); // YYYY-MM-DD format
+      
       chapterReadDates = {
         ...chapterReadDates,
-        [chapterNum]: new Date().toISOString()
+        [chapterNum]: isoString
       };
+      
+      // Create ReadingLog entry
+      await base44.entities.ReadingLog.create({
+        user_id: user.id,
+        occurred_at: isoString,
+        local_date: localDate,
+        book_index: book.index,
+        chapter: chapterNum,
+        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      });
     } else {
       chaptersRead = chaptersRead.filter(c => c !== chapterNum);
       const newDates = { ...chapterReadDates };
@@ -262,8 +276,23 @@ export function useBookProgress() {
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
     // Create chapter read dates for all chapters
-    const currentDate = new Date().toISOString();
+    const now = new Date();
+    const currentDate = now.toISOString();
+    const localDate = now.toLocaleDateString('en-CA');
     const chapterReadDates = {};
+    
+    // Create ReadingLog entries for all chapters
+    const readingLogEntries = allChapters.map(ch => ({
+      user_id: user.id,
+      occurred_at: currentDate,
+      local_date: localDate,
+      book_index: book.index,
+      chapter: ch,
+      event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
+    }));
+    
+    await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
+    
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;
     });

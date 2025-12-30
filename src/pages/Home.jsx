@@ -97,12 +97,14 @@ export default function Home() {
               delay={0.2}
             />
           </Link>
-          <StatsCard 
-            icon={Trophy}
-            label="Achievements"
-            value={`${unlockedAchievements.length}/${ACHIEVEMENTS.length}`}
-            delay={0.3}
-          />
+          <Link to={createPageUrl('ReadingCalendar')}>
+            <StatsCard 
+              icon={Trophy}
+              label="Reading Calendar"
+              value="View"
+              delay={0.3}
+            />
+          </Link>
         </div>
 
         {/* Recently Read */}
