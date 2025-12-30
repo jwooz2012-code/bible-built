@@ -47,17 +47,49 @@ export default function ReadingCalendar() {
     return grouped;
   }, [readingLogs]);
 
-  // Calculate month total
-  const monthTotal = useMemo(() => {
+  // Calculate totals and stats for current view
+  const viewStats = useMemo(() => {
     let total = 0;
-    Object.entries(readingByDate).forEach(([date, logs]) => {
-      const d = new Date(date);
-      if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-        total += logs.length;
-      }
-    });
-    return total;
-  }, [readingByDate, currentMonth, currentYear]);
+    let readingDays = 0;
+    let daysInPeriod = 0;
+
+    if (view === 'week') {
+      daysInPeriod = 7;
+      weekDays.forEach(day => {
+        if (day.count > 0) {
+          total += day.count;
+          readingDays++;
+        }
+      });
+    } else if (view === 'month') {
+      const firstDay = new Date(currentYear, currentMonth, 1);
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      daysInPeriod = lastDay.getDate();
+      
+      Object.entries(readingByDate).forEach(([date, logs]) => {
+        const d = new Date(date);
+        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+          total += logs.length;
+          readingDays++;
+        }
+      });
+    } else if (view === 'year') {
+      const isLeapYear = (currentYear % 4 === 0 && currentYear % 100 !== 0) || (currentYear % 400 === 0);
+      daysInPeriod = isLeapYear ? 366 : 365;
+      
+      Object.entries(readingByDate).forEach(([date, logs]) => {
+        const d = new Date(date);
+        if (d.getFullYear() === currentYear) {
+          total += logs.length;
+          readingDays++;
+        }
+      });
+    }
+
+    const avgPerDay = readingDays > 0 ? (total / readingDays).toFixed(1) : 0;
+
+    return { total, readingDays, avgPerDay, daysInPeriod };
+  }, [view, readingByDate, currentMonth, currentYear, currentWeekStart, weekDays]);
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -212,13 +244,44 @@ export default function ReadingCalendar() {
           </Tabs>
         </motion.div>
 
+        {/* Summary Header */}
+        <motion.div
+          key={`${view}-${currentMonth}-${currentYear}-${currentWeekStart}`}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
+        >
+          <div className="text-center mb-4">
+            <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">
+              <span className="text-green-600 dark:text-green-400">{viewStats.total}</span> chapters
+            </p>
+            <p className="text-sm text-gray-600 dark:text-slate-400">
+              {view === 'week' && 'this week'}
+              {view === 'month' && 'this month'}
+              {view === 'year' && 'this year'}
+            </p>
+          </div>
+          <div className="flex justify-center gap-6 text-sm">
+            <div className="text-center">
+              <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.readingDays}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">reading days</p>
+            </div>
+            <div className="h-10 w-px bg-gray-200 dark:bg-slate-700" />
+            <div className="text-center">
+              <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.avgPerDay}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-400">avg/day</p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Week View */}
         {view === 'week' && (
           <>
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.2 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
               <div className="flex items-center justify-between">
@@ -249,7 +312,7 @@ export default function ReadingCalendar() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
             >
               <div className="grid grid-cols-7 gap-3">
@@ -295,10 +358,10 @@ export default function ReadingCalendar() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.2 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
-              <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center justify-between">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -321,15 +384,12 @@ export default function ReadingCalendar() {
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
-              <p className="text-center text-sm text-gray-600 dark:text-slate-400">
-                Total chapters: <span className="font-semibold text-green-600 dark:text-green-400">{monthTotal}</span>
-              </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
             >
               <div className="grid grid-cols-7 gap-4 mb-5">
@@ -397,7 +457,7 @@ export default function ReadingCalendar() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.2 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
               <div className="flex items-center justify-between">
@@ -428,7 +488,7 @@ export default function ReadingCalendar() {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
+              transition={{ delay: 0.3 }}
               className="space-y-4"
             >
               {yearMonths.map((monthData, mIndex) => (
