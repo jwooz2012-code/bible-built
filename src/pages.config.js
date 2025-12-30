@@ -3,6 +3,7 @@ import BookDetail from './pages/BookDetail';
 import Home from './pages/Home';
 import Stats from './pages/Stats';
 import BooksCompleted from './pages/BooksCompleted';
+import app from './pages/_app';
 import __Layout from './Layout.jsx';
 
 
@@ -12,6 +13,7 @@ export const PAGES = {
     "Home": Home,
     "Stats": Stats,
     "BooksCompleted": BooksCompleted,
+    "_app": app,
 }
 
 export const pagesConfig = {

@@ -44,7 +44,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -52,8 +52,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-black">Scripture Journey</h1>
-          <p className="text-gray-500 text-sm">Track your Bible reading progress</p>
+          <h1 className="text-2xl font-bold text-black dark:text-white">Scripture Journey</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Track your Bible reading progress</p>
         </motion.div>
 
         {/* Main Progress Card */}
@@ -61,17 +61,17 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
+          className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-black mb-1">Overall Progress</h2>
-              <p className="text-3xl font-bold text-black">{stats.overallProgress}%</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <h2 className="text-lg font-semibold text-black dark:text-white mb-1">Overall Progress</h2>
+              <p className="text-3xl font-bold text-black dark:text-white">{stats.overallProgress}%</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {stats.totalChaptersRead} of 1,189 chapters
               </p>
               {stats.fullBibleComplete > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-medium px-3 py-1.5 rounded-full">
                   <Flame className="w-3 h-3" />
                   {stats.fullBibleComplete}x Bible Complete!
                 </div>
@@ -112,8 +112,8 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-black">Continue Reading</h3>
-              <RotateCcw className="w-4 h-4 text-gray-400" />
+              <h3 className="font-semibold text-black dark:text-white">Continue Reading</h3>
+              <RotateCcw className="w-4 h-4 text-gray-400 dark:text-gray-500" />
             </div>
             <div className="space-y-2">
               {recentlyRead.map((progress, i) => {
@@ -123,15 +123,15 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="flex items-center justify-between bg-white rounded-xl p-3 border border-gray-200 hover:border-blue-500 transition-colors"
+                    className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
                   >
                     <div>
-                      <p className="font-medium text-black">{book.name}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="font-medium text-black dark:text-white">{book.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
                         {progress.chapters_read?.length || 0}/{book.chapters} chapters
                       </p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400" />
+                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                   </Link>
                 );
               })}
@@ -146,11 +146,11 @@ export default function Home() {
           transition={{ delay: 0.6 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-black">Books of the Bible</h3>
+            <h3 className="font-semibold text-black dark:text-white">Books of the Bible</h3>
           </div>
 
           <Tabs value={testament} onValueChange={setTestament} className="mb-4">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-100">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800">
               <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
               <TabsTrigger value="old" className="text-xs">Old Testament</TabsTrigger>
               <TabsTrigger value="new" className="text-xs">New Testament</TabsTrigger>

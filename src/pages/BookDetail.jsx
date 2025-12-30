@@ -84,7 +84,7 @@ export default function BookDetail() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -98,8 +98,8 @@ export default function BookDetail() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-black">{book.name}</h1>
-            <p className="text-sm text-gray-500 capitalize">{book.testament} Testament</p>
+            <h1 className="text-xl font-bold text-black dark:text-white">{book.name}</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{book.testament} Testament</p>
           </div>
         </motion.div>
 
@@ -108,25 +108,25 @@ export default function BookDetail() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
+          className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
         >
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500 mb-1">Current Progress</p>
-              <p className="text-3xl font-bold text-black">{percentComplete}%</p>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Progress</p>
+              <p className="text-3xl font-bold text-black dark:text-white">{percentComplete}%</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                 {chaptersRead.length} of {book.chapters} chapters
               </p>
-              
+
               {completionCount > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 text-green-700 text-xs font-medium px-3 py-1.5 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium px-3 py-1.5 rounded-full">
                   <Trophy className="w-3 h-3" />
                   Completed {completionCount}x
                 </div>
               )}
             </div>
             <ProgressRing progress={percentComplete} size={100} strokeWidth={8}>
-              <span className="text-xl font-bold text-black">{percentComplete}%</span>
+              <span className="text-xl font-bold text-black dark:text-white">{percentComplete}%</span>
             </ProgressRing>
           </div>
 
@@ -162,7 +162,7 @@ export default function BookDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h3 className="font-semibold text-black mb-4">Chapters</h3>
+          <h3 className="font-semibold text-black dark:text-white mb-4">Chapters</h3>
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapterNum, index) => {
               const isRead = chaptersRead.includes(chapterNum);
@@ -177,8 +177,8 @@ export default function BookDetail() {
                     aspect-square rounded-xl font-medium text-sm
                     flex items-center justify-center transition-all duration-200
                     ${isRead
-                      ? 'bg-green-500 text-white shadow-md'
-                      : 'bg-white border border-gray-200 text-black hover:border-gray-400 hover:bg-gray-50'
+                      ? 'bg-green-500 dark:bg-green-600 text-white shadow-md'
+                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-black dark:text-white hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }
                   `}
                 >
@@ -198,7 +198,7 @@ export default function BookDetail() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center text-sm text-gray-400 mt-6"
+          className="text-center text-sm text-gray-400 dark:text-gray-500 mt-6"
         >
           Tap a chapter to mark it as read
         </motion.p>
