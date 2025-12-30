@@ -347,5 +347,6 @@ export function useBookProgress() {
     restartBook,
     markBookComplete,
     checkAchievements,
+    updateProgressMutation,
   };
 }
