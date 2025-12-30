@@ -123,10 +123,9 @@ export function useBookProgress() {
         last_read_date: new Date().toISOString(),
       };
       
-      // If completing the book, increment completion count and reset chapters
+      // If completing the book, increment completion count but keep chapters marked
       if (isComplete) {
         updateData.completion_count = (progress.completion_count || 0) + 1;
-        updateData.chapters_read = [];
       }
       
       await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
@@ -137,7 +136,7 @@ export function useBookProgress() {
         book_index: book.index,
         testament: book.testament,
         total_chapters: book.chapters,
-        chapters_read: isComplete ? [] : chaptersRead,
+        chapters_read: chaptersRead,
         completion_count: isComplete ? 1 : 0,
         last_read_date: new Date().toISOString(),
       };
@@ -310,12 +309,12 @@ export function useBookProgress() {
       }
     }
     
-    // Update BookProgress
+    // Update BookProgress - keep chapters marked as read
     if (progress) {
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: {
-          chapters_read: [],
+          chapters_read: allChapters,
           completion_count: (progress.completion_count || 0) + 1,
           last_read_date: new Date().toISOString(),
         }
@@ -327,7 +326,7 @@ export function useBookProgress() {
         book_index: book.index,
         testament: book.testament,
         total_chapters: book.chapters,
-        chapters_read: [],
+        chapters_read: allChapters,
         completion_count: 1,
         last_read_date: new Date().toISOString(),
       });

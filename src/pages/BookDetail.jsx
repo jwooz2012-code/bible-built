@@ -62,26 +62,6 @@ export default function BookDetail() {
 
   const handleMarkComplete = async () => {
     setCelebrationCount(completionCount + 1);
-    
-    // First update to show all chapters as read
-    const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    const progress = getProgressForBook(bookName);
-    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
-    
-    if (progress) {
-      await updateProgressMutation.mutateAsync({
-        id: progress.id,
-        data: {
-          chapters_read: allChapters,
-          last_read_date: new Date().toISOString(),
-        }
-      });
-    }
-    
-    // Wait a bit for animation
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
-    // Now mark complete (which will reset and increment count)
     await markBookComplete(bookName);
     setJustCompleted(true);
     setShowCelebration(true);
