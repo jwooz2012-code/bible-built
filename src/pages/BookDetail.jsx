@@ -133,12 +133,12 @@ export default function BookDetail() {
           </div>
 
           <div className="flex gap-2 mt-4">
-            {chaptersRead.length > 0 && chaptersRead.length < book.chapters && (
+            {chaptersRead.length > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleRestart}
-                className="text-gray-500 hover:text-black"
+                className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
               >
                 <RotateCcw className="w-4 h-4 mr-2" />
                 Start Over
