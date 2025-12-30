@@ -137,41 +137,6 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* Achievements Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mb-6"
-        >
-          <Link to={createPageUrl('Achievements')} className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-black">Achievements</h3>
-            <span className="text-sm text-blue-500 flex items-center gap-1">
-              View all <ChevronRight className="w-4 h-4" />
-            </span>
-          </Link>
-          <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4">
-            {ACHIEVEMENTS.slice(0, 4).map((achievement, i) => {
-              const isUnlocked = unlockedAchievements.includes(achievement.id);
-              return (
-                <div
-                  key={achievement.id}
-                  className={`
-                    flex-shrink-0 w-20 p-3 rounded-xl text-center
-                    ${isUnlocked 
-                      ? 'bg-yellow-50 border border-yellow-200' 
-                      : 'bg-gray-100 border border-gray-200 opacity-50'
-                    }
-                  `}
-                >
-                  <div className="text-2xl mb-1">{isUnlocked ? achievement.icon : '🔒'}</div>
-                  <p className="text-xs font-medium text-black truncate">{achievement.name}</p>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-
         {/* Books List */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
