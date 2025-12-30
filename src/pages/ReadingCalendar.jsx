@@ -207,16 +207,18 @@ export default function ReadingCalendar() {
                     ${isToday ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-blue-400' : ''}
                   `}
                 >
-                  <span className={`text-base font-semibold ${
-                    hasReading
-                      ? 'text-white'
-                      : 'text-gray-700 dark:text-slate-300'
-                  }`}>
-                    {dayData.day}
-                  </span>
-                  {hasReading && dayData.count > 1 && (
-                    <span className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400 text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-green-500 shadow-sm">
-                      {dayData.count}
+                  {hasReading ? (
+                    <>
+                      <span className="text-2xl font-bold text-white">
+                        {dayData.count}
+                      </span>
+                      <span className="absolute top-1 right-1.5 text-[10px] font-medium text-white/70">
+                        {dayData.day}
+                      </span>
+                    </>
+                  ) : (
+                    <span className="text-base font-semibold text-gray-700 dark:text-slate-300">
+                      {dayData.day}
                     </span>
                   )}
                 </motion.button>
