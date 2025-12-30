@@ -27,7 +27,7 @@ export default function Home() {
   const recentlyRead = progressData
     .filter(p => p.last_read_date)
     .sort((a, b) => new Date(b.last_read_date) - new Date(a.last_read_date))
-    .slice(0, 3);
+    .slice(0, 2);
 
   if (isLoading) {
     return (
