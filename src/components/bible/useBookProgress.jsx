@@ -149,47 +149,45 @@ export function useBookProgress() {
   const updateBibleProgress = async (completedBookIndex) => {
     if (!user) return;
 
-    let currentBooksCompleted = bibleProgress?.books_completed_in_current_bible_run || [];
+    let currentCount = bibleProgress?.accumulated_book_completions_in_current_run || 0;
     
-    // Add book to current run if not already there
-    if (!currentBooksCompleted.includes(completedBookIndex)) {
-      currentBooksCompleted = [...currentBooksCompleted, completedBookIndex];
+    // Increment the counter for every book completion
+    currentCount += 1;
+    
+    // Check if we've completed 66 books (full Bible)
+    if (currentCount >= 66) {
+      const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
       
-      // Check if all 66 books are completed
-      if (currentBooksCompleted.length === 66) {
-        const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
-        
-        if (bibleProgress) {
-          await updateBibleProgressMutation.mutateAsync({
-            id: bibleProgress.id,
-            data: {
-              bible_completion_count: newCompletionCount,
-              books_completed_in_current_bible_run: [],
-              last_completed_at: new Date().toISOString(),
-            }
-          });
-        } else {
-          await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
+      if (bibleProgress) {
+        await updateBibleProgressMutation.mutateAsync({
+          id: bibleProgress.id,
+          data: {
             bible_completion_count: newCompletionCount,
-            books_completed_in_current_bible_run: [],
+            accumulated_book_completions_in_current_run: 0,
             last_completed_at: new Date().toISOString(),
-          });
-        }
+          }
+        });
       } else {
-        // Just update the books list
-        if (bibleProgress) {
-          await updateBibleProgressMutation.mutateAsync({
-            id: bibleProgress.id,
-            data: { books_completed_in_current_bible_run: currentBooksCompleted }
-          });
-        } else {
-          await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
-            bible_completion_count: 0,
-            books_completed_in_current_bible_run: currentBooksCompleted,
-          });
-        }
+        await createBibleProgressMutation.mutateAsync({
+          user_id: user.id,
+          bible_completion_count: newCompletionCount,
+          accumulated_book_completions_in_current_run: 0,
+          last_completed_at: new Date().toISOString(),
+        });
+      }
+    } else {
+      // Just increment the counter
+      if (bibleProgress) {
+        await updateBibleProgressMutation.mutateAsync({
+          id: bibleProgress.id,
+          data: { accumulated_book_completions_in_current_run: currentCount }
+        });
+      } else {
+        await createBibleProgressMutation.mutateAsync({
+          user_id: user.id,
+          bible_completion_count: 0,
+          accumulated_book_completions_in_current_run: currentCount,
+        });
       }
     }
   };
