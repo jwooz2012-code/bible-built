@@ -4,6 +4,7 @@ import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import {
@@ -18,8 +19,15 @@ import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ReadingCalendar() {
   const today = new Date();
+  const [view, setView] = useState('month');
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
+  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
+    const d = new Date();
+    const day = d.getDay();
+    const diff = d.getDate() - day;
+    return new Date(d.setDate(diff));
+  });
   const [selectedDay, setSelectedDay] = useState(null);
 
   const { data: readingLogs = [] } = useQuery({
@@ -105,6 +113,73 @@ export default function ReadingCalendar() {
 
   const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
 
+  // Week view logic
+  const weekDays = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeekStart);
+      date.setDate(currentWeekStart.getDate() + i);
+      const localDate = date.toLocaleDateString('en-CA');
+      const count = readingByDate[localDate]?.length || 0;
+      days.push({ date, localDate, count, dayOfWeek: i });
+    }
+    return days;
+  }, [currentWeekStart, readingByDate]);
+
+  const handlePrevWeek = () => {
+    const newStart = new Date(currentWeekStart);
+    newStart.setDate(newStart.getDate() - 7);
+    setCurrentWeekStart(newStart);
+  };
+
+  const handleNextWeek = () => {
+    const newStart = new Date(currentWeekStart);
+    newStart.setDate(newStart.getDate() + 7);
+    setCurrentWeekStart(newStart);
+  };
+
+  // Year view logic
+  const yearMonths = useMemo(() => {
+    const months = [];
+    for (let m = 0; m < 12; m++) {
+      const firstDay = new Date(currentYear, m, 1);
+      const lastDay = new Date(currentYear, m + 1, 0);
+      const startingDayOfWeek = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+
+      const days = [];
+      for (let i = 0; i < startingDayOfWeek; i++) {
+        days.push(null);
+      }
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(currentYear, m, day);
+        const localDate = date.toLocaleDateString('en-CA');
+        const count = readingByDate[localDate]?.length || 0;
+        days.push({ day, date, localDate, count });
+      }
+      
+      months.push({ month: m, days });
+    }
+    return months;
+  }, [currentYear, readingByDate]);
+
+  const handlePrevYear = () => {
+    setCurrentYear(currentYear - 1);
+  };
+
+  const handleNextYear = () => {
+    setCurrentYear(currentYear + 1);
+  };
+
+  const getYearIntensityColor = (count) => {
+    if (count === 0) return 'bg-gray-100 dark:bg-slate-800/30';
+    if (count >= 10) return 'bg-green-600 dark:bg-green-600';
+    if (count >= 5) return 'bg-green-500 dark:bg-green-500';
+    if (count >= 3) return 'bg-green-400 dark:bg-green-400';
+    return 'bg-green-300 dark:bg-green-300';
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900">
       <ThemeToggle />
@@ -113,119 +188,285 @@ export default function ReadingCalendar() {
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="flex items-center gap-4 mb-6"
+          className="mb-6"
         >
-          <Link to={createPageUrl('Home')}>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Reading Calendar</h1>
-            <p className="text-sm text-gray-600 dark:text-slate-400">Track your daily reading</p>
-          </div>
-        </motion.div>
-
-        {/* Month Navigation */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
-        >
-          <div className="flex items-center justify-between mb-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handlePrevMonth}
-              className="rounded-full"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-            <div className="text-center">
-              <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
-                {monthNames[currentMonth]} {currentYear}
-              </h2>
+          <div className="flex items-center gap-4 mb-4">
+            <Link to={createPageUrl('Home')}>
+              <Button variant="ghost" size="icon" className="rounded-full">
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+            </Link>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Reading Calendar</h1>
+              <p className="text-sm text-gray-600 dark:text-slate-400">Track your daily reading</p>
             </div>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleNextMonth}
-              className="rounded-full"
+          </div>
+
+          {/* View Tabs */}
+          <Tabs value={view} onValueChange={setView}>
+            <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700/50">
+              <TabsTrigger value="week">Week</TabsTrigger>
+              <TabsTrigger value="month">Month</TabsTrigger>
+              <TabsTrigger value="year">Year</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        </motion.div>
+
+        {/* Week View */}
+        {view === 'week' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
-              <ChevronRight className="w-5 h-5" />
-            </Button>
-          </div>
-          <p className="text-center text-sm text-gray-600 dark:text-slate-400">
-            Total chapters: <span className="font-semibold text-green-600 dark:text-green-400">{monthTotal}</span>
-          </p>
-        </motion.div>
-
-        {/* Calendar Grid */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
-        >
-          {/* Day headers */}
-          <div className="grid grid-cols-7 gap-4 mb-5">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-              <div
-                key={i}
-                className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center"
-              >
-                {day}
-              </div>
-            ))}
-          </div>
-
-          {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-4">
-            {calendarDays.map((dayData, index) => {
-              if (!dayData) {
-                return <div key={`empty-${index}`} className="aspect-square" />;
-              }
-
-              const isToday = dayData.date.toDateString() === today.toDateString();
-              const hasReading = dayData.count > 0;
-
-              const intensity = hasReading 
-                ? dayData.count >= 10 ? 'high' 
-                : dayData.count >= 5 ? 'medium' 
-                : 'low'
-                : 'none';
-
-              return (
-                <motion.button
-                  key={dayData.day}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.01 }}
-                  onClick={() => handleDayClick(dayData)}
-                  className={`
-                    w-full aspect-square rounded-xl flex items-center justify-center p-3
-                    transition-all duration-200 min-h-[44px]
-                    ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 shadow-sm' : ''}
-                    ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
-                    ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
-                    ${intensity === 'none' ? 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
-                    ${hasReading ? 'hover:scale-105' : ''}
-                    ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
-                  `}
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePrevWeek}
+                  className="rounded-full"
                 >
-                  {hasReading ? (
-                    <span className="text-sm font-semibold text-white">
-                      {dayData.count}
-                    </span>
-                  ) : (
-                    <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
-                  )}
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div className="text-center">
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                    {weekDays[0]?.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {weekDays[6]?.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNextWeek}
+                  className="rounded-full"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
+            >
+              <div className="grid grid-cols-7 gap-3">
+                {weekDays.map((dayData, i) => {
+                  const isToday = dayData.date.toDateString() === today.toDateString();
+                  const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+                  
+                  return (
+                    <motion.button
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => dayData.count > 0 && setSelectedDay(dayData)}
+                      className={`
+                        flex flex-col items-center gap-2 p-4 rounded-2xl transition-all
+                        ${dayData.count > 0 ? 'bg-gray-50 dark:bg-slate-700/30 hover:bg-gray-100 dark:hover:bg-slate-700/50' : 'bg-gray-50/50 dark:bg-slate-700/10'}
+                        ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+                      `}
+                    >
+                      <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+                        {dayLetters[i]}
+                      </span>
+                      <span className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                        {dayData.date.getDate()}
+                      </span>
+                      {dayData.count > 0 && (
+                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                          {dayData.count}
+                        </span>
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {/* Month View */}
+        {view === 'month' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePrevMonth}
+                  className="rounded-full"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                    {monthNames[currentMonth]} {currentYear}
+                  </h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNextMonth}
+                  className="rounded-full"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+              <p className="text-center text-sm text-gray-600 dark:text-slate-400">
+                Total chapters: <span className="font-semibold text-green-600 dark:text-green-400">{monthTotal}</span>
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
+            >
+              <div className="grid grid-cols-7 gap-4 mb-5">
+                {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+                  <div
+                    key={i}
+                    className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              <div className="grid grid-cols-7 gap-4">
+                {calendarDays.map((dayData, index) => {
+                  if (!dayData) {
+                    return <div key={`empty-${index}`} className="aspect-square" />;
+                  }
+
+                  const isToday = dayData.date.toDateString() === today.toDateString();
+                  const hasReading = dayData.count > 0;
+
+                  const intensity = hasReading 
+                    ? dayData.count >= 10 ? 'high' 
+                    : dayData.count >= 5 ? 'medium' 
+                    : 'low'
+                    : 'none';
+
+                  return (
+                    <motion.button
+                      key={dayData.day}
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: index * 0.01 }}
+                      onClick={() => handleDayClick(dayData)}
+                      className={`
+                        w-full aspect-square rounded-xl flex items-center justify-center p-3
+                        transition-all duration-200 min-h-[44px]
+                        ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 shadow-sm' : ''}
+                        ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
+                        ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
+                        ${intensity === 'none' ? 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
+                        ${hasReading ? 'hover:scale-105' : ''}
+                        ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+                      `}
+                    >
+                      {hasReading ? (
+                        <span className="text-sm font-semibold text-white">
+                          {dayData.count}
+                        </span>
+                      ) : (
+                        <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
+                      )}
+                    </motion.button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </>
+        )}
+
+        {/* Year View */}
+        {view === 'year' && (
+          <>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
+            >
+              <div className="flex items-center justify-between">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handlePrevYear}
+                  className="rounded-full"
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <div className="text-center">
+                  <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                    {currentYear}
+                  </h2>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleNextYear}
+                  className="rounded-full"
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="space-y-4"
+            >
+              {yearMonths.map((monthData, mIndex) => (
+                <div
+                  key={mIndex}
+                  className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-slate-700/50"
+                >
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-3">
+                    {monthNames[monthData.month]}
+                  </h3>
+                  <div className="grid grid-cols-7 gap-1.5">
+                    {monthData.days.map((dayData, dIndex) => {
+                      if (!dayData) {
+                        return <div key={`empty-${mIndex}-${dIndex}`} className="aspect-square" />;
+                      }
+
+                      const isToday = dayData.date.toDateString() === today.toDateString();
+
+                      return (
+                        <button
+                          key={`${mIndex}-${dIndex}`}
+                          onClick={() => dayData.count > 0 && setSelectedDay(dayData)}
+                          className={`
+                            aspect-square rounded-md transition-all
+                            ${getYearIntensityColor(dayData.count)}
+                            ${dayData.count > 0 ? 'hover:scale-110' : ''}
+                            ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-1' : ''}
+                          `}
+                          title={`${dayData.date.toLocaleDateString('en-US')}: ${dayData.count} chapters`}
+                        />
+                      );
+                    })}
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          </>
+        )}
       </div>
 
       {/* Bottom Sheet */}
