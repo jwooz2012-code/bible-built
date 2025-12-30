@@ -181,7 +181,7 @@ export default function ReadingCalendar() {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-1.5">
+          <div className="grid grid-cols-7 gap-2">
             {calendarDays.map((dayData, index) => {
               if (!dayData) {
                 return <div key={`empty-${index}`} className="aspect-square" />;
@@ -189,6 +189,12 @@ export default function ReadingCalendar() {
 
               const isToday = dayData.date.toDateString() === today.toDateString();
               const hasReading = dayData.count > 0;
+
+              const intensity = hasReading 
+                ? dayData.count >= 10 ? 'high' 
+                : dayData.count >= 5 ? 'medium' 
+                : 'low'
+                : 'none';
 
               return (
                 <motion.button
@@ -198,28 +204,25 @@ export default function ReadingCalendar() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleDayClick(dayData)}
                   className={`
-                    aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5
+                    aspect-square rounded-lg flex items-center justify-center
                     transition-all duration-200 relative
-                    ${hasReading
-                      ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 shadow-lg hover:shadow-xl hover:scale-105'
-                      : 'hover:bg-gray-100 dark:hover:bg-slate-700/30'
-                    }
+                    ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700' : ''}
+                    ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
+                    ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
+                    ${intensity === 'none' ? 'hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
+                    ${hasReading ? 'shadow-sm hover:shadow-md hover:scale-105' : ''}
                     ${isToday && !hasReading ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
-                    ${isToday && hasReading ? 'ring-2 ring-blue-400' : ''}
+                    ${isToday && hasReading ? 'ring-2 ring-white dark:ring-slate-900' : ''}
                   `}
                 >
-                  {hasReading ? (
-                    <>
-                      <span className="text-[10px] font-medium text-white/60">
-                        {dayData.day}
-                      </span>
-                      <span className="text-xl font-bold text-white leading-none">
-                        {dayData.count}
-                      </span>
-                    </>
-                  ) : (
-                    <span className="text-sm font-medium text-gray-600 dark:text-slate-400">
-                      {dayData.day}
+                  <span className={`text-sm font-medium ${
+                    hasReading ? 'text-white' : 'text-gray-600 dark:text-slate-400'
+                  }`}>
+                    {dayData.day}
+                  </span>
+                  {hasReading && (
+                    <span className="absolute -bottom-0.5 right-1 text-[9px] font-bold text-white/80">
+                      {dayData.count}
                     </span>
                   )}
                 </motion.button>
