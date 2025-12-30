@@ -106,13 +106,21 @@ export function useBookProgress() {
 
     let progress = getProgressForBook(bookName);
     let chaptersRead = progress?.chapters_read || [];
+    let chapterReadDates = progress?.chapter_read_dates || {};
     
     const isAdding = !chaptersRead.includes(chapterNum);
     
     if (isAdding) {
       chaptersRead = [...chaptersRead, chapterNum];
+      chapterReadDates = {
+        ...chapterReadDates,
+        [chapterNum]: new Date().toISOString()
+      };
     } else {
       chaptersRead = chaptersRead.filter(c => c !== chapterNum);
+      const newDates = { ...chapterReadDates };
+      delete newDates[chapterNum];
+      chapterReadDates = newDates;
     }
 
     const isComplete = chaptersRead.length === book.chapters;
@@ -120,6 +128,7 @@ export function useBookProgress() {
     if (progress) {
       const updateData = {
         chapters_read: chaptersRead,
+        chapter_read_dates: chapterReadDates,
         last_read_date: new Date().toISOString(),
       };
       
@@ -137,6 +146,7 @@ export function useBookProgress() {
         testament: book.testament,
         total_chapters: book.chapters,
         chapters_read: chaptersRead,
+        chapter_read_dates: chapterReadDates,
         completion_count: isComplete ? 1 : 0,
         last_read_date: new Date().toISOString(),
       };
@@ -251,6 +261,13 @@ export function useBookProgress() {
     // Build complete chapters array for this book
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
+    // Create chapter read dates for all chapters
+    const currentDate = new Date().toISOString();
+    const chapterReadDates = {};
+    allChapters.forEach(ch => {
+      chapterReadDates[ch] = currentDate;
+    });
+    
     // Update BibleProgress with all chapters at once
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
     const bookKey = book.index.toString();
@@ -315,8 +332,9 @@ export function useBookProgress() {
         id: progress.id,
         data: {
           chapters_read: allChapters,
+          chapter_read_dates: chapterReadDates,
           completion_count: (progress.completion_count || 0) + 1,
-          last_read_date: new Date().toISOString(),
+          last_read_date: currentDate,
         }
       });
     } else {
@@ -327,8 +345,9 @@ export function useBookProgress() {
         testament: book.testament,
         total_chapters: book.chapters,
         chapters_read: allChapters,
+        chapter_read_dates: chapterReadDates,
         completion_count: 1,
-        last_read_date: new Date().toISOString(),
+        last_read_date: currentDate,
       });
     }
 
