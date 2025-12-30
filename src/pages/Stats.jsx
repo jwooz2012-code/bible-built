@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Trophy, Flame, Target, Book, ScrollText, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, Trophy, Flame, Target, Book, ScrollText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
@@ -8,14 +8,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import StatsCard from '@/components/bible/StatsCard';
-import ReadingHeatmap from '@/components/bible/ReadingHeatmap';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS, TOTAL_CHAPTERS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from '@/components/bible/bibleData';
 
 export default function Stats() {
   const { progressData, achievements, isLoading, calculateStats, getProgressForBook } = useBookProgress();
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
   const stats = calculateStats();
   const unlockedAchievements = achievements.length;
@@ -51,23 +49,6 @@ export default function Stats() {
     const progress = getProgressForBook(book.name);
     return progress?.completion_count > 0;
   }).length;
-
-  const availableYears = React.useMemo(() => {
-    const years = new Set();
-    const currentYear = new Date().getFullYear();
-    years.add(currentYear);
-    
-    progressData.forEach(book => {
-      if (book.chapter_read_dates) {
-        Object.values(book.chapter_read_dates).forEach(dateStr => {
-          const year = new Date(dateStr).getFullYear();
-          years.add(year);
-        });
-      }
-    });
-    
-    return Array.from(years).sort((a, b) => b - a);
-  }, [progressData]);
 
   if (isLoading) {
     return (
@@ -203,63 +184,7 @@ export default function Stats() {
           />
         </div>
 
-        {/* Reading Activity Heatmap */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mt-6 bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
-        >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-black dark:text-white">Reading Activity</h3>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  const currentIndex = availableYears.indexOf(selectedYear);
-                  if (currentIndex < availableYears.length - 1) {
-                    setSelectedYear(availableYears[currentIndex + 1]);
-                  }
-                }}
-                disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
-                className="h-8 w-8"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <span className="text-sm font-medium text-black dark:text-white min-w-[60px] text-center">
-                {selectedYear}
-              </span>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => {
-                  const currentIndex = availableYears.indexOf(selectedYear);
-                  if (currentIndex > 0) {
-                    setSelectedYear(availableYears[currentIndex - 1]);
-                  }
-                }}
-                disabled={availableYears.indexOf(selectedYear) === 0}
-                className="h-8 w-8"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
-          </div>
-          <ReadingHeatmap progressData={progressData} selectedYear={selectedYear} />
-        </motion.div>
 
-        {/* Fun Fact */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.55 }}
-          className="mt-6 bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700"
-        >
-          <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
-            📖 The Bible contains {TOTAL_CHAPTERS.toLocaleString()} chapters across 66 books
-          </p>
-        </motion.div>
       </div>
     </div>
   );
