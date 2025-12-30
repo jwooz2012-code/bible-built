@@ -22,10 +22,10 @@ export default function BookCard({ book, progress, index }) {
         <div className={`
           relative p-4 rounded-2xl transition-all duration-300
           ${isComplete 
-            ? 'bg-gradient-to-br from-amber-50 to-amber-100 border-2 border-amber-300 shadow-md' 
+            ? 'bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-500/10 dark:to-amber-600/10 border-2 border-amber-300 dark:border-amber-500/30 shadow-md' 
             : hasStarted 
-              ? 'bg-white border border-stone-200 shadow-sm hover:shadow-md' 
-              : 'bg-stone-50 border border-stone-100 hover:bg-white hover:border-stone-200'
+              ? 'bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 shadow-sm hover:shadow-md' 
+              : 'bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700/30 hover:bg-white dark:hover:bg-slate-800/80 hover:border-gray-200 dark:hover:border-slate-700/50'
           }
         `}>
           {completionCount > 0 && (
@@ -36,23 +36,23 @@ export default function BookCard({ book, progress, index }) {
           
           <div className="flex items-start justify-between mb-2">
             <div className="flex-1 min-w-0">
-              <h3 className={`font-semibold text-sm truncate ${isComplete ? 'text-amber-900' : 'text-stone-800'}`}>
+              <h3 className={`font-semibold text-sm truncate ${isComplete ? 'text-amber-900 dark:text-amber-300' : 'text-gray-900 dark:text-slate-100'}`}>
                 {book.name}
               </h3>
-              <p className="text-xs text-stone-500 mt-0.5">
+              <p className="text-xs text-gray-600 dark:text-slate-400 mt-0.5">
                 {chaptersRead}/{totalChapters} chapters
               </p>
             </div>
             {isComplete ? (
-              <CheckCircle2 className="w-5 h-5 text-amber-600 flex-shrink-0" />
+              <CheckCircle2 className="w-5 h-5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
             ) : hasStarted ? (
-              <BookOpen className="w-5 h-5 text-stone-400 flex-shrink-0" />
+              <BookOpen className="w-5 h-5 text-gray-400 dark:text-slate-500 flex-shrink-0" />
             ) : null}
           </div>
 
-          <div className="w-full bg-stone-200 rounded-full h-1.5 overflow-hidden">
+          <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
             <motion.div
-              className={`h-full rounded-full ${isComplete ? 'bg-gradient-to-r from-amber-400 to-amber-600' : 'bg-stone-400'}`}
+              className={`h-full rounded-full ${isComplete ? 'bg-gradient-to-r from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-400' : 'bg-gray-400 dark:bg-slate-500'}`}
               initial={{ width: 0 }}
               animate={{ width: `${percentComplete}%` }}
               transition={{ duration: 0.5, delay: index * 0.02 }}
