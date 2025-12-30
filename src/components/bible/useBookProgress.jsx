@@ -58,7 +58,6 @@ export function useBookProgress() {
   };
 
   const calculateStats = () => {
-    let totalChaptersRead = 0;
     let totalBooksCompleted = 0;
     let oldTestamentBooksComplete = 0;
     let newTestamentBooksComplete = 0;
@@ -66,7 +65,6 @@ export function useBookProgress() {
     BIBLE_BOOKS.forEach(book => {
       const progress = getProgressForBook(book.name);
       if (progress) {
-        totalChaptersRead += progress.chapters_read?.length || 0;
         totalBooksCompleted += progress.completion_count || 0;
         
         if (progress.completion_count > 0) {
@@ -82,6 +80,15 @@ export function useBookProgress() {
       Math.floor(newTestamentBooksComplete / NEW_TESTAMENT_BOOKS) : 0;
     
     const fullBibleComplete = bibleProgress?.bible_completion_count || 0;
+
+    // Calculate unique chapters from BibleProgress
+    const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
+    let totalChaptersRead = 0;
+    Object.values(chaptersMap).forEach(chapters => {
+      if (Array.isArray(chapters)) {
+        totalChaptersRead += chapters.length;
+      }
+    });
 
     return {
       totalChaptersRead,
@@ -100,10 +107,12 @@ export function useBookProgress() {
     let progress = getProgressForBook(bookName);
     let chaptersRead = progress?.chapters_read || [];
     
-    if (chaptersRead.includes(chapterNum)) {
-      chaptersRead = chaptersRead.filter(c => c !== chapterNum);
-    } else {
+    const isAdding = !chaptersRead.includes(chapterNum);
+    
+    if (isAdding) {
       chaptersRead = [...chaptersRead, chapterNum];
+    } else {
+      chaptersRead = chaptersRead.filter(c => c !== chapterNum);
     }
 
     const isComplete = chaptersRead.length === book.chapters;
@@ -118,9 +127,6 @@ export function useBookProgress() {
       if (isComplete) {
         updateData.completion_count = (progress.completion_count || 0) + 1;
         updateData.chapters_read = [];
-        
-        // Update Bible progress
-        await updateBibleProgress(book.index);
       }
       
       await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
@@ -136,58 +142,74 @@ export function useBookProgress() {
         last_read_date: new Date().toISOString(),
       };
       await createProgressMutation.mutateAsync(createData);
-      
-      if (isComplete) {
-        await updateBibleProgress(book.index);
-      }
+    }
+
+    // Update BibleProgress with chapter tracking
+    if (isAdding) {
+      await updateBibleProgressChapter(book.index, chapterNum);
     }
 
     // Check achievements after update
     setTimeout(() => checkAchievements(), 500);
   };
 
-  const updateBibleProgress = async (completedBookIndex) => {
+  const updateBibleProgressChapter = async (bookIndex, chapterNum) => {
     if (!user) return;
 
-    let currentCount = bibleProgress?.accumulated_book_completions_in_current_run || 0;
+    const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
+    const bookKey = bookIndex.toString();
+    const bookChapters = chaptersMap[bookKey] || [];
     
-    // Increment the counter for every book completion
-    currentCount += 1;
-    
-    // Check if we've completed 66 books (full Bible)
-    if (currentCount >= 66) {
-      const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
+    // Add chapter if not already present
+    if (!bookChapters.includes(chapterNum)) {
+      const updatedMap = {
+        ...chaptersMap,
+        [bookKey]: [...bookChapters, chapterNum]
+      };
       
-      if (bibleProgress) {
-        await updateBibleProgressMutation.mutateAsync({
-          id: bibleProgress.id,
-          data: {
+      // Calculate total unique chapters
+      let totalUniqueChapters = 0;
+      Object.values(updatedMap).forEach(chapters => {
+        if (Array.isArray(chapters)) {
+          totalUniqueChapters += chapters.length;
+        }
+      });
+      
+      // Check if Bible is complete (all 1189 chapters)
+      if (totalUniqueChapters >= 1189) {
+        const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
+        
+        if (bibleProgress) {
+          await updateBibleProgressMutation.mutateAsync({
+            id: bibleProgress.id,
+            data: {
+              bible_completion_count: newCompletionCount,
+              chapters_completed_in_current_bible_run: {},
+              last_completed_at: new Date().toISOString(),
+            }
+          });
+        } else {
+          await createBibleProgressMutation.mutateAsync({
+            user_id: user.id,
             bible_completion_count: newCompletionCount,
-            accumulated_book_completions_in_current_run: 0,
+            chapters_completed_in_current_bible_run: {},
             last_completed_at: new Date().toISOString(),
-          }
-        });
+          });
+        }
       } else {
-        await createBibleProgressMutation.mutateAsync({
-          user_id: user.id,
-          bible_completion_count: newCompletionCount,
-          accumulated_book_completions_in_current_run: 0,
-          last_completed_at: new Date().toISOString(),
-        });
-      }
-    } else {
-      // Just increment the counter
-      if (bibleProgress) {
-        await updateBibleProgressMutation.mutateAsync({
-          id: bibleProgress.id,
-          data: { accumulated_book_completions_in_current_run: currentCount }
-        });
-      } else {
-        await createBibleProgressMutation.mutateAsync({
-          user_id: user.id,
-          bible_completion_count: 0,
-          accumulated_book_completions_in_current_run: currentCount,
-        });
+        // Just update the chapter map
+        if (bibleProgress) {
+          await updateBibleProgressMutation.mutateAsync({
+            id: bibleProgress.id,
+            data: { chapters_completed_in_current_bible_run: updatedMap }
+          });
+        } else {
+          await createBibleProgressMutation.mutateAsync({
+            user_id: user.id,
+            bible_completion_count: 0,
+            chapters_completed_in_current_bible_run: updatedMap,
+          });
+        }
       }
     }
   };
@@ -221,6 +243,42 @@ export function useBookProgress() {
     }
   };
 
+  const markBookComplete = async (bookName) => {
+    const book = BIBLE_BOOKS.find(b => b.name === bookName);
+    if (!book || !user) return;
+
+    let progress = getProgressForBook(bookName);
+    
+    // Mark all chapters in BibleProgress
+    for (let i = 1; i <= book.chapters; i++) {
+      await updateBibleProgressChapter(book.index, i);
+    }
+    
+    if (progress) {
+      await updateProgressMutation.mutateAsync({
+        id: progress.id,
+        data: {
+          chapters_read: [],
+          completion_count: (progress.completion_count || 0) + 1,
+          last_read_date: new Date().toISOString(),
+        }
+      });
+    } else {
+      await createProgressMutation.mutateAsync({
+        user_id: user.id,
+        book_name: bookName,
+        book_index: book.index,
+        testament: book.testament,
+        total_chapters: book.chapters,
+        chapters_read: [],
+        completion_count: 1,
+        last_read_date: new Date().toISOString(),
+      });
+    }
+
+    setTimeout(() => checkAchievements(), 500);
+  };
+
   return {
     progressData,
     achievements,
@@ -230,6 +288,7 @@ export function useBookProgress() {
     calculateStats,
     toggleChapter,
     restartBook,
+    markBookComplete,
     checkAchievements,
   };
 }

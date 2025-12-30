@@ -15,7 +15,7 @@ export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const bookName = urlParams.get('book');
   
-  const { progressData, isLoading, getProgressForBook, toggleChapter, restartBook } = useBookProgress();
+  const { progressData, isLoading, getProgressForBook, toggleChapter, restartBook, markBookComplete } = useBookProgress();
   const [showCelebration, setShowCelebration] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [celebrationCount, setCelebrationCount] = useState(0);
@@ -58,6 +58,13 @@ export default function BookDetail() {
 
   const handleRestart = async () => {
     await restartBook(bookName);
+  };
+
+  const handleMarkComplete = async () => {
+    setCelebrationCount(completionCount + 1);
+    await markBookComplete(bookName);
+    setJustCompleted(true);
+    setShowCelebration(true);
   };
 
   if (isLoading) {
@@ -123,17 +130,30 @@ export default function BookDetail() {
             </ProgressRing>
           </div>
 
-          {chaptersRead.length > 0 && chaptersRead.length < book.chapters && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleRestart}
-              className="mt-4 text-gray-500 hover:text-black"
-            >
-              <RotateCcw className="w-4 h-4 mr-2" />
-              Start Over
-            </Button>
-          )}
+          <div className="flex gap-2 mt-4">
+            {chaptersRead.length > 0 && chaptersRead.length < book.chapters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleRestart}
+                className="text-gray-500 hover:text-black"
+              >
+                <RotateCcw className="w-4 h-4 mr-2" />
+                Start Over
+              </Button>
+            )}
+            {chaptersRead.length < book.chapters && (
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleMarkComplete}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Mark Complete
+              </Button>
+            )}
+          </div>
         </motion.div>
 
         {/* Chapter Grid */}
