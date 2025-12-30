@@ -1,8 +1,8 @@
 import Achievements from './pages/Achievements';
 import BookDetail from './pages/BookDetail';
+import BooksCompleted from './pages/BooksCompleted';
 import Home from './pages/Home';
 import Stats from './pages/Stats';
-import BooksCompleted from './pages/BooksCompleted';
 import app from './pages/_app';
 import __Layout from './Layout.jsx';
 
@@ -10,9 +10,9 @@ import __Layout from './Layout.jsx';
 export const PAGES = {
     "Achievements": Achievements,
     "BookDetail": BookDetail,
+    "BooksCompleted": BooksCompleted,
     "Home": Home,
     "Stats": Stats,
-    "BooksCompleted": BooksCompleted,
     "_app": app,
 }
 

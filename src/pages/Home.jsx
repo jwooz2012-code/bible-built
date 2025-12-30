@@ -45,7 +45,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900">
       <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
@@ -54,8 +54,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-black dark:text-white">Scripture Journey</h1>
-          <p className="text-gray-500 dark:text-gray-400 text-sm">Track your Bible reading progress</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Scripture Journey</h1>
+          <p className="text-gray-600 dark:text-slate-400 text-sm">Track your Bible reading progress</p>
         </motion.div>
 
         {/* Main Progress Card */}
@@ -63,17 +63,17 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
+          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
-              <h2 className="text-lg font-semibold text-black dark:text-white mb-1">Overall Progress</h2>
-              <p className="text-3xl font-bold text-black dark:text-white">{stats.overallProgress}%</p>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">Overall Progress</h2>
+              <p className="text-3xl font-bold text-gray-900 dark:text-slate-50">{stats.overallProgress}%</p>
+              <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
                 {stats.totalChaptersRead} of 1,189 chapters
               </p>
               {stats.fullBibleComplete > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-xs font-medium px-3 py-1.5 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 text-xs font-medium px-3 py-1.5 rounded-full border border-yellow-200 dark:border-yellow-500/30">
                   <Flame className="w-3 h-3" />
                   {stats.fullBibleComplete}x Bible Complete!
                 </div>
@@ -81,7 +81,7 @@ export default function Home() {
             </div>
             <ProgressRing progress={stats.overallProgress} size={100} strokeWidth={8}>
               <div className="text-center">
-                <BookOpen className="w-6 h-6 text-gray-900 mx-auto" />
+                <BookOpen className="w-6 h-6 text-gray-900 dark:text-slate-100 mx-auto" />
               </div>
             </ProgressRing>
           </div>
@@ -114,8 +114,8 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-black dark:text-white">Continue Reading</h3>
-              <RotateCcw className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue Reading</h3>
+              <RotateCcw className="w-4 h-4 text-gray-400 dark:text-slate-500" />
             </div>
             <div className="space-y-2">
               {recentlyRead.map((progress, i) => {
@@ -125,21 +125,21 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-xl p-3 border border-gray-200 dark:border-gray-700 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                    className="flex items-center justify-between bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-slate-700/50 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
                   >
                     <div>
-                      <p className="font-medium text-black dark:text-white">{book.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="font-medium text-gray-900 dark:text-slate-100">{book.name}</p>
+                      <p className="text-xs text-gray-600 dark:text-slate-400">
                         {progress.chapters_read?.length || 0}/{book.chapters} chapters
                       </p>
                     </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-slate-500" />
                   </Link>
                 );
               })}
             </div>
           </motion.div>
-        )}
+          )}
 
         {/* Books List */}
         <motion.div
@@ -148,11 +148,11 @@ export default function Home() {
           transition={{ delay: 0.6 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-black dark:text-white">Books of the Bible</h3>
+            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Books of the Bible</h3>
           </div>
 
           <Tabs value={testament} onValueChange={setTestament} className="mb-4">
-            <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-gray-800">
+            <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-slate-800/80 dark:backdrop-blur-sm dark:border dark:border-slate-700/50">
               <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
               <TabsTrigger value="old" className="text-xs">Old Testament</TabsTrigger>
               <TabsTrigger value="new" className="text-xs">New Testament</TabsTrigger>

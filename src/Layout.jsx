@@ -16,11 +16,11 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-white dark:bg-gray-900">
+      <div className="min-h-screen bg-white dark:bg-slate-950">
         {children}
-      
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-inset-bottom z-50">
+
+        {/* Bottom Navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 safe-area-inset-bottom z-50">
         <div className="max-w-lg mx-auto flex justify-around items-center h-16">
           {navItems.map((item) => {
             const isActive = currentPath === item.path || 
@@ -32,8 +32,8 @@ export default function Layout({ children }) {
                 className={`
                   flex flex-col items-center justify-center px-6 py-2 rounded-xl transition-all
                   ${isActive 
-                    ? 'text-black dark:text-white' 
-                    : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
+                    ? 'text-gray-900 dark:text-slate-100' 
+                    : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300'
                   }
                 `}
               >
