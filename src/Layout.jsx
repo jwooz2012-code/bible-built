@@ -1,14 +1,12 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Trophy, BarChart3, Sun, Moon } from 'lucide-react';
-import { useTheme } from '@/components/ThemeProvider';
-import { Button } from '@/components/ui/button';
+import { Home, Trophy, BarChart3 } from 'lucide-react';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const currentPath = location.pathname;
-  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { name: 'Home', icon: Home, path: '/Home' },
@@ -17,24 +15,9 @@ export default function Layout({ children }) {
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
-      {/* Theme Toggle */}
-      <div className="fixed top-4 right-4 z-50">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleTheme}
-          className="rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border border-gray-200 dark:border-gray-700"
-        >
-          {theme === 'light' ? (
-            <Moon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-          ) : (
-            <Sun className="w-5 h-5 text-gray-700 dark:text-gray-300" />
-          )}
-        </Button>
-      </div>
-
-      {children}
+    <ThemeProvider>
+      <div className="min-h-screen bg-white dark:bg-gray-900">
+        {children}
       
       {/* Bottom Navigation */}
       <nav className="fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 safe-area-inset-bottom z-50">
@@ -63,6 +46,7 @@ export default function Layout({ children }) {
           })}
         </div>
       </nav>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }

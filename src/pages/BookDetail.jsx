@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Skeleton } from "@/components/ui/skeleton";
 
 import ProgressRing from '@/components/bible/ProgressRing';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 
@@ -85,6 +86,7 @@ export default function BookDetail() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div

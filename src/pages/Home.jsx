@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import ProgressRing from '@/components/bible/ProgressRing';
 import BookCard from '@/components/bible/BookCard';
 import StatsCard from '@/components/bible/StatsCard';
+import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
 
@@ -45,6 +46,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div

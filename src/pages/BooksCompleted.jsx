@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
+import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 
@@ -31,6 +32,7 @@ export default function BooksCompleted() {
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-900">
+      <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
