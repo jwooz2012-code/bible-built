@@ -47,6 +47,19 @@ export default function ReadingCalendar() {
     return grouped;
   }, [readingLogs]);
 
+  // Week view logic
+  const weekDays = useMemo(() => {
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(currentWeekStart);
+      date.setDate(currentWeekStart.getDate() + i);
+      const localDate = date.toLocaleDateString('en-CA');
+      const count = readingByDate[localDate]?.length || 0;
+      days.push({ date, localDate, count, dayOfWeek: i });
+    }
+    return days;
+  }, [currentWeekStart, readingByDate]);
+
   // Calculate totals and stats for current view
   const viewStats = useMemo(() => {
     let total = 0;
@@ -89,7 +102,7 @@ export default function ReadingCalendar() {
     const avgPerDay = readingDays > 0 ? (total / readingDays).toFixed(1) : 0;
 
     return { total, readingDays, avgPerDay, daysInPeriod };
-  }, [view, readingByDate, currentMonth, currentYear, currentWeekStart, weekDays]);
+  }, [view, readingByDate, currentMonth, currentYear, weekDays]);
 
   // Generate calendar grid
   const calendarDays = useMemo(() => {
@@ -144,19 +157,6 @@ export default function ReadingCalendar() {
   };
 
   const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
-
-  // Week view logic
-  const weekDays = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(currentWeekStart);
-      date.setDate(currentWeekStart.getDate() + i);
-      const localDate = date.toLocaleDateString('en-CA');
-      const count = readingByDate[localDate]?.length || 0;
-      days.push({ date, localDate, count, dayOfWeek: i });
-    }
-    return days;
-  }, [currentWeekStart, readingByDate]);
 
   const handlePrevWeek = () => {
     const newStart = new Date(currentWeekStart);
