@@ -204,8 +204,8 @@ export default function ReadingCalendar() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleDayClick(dayData)}
                   className={`
-                    w-full aspect-square rounded-xl flex items-center justify-center p-2
-                    transition-all duration-200
+                    w-full aspect-square rounded-xl flex items-center justify-center p-3
+                    transition-all duration-200 min-h-[44px]
                     ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 shadow-sm' : ''}
                     ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
                     ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
@@ -215,7 +215,7 @@ export default function ReadingCalendar() {
                   `}
                 >
                   {hasReading ? (
-                    <span className="text-base font-bold text-white">
+                    <span className="text-sm font-semibold text-white">
                       {dayData.count}
                     </span>
                   ) : (
