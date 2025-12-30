@@ -65,7 +65,7 @@ export default function Home() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">Overall Progress</h2>
               <p className="text-3xl font-bold text-gray-900 dark:text-slate-50">{stats.overallProgress}%</p>
@@ -79,16 +79,18 @@ export default function Home() {
                 </div>
               )}
             </div>
-            <ProgressRing progress={stats.overallProgress} size={100} strokeWidth={8}>
-              <div className="text-center">
-                <BookOpen className="w-6 h-6 text-gray-900 dark:text-slate-100 mx-auto" />
-              </div>
-            </ProgressRing>
+            <div className="flex-shrink-0">
+              <ProgressRing progress={stats.overallProgress} size={100} strokeWidth={8}>
+                <div className="text-center">
+                  <BookOpen className="w-6 h-6 text-gray-900 dark:text-slate-100 mx-auto" />
+                </div>
+              </ProgressRing>
+            </div>
           </div>
         </motion.div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-3 mb-6">
+        <div className="grid grid-cols-2 gap-4 mb-6">
           <Link to={createPageUrl('BooksCompleted')}>
             <StatsCard 
               icon={BookOpen}
@@ -119,7 +121,7 @@ export default function Home() {
               <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue Reading</h3>
               <RotateCcw className="w-4 h-4 text-gray-400 dark:text-slate-500" />
             </div>
-            <div className="space-y-2">
+            <div className="space-y-3">
               {recentlyRead.map((progress, i) => {
                 const book = BIBLE_BOOKS.find(b => b.name === progress.book_name);
                 if (!book) return null;
@@ -167,7 +169,7 @@ export default function Home() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="grid grid-cols-2 gap-3"
+              className="grid grid-cols-2 gap-4"
             >
               {filteredBooks.map((book, i) => (
                 <BookCard
