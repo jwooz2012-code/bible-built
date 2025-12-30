@@ -87,12 +87,14 @@ export default function Home() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <StatsCard 
-            icon={BookOpen}
-            label="Books Completed"
-            value={stats.totalBooksCompleted}
-            delay={0.2}
-          />
+          <Link to={createPageUrl('BooksCompleted')}>
+            <StatsCard 
+              icon={BookOpen}
+              label="Books Completed"
+              value={stats.totalBooksCompleted}
+              delay={0.2}
+            />
+          </Link>
           <StatsCard 
             icon={Trophy}
             label="Achievements"

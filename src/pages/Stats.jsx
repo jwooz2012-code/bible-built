@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Trophy, Flame, Target, Book, ScrollText } from 'lucide-react';
+import { ArrowLeft, BookOpen, Trophy, Flame, Target, Book, ScrollText, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import StatsCard from '@/components/bible/StatsCard';
+import ReadingHeatmap from '@/components/bible/ReadingHeatmap';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS, TOTAL_CHAPTERS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from '@/components/bible/bibleData';
 
 export default function Stats() {
   const { progressData, achievements, isLoading, calculateStats, getProgressForBook } = useBookProgress();
+  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   
   const stats = calculateStats();
   const unlockedAchievements = achievements.length;
@@ -49,9 +51,26 @@ export default function Stats() {
     return progress?.completion_count > 0;
   }).length;
 
+  const availableYears = React.useMemo(() => {
+    const years = new Set();
+    const currentYear = new Date().getFullYear();
+    years.add(currentYear);
+    
+    progressData.forEach(book => {
+      if (book.chapter_read_dates) {
+        Object.values(book.chapter_read_dates).forEach(dateStr => {
+          const year = new Date(dateStr).getFullYear();
+          years.add(year);
+        });
+      }
+    });
+    
+    return Array.from(years).sort((a, b) => b - a);
+  }, [progressData]);
+
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-white p-4">
+      <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
         <div className="max-w-lg mx-auto space-y-6">
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-48 w-full rounded-3xl" />
@@ -66,7 +85,7 @@ export default function Stats() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white dark:bg-gray-900">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -80,8 +99,8 @@ export default function Stats() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-black">Statistics</h1>
-            <p className="text-sm text-gray-500">Your reading journey</p>
+            <h1 className="text-xl font-bold text-black dark:text-white">Statistics</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Your reading journey</p>
           </div>
         </motion.div>
 
@@ -90,20 +109,20 @@ export default function Stats() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
+          className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
         >
           <div className="text-center">
             <ProgressRing progress={stats.overallProgress} size={140} strokeWidth={10}>
               <div className="text-center">
-                <p className="text-3xl font-bold text-black">{stats.overallProgress}%</p>
-                <p className="text-xs text-gray-500">Complete</p>
+                <p className="text-3xl font-bold text-black dark:text-white">{stats.overallProgress}%</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Complete</p>
               </div>
             </ProgressRing>
-            <p className="mt-4 text-gray-700">
+            <p className="mt-4 text-gray-700 dark:text-gray-300">
               {stats.totalChaptersRead} of {TOTAL_CHAPTERS.toLocaleString()} chapters read
             </p>
             {stats.fullBibleComplete > 0 && (
-              <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 text-sm font-medium px-4 py-2 rounded-full">
+              <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-sm font-medium px-4 py-2 rounded-full">
                 <Flame className="w-4 h-4" />
                 Bible Completed {stats.fullBibleComplete}x!
               </div>
@@ -117,16 +136,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
           >
             <div className="flex items-center gap-2 mb-3">
-              <ScrollText className="w-4 h-4 text-black" />
-              <span className="text-sm font-medium text-black">Old Testament</span>
+              <ScrollText className="w-4 h-4 text-black dark:text-white" />
+              <span className="text-sm font-medium text-black dark:text-white">Old Testament</span>
             </div>
             <ProgressRing progress={oldTestamentPercent} size={70} strokeWidth={6}>
-              <span className="text-sm font-bold text-black">{oldTestamentPercent}%</span>
+              <span className="text-sm font-bold text-black dark:text-white">{oldTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               {oldTestamentChaptersRead}/{oldTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -135,16 +154,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200"
+            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Book className="w-4 h-4 text-black" />
-              <span className="text-sm font-medium text-black">New Testament</span>
+              <Book className="w-4 h-4 text-black dark:text-white" />
+              <span className="text-sm font-medium text-black dark:text-white">New Testament</span>
             </div>
             <ProgressRing progress={newTestamentPercent} size={70} strokeWidth={6}>
-              <span className="text-sm font-bold text-black">{newTestamentPercent}%</span>
+              <span className="text-sm font-bold text-black dark:text-white">{newTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-gray-500 mt-2">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
               {newTestamentChaptersRead}/{newTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -182,14 +201,60 @@ export default function Stats() {
           />
         </div>
 
-        {/* Fun Fact */}
+        {/* Reading Activity Heatmap */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-6 bg-gray-50 rounded-2xl p-4 border border-gray-200"
+          className="mt-6 bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700"
         >
-          <p className="text-sm text-gray-700 text-center">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-black dark:text-white">Reading Activity</h3>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const currentIndex = availableYears.indexOf(selectedYear);
+                  if (currentIndex < availableYears.length - 1) {
+                    setSelectedYear(availableYears[currentIndex + 1]);
+                  }
+                }}
+                disabled={availableYears.indexOf(selectedYear) === availableYears.length - 1}
+                className="h-8 w-8"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </Button>
+              <span className="text-sm font-medium text-black dark:text-white min-w-[60px] text-center">
+                {selectedYear}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  const currentIndex = availableYears.indexOf(selectedYear);
+                  if (currentIndex > 0) {
+                    setSelectedYear(availableYears[currentIndex - 1]);
+                  }
+                }}
+                disabled={availableYears.indexOf(selectedYear) === 0}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </Button>
+            </div>
+          </div>
+          <ReadingHeatmap progressData={progressData} selectedYear={selectedYear} />
+        </motion.div>
+
+        {/* Fun Fact */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.55 }}
+          className="mt-6 bg-gray-50 dark:bg-gray-800 rounded-2xl p-4 border border-gray-200 dark:border-gray-700"
+        >
+          <p className="text-sm text-gray-700 dark:text-gray-300 text-center">
             📖 The Bible contains {TOTAL_CHAPTERS.toLocaleString()} chapters across 66 books
           </p>
         </motion.div>
