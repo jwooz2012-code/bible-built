@@ -181,7 +181,7 @@ export default function ReadingCalendar() {
           </div>
 
           {/* Calendar days */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-3">
             {calendarDays.map((dayData, index) => {
               if (!dayData) {
                 return <div key={`empty-${index}`} className="aspect-square" />;
@@ -198,24 +198,24 @@ export default function ReadingCalendar() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleDayClick(dayData)}
                   className={`
-                    aspect-square rounded-xl flex flex-col items-center justify-center
+                    aspect-square rounded-2xl flex items-center justify-center
                     transition-all duration-200 relative
                     ${hasReading
-                      ? 'bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/30 hover:bg-green-100 dark:hover:bg-green-500/20'
-                      : 'bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700/30'
+                      ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 shadow-md'
+                      : 'bg-transparent hover:bg-gray-100 dark:hover:bg-slate-700/30'
                     }
-                    ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+                    ${isToday ? 'ring-2 ring-offset-2 ring-blue-500 dark:ring-blue-400' : ''}
                   `}
                 >
-                  <span className={`text-sm font-medium ${
+                  <span className={`text-base font-semibold ${
                     hasReading
-                      ? 'text-gray-900 dark:text-slate-100'
-                      : 'text-gray-600 dark:text-slate-400'
+                      ? 'text-white'
+                      : 'text-gray-700 dark:text-slate-300'
                   }`}>
                     {dayData.day}
                   </span>
-                  {hasReading && (
-                    <span className="text-xs font-bold text-green-600 dark:text-green-400 mt-0.5">
+                  {hasReading && dayData.count > 1 && (
+                    <span className="absolute -top-1 -right-1 bg-white dark:bg-slate-800 text-green-600 dark:text-green-400 text-[10px] font-bold rounded-full w-5 h-5 flex items-center justify-center border-2 border-green-500 shadow-sm">
                       {dayData.count}
                     </span>
                   )}
