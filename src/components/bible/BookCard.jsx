@@ -17,10 +17,11 @@ export default function BookCard({ book, progress, index }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: index * 0.02, duration: 0.3 }}
+      className="overflow-visible"
     >
       <Link to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}>
         <div className={`
-          relative p-4 rounded-2xl transition-all duration-300
+          relative p-5 rounded-2xl transition-all duration-300
           ${isComplete 
             ? 'bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-500/10 dark:to-amber-600/10 border-2 border-amber-300 dark:border-amber-500/30 shadow-md' 
             : hasStarted 
@@ -29,7 +30,7 @@ export default function BookCard({ book, progress, index }) {
           }
         `}>
           {completionCount > 0 && (
-            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow-lg">
+            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white dark:border-slate-900 z-10">
               {completionCount}
             </div>
           )}
