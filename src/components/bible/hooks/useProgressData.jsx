@@ -1,11 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useUser } from './useUser';
 
 export function useProgressData() {
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: () => base44.auth.me(),
-  });
+  const { user } = useUser();
 
   const { data: progressData = [], isLoading } = useQuery({
     queryKey: ['bookProgress'],

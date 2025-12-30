@@ -1,4 +1,5 @@
 import { base44 } from '@/api/base44Client';
+import { useQueryClient } from '@tanstack/react-query';
 import { BIBLE_BOOKS } from '../bibleData';
 
 export function useChapterActions(
@@ -10,6 +11,8 @@ export function useChapterActions(
   updateBibleProgressChapter,
   checkAchievements
 ) {
+  const queryClient = useQueryClient();
+
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book || !user) return;
@@ -20,18 +23,57 @@ export function useChapterActions(
     
     const isAdding = !chaptersRead.includes(chapterNum);
     
+    // Optimistic update
+    const optimisticChaptersRead = isAdding 
+      ? [...chaptersRead, chapterNum]
+      : chaptersRead.filter(c => c !== chapterNum);
+    
+    const optimisticDates = isAdding
+      ? { ...chapterReadDates, [chapterNum]: new Date().toISOString() }
+      : (() => { const newDates = { ...chapterReadDates }; delete newDates[chapterNum]; return newDates; })();
+    
+    const isComplete = optimisticChaptersRead.length === book.chapters;
+    
+    const optimisticProgress = progress ? {
+      ...progress,
+      chapters_read: optimisticChaptersRead,
+      chapter_read_dates: optimisticDates,
+      last_read_date: new Date().toISOString(),
+      completion_count: isComplete ? (progress.completion_count || 0) + 1 : progress.completion_count,
+    } : {
+      user_id: user.id,
+      book_name: bookName,
+      book_index: book.index,
+      testament: book.testament,
+      total_chapters: book.chapters,
+      chapters_read: optimisticChaptersRead,
+      chapter_read_dates: optimisticDates,
+      completion_count: isComplete ? 1 : 0,
+      last_read_date: new Date().toISOString(),
+    };
+    
+    // Update cache optimistically
+    queryClient.setQueryData(['bookProgress'], (old = []) => {
+      if (progress) {
+        return old.map(p => p.id === progress.id ? optimisticProgress : p);
+      } else {
+        return [...old, optimisticProgress];
+      }
+    });
+    
+    // Perform actual updates
     if (isAdding) {
-      chaptersRead = [...chaptersRead, chapterNum];
       const now = new Date();
       const isoString = now.toISOString();
       const localDate = now.toLocaleDateString('en-CA');
       
+      chaptersRead = [...chaptersRead, chapterNum];
       chapterReadDates = {
         ...chapterReadDates,
         [chapterNum]: isoString
       };
       
-      await base44.entities.ReadingLog.create({
+      base44.entities.ReadingLog.create({
         user_id: user.id,
         occurred_at: isoString,
         local_date: localDate,
@@ -45,8 +87,6 @@ export function useChapterActions(
       delete newDates[chapterNum];
       chapterReadDates = newDates;
     }
-
-    const isComplete = chaptersRead.length === book.chapters;
     
     if (progress) {
       const updateData = {
