@@ -51,7 +51,7 @@ export default function Stats() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50 p-4">
+      <div className="min-h-screen bg-white p-4">
         <div className="max-w-lg mx-auto space-y-6">
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-48 w-full rounded-3xl" />
@@ -66,7 +66,7 @@ export default function Stats() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -80,8 +80,8 @@ export default function Stats() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-stone-800">Statistics</h1>
-            <p className="text-sm text-stone-500">Your reading journey</p>
+            <h1 className="text-xl font-bold text-black">Statistics</h1>
+            <p className="text-sm text-gray-500">Your reading journey</p>
           </div>
         </motion.div>
 
@@ -90,20 +90,20 @@ export default function Stats() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-amber-50 via-white to-amber-50 rounded-3xl p-6 shadow-lg border border-amber-100 mb-6"
+          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
         >
           <div className="text-center">
             <ProgressRing progress={stats.overallProgress} size={140} strokeWidth={10}>
               <div className="text-center">
-                <p className="text-3xl font-bold text-amber-700">{stats.overallProgress}%</p>
-                <p className="text-xs text-stone-500">Complete</p>
+                <p className="text-3xl font-bold text-black">{stats.overallProgress}%</p>
+                <p className="text-xs text-gray-500">Complete</p>
               </div>
             </ProgressRing>
-            <p className="mt-4 text-stone-600">
+            <p className="mt-4 text-gray-700">
               {stats.totalChaptersRead} of {TOTAL_CHAPTERS.toLocaleString()} chapters read
             </p>
             {stats.fullBibleComplete > 0 && (
-              <div className="mt-3 inline-flex items-center gap-2 bg-amber-100 text-amber-800 text-sm font-medium px-4 py-2 rounded-full">
+              <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 text-yellow-700 text-sm font-medium px-4 py-2 rounded-full">
                 <Flame className="w-4 h-4" />
                 Bible Completed {stats.fullBibleComplete}x!
               </div>
@@ -117,16 +117,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100"
+            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200"
           >
             <div className="flex items-center gap-2 mb-3">
-              <ScrollText className="w-4 h-4 text-amber-600" />
-              <span className="text-sm font-medium text-stone-600">Old Testament</span>
+              <ScrollText className="w-4 h-4 text-black" />
+              <span className="text-sm font-medium text-black">Old Testament</span>
             </div>
             <ProgressRing progress={oldTestamentPercent} size={70} strokeWidth={6}>
-              <span className="text-sm font-bold text-stone-700">{oldTestamentPercent}%</span>
+              <span className="text-sm font-bold text-black">{oldTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-stone-500 mt-2">
+            <p className="text-xs text-gray-500 mt-2">
               {oldTestamentChaptersRead}/{oldTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -135,16 +135,16 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-white rounded-2xl p-4 shadow-sm border border-stone-100"
+            className="bg-white rounded-2xl p-4 shadow-sm border border-gray-200"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Book className="w-4 h-4 text-amber-600" />
-              <span className="text-sm font-medium text-stone-600">New Testament</span>
+              <Book className="w-4 h-4 text-black" />
+              <span className="text-sm font-medium text-black">New Testament</span>
             </div>
             <ProgressRing progress={newTestamentPercent} size={70} strokeWidth={6}>
-              <span className="text-sm font-bold text-stone-700">{newTestamentPercent}%</span>
+              <span className="text-sm font-bold text-black">{newTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-stone-500 mt-2">
+            <p className="text-xs text-gray-500 mt-2">
               {newTestamentChaptersRead}/{newTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -187,9 +187,9 @@ export default function Stats() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-6 bg-amber-50 rounded-2xl p-4 border border-amber-100"
+          className="mt-6 bg-gray-50 rounded-2xl p-4 border border-gray-200"
         >
-          <p className="text-sm text-amber-800 text-center">
+          <p className="text-sm text-gray-700 text-center">
             📖 The Bible contains {TOTAL_CHAPTERS.toLocaleString()} chapters across 66 books
           </p>
         </motion.div>

@@ -20,7 +20,7 @@ export default function Achievements() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50 p-4">
+      <div className="min-h-screen bg-white p-4">
         <div className="max-w-lg mx-auto space-y-6">
           <Skeleton className="h-8 w-32" />
           <Skeleton className="h-24 w-full rounded-3xl" />
@@ -44,7 +44,7 @@ export default function Achievements() {
   });
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-white">
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
         <motion.div
@@ -58,8 +58,8 @@ export default function Achievements() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-stone-800">Achievements</h1>
-            <p className="text-sm text-stone-500">Your reading milestones</p>
+            <h1 className="text-xl font-bold text-black">Achievements</h1>
+            <p className="text-sm text-gray-500">Your reading milestones</p>
           </div>
         </motion.div>
 
@@ -68,20 +68,20 @@ export default function Achievements() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-gradient-to-br from-amber-50 via-white to-amber-50 rounded-3xl p-6 shadow-lg border border-amber-100 mb-6"
+          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
         >
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-br from-amber-100 to-amber-200 rounded-2xl">
-              <Trophy className="w-8 h-8 text-amber-700" />
+            <div className="p-4 bg-yellow-100 rounded-2xl">
+              <Trophy className="w-8 h-8 text-yellow-600" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-stone-500">Achievements Unlocked</p>
-              <p className="text-2xl font-bold text-amber-700">
+              <p className="text-sm text-gray-500">Achievements Unlocked</p>
+              <p className="text-2xl font-bold text-black">
                 {unlockedCount} / {totalCount}
               </p>
-              <div className="w-full bg-stone-200 rounded-full h-2 mt-2 overflow-hidden">
+              <div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
                 <motion.div
-                  className="h-full bg-gradient-to-r from-amber-400 to-amber-600 rounded-full"
+                  className="h-full bg-yellow-500 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${percentUnlocked}%` }}
                   transition={{ duration: 0.8, delay: 0.3 }}
