@@ -205,25 +205,21 @@ export default function ReadingCalendar() {
                   onClick={() => handleDayClick(dayData)}
                   className={`
                     aspect-square rounded-lg flex items-center justify-center
-                    transition-all duration-200 relative
+                    transition-all duration-200
                     ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700' : ''}
                     ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
                     ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
-                    ${intensity === 'none' ? 'hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
+                    ${intensity === 'none' ? 'bg-gray-100 dark:bg-slate-700/20 hover:bg-gray-200 dark:hover:bg-slate-700/40' : ''}
                     ${hasReading ? 'shadow-sm hover:shadow-md hover:scale-105' : ''}
-                    ${isToday && !hasReading ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
-                    ${isToday && hasReading ? 'ring-2 ring-white dark:ring-slate-900' : ''}
+                    ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                   `}
                 >
-                  <span className={`text-sm font-medium ${
-                    hasReading ? 'text-white' : 'text-gray-600 dark:text-slate-400'
-                  }`}>
-                    {dayData.day}
-                  </span>
-                  {hasReading && (
-                    <span className="absolute -bottom-0.5 right-1 text-[9px] font-bold text-white/80">
+                  {hasReading ? (
+                    <span className="text-xl font-bold text-white">
                       {dayData.count}
                     </span>
+                  ) : (
+                    <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
                   )}
                 </motion.button>
               );
