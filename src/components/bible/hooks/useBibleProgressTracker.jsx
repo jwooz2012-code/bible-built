@@ -33,16 +33,16 @@ export function useBibleProgressTracker(
               bible_completion_count: newCompletionCount,
               chapters_completed_in_current_bible_run: {},
               last_completed_at: new Date().toISOString(),
-            }
-          });
-        } else {
-          await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
-            bible_completion_count: newCompletionCount,
-            chapters_completed_in_current_bible_run: {},
-            last_completed_at: new Date().toISOString(),
-          });
-        }
+              }
+              });
+              } else {
+              await createBibleProgressMutation.mutateAsync({
+              user_id: 'local',
+              bible_completion_count: newCompletionCount,
+              chapters_completed_in_current_bible_run: {},
+              last_completed_at: new Date().toISOString(),
+              });
+              }
       } else {
         if (bibleProgress) {
           await updateBibleProgressMutation.mutateAsync({

@@ -72,7 +72,7 @@ export function useMarkBookComplete(
         });
       } else {
         await createBibleProgressMutation.mutateAsync({
-          user_id: user.id,
+          user_id: 'local',
           bible_completion_count: newCompletionCount,
           chapters_completed_in_current_bible_run: {},
           last_completed_at: new Date().toISOString(),
