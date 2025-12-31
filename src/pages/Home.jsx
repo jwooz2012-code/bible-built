@@ -85,7 +85,7 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = await base44.entities.BookProgress.filter({ 
+    const progress = localDB.BookProgress.filter({ 
       book_index: bookIndex 
     });
     
@@ -131,7 +131,7 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = await base44.entities.BookProgress.filter({ 
+    const progress = localDB.BookProgress.filter({ 
       book_index: bookIndex 
     });
     

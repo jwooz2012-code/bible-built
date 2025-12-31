@@ -1,5 +1,5 @@
-import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '../bibleData';
+import { localDB } from '../localStorageDB';
 
 export function useMarkBookComplete(
   user,
@@ -13,7 +13,7 @@ export function useMarkBookComplete(
 ) {
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book || !user) return;
+    if (!book) return;
 
     let progress = getProgressForBook(bookName);
     
@@ -25,15 +25,16 @@ export function useMarkBookComplete(
     const chapterReadDates = {};
     
     const readingLogEntries = allChapters.map(ch => ({
-      user_id: user.id,
+      user_id: 'local',
       occurred_at: currentDate,
       local_date: localDate,
       book_index: book.index,
       chapter: ch,
-      event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
+      event_id: `local_${book.index}_${ch}_${Date.now()}_${ch}`
     }));
     
-    await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
+    // Create reading logs
+    readingLogEntries.forEach(entry => localDB.ReadingLog.create(entry));
     
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;
@@ -85,7 +86,7 @@ export function useMarkBookComplete(
         });
       } else {
         await createBibleProgressMutation.mutateAsync({
-          user_id: user.id,
+          user_id: 'local',
           bible_completion_count: 0,
           chapters_completed_in_current_bible_run: updatedMap,
         });
@@ -110,7 +111,7 @@ export function useMarkBookComplete(
       });
     } else {
       await createProgressMutation.mutateAsync({
-        user_id: user.id,
+        user_id: 'local',
         book_name: bookName,
         book_index: book.index,
         testament: book.testament,

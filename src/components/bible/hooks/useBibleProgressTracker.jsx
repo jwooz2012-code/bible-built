@@ -5,7 +5,6 @@ export function useBibleProgressTracker(
   updateBibleProgressMutation
 ) {
   const updateBibleProgressChapter = async (bookIndex, chapterNum) => {
-    if (!user) return;
 
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
     const bookKey = bookIndex.toString();
@@ -52,7 +51,7 @@ export function useBibleProgressTracker(
           });
         } else {
           await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
+            user_id: 'local',
             bible_completion_count: 0,
             chapters_completed_in_current_bible_run: updatedMap,
           });
