@@ -45,7 +45,7 @@ export default function Achievements() {
   });
 
   return (
-    <div className="min-h-screen bg-white dark:bg-gray-900">
+    <div className="min-h-screen bg-white dark:bg-slate-950">
       <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
@@ -60,8 +60,8 @@ export default function Achievements() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-black">Achievements</h1>
-            <p className="text-sm text-gray-500">Your reading milestones</p>
+            <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Achievements</h1>
+            <p className="text-sm text-gray-600 dark:text-slate-400">Your reading milestones</p>
           </div>
         </motion.div>
 
@@ -70,20 +70,20 @@ export default function Achievements() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white rounded-3xl p-6 shadow-lg border border-gray-200 mb-6"
+          className="bg-white dark:bg-slate-800/80 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
         >
           <div className="flex items-center gap-4">
-            <div className="p-4 bg-yellow-100 rounded-2xl">
-              <Trophy className="w-8 h-8 text-yellow-600" />
+            <div className="p-4 bg-yellow-100 dark:bg-yellow-500/20 rounded-2xl">
+              <Trophy className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-500">Achievements Unlocked</p>
-              <p className="text-2xl font-bold text-black">
+              <p className="text-sm text-gray-600 dark:text-slate-400">Achievements Unlocked</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                 {unlockedCount} / {totalCount}
               </p>
-              <div className="w-full bg-gray-200 rounded-full h-2 mt-2 overflow-hidden">
+              <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2 mt-2 overflow-hidden">
                 <motion.div
-                  className="h-full bg-yellow-500 rounded-full"
+                  className="h-full bg-yellow-500 dark:bg-yellow-400 rounded-full"
                   initial={{ width: 0 }}
                   animate={{ width: `${percentUnlocked}%` }}
                   transition={{ duration: 0.8, delay: 0.3 }}
