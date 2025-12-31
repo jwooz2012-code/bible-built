@@ -13,8 +13,20 @@ import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 export default function BooksCompleted() {
   const { progressData, isLoading } = useBookProgress();
 
-  const completedBooks = progressData
-    .filter(p => p.completion_count > 0)
+  // Aggregate books by name to avoid duplicates
+  const bookMap = new Map();
+  progressData.forEach(p => {
+    if (p.completion_count > 0) {
+      if (bookMap.has(p.book_name)) {
+        const existing = bookMap.get(p.book_name);
+        existing.completion_count += p.completion_count;
+      } else {
+        bookMap.set(p.book_name, { ...p });
+      }
+    }
+  });
+  
+  const completedBooks = Array.from(bookMap.values())
     .sort((a, b) => b.completion_count - a.completion_count);
 
   if (isLoading) {
