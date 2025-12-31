@@ -7,7 +7,7 @@ export default function StatsCard({ icon: Icon, label, value, subtext, delay = 0
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
-      className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-gray-100 dark:border-slate-700/50"
+      className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-4 shadow-sm border border-slate-200 dark:border-slate-700/50 hover:shadow-md hover:scale-[1.02] transition-all cursor-pointer"
     >
       <div className="flex items-center gap-3">
         <div className="p-2 bg-amber-50 dark:bg-amber-500/20 rounded-xl border dark:border-amber-500/30">
