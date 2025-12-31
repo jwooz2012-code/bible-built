@@ -28,10 +28,10 @@ export default function Stats() {
     return progress?.chapters_read?.length > 0 && progress.chapters_read.length < book.chapters;
   }).length;
 
-  // Books with at least one completion
-  const booksCompleted = BIBLE_BOOKS.filter(book => {
+  // Books mastered (30+ completions)
+  const booksMastered = BIBLE_BOOKS.filter(book => {
     const progress = getProgressForBook(book.name);
-    return progress?.completion_count > 0;
+    return progress?.completion_count >= 30;
   }).length;
 
   if (isLoading) {
@@ -155,8 +155,8 @@ export default function Stats() {
           <StatsCard 
             icon={Flame}
             label="Books Mastered"
-            value={booksCompleted}
-            subtext={`of 66 books`}
+            value={booksMastered}
+            subtext={`read 30+ times`}
             delay={0.4}
           />
           <StatsCard 
