@@ -20,7 +20,7 @@ export default function Layout({ children }) {
         {children}
 
         {/* Bottom Navigation */}
-        <nav className="fixed bottom-0 left-0 right-0 bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-t border-gray-200 dark:border-slate-800 safe-area-inset-bottom z-50">
+        <nav className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 safe-area-inset-bottom z-50 shadow-2xl shadow-slate-900/10 dark:shadow-slate-950/50">
         <div className="max-w-lg mx-auto flex justify-around items-center h-16">
           {navItems.map((item) => {
             const isActive = currentPath === item.path || 
@@ -32,8 +32,8 @@ export default function Layout({ children }) {
                 className={`
                   flex flex-col items-center justify-center px-6 py-2 rounded-xl transition-all
                   ${isActive 
-                    ? 'text-gray-900 dark:text-slate-100' 
-                    : 'text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300'
+                    ? 'text-slate-900 dark:text-slate-50 scale-105' 
+                    : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:scale-105'
                   }
                 `}
               >

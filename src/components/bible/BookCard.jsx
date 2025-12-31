@@ -23,14 +23,14 @@ export default function BookCard({ book, progress, index }) {
         <div className={`
           relative p-5 rounded-2xl transition-all duration-300
           ${isComplete 
-            ? 'bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-500/10 dark:to-amber-600/10 border-2 border-amber-300 dark:border-amber-500/30 shadow-md' 
+            ? 'bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-500/15 dark:to-amber-600/15 border-2 border-amber-400 dark:border-amber-500/40 shadow-lg shadow-amber-200/50 dark:shadow-amber-900/20' 
             : hasStarted 
-              ? 'bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm border border-gray-200 dark:border-slate-700/50 shadow-sm hover:shadow-md' 
-              : 'bg-gray-50 dark:bg-slate-800/50 border border-gray-100 dark:border-slate-700/30 hover:bg-white dark:hover:bg-slate-800/80 hover:border-gray-200 dark:hover:border-slate-700/50'
+              ? 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700/50 shadow-md hover:shadow-lg hover:scale-[1.02]' 
+              : 'bg-slate-50/80 dark:bg-slate-800/60 backdrop-blur-sm border border-slate-200 dark:border-slate-700/40 hover:bg-white/95 dark:hover:bg-slate-800/95 hover:border-slate-300 dark:hover:border-slate-600/50 hover:shadow-md'
           }
         `}>
           {completionCount > 0 && (
-            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-bold rounded-full w-8 h-8 flex items-center justify-center shadow-lg border-2 border-white dark:border-slate-900 z-10">
+            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-extrabold rounded-full w-8 h-8 flex items-center justify-center shadow-lg shadow-amber-500/50 border-2 border-white dark:border-slate-900 z-10">
               {completionCount}
             </div>
           )}

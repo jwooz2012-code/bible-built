@@ -45,7 +45,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
       <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
         {/* Header */}
@@ -63,7 +63,7 @@ export default function Home() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
+          className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 mb-6"
         >
           <div className="flex items-center justify-between gap-6">
             <div className="flex-1">
@@ -73,7 +73,7 @@ export default function Home() {
                 {stats.totalChaptersRead} of 1,189 chapters
               </p>
               {stats.fullBibleComplete > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 text-xs font-medium px-3 py-1.5 rounded-full border border-yellow-200 dark:border-yellow-500/30">
+                <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-300 dark:border-amber-500/40 shadow-sm">
                   <Flame className="w-3 h-3" />
                   {stats.fullBibleComplete}x Bible Complete!
                 </div>
@@ -92,20 +92,24 @@ export default function Home() {
         {/* Quick Stats */}
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Link to={createPageUrl('BooksCompleted')}>
-            <StatsCard 
-              icon={BookOpen}
-              label="Books Completed"
-              value={stats.totalBooksCompleted}
-              delay={0.2}
-            />
-          </Link>
-          <Link to={createPageUrl('ReadingCalendar')}>
-            <StatsCard 
-              icon={Trophy}
-              label="Reading Calendar"
-              value="View"
-              delay={0.3}
-            />
+            <div className="h-full">
+              <StatsCard 
+                icon={BookOpen}
+                label="Books Completed"
+                value={stats.totalBooksCompleted}
+                delay={0.2}
+              />
+            </div>
+            </Link>
+            <Link to={createPageUrl('ReadingCalendar')}>
+            <div className="h-full">
+              <StatsCard 
+                icon={Trophy}
+                label="Reading Calendar"
+                value="View"
+                delay={0.3}
+              />
+            </div>
           </Link>
         </div>
 
@@ -129,7 +133,7 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="flex items-center justify-between bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-xl p-3 border border-gray-200 dark:border-slate-700/50 hover:border-blue-500 dark:hover:border-blue-400 transition-colors"
+                    className="flex items-center justify-between bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl p-3 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-400 hover:shadow-md transition-all"
                   >
                     <div>
                       <p className="font-medium text-gray-900 dark:text-slate-100">{book.name}</p>

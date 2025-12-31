@@ -99,7 +99,7 @@ export default function BookDetail() {
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-gray-700 mb-6"
+          className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700 mb-6"
         >
           <div className="flex items-center justify-between">
             <div>
@@ -124,21 +124,21 @@ export default function BookDetail() {
           <div className="flex gap-2 mt-4">
             {chaptersRead.length > 0 && (
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleRestart}
-                className="text-gray-500 hover:text-black dark:text-gray-400 dark:hover:text-white"
+               variant="ghost"
+               size="sm"
+               onClick={handleRestart}
+               className="text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700"
               >
-                <RotateCcw className="w-4 h-4 mr-2" />
-                Start Over
+               <RotateCcw className="w-4 h-4 mr-2" />
+               Start Over
               </Button>
-            )}
-            {chaptersRead.length < book.chapters && (
+              )}
+              {chaptersRead.length < book.chapters && (
               <Button
-                variant="default"
-                size="sm"
-                onClick={handleMarkComplete}
-                className="bg-emerald-600 hover:bg-emerald-700"
+               variant="default"
+               size="sm"
+               onClick={handleMarkComplete}
+               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-md shadow-emerald-600/30"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Mark Complete
@@ -169,8 +169,8 @@ export default function BookDetail() {
                     aspect-square rounded-xl font-medium text-sm relative
                     flex flex-col items-center justify-center transition-all duration-200
                     ${isRead
-                      ? 'bg-emerald-600 dark:bg-emerald-700 text-white shadow-md'
-                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-black dark:text-white hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
+                      ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800 text-white shadow-lg shadow-emerald-600/30 hover:scale-105'
+                      : 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105'
                     }
                   `}
                 >

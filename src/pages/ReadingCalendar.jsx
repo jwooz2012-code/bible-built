@@ -541,7 +541,7 @@ export default function ReadingCalendar() {
                       className={`
                         w-full aspect-square rounded-xl flex items-center justify-center p-3
                         transition-all duration-200 min-h-[44px]
-                        ${hasReading ? 'bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-700 hover:scale-105' : 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30'}
+                        ${hasReading ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg hover:from-emerald-700 hover:to-emerald-800 hover:scale-105' : 'bg-slate-50 dark:bg-slate-700/10 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:scale-105'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
