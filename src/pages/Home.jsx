@@ -1,21 +1,63 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Trophy, Flame, ChevronRight, RotateCcw, CalendarDays } from 'lucide-react';
+import { BookOpen, Trophy, Flame, ChevronRight, RotateCcw, CalendarDays, BookMarked } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import BookCard from '@/components/bible/BookCard';
 import StatsCard from '@/components/bible/StatsCard';
 import ThemeToggle from '@/components/ThemeToggle';
+import WeekCalendar from '@/components/bible/WeekCalendar';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
 
 export default function Home() {
   const [testament, setTestament] = useState('all');
-  const { progressData, achievements, isLoading, getProgressForBook, calculateStats } = useBookProgress();
+  const { progressData, achievements, isLoading, getProgressForBook, calculateStats, updateProgressMutation, checkAchievements } = useBookProgress();
+
+  const queryClient = useQueryClient();
+
+  const { data: readingLogs = [] } = useQuery({
+    queryKey: ['readingLogs'],
+    queryFn: () => base44.entities.ReadingLog.list(),
+  });
+
+  const addLogMutation = useMutation({
+    mutationFn: async ({ localDate, bookIndex, chapter }) => {
+      const book = BIBLE_BOOKS[bookIndex];
+      const dateObj = new Date(localDate + 'T12:00:00');
+      
+      return await base44.entities.ReadingLog.create({
+        user_id: (await base44.auth.me()).id,
+        occurred_at: dateObj.toISOString(),
+        local_date: localDate,
+        book_index: bookIndex,
+        chapter: chapter,
+        event_id: `${Date.now()}_${bookIndex}_${chapter}`,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Chapter added');
+      setTimeout(() => checkAchievements(), 500);
+    },
+  });
+
+  const removeLogMutation = useMutation({
+    mutationFn: async (logId) => {
+      return await base44.entities.ReadingLog.delete(logId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Chapter removed');
+    },
+  });
 
   const stats = calculateStats();
   const unlockedAchievements = achievements.map(a => a.achievement_id);
@@ -28,6 +70,100 @@ export default function Home() {
     .filter(p => p.last_read_date)
     .sort((a, b) => new Date(b.last_read_date) - new Date(a.last_read_date))
     .slice(0, 2);
+
+  // Calculate chapters read this year
+  const currentYear = new Date().getFullYear();
+  const chaptersThisYear = useMemo(() => {
+    return readingLogs.filter(log => {
+      const logDate = new Date(log.occurred_at);
+      return logDate.getFullYear() === currentYear;
+    }).length;
+  }, [readingLogs, currentYear]);
+
+  const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
+    for (const chapter of chapters) {
+      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+    }
+    
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex 
+    });
+    
+    if (progress.length > 0) {
+      const bookProgress = progress[0];
+      const book = BIBLE_BOOKS[bookIndex];
+      
+      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+      chapters.forEach(chapter => {
+        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      });
+      
+      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), ...chapters])];
+      
+      const chapterReadDates = { ...bookProgress.chapter_read_dates };
+      chapters.forEach(chapter => {
+        chapterReadDates[chapter] = localDate;
+      });
+      
+      let completionCount = bookProgress.completion_count || 0;
+      if (chaptersRead.length === book.chapters) {
+        completionCount += 1;
+      }
+      
+      await updateProgressMutation.mutateAsync({
+        id: bookProgress.id,
+        data: {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: chaptersRead,
+          chapter_read_dates: chapterReadDates,
+          completion_count: completionCount,
+          last_read_date: new Date().toISOString(),
+        }
+      });
+    }
+  };
+
+  const handleMarkBookComplete = async (localDate, bookIndex) => {
+    const book = BIBLE_BOOKS[bookIndex];
+    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
+    
+    for (const chapter of allChapters) {
+      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+    }
+    
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex 
+    });
+    
+    if (progress.length > 0) {
+      const bookProgress = progress[0];
+      
+      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+      allChapters.forEach(chapter => {
+        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      });
+      
+      const chapterReadDates = { ...bookProgress.chapter_read_dates };
+      allChapters.forEach(chapter => {
+        chapterReadDates[chapter] = localDate;
+      });
+      
+      await updateProgressMutation.mutateAsync({
+        id: bookProgress.id,
+        data: {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: allChapters,
+          chapter_read_dates: chapterReadDates,
+          completion_count: (bookProgress.completion_count || 0) + 1,
+          last_read_date: new Date().toISOString(),
+        }
+      });
+    }
+  };
+
+  const handleRemoveLog = async (logId) => {
+    await removeLogMutation.mutateAsync(logId);
+  };
 
   if (isLoading) {
     return (
@@ -58,29 +194,57 @@ export default function Home() {
           <p className="text-gray-600 dark:text-slate-400 text-sm">A life grounded in Scripture</p>
         </motion.div>
 
-        {/* Quick Stats */}
-        <Link to={createPageUrl('ReadingCalendar')} className="block mb-6">
-          <StatsCard 
-            icon={CalendarDays}
-            label="Week • Month • Year"
-            value="Reading Calendar"
-            delay={0.2}
-          />
-        </Link>
+        {/* Week Calendar */}
+        <WeekCalendar 
+          onAddChapters={handleAddMultipleChapters}
+          onMarkComplete={handleMarkBookComplete}
+          onRemoveLog={handleRemoveLog}
+        />
 
-        {/* Recently Read */}
+        {/* Summary Cards */}
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span className="text-xs font-medium text-gray-600 dark:text-slate-400">Chapters This Year</span>
+            </div>
+            <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{chaptersThisYear}</p>
+          </motion.div>
+
+          <Link to={createPageUrl('ReadingCalendar')} className="block">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors h-full flex flex-col justify-between"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <span className="text-xs font-medium text-gray-600 dark:text-slate-400">Full Calendar</span>
+              </div>
+              <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">View All →</p>
+            </motion.div>
+          </Link>
+        </div>
+
+        {/* Continue in the Word */}
         {recentlyRead.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             className="mb-6"
           >
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue Reading</h3>
-              <RotateCcw className="w-4 h-4 text-gray-400 dark:text-slate-500" />
+            <div className="flex items-center gap-2 mb-3">
+              <BookMarked className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue in the Word</h3>
             </div>
-            <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-3">
               {recentlyRead.map((progress, i) => {
                 const book = BIBLE_BOOKS.find(b => b.name === progress.book_name);
                 if (!book) return null;
@@ -88,15 +252,12 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="flex items-center justify-between bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl p-3 border border-slate-200 dark:border-slate-700/50 hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all"
+                    className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                   >
-                    <div>
-                      <p className="font-medium text-gray-900 dark:text-slate-100">{book.name}</p>
-                      <p className="text-xs text-gray-600 dark:text-slate-400">
-                        {progress.chapters_read?.length || 0}/{book.chapters} chapters
-                      </p>
-                    </div>
-                    <ChevronRight className="w-5 h-5 text-gray-400 dark:text-slate-500" />
+                    <p className="font-bold text-white text-sm mb-1">{book.name}</p>
+                    <p className="text-xs text-white/80">
+                      {progress.chapters_read?.length || 0}/{book.chapters} chapters
+                    </p>
                   </Link>
                 );
               })}
