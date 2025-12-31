@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import {
   Sheet,
@@ -16,6 +16,9 @@ import {
 } from "@/components/ui/sheet";
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import ThemeToggle from '@/components/ThemeToggle';
+import EditReadingSheet from '@/components/bible/EditReadingSheet';
+import { useBookProgress } from '@/components/bible/useBookProgress';
+import { toast } from 'sonner';
 
 export default function ReadingCalendar() {
   const today = new Date();
@@ -30,9 +33,43 @@ export default function ReadingCalendar() {
   });
   const [selectedDay, setSelectedDay] = useState(null);
 
+  const queryClient = useQueryClient();
+  const { updateProgressMutation, checkAchievements } = useBookProgress();
+
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
     queryFn: () => base44.entities.ReadingLog.list(),
+  });
+
+  const addLogMutation = useMutation({
+    mutationFn: async ({ localDate, bookIndex, chapter }) => {
+      const book = BIBLE_BOOKS[bookIndex];
+      const dateObj = new Date(localDate + 'T12:00:00');
+      
+      return await base44.entities.ReadingLog.create({
+        user_id: (await base44.auth.me()).id,
+        occurred_at: dateObj.toISOString(),
+        local_date: localDate,
+        book_index: bookIndex,
+        chapter: chapter,
+        event_id: `${Date.now()}_${bookIndex}_${chapter}`,
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Chapter added');
+      setTimeout(() => checkAchievements(), 500);
+    },
+  });
+
+  const removeLogMutation = useMutation({
+    mutationFn: async (logId) => {
+      return await base44.entities.ReadingLog.delete(logId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Chapter removed');
+    },
   });
 
   // Group reading logs by local_date
@@ -151,12 +188,53 @@ export default function ReadingCalendar() {
   };
 
   const handleDayClick = (dayData) => {
-    if (dayData && dayData.count > 0) {
+    if (dayData) {
       setSelectedDay(dayData);
     }
   };
 
   const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
+
+  const handleAddChapter = async (localDate, bookIndex, chapter) => {
+    await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+    
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex 
+    });
+    
+    if (progress.length > 0) {
+      const bookProgress = progress[0];
+      const book = BIBLE_BOOKS[bookIndex];
+      
+      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+      chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      
+      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), chapter])];
+      
+      const chapterReadDates = { ...bookProgress.chapter_read_dates };
+      chapterReadDates[chapter] = localDate;
+      
+      let completionCount = bookProgress.completion_count || 0;
+      if (chaptersRead.length === book.chapters) {
+        completionCount += 1;
+      }
+      
+      await updateProgressMutation.mutateAsync({
+        id: bookProgress.id,
+        data: {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: chaptersRead,
+          chapter_read_dates: chapterReadDates,
+          completion_count: completionCount,
+          last_read_date: new Date().toISOString(),
+        }
+      });
+    }
+  };
+
+  const handleRemoveLog = async (logId) => {
+    await removeLogMutation.mutateAsync(logId);
+  };
 
   const handlePrevWeek = () => {
     const newStart = new Date(currentWeekStart);
@@ -326,7 +404,7 @@ export default function ReadingCalendar() {
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      onClick={() => dayData.count > 0 && setSelectedDay(dayData)}
+                      onClick={() => setSelectedDay(dayData)}
                       className={`
                         flex flex-col items-center gap-2 p-4 rounded-2xl transition-all
                         ${dayData.count > 0 ? 'bg-gray-50 dark:bg-slate-700/30 hover:bg-gray-100 dark:hover:bg-slate-700/50' : 'bg-gray-50/50 dark:bg-slate-700/10'}
@@ -510,7 +588,7 @@ export default function ReadingCalendar() {
                       return (
                         <button
                           key={`${mIndex}-${dIndex}`}
-                          onClick={() => dayData.count > 0 && setSelectedDay(dayData)}
+                          onClick={() => setSelectedDay(dayData)}
                           className={`
                             aspect-square rounded-md transition-all
                             ${getYearIntensityColor(dayData.count)}
@@ -545,28 +623,14 @@ export default function ReadingCalendar() {
               Total chapters read: <span className="font-semibold text-green-600">{selectedDay?.count || 0}</span>
             </SheetDescription>
           </SheetHeader>
-          <div className="mt-6 space-y-2 max-h-80 overflow-y-auto">
-            {selectedDayLogs.map((log, index) => {
-              const book = BIBLE_BOOKS[log.book_index];
-              return (
-                <div
-                  key={`${log.event_id}-${index}`}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-xl"
-                >
-                  <div>
-                    <p className="font-medium text-gray-900 dark:text-slate-100">{book?.name}</p>
-                    <p className="text-sm text-gray-600 dark:text-slate-400">Chapter {log.chapter}</p>
-                  </div>
-                  <p className="text-xs text-gray-500 dark:text-slate-500">
-                    {new Date(log.occurred_at).toLocaleTimeString('en-US', { 
-                      hour: 'numeric', 
-                      minute: '2-digit' 
-                    })}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
+          <EditReadingSheet
+            selectedDay={selectedDay}
+            logs={selectedDayLogs}
+            onAddChapter={handleAddChapter}
+            onRemoveLog={handleRemoveLog}
+            isAdding={addLogMutation.isPending}
+            isRemoving={removeLogMutation.isPending}
+          />
         </SheetContent>
       </Sheet>
     </div>
