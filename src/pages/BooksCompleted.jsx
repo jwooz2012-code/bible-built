@@ -84,7 +84,7 @@ export default function BooksCompleted() {
                 >
                   <Link
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="block bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors"
+                    className="block bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl p-4 border border-slate-200 dark:border-slate-700 hover:border-emerald-500 dark:hover:border-emerald-400 hover:shadow-lg shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 transition-all hover:scale-[1.01]"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">

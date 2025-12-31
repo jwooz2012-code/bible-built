@@ -103,11 +103,11 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700"
           >
             <div className="flex items-center gap-2 mb-3">
-              <ScrollText className="w-4 h-4 text-black dark:text-white" />
-              <span className="text-sm font-medium text-black dark:text-white">Old Testament</span>
+              <ScrollText className="w-4 h-4 text-slate-900 dark:text-slate-50" />
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-50">Old Testament</span>
             </div>
             <ProgressRing progress={oldTestamentPercent} size={70} strokeWidth={6}>
               <span className="text-sm font-bold text-black dark:text-white">{oldTestamentPercent}%</span>
@@ -121,11 +121,11 @@ export default function Stats() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-white dark:bg-gray-800 rounded-2xl p-4 shadow-sm border border-gray-200 dark:border-gray-700"
+            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700"
           >
             <div className="flex items-center gap-2 mb-3">
-              <Book className="w-4 h-4 text-black dark:text-white" />
-              <span className="text-sm font-medium text-black dark:text-white">New Testament</span>
+              <Book className="w-4 h-4 text-slate-900 dark:text-slate-50" />
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-50">New Testament</span>
             </div>
             <ProgressRing progress={newTestamentPercent} size={70} strokeWidth={6}>
               <span className="text-sm font-bold text-black dark:text-white">{newTestamentPercent}%</span>
