@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, RotateCcw, Trophy, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -15,6 +15,7 @@ import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 export default function BookDetail() {
   const urlParams = new URLSearchParams(window.location.search);
   const bookName = urlParams.get('book');
+  const navigate = useNavigate();
   
   const { progressData, isLoading, getProgressForBook, toggleChapter, restartBook, markBookComplete, updateProgressMutation } = useBookProgress();
   const [showCelebration, setShowCelebration] = useState(false);
@@ -29,9 +30,9 @@ export default function BookDetail() {
       <div className="min-h-screen bg-stone-50 flex items-center justify-center p-4">
         <div className="text-center">
           <p className="text-stone-500">Book not found</p>
-          <Link to={createPageUrl('Home')} className="text-amber-600 mt-2 inline-block">
-            Return home
-          </Link>
+          <Button variant="link" onClick={() => navigate(-1)} className="text-amber-600 mt-2 p-0">
+            Go back
+          </Button>
         </div>
       </div>
     );
@@ -83,11 +84,9 @@ export default function BookDetail() {
           animate={{ opacity: 1, x: 0 }}
           className="flex items-center gap-4 mb-6"
         >
-          <Link to={createPageUrl('Home')}>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
+          <Button variant="ghost" size="icon" className="rounded-full" onClick={() => navigate(-1)}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
           <div>
             <h1 className="text-xl font-bold text-black dark:text-white">{book.name}</h1>
             <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{book.testament} Testament</p>
