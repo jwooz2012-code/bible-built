@@ -58,37 +58,6 @@ export default function Home() {
           <p className="text-gray-600 dark:text-slate-400 text-sm">A life grounded in Scripture</p>
         </motion.div>
 
-        {/* Main Progress Card */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1 }}
-          className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-xl rounded-3xl p-6 shadow-xl shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 mb-6"
-        >
-          <div className="flex items-center justify-between gap-6">
-            <div className="flex-1">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">Overall Progress</h2>
-              <p className="text-3xl font-bold text-gray-900 dark:text-slate-50">{stats.overallProgress}%</p>
-              <p className="text-sm text-gray-600 dark:text-slate-400 mt-1">
-                {stats.totalChaptersRead} of 1,189 chapters
-              </p>
-              {stats.fullBibleComplete > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-gradient-to-r from-amber-100 to-yellow-100 dark:from-amber-500/20 dark:to-yellow-500/20 text-amber-700 dark:text-amber-300 text-xs font-bold px-3 py-1.5 rounded-full border border-amber-300 dark:border-amber-500/40 shadow-sm">
-                  <Flame className="w-3 h-3" />
-                  {stats.fullBibleComplete}x Bible Complete!
-                </div>
-              )}
-            </div>
-            <div className="flex-shrink-0">
-              <ProgressRing progress={stats.overallProgress} size={100} strokeWidth={8}>
-                <div className="text-center">
-                  <BookOpen className="w-6 h-6 text-gray-900 dark:text-slate-100 mx-auto" />
-                </div>
-              </ProgressRing>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Quick Stats */}
         <Link to={createPageUrl('ReadingCalendar')} className="block mb-6">
           <StatsCard 
