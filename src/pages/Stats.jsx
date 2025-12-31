@@ -88,12 +88,6 @@ export default function Stats() {
             <p className="mt-4 text-gray-700 dark:text-gray-300">
               {stats.totalChaptersRead} of {TOTAL_CHAPTERS.toLocaleString()} chapters read
             </p>
-            {stats.fullBibleComplete > 0 && (
-              <div className="mt-3 inline-flex items-center gap-2 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-sm font-medium px-4 py-2 rounded-full">
-                <Flame className="w-4 h-4" />
-                Bible Completed {stats.fullBibleComplete}x!
-              </div>
-            )}
           </div>
         </motion.div>
 

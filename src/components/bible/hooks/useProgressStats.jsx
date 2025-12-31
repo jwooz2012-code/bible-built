@@ -26,8 +26,6 @@ export function useProgressStats(progressData, bibleProgress) {
       Math.floor(oldTestamentBooksComplete / OLD_TESTAMENT_BOOKS) : 0;
     const newTestamentComplete = newTestamentBooksComplete >= NEW_TESTAMENT_BOOKS ?
       Math.floor(newTestamentBooksComplete / NEW_TESTAMENT_BOOKS) : 0;
-    
-    const fullBibleComplete = bibleProgress?.bible_completion_count || 0;
 
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
     let totalChaptersRead = 0;
@@ -57,7 +55,6 @@ export function useProgressStats(progressData, bibleProgress) {
       totalBooksCompleted,
       oldTestamentComplete,
       newTestamentComplete,
-      fullBibleComplete,
       overallProgress: Math.round((totalChaptersRead / TOTAL_CHAPTERS) * 100),
       oldTestamentChaptersRead,
       newTestamentChaptersRead,
