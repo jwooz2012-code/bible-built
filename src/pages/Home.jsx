@@ -133,7 +133,7 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="flex items-center justify-between bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl p-3 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-400 hover:shadow-md transition-all"
+                    className="flex items-center justify-between bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-xl p-3 border border-slate-200 dark:border-slate-700/50 hover:border-green-500 dark:hover:border-green-500 hover:shadow-md transition-all"
                   >
                     <div>
                       <p className="font-medium text-gray-900 dark:text-slate-100">{book.name}</p>
