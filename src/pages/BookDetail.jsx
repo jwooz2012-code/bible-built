@@ -204,7 +204,7 @@ export default function BookDetail() {
             <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
               <Sparkles className="w-10 h-10 text-emerald-600 dark:text-emerald-500" />
             </div>
-            <DialogTitle className="text-2xl">Congratulations! 🎉</DialogTitle>
+            <DialogTitle className="text-2xl">Awesome! 🎉</DialogTitle>
             <DialogDescription className="text-base">
               You've completed <span className="font-semibold text-emerald-700 dark:text-emerald-400">{book.name}</span>!
               <br />
