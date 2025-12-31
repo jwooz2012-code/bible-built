@@ -328,10 +328,7 @@ export default function ReadingCalendar() {
 
   const getYearIntensityColor = (count) => {
     if (count === 0) return 'bg-gray-100 dark:bg-slate-800/30';
-    if (count >= 10) return 'bg-green-600 dark:bg-green-600';
-    if (count >= 5) return 'bg-green-500 dark:bg-green-500';
-    if (count >= 3) return 'bg-green-400 dark:bg-green-400';
-    return 'bg-green-300 dark:bg-green-300';
+    return 'bg-green-500 dark:bg-green-500';
   };
 
   return (
@@ -534,12 +531,6 @@ export default function ReadingCalendar() {
                   const isToday = dayData.date.toDateString() === today.toDateString();
                   const hasReading = dayData.count > 0;
 
-                  const intensity = hasReading 
-                    ? dayData.count >= 10 ? 'high' 
-                    : dayData.count >= 5 ? 'medium' 
-                    : 'low'
-                    : 'none';
-
                   return (
                     <motion.button
                       key={dayData.day}
@@ -550,11 +541,7 @@ export default function ReadingCalendar() {
                       className={`
                         w-full aspect-square rounded-xl flex items-center justify-center p-3
                         transition-all duration-200 min-h-[44px]
-                        ${intensity === 'high' ? 'bg-green-600 dark:bg-green-600 hover:bg-green-700 dark:hover:bg-green-700 shadow-sm' : ''}
-                        ${intensity === 'medium' ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600' : ''}
-                        ${intensity === 'low' ? 'bg-green-400 dark:bg-green-400 hover:bg-green-500 dark:hover:bg-green-500' : ''}
-                        ${intensity === 'none' ? 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30' : ''}
-                        ${hasReading ? 'hover:scale-105' : ''}
+                        ${hasReading ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 hover:scale-105' : 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
