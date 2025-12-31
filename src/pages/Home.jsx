@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BookOpen, Trophy, Flame, ChevronRight, RotateCcw } from 'lucide-react';
+import { BookOpen, Trophy, Flame, ChevronRight, RotateCcw, CalendarDays } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -90,28 +90,14 @@ export default function Home() {
         </motion.div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4 mb-6">
-          <Link to={createPageUrl('BooksCompleted')}>
-            <div className="h-full">
-              <StatsCard 
-                icon={BookOpen}
-                label="Books Completed"
-                value={stats.totalBooksCompleted}
-                delay={0.2}
-              />
-            </div>
-            </Link>
-            <Link to={createPageUrl('ReadingCalendar')}>
-            <div className="h-full">
-              <StatsCard 
-                icon={Trophy}
-                label="Reading Calendar"
-                value="View"
-                delay={0.3}
-              />
-            </div>
-          </Link>
-        </div>
+        <Link to={createPageUrl('ReadingCalendar')} className="block mb-6">
+          <StatsCard 
+            icon={CalendarDays}
+            label="Reading Calendar"
+            value="View"
+            delay={0.2}
+          />
+        </Link>
 
         {/* Recently Read */}
         {recentlyRead.length > 0 && (
