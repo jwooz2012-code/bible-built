@@ -252,10 +252,10 @@ export default function Home() {
                   <Link 
                     key={progress.id} 
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-4 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                    className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:scale-105 transition-all"
                   >
-                    <p className="font-bold text-white text-sm mb-1">{book.name}</p>
-                    <p className="text-xs text-white/80">
+                    <p className="font-bold text-gray-900 dark:text-slate-100 text-sm mb-1">{book.name}</p>
+                    <p className="text-xs text-gray-600 dark:text-slate-400">
                       {progress.chapters_read?.length || 0}/{book.chapters} chapters
                     </p>
                   </Link>
