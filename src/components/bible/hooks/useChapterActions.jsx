@@ -24,6 +24,7 @@ export function useChapterActions(
     
     const currentCount = chapterReadCounts[chapterNum] || 0;
     const newCount = currentCount + 1;
+    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
     // Optimistic update
     const optimisticCounts = { ...chapterReadCounts, [chapterNum]: newCount };
@@ -31,7 +32,6 @@ export function useChapterActions(
     const optimisticDates = { ...chapterReadDates, [chapterNum]: new Date().toISOString() };
     
     // Calculate completion count based on minimum reads across all chapters
-    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     const minReadCount = Math.min(...allChapters.map(ch => optimisticCounts[ch] || 0));
     const newCompletionCount = minReadCount;
     
@@ -85,9 +85,7 @@ export function useChapterActions(
     });
     
     // Calculate completion count
-    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
-    const minReadCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
-    const completionCount = minReadCount;
+    const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
     
     if (progress) {
       const updateData = {
