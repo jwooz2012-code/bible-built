@@ -1,27 +1,30 @@
 import { useQuery } from '@tanstack/react-query';
-import { localDB } from '../localStorageDB';
+import { base44 } from '@/api/base44Client';
+import { useUser } from './useUser';
 
 export function useProgressData() {
+  const { user } = useUser();
+
   const { data: progressData = [], isLoading } = useQuery({
     queryKey: ['bookProgress'],
-    queryFn: () => Promise.resolve(localDB.BookProgress.list()),
+    queryFn: () => base44.entities.BookProgress.list(),
   });
 
   const { data: achievements = [] } = useQuery({
     queryKey: ['achievements'],
-    queryFn: () => Promise.resolve(localDB.Achievement.list()),
+    queryFn: () => base44.entities.Achievement.list(),
   });
 
   const { data: bibleProgress } = useQuery({
     queryKey: ['bibleProgress'],
-    queryFn: () => {
-      const results = localDB.BibleProgress.list();
-      return Promise.resolve(results[0] || null);
+    queryFn: async () => {
+      const results = await base44.entities.BibleProgress.list();
+      return results[0] || null;
     },
   });
 
   return {
-    user: null,
+    user,
     progressData,
     achievements,
     bibleProgress,

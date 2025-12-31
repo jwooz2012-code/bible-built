@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { localDB } from '@/components/bible/localStorageDB';
+import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 import ProgressRing from '@/components/bible/ProgressRing';
@@ -25,22 +25,22 @@ export default function Home() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => Promise.resolve(localDB.ReadingLog.list()),
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({
-    mutationFn: ({ localDate, bookIndex, chapter }) => {
+    mutationFn: async ({ localDate, bookIndex, chapter }) => {
       const book = BIBLE_BOOKS[bookIndex];
       const dateObj = new Date(localDate + 'T12:00:00');
       
-      return Promise.resolve(localDB.ReadingLog.create({
-        user_id: 'local',
+      return await base44.entities.ReadingLog.create({
+        user_id: (await base44.auth.me()).id,
         occurred_at: dateObj.toISOString(),
         local_date: localDate,
         book_index: bookIndex,
         chapter: chapter,
         event_id: `${Date.now()}_${bookIndex}_${chapter}`,
-      }));
+      });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
@@ -50,8 +50,8 @@ export default function Home() {
   });
 
   const removeLogMutation = useMutation({
-    mutationFn: (logId) => {
-      return Promise.resolve(localDB.ReadingLog.delete(logId));
+    mutationFn: async (logId) => {
+      return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
@@ -85,7 +85,7 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = localDB.BookProgress.filter({ 
+    const progress = await base44.entities.BookProgress.filter({ 
       book_index: bookIndex 
     });
     
@@ -131,7 +131,7 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = localDB.BookProgress.filter({ 
+    const progress = await base44.entities.BookProgress.filter({ 
       book_index: bookIndex 
     });
     
