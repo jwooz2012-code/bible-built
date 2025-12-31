@@ -21,12 +21,18 @@ export function useProgressMutations() {
 
   const createBibleProgressMutation = useMutation({
     mutationFn: (data) => base44.entities.BibleProgress.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bibleProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bibleProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    },
   });
 
   return {
