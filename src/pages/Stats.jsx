@@ -14,7 +14,7 @@ import StatsCard from '@/components/bible/StatsCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS, TOTAL_CHAPTERS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from '@/components/bible/bibleData';
-import { base44 } from '@/api/base44Client';
+import { localDB } from '@/components/bible/localStorageDB';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
@@ -34,13 +34,13 @@ export default function Stats() {
   // Fetch reading logs for yearly stats
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: () => Promise.resolve(localDB.ReadingLog.list()),
   });
 
   // Fetch lifetime reading data
   const { data: lifetimeData = [] } = useQuery({
     queryKey: ['lifetimeReading'],
-    queryFn: () => base44.entities.LifetimeReading.list(),
+    queryFn: () => Promise.resolve(localDB.LifetimeReading.list()),
   });
 
   const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
@@ -62,12 +62,11 @@ export default function Stats() {
   }, [readingLogs]);
 
   const updateLifetimeMutation = useMutation({
-    mutationFn: async (data) => {
+    mutationFn: (data) => {
       if (lifetimeData.length > 0) {
-        return await base44.entities.LifetimeReading.update(lifetimeData[0].id, data);
+        return Promise.resolve(localDB.LifetimeReading.update(lifetimeData[0].id, data));
       } else {
-        const user = await base44.auth.me();
-        return await base44.entities.LifetimeReading.create({ ...data, user_id: user.id });
+        return Promise.resolve(localDB.LifetimeReading.create({ ...data, user_id: 'local' }));
       }
     },
     onSuccess: () => {
