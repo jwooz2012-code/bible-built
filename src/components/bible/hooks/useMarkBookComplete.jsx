@@ -92,12 +92,18 @@ export function useMarkBookComplete(
       }
     }
     
+    const chapterReadCounts = {};
+    allChapters.forEach(ch => {
+      chapterReadCounts[ch] = ((progress?.chapter_read_counts || {})[ch] || 0) + 1;
+    });
+
     if (progress) {
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: {
           chapters_read: allChapters,
           chapter_read_dates: chapterReadDates,
+          chapter_read_counts: chapterReadCounts,
           completion_count: (progress.completion_count || 0) + 1,
           last_read_date: currentDate,
         }
@@ -111,6 +117,7 @@ export function useMarkBookComplete(
         total_chapters: book.chapters,
         chapters_read: allChapters,
         chapter_read_dates: chapterReadDates,
+        chapter_read_counts: chapterReadCounts,
         completion_count: 1,
         last_read_date: currentDate,
       });

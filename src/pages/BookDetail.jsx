@@ -38,23 +38,12 @@ export default function BookDetail() {
   }
 
   const chaptersRead = progress?.chapters_read || [];
+  const chapterReadCounts = progress?.chapter_read_counts || {};
   const completionCount = progress?.completion_count || 0;
   const percentComplete = Math.round((chaptersRead.length / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
-    const wasComplete = chaptersRead.length === book.chapters - 1;
-    const willComplete = !chaptersRead.includes(chapterNum) && wasComplete;
-    
-    if (willComplete) {
-      setCelebrationCount(completionCount + 1);
-    }
-    
     await toggleChapter(bookName, chapterNum);
-    
-    if (willComplete) {
-      setJustCompleted(true);
-      setShowCelebration(true);
-    }
   };
 
   const handleRestart = async () => {
@@ -168,6 +157,7 @@ export default function BookDetail() {
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapterNum, index) => {
               const isRead = chaptersRead.includes(chapterNum);
+              const readCount = chapterReadCounts[chapterNum] || 0;
               return (
                 <motion.button
                   key={chapterNum}
@@ -176,18 +166,19 @@ export default function BookDetail() {
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleChapterToggle(chapterNum)}
                   className={`
-                    aspect-square rounded-xl font-medium text-sm
-                    flex items-center justify-center transition-all duration-200
+                    aspect-square rounded-xl font-medium text-sm relative
+                    flex flex-col items-center justify-center transition-all duration-200
                     ${isRead
                       ? 'bg-green-500 dark:bg-green-600 text-white shadow-md'
                       : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-black dark:text-white hover:border-gray-400 dark:hover:border-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700'
                     }
                   `}
                 >
-                  {isRead ? (
-                    <Check className="w-4 h-4" strokeWidth={3} />
-                  ) : (
-                    chapterNum
+                  <span className="text-sm font-bold">{chapterNum}</span>
+                  {readCount > 0 && (
+                    <span className="text-[10px] font-medium opacity-80 mt-0.5">
+                      {readCount}x
+                    </span>
                   )}
                 </motion.button>
               );
@@ -202,7 +193,7 @@ export default function BookDetail() {
           transition={{ delay: 0.5 }}
           className="text-center text-sm text-gray-400 dark:text-gray-500 mt-6"
         >
-          Tap a chapter to mark it as read
+          Tap a chapter to log a read • Each tap counts
         </motion.p>
       </div>
 

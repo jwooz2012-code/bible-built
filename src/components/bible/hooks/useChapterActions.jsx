@@ -18,37 +18,34 @@ export function useChapterActions(
     if (!book || !user) return;
 
     let progress = getProgressForBook(bookName);
+    let chapterReadCounts = progress?.chapter_read_counts || {};
     let chaptersRead = progress?.chapters_read || [];
     let chapterReadDates = progress?.chapter_read_dates || {};
     
-    const isAdding = !chaptersRead.includes(chapterNum);
+    const currentCount = chapterReadCounts[chapterNum] || 0;
+    const newCount = currentCount + 1;
     
     // Optimistic update
-    const optimisticChaptersRead = isAdding 
-      ? [...chaptersRead, chapterNum]
-      : chaptersRead.filter(c => c !== chapterNum);
-    
-    const optimisticDates = isAdding
-      ? { ...chapterReadDates, [chapterNum]: new Date().toISOString() }
-      : (() => { const newDates = { ...chapterReadDates }; delete newDates[chapterNum]; return newDates; })();
-    
-    const isComplete = optimisticChaptersRead.length === book.chapters;
+    const optimisticCounts = { ...chapterReadCounts, [chapterNum]: newCount };
+    const optimisticChaptersRead = chaptersRead.includes(chapterNum) ? chaptersRead : [...chaptersRead, chapterNum];
+    const optimisticDates = { ...chapterReadDates, [chapterNum]: new Date().toISOString() };
     
     const optimisticProgress = progress ? {
       ...progress,
+      chapter_read_counts: optimisticCounts,
       chapters_read: optimisticChaptersRead,
       chapter_read_dates: optimisticDates,
       last_read_date: new Date().toISOString(),
-      completion_count: isComplete ? (progress.completion_count || 0) + 1 : progress.completion_count,
     } : {
       user_id: user.id,
       book_name: bookName,
       book_index: book.index,
       testament: book.testament,
       total_chapters: book.chapters,
+      chapter_read_counts: optimisticCounts,
       chapters_read: optimisticChaptersRead,
       chapter_read_dates: optimisticDates,
-      completion_count: isComplete ? 1 : 0,
+      completion_count: 0,
       last_read_date: new Date().toISOString(),
     };
     
@@ -62,42 +59,32 @@ export function useChapterActions(
     });
     
     // Perform actual updates
-    if (isAdding) {
-      const now = new Date();
-      const isoString = now.toISOString();
-      const localDate = now.toLocaleDateString('en-CA');
-      
+    const now = new Date();
+    const isoString = now.toISOString();
+    const localDate = now.toLocaleDateString('en-CA');
+    
+    chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
+    if (!chaptersRead.includes(chapterNum)) {
       chaptersRead = [...chaptersRead, chapterNum];
-      chapterReadDates = {
-        ...chapterReadDates,
-        [chapterNum]: isoString
-      };
-      
-      base44.entities.ReadingLog.create({
-        user_id: user.id,
-        occurred_at: isoString,
-        local_date: localDate,
-        book_index: book.index,
-        chapter: chapterNum,
-        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-      });
-    } else {
-      chaptersRead = chaptersRead.filter(c => c !== chapterNum);
-      const newDates = { ...chapterReadDates };
-      delete newDates[chapterNum];
-      chapterReadDates = newDates;
     }
+    chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
+    
+    base44.entities.ReadingLog.create({
+      user_id: user.id,
+      occurred_at: isoString,
+      local_date: localDate,
+      book_index: book.index,
+      chapter: chapterNum,
+      event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+    });
     
     if (progress) {
       const updateData = {
+        chapter_read_counts: chapterReadCounts,
         chapters_read: chaptersRead,
         chapter_read_dates: chapterReadDates,
         last_read_date: new Date().toISOString(),
       };
-      
-      if (isComplete) {
-        updateData.completion_count = (progress.completion_count || 0) + 1;
-      }
       
       await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
     } else {
@@ -107,17 +94,16 @@ export function useChapterActions(
         book_index: book.index,
         testament: book.testament,
         total_chapters: book.chapters,
+        chapter_read_counts: chapterReadCounts,
         chapters_read: chaptersRead,
         chapter_read_dates: chapterReadDates,
-        completion_count: isComplete ? 1 : 0,
+        completion_count: 0,
         last_read_date: new Date().toISOString(),
       };
       await createProgressMutation.mutateAsync(createData);
     }
 
-    if (isAdding) {
-      await updateBibleProgressChapter(book.index, chapterNum);
-    }
+    await updateBibleProgressChapter(book.index, chapterNum);
 
     setTimeout(() => checkAchievements(), 500);
   };
@@ -127,7 +113,10 @@ export function useChapterActions(
     if (progress) {
       await updateProgressMutation.mutateAsync({
         id: progress.id,
-        data: { chapters_read: [] }
+        data: { 
+          chapters_read: [],
+          chapter_read_counts: {}
+        }
       });
     }
   };
