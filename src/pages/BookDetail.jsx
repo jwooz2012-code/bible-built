@@ -110,7 +110,7 @@ export default function BookDetail() {
               </p>
 
               {completionCount > 0 && (
-                <div className="mt-3 inline-flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium px-3 py-1.5 rounded-full">
+                <div className="mt-3 inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-medium px-3 py-1.5 rounded-full">
                   <Trophy className="w-3 h-3" />
                   Completed {completionCount}x
                 </div>
@@ -138,7 +138,7 @@ export default function BookDetail() {
                variant="default"
                size="sm"
                onClick={handleMarkComplete}
-               className="bg-gradient-to-r from-emerald-600 to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 shadow-md shadow-emerald-600/30"
+               className="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Mark Complete
@@ -169,8 +169,8 @@ export default function BookDetail() {
                     aspect-square rounded-xl font-medium text-sm relative
                     flex flex-col items-center justify-center transition-all duration-200
                     ${isRead
-                      ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-700 dark:to-emerald-800 text-white shadow-lg shadow-emerald-600/30 hover:scale-105'
-                      : 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-emerald-400 dark:hover:border-emerald-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105'
+                      ? 'bg-gradient-to-br from-green-500 to-green-600 text-white hover:scale-105'
+                      : 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-green-500 dark:hover:border-green-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105'
                     }
                   `}
                 >
@@ -201,12 +201,12 @@ export default function BookDetail() {
       <Dialog open={showCelebration} onOpenChange={setShowCelebration}>
         <DialogContent className="sm:max-w-md text-center">
           <DialogHeader>
-            <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <Sparkles className="w-10 h-10 text-emerald-600 dark:text-emerald-500" />
+            <div className="mx-auto mb-4 w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
+              <Sparkles className="w-10 h-10 text-green-600 dark:text-green-500" />
             </div>
             <DialogTitle className="text-2xl">Awesome! 🎉</DialogTitle>
             <DialogDescription className="text-base">
-              You've completed <span className="font-semibold text-emerald-700 dark:text-emerald-400">{book.name}</span>!
+              You've completed <span className="font-semibold text-green-700 dark:text-green-400">{book.name}</span>!
               <br />
               <span className="text-lg font-semibold text-black">
                 Total completions: {celebrationCount}
@@ -219,7 +219,7 @@ export default function BookDetail() {
                 setShowCelebration(false);
                 handleRestart();
               }}
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-green-500 hover:bg-green-600"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Read Again
