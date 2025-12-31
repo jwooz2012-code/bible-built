@@ -664,7 +664,7 @@ export default function ReadingCalendar() {
               })}
             </SheetTitle>
             <SheetDescription>
-              Total chapters read: <span className="font-semibold text-green-600">{selectedDay?.count || 0}</span>
+              Total chapters read: <span className="font-semibold text-green-600">{selectedDayLogs.length}</span>
             </SheetDescription>
           </SheetHeader>
           <EditReadingSheet

@@ -94,7 +94,7 @@ export default function EditReadingSheet({
       {isAddMode ? (
         <div className="space-y-3 p-4 bg-blue-50 dark:bg-blue-950/20 rounded-xl border border-blue-200 dark:border-blue-900/50">
           <div className="flex items-center justify-between mb-2">
-            <p className="font-medium text-gray-900 dark:text-slate-100">Add Chapter</p>
+            <p className="font-medium text-gray-900 dark:text-slate-100">Add Reading</p>
             <Button
               variant="ghost"
               size="icon"
@@ -175,7 +175,7 @@ export default function EditReadingSheet({
           className="w-full"
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Chapter
+          Add Reading
         </Button>
       )}
     </div>
