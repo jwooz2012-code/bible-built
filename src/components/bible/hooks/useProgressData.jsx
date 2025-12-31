@@ -6,21 +6,24 @@ export function useProgressData() {
   const { user } = useUser();
 
   const { data: progressData = [], isLoading } = useQuery({
-    queryKey: ['bookProgress'],
-    queryFn: () => base44.entities.BookProgress.list(),
+    queryKey: ['bookProgress', user?.id],
+    queryFn: () => base44.entities.BookProgress.filter({ user_id: user?.id }),
+    enabled: !!user,
   });
 
   const { data: achievements = [] } = useQuery({
-    queryKey: ['achievements'],
-    queryFn: () => base44.entities.Achievement.list(),
+    queryKey: ['achievements', user?.id],
+    queryFn: () => base44.entities.Achievement.filter({ user_id: user?.id }),
+    enabled: !!user,
   });
 
   const { data: bibleProgress } = useQuery({
-    queryKey: ['bibleProgress'],
+    queryKey: ['bibleProgress', user?.id],
     queryFn: async () => {
-      const results = await base44.entities.BibleProgress.list();
+      const results = await base44.entities.BibleProgress.filter({ user_id: user?.id });
       return results[0] || null;
     },
+    enabled: !!user,
   });
 
   return {
