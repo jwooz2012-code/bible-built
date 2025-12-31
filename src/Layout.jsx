@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Trophy, BarChart3 } from 'lucide-react';
@@ -7,6 +7,10 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 export default function Layout({ children }) {
   const location = useLocation();
   const currentPath = location.pathname;
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
 
   const navItems = [
     { name: 'Home', icon: Home, path: '/Home' },
