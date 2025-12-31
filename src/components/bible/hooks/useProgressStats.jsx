@@ -9,6 +9,9 @@ export function useProgressStats(progressData, bibleProgress) {
     let totalBooksCompleted = 0;
     let oldTestamentBooksComplete = 0;
     let newTestamentBooksComplete = 0;
+    let totalChaptersRead = 0;
+    let oldTestamentChaptersRead = 0;
+    let newTestamentChaptersRead = 0;
 
     BIBLE_BOOKS.forEach(book => {
       const progress = getProgressForBook(book.name);
@@ -19,6 +22,16 @@ export function useProgressStats(progressData, bibleProgress) {
           if (book.testament === 'old') oldTestamentBooksComplete++;
           else newTestamentBooksComplete++;
         }
+
+        // Count unique chapters read from BookProgress
+        const chaptersRead = progress.chapters_read || [];
+        totalChaptersRead += chaptersRead.length;
+        
+        if (book.testament === 'old') {
+          oldTestamentChaptersRead += chaptersRead.length;
+        } else if (book.testament === 'new') {
+          newTestamentChaptersRead += chaptersRead.length;
+        }
       }
     });
 
@@ -26,26 +39,6 @@ export function useProgressStats(progressData, bibleProgress) {
       Math.floor(oldTestamentBooksComplete / OLD_TESTAMENT_BOOKS) : 0;
     const newTestamentComplete = newTestamentBooksComplete >= NEW_TESTAMENT_BOOKS ?
       Math.floor(newTestamentBooksComplete / NEW_TESTAMENT_BOOKS) : 0;
-
-    const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
-    let totalChaptersRead = 0;
-    let oldTestamentChaptersRead = 0;
-    let newTestamentChaptersRead = 0;
-
-    Object.entries(chaptersMap).forEach(([bookIndexStr, chapters]) => {
-      if (Array.isArray(chapters)) {
-        const bookIndex = parseInt(bookIndexStr);
-        const book = BIBLE_BOOKS.find(b => b.index === bookIndex);
-        if (book) {
-          totalChaptersRead += chapters.length;
-          if (book.testament === 'old') {
-            oldTestamentChaptersRead += chapters.length;
-          } else if (book.testament === 'new') {
-            newTestamentChaptersRead += chapters.length;
-          }
-        }
-      }
-    });
 
     const oldTestamentTotalChapters = BIBLE_BOOKS.filter(b => b.testament === 'old').reduce((sum, b) => sum + b.chapters, 0);
     const newTestamentTotalChapters = BIBLE_BOOKS.filter(b => b.testament === 'new').reduce((sum, b) => sum + b.chapters, 0);
