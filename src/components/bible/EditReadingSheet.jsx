@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/button";
-import { X, Plus, Trash2 } from 'lucide-react';
+import { X, Plus, Trash2, BookCheck } from 'lucide-react';
 import { BIBLE_BOOKS } from './bibleData';
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -13,22 +14,41 @@ import {
 export default function EditReadingSheet({ 
   selectedDay, 
   logs, 
-  onAddChapter, 
+  onAddChapter,
+  onAddMultipleChapters,
+  onMarkBookComplete,
   onRemoveLog, 
   isAdding,
   isRemoving 
 }) {
   const [isAddMode, setIsAddMode] = useState(false);
   const [selectedBookIndex, setSelectedBookIndex] = useState(null);
-  const [selectedChapter, setSelectedChapter] = useState(null);
+  const [selectedChapters, setSelectedChapters] = useState([]);
 
   const handleAdd = async () => {
-    if (selectedBookIndex !== null && selectedChapter !== null) {
-      await onAddChapter(selectedDay.localDate, parseInt(selectedBookIndex), parseInt(selectedChapter));
+    if (selectedBookIndex !== null && selectedChapters.length > 0) {
+      await onAddMultipleChapters(selectedDay.localDate, parseInt(selectedBookIndex), selectedChapters);
       setIsAddMode(false);
       setSelectedBookIndex(null);
-      setSelectedChapter(null);
+      setSelectedChapters([]);
     }
+  };
+
+  const handleMarkComplete = async () => {
+    if (selectedBookIndex !== null) {
+      await onMarkBookComplete(selectedDay.localDate, parseInt(selectedBookIndex));
+      setIsAddMode(false);
+      setSelectedBookIndex(null);
+      setSelectedChapters([]);
+    }
+  };
+
+  const toggleChapter = (chapter) => {
+    setSelectedChapters(prev => 
+      prev.includes(chapter) 
+        ? prev.filter(c => c !== chapter)
+        : [...prev, chapter]
+    );
   };
 
   const selectedBook = selectedBookIndex !== null ? BIBLE_BOOKS[selectedBookIndex] : null;
@@ -91,7 +111,7 @@ export default function EditReadingSheet({
 
           <Select value={selectedBookIndex?.toString()} onValueChange={(val) => {
             setSelectedBookIndex(parseInt(val));
-            setSelectedChapter(null);
+            setSelectedChapters([]);
           }}>
             <SelectTrigger>
               <SelectValue placeholder="Select book" />
@@ -106,27 +126,47 @@ export default function EditReadingSheet({
           </Select>
 
           {selectedBook && (
-            <Select value={selectedChapter?.toString()} onValueChange={(val) => setSelectedChapter(parseInt(val))}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select chapter" />
-              </SelectTrigger>
-              <SelectContent className="max-h-60">
-                {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
-                  <SelectItem key={ch} value={ch.toString()}>
-                    Chapter {ch}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+            <>
+              <div className="bg-white dark:bg-slate-900 rounded-lg p-3 max-h-48 overflow-y-auto border border-gray-200 dark:border-slate-700">
+                <div className="grid grid-cols-4 gap-2">
+                  {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
+                    <div key={ch} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`chapter-${ch}`}
+                        checked={selectedChapters.includes(ch)}
+                        onCheckedChange={() => toggleChapter(ch)}
+                      />
+                      <label
+                        htmlFor={`chapter-${ch}`}
+                        className="text-sm cursor-pointer"
+                      >
+                        {ch}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+              </div>
 
-          <Button
-            onClick={handleAdd}
-            disabled={selectedBookIndex === null || selectedChapter === null || isAdding}
-            className="w-full"
-          >
-            {isAdding ? 'Adding...' : 'Add Chapter'}
-          </Button>
+              <div className="flex gap-2">
+                <Button
+                  onClick={handleAdd}
+                  disabled={selectedBookIndex === null || selectedChapters.length === 0 || isAdding}
+                  className="flex-1"
+                >
+                  {isAdding ? 'Adding...' : `Add ${selectedChapters.length} Chapter${selectedChapters.length !== 1 ? 's' : ''}`}
+                </Button>
+                <Button
+                  onClick={handleMarkComplete}
+                  disabled={selectedBookIndex === null || isAdding}
+                  variant="secondary"
+                  className="flex-1"
+                >
+                  <BookCheck className="w-4 h-4 mr-2" />
+                  Mark Complete
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <Button

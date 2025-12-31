@@ -195,8 +195,10 @@ export default function ReadingCalendar() {
 
   const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
 
-  const handleAddChapter = async (localDate, bookIndex, chapter) => {
-    await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+  const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
+    for (const chapter of chapters) {
+      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+    }
     
     const progress = await base44.entities.BookProgress.filter({ 
       book_index: bookIndex 
@@ -207,12 +209,16 @@ export default function ReadingCalendar() {
       const book = BIBLE_BOOKS[bookIndex];
       
       const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      chapters.forEach(chapter => {
+        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      });
       
-      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), chapter])];
+      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), ...chapters])];
       
       const chapterReadDates = { ...bookProgress.chapter_read_dates };
-      chapterReadDates[chapter] = localDate;
+      chapters.forEach(chapter => {
+        chapterReadDates[chapter] = localDate;
+      });
       
       let completionCount = bookProgress.completion_count || 0;
       if (chaptersRead.length === book.chapters) {
@@ -226,6 +232,44 @@ export default function ReadingCalendar() {
           chapters_read: chaptersRead,
           chapter_read_dates: chapterReadDates,
           completion_count: completionCount,
+          last_read_date: new Date().toISOString(),
+        }
+      });
+    }
+  };
+
+  const handleMarkBookComplete = async (localDate, bookIndex) => {
+    const book = BIBLE_BOOKS[bookIndex];
+    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
+    
+    for (const chapter of allChapters) {
+      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
+    }
+    
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex 
+    });
+    
+    if (progress.length > 0) {
+      const bookProgress = progress[0];
+      
+      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+      allChapters.forEach(chapter => {
+        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
+      });
+      
+      const chapterReadDates = { ...bookProgress.chapter_read_dates };
+      allChapters.forEach(chapter => {
+        chapterReadDates[chapter] = localDate;
+      });
+      
+      await updateProgressMutation.mutateAsync({
+        id: bookProgress.id,
+        data: {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: allChapters,
+          chapter_read_dates: chapterReadDates,
+          completion_count: (bookProgress.completion_count || 0) + 1,
           last_read_date: new Date().toISOString(),
         }
       });
@@ -626,7 +670,8 @@ export default function ReadingCalendar() {
           <EditReadingSheet
             selectedDay={selectedDay}
             logs={selectedDayLogs}
-            onAddChapter={handleAddChapter}
+            onAddMultipleChapters={handleAddMultipleChapters}
+            onMarkBookComplete={handleMarkBookComplete}
             onRemoveLog={handleRemoveLog}
             isAdding={addLogMutation.isPending}
             isRemoving={removeLogMutation.isPending}
