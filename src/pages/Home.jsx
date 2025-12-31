@@ -100,12 +100,12 @@ export default function Home() {
                 delay={0.2}
               />
             </div>
-          </Link>
-          <Link to={createPageUrl('Achievements')}>
+            </Link>
+            <Link to={createPageUrl('ReadingCalendar')}>
             <div className="h-full">
               <StatsCard 
                 icon={Trophy}
-                label="Achievements"
+                label="Reading Calendar"
                 value="View"
                 delay={0.3}
               />
