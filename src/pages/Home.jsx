@@ -224,7 +224,7 @@ export default function Home() {
               className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors h-full flex flex-col justify-between"
             >
               <div className="flex items-center gap-2 mb-2">
-                <CalendarDays className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span className="text-xs font-medium text-gray-600 dark:text-slate-400">Full Calendar</span>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">View All →</p>
@@ -241,7 +241,6 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center gap-2 mb-3">
-              <BookMarked className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue in the Word</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
