@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Trophy, BarChart3 } from 'lucide-react';
+import { Home, CalendarDays, BarChart3 } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default function Layout({ children }) {
@@ -10,7 +10,7 @@ export default function Layout({ children }) {
 
   const navItems = [
     { name: 'Home', icon: Home, path: '/Home' },
-    { name: 'Achievements', icon: Trophy, path: '/Achievements' },
+    { name: 'Reading Calendar', icon: CalendarDays, path: '/ReadingCalendar' },
     { name: 'Stats', icon: BarChart3, path: '/Stats' },
   ];
 

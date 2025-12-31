@@ -328,7 +328,7 @@ export default function ReadingCalendar() {
 
   const getYearIntensityColor = (count) => {
     if (count === 0) return 'bg-gray-100 dark:bg-slate-800/30';
-    return 'bg-emerald-600 dark:bg-emerald-600';
+    return 'bg-green-500 dark:bg-green-500';
   };
 
   return (
@@ -541,7 +541,7 @@ export default function ReadingCalendar() {
                       className={`
                         w-full aspect-square rounded-xl flex items-center justify-center p-3
                         transition-all duration-200 min-h-[44px]
-                        ${hasReading ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg hover:from-emerald-700 hover:to-emerald-800 hover:scale-105' : 'bg-slate-50 dark:bg-slate-700/10 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:scale-105'}
+                        ${hasReading ? 'bg-gradient-to-br from-green-500 to-green-600 shadow-md shadow-green-500/20 hover:shadow-lg hover:from-green-600 hover:to-green-700 hover:scale-105' : 'bg-slate-50 dark:bg-slate-700/10 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:scale-105'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
@@ -651,7 +651,7 @@ export default function ReadingCalendar() {
               })}
             </SheetTitle>
             <SheetDescription>
-              Total chapters read: <span className="font-semibold text-emerald-600 dark:text-emerald-500">{selectedDayLogs.length}</span>
+              Total chapters read: <span className="font-semibold text-green-500 dark:text-green-400">{selectedDayLogs.length}</span>
             </SheetDescription>
           </SheetHeader>
           <EditReadingSheet
