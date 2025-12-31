@@ -93,8 +93,8 @@ export default function Home() {
         <Link to={createPageUrl('ReadingCalendar')} className="block mb-6">
           <StatsCard 
             icon={CalendarDays}
-            label="Reading Calendar"
-            value="Week • Month • Year"
+            label="Week • Month • Year"
+            value="Reading Calendar"
             delay={0.2}
           />
         </Link>
