@@ -215,7 +215,6 @@ export default function Stats() {
         >
           <div className="mb-3">
             <h2 className="text-lg font-bold text-black dark:text-white">This Year</h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Current faithfulness</p>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
@@ -252,7 +251,6 @@ export default function Stats() {
           <div className="flex items-center justify-between mb-3">
             <div>
               <h2 className="text-lg font-bold text-black dark:text-white">Lifetime Reading</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Faithfulness over time</p>
             </div>
             <Button
               variant="ghost"
