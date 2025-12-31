@@ -328,7 +328,7 @@ export default function ReadingCalendar() {
 
   const getYearIntensityColor = (count) => {
     if (count === 0) return 'bg-gray-100 dark:bg-slate-800/30';
-    return 'bg-green-500 dark:bg-green-500';
+    return 'bg-emerald-600 dark:bg-emerald-600';
   };
 
   return (
@@ -541,7 +541,7 @@ export default function ReadingCalendar() {
                       className={`
                         w-full aspect-square rounded-xl flex items-center justify-center p-3
                         transition-all duration-200 min-h-[44px]
-                        ${hasReading ? 'bg-green-500 dark:bg-green-500 hover:bg-green-600 dark:hover:bg-green-600 hover:scale-105' : 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30'}
+                        ${hasReading ? 'bg-emerald-600 dark:bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-700 hover:scale-105' : 'bg-gray-50 dark:bg-slate-700/10 hover:bg-gray-100 dark:hover:bg-slate-700/30'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
@@ -651,7 +651,7 @@ export default function ReadingCalendar() {
               })}
             </SheetTitle>
             <SheetDescription>
-              Total chapters read: <span className="font-semibold text-green-600">{selectedDayLogs.length}</span>
+              Total chapters read: <span className="font-semibold text-emerald-600 dark:text-emerald-500">{selectedDayLogs.length}</span>
             </SheetDescription>
           </SheetHeader>
           <EditReadingSheet

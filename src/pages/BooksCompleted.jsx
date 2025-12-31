@@ -84,7 +84,7 @@ export default function BooksCompleted() {
                 >
                   <Link
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
-                    className="block bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-green-500 dark:hover:border-green-400 transition-colors"
+                    className="block bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-200 dark:border-gray-700 hover:border-emerald-500 dark:hover:border-emerald-400 transition-colors"
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex-1">
@@ -94,7 +94,7 @@ export default function BooksCompleted() {
                         </p>
                       </div>
                       <div className="text-right">
-                        <div className="inline-flex items-center gap-2 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-3 py-1.5 rounded-full">
+                        <div className="inline-flex items-center gap-2 bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 px-3 py-1.5 rounded-full">
                           <Trophy className="w-4 h-4" />
                           <span className="font-semibold">{progress.completion_count}x</span>
                         </div>

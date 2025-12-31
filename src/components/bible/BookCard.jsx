@@ -53,7 +53,7 @@ export default function BookCard({ book, progress, index }) {
 
           <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
             <motion.div
-              className={`h-full rounded-full ${isComplete ? 'bg-gradient-to-r from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-400' : 'bg-gray-400 dark:bg-slate-500'}`}
+              className={`h-full rounded-full ${isComplete ? 'bg-gradient-to-r from-amber-400 to-amber-600 dark:from-amber-500 dark:to-amber-400' : 'bg-emerald-600 dark:bg-emerald-600'}`}
               initial={{ width: 0 }}
               animate={{ width: `${percentComplete}%` }}
               transition={{ duration: 0.5, delay: index * 0.02 }}
