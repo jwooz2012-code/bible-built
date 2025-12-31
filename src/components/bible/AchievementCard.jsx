@@ -19,10 +19,10 @@ export default function AchievementCard({ achievement, unlocked, index }) {
       <div className={`text-4xl mb-2 ${!unlocked && 'grayscale opacity-50'}`}>
         {unlocked ? achievement.icon : <Lock className="w-8 h-8 mx-auto text-stone-400" />}
       </div>
-      <h3 className={`font-semibold text-sm ${unlocked ? 'text-amber-900' : 'text-stone-500'}`}>
+      <h3 className={`font-semibold text-base ${unlocked ? 'text-amber-900' : 'text-stone-500'}`}>
         {achievement.name}
       </h3>
-      <p className="text-xs text-stone-500 mt-1">{achievement.description}</p>
+      <p className="text-sm text-stone-500 mt-1">{achievement.description}</p>
       
       {unlocked && (
         <motion.div

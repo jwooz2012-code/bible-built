@@ -60,8 +60,8 @@ export default function Achievements() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Achievements</h1>
-            <p className="text-sm text-gray-600 dark:text-slate-400">Your reading milestones</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Achievements</h1>
+            <p className="text-base text-gray-600 dark:text-slate-400">Your reading milestones</p>
           </div>
         </motion.div>
 
@@ -77,7 +77,7 @@ export default function Achievements() {
               <Trophy className="w-8 h-8 text-yellow-600 dark:text-yellow-400" />
             </div>
             <div className="flex-1">
-              <p className="text-sm text-gray-600 dark:text-slate-400">Achievements Unlocked</p>
+              <p className="text-base text-gray-600 dark:text-slate-400">Achievements Unlocked</p>
               <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">
                 {unlockedCount} / {totalCount}
               </p>
