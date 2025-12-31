@@ -54,8 +54,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Scripture Journey</h1>
-          <p className="text-gray-600 dark:text-slate-400 text-sm">Track your Bible reading progress</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Built by the Word</h1>
+          <p className="text-gray-600 dark:text-slate-400 text-sm">A life grounded in Scripture</p>
         </motion.div>
 
         {/* Main Progress Card */}
