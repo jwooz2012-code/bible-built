@@ -88,8 +88,8 @@ export default function BookDetail() {
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <div>
-            <h1 className="text-xl font-bold text-black dark:text-white">{book.name}</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{book.testament} Testament</p>
+            <h1 className="text-2xl font-bold text-black dark:text-white">{book.name}</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400 capitalize">{book.testament} Testament</p>
           </div>
         </motion.div>
 
@@ -152,7 +152,7 @@ export default function BookDetail() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          <h3 className="font-semibold text-black dark:text-white mb-4">Chapters</h3>
+          <h3 className="text-lg font-semibold text-black dark:text-white mb-4">Chapters</h3>
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapterNum, index) => {
               const isRead = chaptersRead.includes(chapterNum);

@@ -127,8 +127,8 @@ export default function Stats() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-xl font-bold text-black dark:text-white">Statistics</h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Your reading journey</p>
+            <h1 className="text-2xl font-bold text-black dark:text-white">Statistics</h1>
+            <p className="text-base text-gray-500 dark:text-gray-400">Your reading journey</p>
           </div>
         </motion.div>
 
@@ -143,7 +143,7 @@ export default function Stats() {
             <ProgressRing progress={stats.overallProgress} size={140} strokeWidth={10}>
               <div className="text-center">
                 <p className="text-3xl font-bold text-black dark:text-white">{stats.overallProgress}%</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">Complete</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Complete</p>
               </div>
             </ProgressRing>
             <p className="mt-4 text-gray-700 dark:text-gray-300">
@@ -167,7 +167,7 @@ export default function Stats() {
             <ProgressRing progress={oldTestamentPercent} size={70} strokeWidth={6}>
               <span className="text-sm font-bold text-black dark:text-white">{oldTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {stats.oldTestamentChaptersRead}/{stats.oldTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -185,7 +185,7 @@ export default function Stats() {
             <ProgressRing progress={newTestamentPercent} size={70} strokeWidth={6}>
               <span className="text-sm font-bold text-black dark:text-white">{newTestamentPercent}%</span>
             </ProgressRing>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
               {stats.newTestamentChaptersRead}/{stats.newTestamentTotalChapters} chapters
             </p>
           </motion.div>
@@ -205,21 +205,21 @@ export default function Stats() {
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Chapters Read</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Chapters Read</span>
               </div>
               <p className="text-2xl font-bold text-black dark:text-white">{yearlyStats.chaptersRead}</p>
             </div>
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
               <div className="flex items-center gap-2 mb-2">
                 <Calendar className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Days in the Word</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Days in the Word</span>
               </div>
               <p className="text-2xl font-bold text-black dark:text-white">{yearlyStats.daysInWord}</p>
             </div>
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700 col-span-2">
               <div className="flex items-center gap-2 mb-2">
                 <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-gray-400">Average Chapters per Day</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Chapters per Day</span>
               </div>
               <p className="text-2xl font-bold text-black dark:text-white">{yearlyStats.avgPerDay}</p>
             </div>

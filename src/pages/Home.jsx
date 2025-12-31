@@ -190,8 +190,8 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-6"
         >
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-slate-100">Built by the Word</h1>
-          <p className="text-gray-600 dark:text-slate-400 text-sm">A life grounded in Scripture</p>
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100">Built by the Word</h1>
+          <p className="text-gray-600 dark:text-slate-400 text-base">A life grounded in Scripture</p>
         </motion.div>
 
         {/* Week Calendar */}
@@ -211,7 +211,7 @@ export default function Home() {
           >
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-medium text-gray-600 dark:text-slate-400">Chapters Read This Year</span>
+              <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Chapters Read This Year</span>
             </div>
             <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{chaptersThisYear}</p>
           </motion.div>
@@ -225,7 +225,7 @@ export default function Home() {
             >
               <div className="flex items-center gap-2 mb-2">
                 <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-xs font-medium text-gray-600 dark:text-slate-400">Full Calendar</span>
+                <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Full Calendar</span>
               </div>
               <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">View All →</p>
             </motion.div>
@@ -241,7 +241,7 @@ export default function Home() {
             className="mb-6"
           >
             <div className="flex items-center gap-2 mb-3">
-              <h3 className="font-semibold text-gray-900 dark:text-slate-100">Continue in the Word</h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Continue in the Word</h3>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {recentlyRead.map((progress, i) => {
@@ -253,8 +253,8 @@ export default function Home() {
                     to={createPageUrl(`BookDetail?book=${encodeURIComponent(book.name)}`)}
                     className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:scale-105 transition-all"
                   >
-                    <p className="font-bold text-gray-900 dark:text-slate-100 text-sm mb-1">{book.name}</p>
-                    <p className="text-xs text-gray-600 dark:text-slate-400">
+                    <p className="font-bold text-gray-900 dark:text-slate-100 text-base mb-1">{book.name}</p>
+                    <p className="text-sm text-gray-600 dark:text-slate-400">
                       {progress.chapters_read?.length || 0}/{book.chapters} chapters
                     </p>
                   </Link>
@@ -271,14 +271,14 @@ export default function Home() {
           transition={{ delay: 0.6 }}
         >
           <div className="flex items-center justify-between mb-4">
-            <h3 className="font-semibold text-gray-900 dark:text-slate-100">Books of the Bible</h3>
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-slate-100">Books of the Bible</h3>
           </div>
 
           <Tabs value={testament} onValueChange={setTestament} className="mb-4">
             <TabsList className="grid w-full grid-cols-3 bg-gray-100 dark:bg-slate-800/80 dark:backdrop-blur-sm dark:border dark:border-slate-700/50">
-              <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-              <TabsTrigger value="old" className="text-xs">Old Testament</TabsTrigger>
-              <TabsTrigger value="new" className="text-xs">New Testament</TabsTrigger>
+              <TabsTrigger value="all" className="text-sm">All</TabsTrigger>
+              <TabsTrigger value="old" className="text-sm">Old Testament</TabsTrigger>
+              <TabsTrigger value="new" className="text-sm">New Testament</TabsTrigger>
             </TabsList>
           </Tabs>
 
