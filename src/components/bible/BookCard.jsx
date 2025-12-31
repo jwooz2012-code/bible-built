@@ -30,7 +30,7 @@ export default function BookCard({ book, progress, index }) {
           }
         `}>
           {completionCount > 0 && (
-            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-extrabold rounded-full w-8 h-8 flex items-center justify-center shadow-lg shadow-amber-500/50 border-2 border-white dark:border-slate-900 z-10">
+            <div className="absolute -top-2 -right-2 bg-gradient-to-br from-amber-400 to-amber-600 text-white text-xs font-extrabold rounded-full w-8 h-8 flex items-center justify-center border-2 border-white dark:border-slate-900 z-10">
               {completionCount}
             </div>
           )}
