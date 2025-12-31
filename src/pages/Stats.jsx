@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Trophy, Flame, Target, Book, ScrollText, Pencil, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
@@ -10,16 +10,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 import ProgressRing from '@/components/bible/ProgressRing';
-import StatsCard from '@/components/bible/StatsCard';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
-import { BIBLE_BOOKS, ACHIEVEMENTS, TOTAL_CHAPTERS, OLD_TESTAMENT_BOOKS, NEW_TESTAMENT_BOOKS } from '@/components/bible/bibleData';
+import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
 export default function Stats() {
-  const { progressData, achievements, isLoading, calculateStats, getProgressForBook } = useBookProgress();
+  const { isLoading, calculateStats } = useBookProgress();
   const queryClient = useQueryClient();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [lifetimeEdits, setLifetimeEdits] = useState({
@@ -29,7 +28,6 @@ export default function Stats() {
   });
   
   const stats = calculateStats();
-  const unlockedAchievements = achievements.length;
 
   // Fetch reading logs for yearly stats
   const { data: readingLogs = [] } = useQuery({
@@ -94,21 +92,8 @@ export default function Stats() {
     });
   };
 
-  // Calculate testament progress from stats
   const oldTestamentPercent = Math.round((stats.oldTestamentChaptersRead / stats.oldTestamentTotalChapters) * 100);
   const newTestamentPercent = Math.round((stats.newTestamentChaptersRead / stats.newTestamentTotalChapters) * 100);
-
-  // Books currently in progress
-  const booksInProgress = BIBLE_BOOKS.filter(book => {
-    const progress = getProgressForBook(book.name);
-    return progress?.chapters_read?.length > 0 && progress.chapters_read.length < book.chapters;
-  }).length;
-
-  // Books mastered (30+ completions)
-  const booksMastered = BIBLE_BOOKS.filter(book => {
-    const progress = getProgressForBook(book.name);
-    return progress?.completion_count >= 30;
-  }).length;
 
   if (isLoading) {
     return (
