@@ -30,11 +30,17 @@ export function useChapterActions(
     const optimisticChaptersRead = chaptersRead.includes(chapterNum) ? chaptersRead : [...chaptersRead, chapterNum];
     const optimisticDates = { ...chapterReadDates, [chapterNum]: new Date().toISOString() };
     
+    // Calculate completion count based on minimum reads across all chapters
+    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
+    const minReadCount = Math.min(...allChapters.map(ch => optimisticCounts[ch] || 0));
+    const newCompletionCount = minReadCount;
+    
     const optimisticProgress = progress ? {
       ...progress,
       chapter_read_counts: optimisticCounts,
       chapters_read: optimisticChaptersRead,
       chapter_read_dates: optimisticDates,
+      completion_count: newCompletionCount,
       last_read_date: new Date().toISOString(),
     } : {
       user_id: user.id,
@@ -45,7 +51,7 @@ export function useChapterActions(
       chapter_read_counts: optimisticCounts,
       chapters_read: optimisticChaptersRead,
       chapter_read_dates: optimisticDates,
-      completion_count: 0,
+      completion_count: newCompletionCount,
       last_read_date: new Date().toISOString(),
     };
     
@@ -78,11 +84,17 @@ export function useChapterActions(
       event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
     });
     
+    // Calculate completion count
+    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
+    const minReadCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
+    const completionCount = minReadCount;
+    
     if (progress) {
       const updateData = {
         chapter_read_counts: chapterReadCounts,
         chapters_read: chaptersRead,
         chapter_read_dates: chapterReadDates,
+        completion_count: completionCount,
         last_read_date: new Date().toISOString(),
       };
       
@@ -97,7 +109,7 @@ export function useChapterActions(
         chapter_read_counts: chapterReadCounts,
         chapters_read: chaptersRead,
         chapter_read_dates: chapterReadDates,
-        completion_count: 0,
+        completion_count: completionCount,
         last_read_date: new Date().toISOString(),
       };
       await createProgressMutation.mutateAsync(createData);
