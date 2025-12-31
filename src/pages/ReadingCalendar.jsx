@@ -136,7 +136,7 @@ export default function ReadingCalendar() {
       });
     }
 
-    const avgPerDay = readingDays > 0 ? (total / readingDays).toFixed(1) : 0;
+    const avgPerDay = daysInPeriod > 0 ? (total / daysInPeriod).toFixed(1) : 0;
 
     return { total, readingDays, avgPerDay, daysInPeriod };
   }, [view, readingByDate, currentMonth, currentYear, weekDays]);
