@@ -310,15 +310,13 @@ export default function ReadingCalendar() {
       
       const chaptersRead = Object.keys(chapterReadCounts).map(Number);
       
-      await updateProgressMutation.mutateAsync({
-        id: bookProgress.id,
-        data: {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-        }
+      await base44.entities.BookProgress.update(bookProgress.id, {
+        chapter_read_counts: chapterReadCounts,
+        chapters_read: chaptersRead,
       });
     }
     
+    await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     toast.success('Chapter removed');
   };
 
@@ -340,12 +338,15 @@ export default function ReadingCalendar() {
       const bookUpdates = {};
       logsToRemove.forEach(log => {
         if (!bookUpdates[log.book_index]) {
-          bookUpdates[log.book_index] = [];
+          bookUpdates[log.book_index] = {};
         }
-        bookUpdates[log.book_index].push(log.chapter);
+        if (!bookUpdates[log.book_index][log.chapter]) {
+          bookUpdates[log.book_index][log.chapter] = 0;
+        }
+        bookUpdates[log.book_index][log.chapter]++;
       });
       
-      for (const [bookIndex, chapters] of Object.entries(bookUpdates)) {
+      for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
         const progress = await base44.entities.BookProgress.filter({ 
           book_index: parseInt(bookIndex)
         });
@@ -354,10 +355,12 @@ export default function ReadingCalendar() {
           const bookProgress = progress[0];
           const chapterReadCounts = { ...bookProgress.chapter_read_counts };
           
-          chapters.forEach(chapter => {
+          Object.entries(chapterCounts).forEach(([chapter, count]) => {
             const currentCount = chapterReadCounts[chapter] || 0;
-            if (currentCount > 1) {
-              chapterReadCounts[chapter] = currentCount - 1;
+            const newCount = currentCount - count;
+            
+            if (newCount > 0) {
+              chapterReadCounts[chapter] = newCount;
             } else {
               delete chapterReadCounts[chapter];
             }
@@ -365,22 +368,22 @@ export default function ReadingCalendar() {
           
           const chaptersRead = Object.keys(chapterReadCounts).map(Number);
           
-          await updateProgressMutation.mutateAsync({
-            id: bookProgress.id,
-            data: {
-              chapter_read_counts: chapterReadCounts,
-              chapters_read: chaptersRead,
-            }
+          await base44.entities.BookProgress.update(bookProgress.id, {
+            chapter_read_counts: chapterReadCounts,
+            chapters_read: chaptersRead,
           });
         }
       }
+      
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       
       toast.success(`${logIds.length} chapters removed`);
     } catch (error) {
       queryClient.setQueryData(['readingLogs'], previousLogs);
       toast.error('Failed to delete chapters');
-    } finally {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     }
   };
 
@@ -398,12 +401,15 @@ export default function ReadingCalendar() {
       const bookUpdates = {};
       logsToRemove.forEach(log => {
         if (!bookUpdates[log.book_index]) {
-          bookUpdates[log.book_index] = [];
+          bookUpdates[log.book_index] = {};
         }
-        bookUpdates[log.book_index].push(log.chapter);
+        if (!bookUpdates[log.book_index][log.chapter]) {
+          bookUpdates[log.book_index][log.chapter] = 0;
+        }
+        bookUpdates[log.book_index][log.chapter]++;
       });
       
-      for (const [bookIndex, chapters] of Object.entries(bookUpdates)) {
+      for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
         const progress = await base44.entities.BookProgress.filter({ 
           book_index: parseInt(bookIndex)
         });
@@ -412,10 +418,12 @@ export default function ReadingCalendar() {
           const bookProgress = progress[0];
           const chapterReadCounts = { ...bookProgress.chapter_read_counts };
           
-          chapters.forEach(chapter => {
+          Object.entries(chapterCounts).forEach(([chapter, count]) => {
             const currentCount = chapterReadCounts[chapter] || 0;
-            if (currentCount > 1) {
-              chapterReadCounts[chapter] = currentCount - 1;
+            const newCount = currentCount - count;
+            
+            if (newCount > 0) {
+              chapterReadCounts[chapter] = newCount;
             } else {
               delete chapterReadCounts[chapter];
             }
