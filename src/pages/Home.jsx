@@ -30,11 +30,11 @@ export default function Home() {
 
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
-      const book = BIBLE_BOOKS[bookIndex];
+      const user = await base44.auth.me();
       const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
-        user_id: (await base44.auth.me()).id,
+        user_id: user.id,
         occurred_at: dateObj.toISOString(),
         local_date: localDate,
         book_index: bookIndex,
@@ -44,6 +44,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
@@ -55,6 +56,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter removed');
     },
   });
@@ -81,12 +83,15 @@ export default function Home() {
   }, [readingLogs, currentYear]);
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
+    const user = await base44.auth.me();
+    
     for (const chapter of chapters) {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
     const progress = await base44.entities.BookProgress.filter({ 
-      book_index: bookIndex 
+      book_index: bookIndex,
+      user_id: user.id
     });
     
     if (progress.length > 0) {
@@ -124,6 +129,7 @@ export default function Home() {
   };
 
   const handleMarkBookComplete = async (localDate, bookIndex) => {
+    const user = await base44.auth.me();
     const book = BIBLE_BOOKS[bookIndex];
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
@@ -132,7 +138,8 @@ export default function Home() {
     }
     
     const progress = await base44.entities.BookProgress.filter({ 
-      book_index: bookIndex 
+      book_index: bookIndex,
+      user_id: user.id
     });
     
     if (progress.length > 0) {
