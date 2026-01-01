@@ -354,9 +354,12 @@ export default function ReadingCalendar() {
         bookUpdates[log.book_index][log.chapter]++;
       });
       
+      const user = await base44.auth.me();
+      
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
         const progress = await base44.entities.BookProgress.filter({ 
-          book_index: parseInt(bookIndex)
+          book_index: parseInt(bookIndex),
+          user_id: user.id
         });
         
         if (progress.length > 0) {
@@ -417,9 +420,12 @@ export default function ReadingCalendar() {
         bookUpdates[log.book_index][log.chapter]++;
       });
       
+      const user = await base44.auth.me();
+      
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
         const progress = await base44.entities.BookProgress.filter({ 
-          book_index: parseInt(bookIndex)
+          book_index: parseInt(bookIndex),
+          user_id: user.id
         });
         
         if (progress.length > 0) {
