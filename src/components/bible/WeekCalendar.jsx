@@ -1,7 +1,8 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import {
   Sheet,
   SheetContent,
@@ -10,8 +11,10 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import EditReadingSheet from './EditReadingSheet';
+import { BIBLE_BOOKS } from './bibleData';
 
 export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLog }) {
+  const queryClient = useQueryClient();
   const today = new Date();
   const [selectedDay, setSelectedDay] = React.useState(null);
 
@@ -51,6 +54,87 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   }, [currentWeekStart, readingByDate]);
 
   const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
+
+  const removeLogMutation = useMutation({
+    mutationFn: async (logId) => {
+      return await base44.entities.ReadingLog.delete(logId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      toast.success('Chapter removed');
+    },
+  });
+
+  const handleBulkRemoveLogs = async (logIds) => {
+    const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
+    
+    try {
+      await Promise.all(
+        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+      );
+      
+      const bookUpdates = {};
+      logsToRemove.forEach(log => {
+        if (!bookUpdates[log.book_index]) {
+          bookUpdates[log.book_index] = {};
+        }
+        if (!bookUpdates[log.book_index][log.chapter]) {
+          bookUpdates[log.book_index][log.chapter] = 0;
+        }
+        bookUpdates[log.book_index][log.chapter]++;
+      });
+      
+      const user = await base44.auth.me();
+      
+      for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
+        const progress = await base44.entities.BookProgress.filter({ 
+          book_index: parseInt(bookIndex),
+          user_id: user.id
+        });
+        
+        if (progress.length > 0) {
+          const bookProgress = progress[0];
+          const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+          
+          Object.entries(chapterCounts).forEach(([chapter, count]) => {
+            const currentCount = chapterReadCounts[chapter] || 0;
+            const newCount = currentCount - count;
+            
+            if (newCount > 0) {
+              chapterReadCounts[chapter] = newCount;
+            } else {
+              delete chapterReadCounts[chapter];
+            }
+          });
+          
+          const chaptersRead = Object.keys(chapterReadCounts).map(Number);
+          
+          await base44.entities.BookProgress.update(bookProgress.id, {
+            chapter_read_counts: chapterReadCounts,
+            chapters_read: chaptersRead,
+          });
+        }
+      }
+      
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      
+      toast.success(`${logIds.length} chapters removed`);
+    } catch (error) {
+      toast.error('Failed to delete chapters');
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    }
+  };
+
+  const handleClearDay = async () => {
+    if (!selectedDay || selectedDayLogs.length === 0) return;
+    
+    const logIds = selectedDayLogs.map(log => log.id);
+    await handleBulkRemoveLogs(logIds);
+    setSelectedDay(null);
+  };
 
   return (
     <>
@@ -121,8 +205,10 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
               onAddMultipleChapters={onAddChapters}
               onMarkBookComplete={onMarkComplete}
               onRemoveLog={onRemoveLog}
+              onBulkRemoveLogs={handleBulkRemoveLogs}
+              onClearDay={handleClearDay}
               isAdding={false}
-              isRemoving={false}
+              isRemoving={removeLogMutation.isPending}
             />
           )}
         </SheetContent>
