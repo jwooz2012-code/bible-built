@@ -181,7 +181,7 @@ export default function EditReadingSheet({
               onClick={() => {
                 setIsAddMode(false);
                 setSelectedBookIndex(null);
-                setSelectedChapter(null);
+                setSelectedChapters([]);
               }}
               className="h-8 w-8"
             >
