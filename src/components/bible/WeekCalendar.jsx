@@ -114,15 +114,17 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
               Total chapters read: <span className="font-semibold text-emerald-600 dark:text-emerald-500">{selectedDayLogs.length}</span>
             </SheetDescription>
           </SheetHeader>
-          <EditReadingSheet
-            selectedDay={selectedDay}
-            logs={selectedDayLogs}
-            onAddMultipleChapters={onAddChapters}
-            onMarkBookComplete={onMarkComplete}
-            onRemoveLog={onRemoveLog}
-            isAdding={false}
-            isRemoving={false}
-          />
+          {selectedDay && (
+            <EditReadingSheet
+              selectedDay={selectedDay}
+              logs={selectedDayLogs}
+              onAddMultipleChapters={onAddChapters}
+              onMarkBookComplete={onMarkComplete}
+              onRemoveLog={onRemoveLog}
+              isAdding={false}
+              isRemoving={false}
+            />
+          )}
         </SheetContent>
       </Sheet>
     </>

@@ -46,7 +46,6 @@ export default function ReadingCalendar() {
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
       const user = await base44.auth.me();
-      const book = BIBLE_BOOKS[bookIndex];
       const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
@@ -55,11 +54,12 @@ export default function ReadingCalendar() {
         local_date: localDate,
         book_index: bookIndex,
         chapter: chapter,
-        event_id: `${Date.now()}_${bookIndex}_${chapter}`,
+        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
@@ -824,17 +824,19 @@ export default function ReadingCalendar() {
               Total chapters read: <span className="font-semibold text-emerald-600 dark:text-emerald-500">{selectedDayLogs.length}</span>
             </SheetDescription>
           </SheetHeader>
-          <EditReadingSheet
-            selectedDay={selectedDay}
-            logs={selectedDayLogs}
-            onAddMultipleChapters={handleAddMultipleChapters}
-            onMarkBookComplete={handleMarkBookComplete}
-            onRemoveLog={handleRemoveLog}
-            onBulkRemoveLogs={handleBulkRemoveLogs}
-            onClearDay={handleClearDay}
-            isAdding={addLogMutation.isPending}
-            isRemoving={removeLogMutation.isPending}
-          />
+          {selectedDay && (
+            <EditReadingSheet
+              selectedDay={selectedDay}
+              logs={selectedDayLogs}
+              onAddMultipleChapters={handleAddMultipleChapters}
+              onMarkBookComplete={handleMarkBookComplete}
+              onRemoveLog={handleRemoveLog}
+              onBulkRemoveLogs={handleBulkRemoveLogs}
+              onClearDay={handleClearDay}
+              isAdding={addLogMutation.isPending}
+              isRemoving={removeLogMutation.isPending}
+            />
+          )}
         </SheetContent>
       </Sheet>
     </div>

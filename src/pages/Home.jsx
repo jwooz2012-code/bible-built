@@ -39,7 +39,7 @@ export default function Home() {
         local_date: localDate,
         book_index: bookIndex,
         chapter: chapter,
-        event_id: `${Date.now()}_${bookIndex}_${chapter}`,
+        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
       });
     },
     onSuccess: () => {
