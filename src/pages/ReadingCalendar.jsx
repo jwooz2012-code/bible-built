@@ -22,7 +22,9 @@ import { toast } from 'sonner';
 
 export default function ReadingCalendar() {
   const today = new Date();
-  const [view, setView] = useState('month');
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialView = urlParams.get('view') || 'month';
+  const [view, setView] = useState(initialView);
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentWeekStart, setCurrentWeekStart] = useState(() => {

@@ -73,8 +73,18 @@ export default function Home() {
     .sort((a, b) => new Date(b.last_read_date) - new Date(a.last_read_date))
     .slice(0, 2);
 
-  // Calculate chapters read this year
-  const currentYear = new Date().getFullYear();
+  // Calculate chapters read this month and year
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+  
+  const chaptersThisMonth = useMemo(() => {
+    return readingLogs.filter(log => {
+      const logDate = new Date(log.occurred_at);
+      return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
+    }).length;
+  }, [readingLogs, currentYear, currentMonth]);
+
   const chaptersThisYear = useMemo(() => {
     return readingLogs.filter(log => {
       const logDate = new Date(log.occurred_at);
@@ -210,31 +220,35 @@ export default function Home() {
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3 mb-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Chapters Read This Year</span>
-            </div>
-            <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{chaptersThisYear}</p>
-          </motion.div>
+          <Link to={createPageUrl('ReadingCalendar?view=month')} className="block">
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all hover:scale-105 h-full"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-sm font-medium text-gray-600 dark:text-slate-400">This Month</span>
+              </div>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{chaptersThisMonth}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters read</p>
+            </motion.div>
+          </Link>
 
-          <Link to={createPageUrl('ReadingCalendar')} className="block">
+          <Link to={createPageUrl('ReadingCalendar?view=year')} className="block">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 transition-colors h-full flex flex-col justify-between"
+              className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700/50 hover:border-emerald-500 dark:hover:border-emerald-500 transition-all hover:scale-105 h-full"
             >
               <div className="flex items-center gap-2 mb-2">
-                <CalendarDays className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <span className="text-sm font-medium text-gray-600 dark:text-slate-400">Full Calendar</span>
+                <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <span className="text-sm font-medium text-gray-600 dark:text-slate-400">This Year</span>
               </div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-slate-100">View All →</p>
+              <p className="text-2xl font-bold text-gray-900 dark:text-slate-100">{chaptersThisYear}</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters read</p>
             </motion.div>
           </Link>
         </div>
