@@ -390,8 +390,6 @@ export default function ReadingCalendar() {
     const logIds = selectedDayLogs.map(log => log.id);
     const logsToRemove = [...selectedDayLogs];
     
-    setSelectedDay(null);
-    
     try {
       await Promise.all(
         logIds.map(logId => base44.entities.ReadingLog.delete(logId))
@@ -425,23 +423,23 @@ export default function ReadingCalendar() {
           
           const chaptersRead = Object.keys(chapterReadCounts).map(Number);
           
-          await updateProgressMutation.mutateAsync({
-            id: bookProgress.id,
-            data: {
-              chapter_read_counts: chapterReadCounts,
-              chapters_read: chaptersRead,
-            }
+          await base44.entities.BookProgress.update(bookProgress.id, {
+            chapter_read_counts: chapterReadCounts,
+            chapters_read: chaptersRead,
           });
         }
       }
       
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      
+      setSelectedDay(null);
       toast.success('Day cleared');
     } catch (error) {
+      console.error('Clear day error:', error);
       toast.error('Failed to clear day');
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     }
   };
 
