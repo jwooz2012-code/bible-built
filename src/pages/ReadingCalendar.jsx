@@ -288,11 +288,43 @@ export default function ReadingCalendar() {
   };
 
   const handleRemoveLog = async (logId) => {
+    const log = readingLogs.find(l => l.id === logId);
+    if (!log) return;
+    
     await removeLogMutation.mutateAsync(logId);
+    
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: log.book_index 
+    });
+    
+    if (progress.length > 0) {
+      const bookProgress = progress[0];
+      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+      const currentCount = chapterReadCounts[log.chapter] || 0;
+      
+      if (currentCount > 1) {
+        chapterReadCounts[log.chapter] = currentCount - 1;
+      } else {
+        delete chapterReadCounts[log.chapter];
+      }
+      
+      const chaptersRead = Object.keys(chapterReadCounts).map(Number);
+      
+      await updateProgressMutation.mutateAsync({
+        id: bookProgress.id,
+        data: {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: chaptersRead,
+        }
+      });
+    }
+    
     toast.success('Chapter removed');
   };
 
   const handleBulkRemoveLogs = async (logIds) => {
+    const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
+    
     await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
     const previousLogs = queryClient.getQueryData(['readingLogs']);
     
@@ -304,6 +336,45 @@ export default function ReadingCalendar() {
       await Promise.all(
         logIds.map(logId => base44.entities.ReadingLog.delete(logId))
       );
+      
+      const bookUpdates = {};
+      logsToRemove.forEach(log => {
+        if (!bookUpdates[log.book_index]) {
+          bookUpdates[log.book_index] = [];
+        }
+        bookUpdates[log.book_index].push(log.chapter);
+      });
+      
+      for (const [bookIndex, chapters] of Object.entries(bookUpdates)) {
+        const progress = await base44.entities.BookProgress.filter({ 
+          book_index: parseInt(bookIndex)
+        });
+        
+        if (progress.length > 0) {
+          const bookProgress = progress[0];
+          const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+          
+          chapters.forEach(chapter => {
+            const currentCount = chapterReadCounts[chapter] || 0;
+            if (currentCount > 1) {
+              chapterReadCounts[chapter] = currentCount - 1;
+            } else {
+              delete chapterReadCounts[chapter];
+            }
+          });
+          
+          const chaptersRead = Object.keys(chapterReadCounts).map(Number);
+          
+          await updateProgressMutation.mutateAsync({
+            id: bookProgress.id,
+            data: {
+              chapter_read_counts: chapterReadCounts,
+              chapters_read: chaptersRead,
+            }
+          });
+        }
+      }
+      
       toast.success(`${logIds.length} chapters removed`);
     } catch (error) {
       queryClient.setQueryData(['readingLogs'], previousLogs);
@@ -316,6 +387,7 @@ export default function ReadingCalendar() {
   const handleClearDay = async () => {
     if (selectedDay && selectedDayLogs.length > 0) {
       const logIds = selectedDayLogs.map(log => log.id);
+      const logsToRemove = [...selectedDayLogs];
       
       await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
       const previousLogs = queryClient.getQueryData(['readingLogs']);
@@ -331,6 +403,44 @@ export default function ReadingCalendar() {
         await Promise.all(
           logIds.map(logId => base44.entities.ReadingLog.delete(logId))
         );
+        
+        const bookUpdates = {};
+        logsToRemove.forEach(log => {
+          if (!bookUpdates[log.book_index]) {
+            bookUpdates[log.book_index] = [];
+          }
+          bookUpdates[log.book_index].push(log.chapter);
+        });
+        
+        for (const [bookIndex, chapters] of Object.entries(bookUpdates)) {
+          const progress = await base44.entities.BookProgress.filter({ 
+            book_index: parseInt(bookIndex)
+          });
+          
+          if (progress.length > 0) {
+            const bookProgress = progress[0];
+            const chapterReadCounts = { ...bookProgress.chapter_read_counts };
+            
+            chapters.forEach(chapter => {
+              const currentCount = chapterReadCounts[chapter] || 0;
+              if (currentCount > 1) {
+                chapterReadCounts[chapter] = currentCount - 1;
+              } else {
+                delete chapterReadCounts[chapter];
+              }
+            });
+            
+            const chaptersRead = Object.keys(chapterReadCounts).map(Number);
+            
+            await updateProgressMutation.mutateAsync({
+              id: bookProgress.id,
+              data: {
+                chapter_read_counts: chapterReadCounts,
+                chapters_read: chaptersRead,
+              }
+            });
+          }
+        }
       } catch (error) {
         queryClient.setQueryData(['readingLogs'], previousLogs);
         toast.error('Failed to clear day');
