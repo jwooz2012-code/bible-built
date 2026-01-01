@@ -19,6 +19,7 @@ export default function EditReadingSheet({
   onMarkBookComplete,
   onRemoveLog, 
   onBulkRemoveLogs,
+  onClearDay,
   isAdding,
   isRemoving 
 }) {
@@ -80,19 +81,32 @@ export default function EditReadingSheet({
           <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
             {logs.length} chapter{logs.length !== 1 ? 's' : ''} read
           </p>
-          {logs.length > 1 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setIsBulkMode(!isBulkMode);
-                setSelectedLogs([]);
-              }}
-              className="text-xs"
-            >
-              {isBulkMode ? 'Cancel' : 'Select Multiple'}
-            </Button>
-          )}
+          <div className="flex gap-2">
+            {logs.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsBulkMode(!isBulkMode);
+                    setSelectedLogs([]);
+                  }}
+                  className="text-xs"
+                >
+                  {isBulkMode ? 'Cancel' : 'Select Multiple'}
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => onClearDay()}
+                  disabled={isRemoving}
+                  className="text-xs text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                >
+                  Clear Day
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       )}
       

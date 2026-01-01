@@ -292,6 +292,22 @@ export default function ReadingCalendar() {
     }
   };
 
+  const handleClearDay = async () => {
+    if (selectedDay && selectedDayLogs.length > 0) {
+      try {
+        const logIds = selectedDayLogs.map(log => log.id);
+        await Promise.all(
+          logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+        );
+        queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+        toast.success('Day cleared');
+        setSelectedDay(null);
+      } catch (error) {
+        toast.error('Failed to clear day');
+      }
+    }
+  };
+
   const handlePrevWeek = () => {
     const newStart = new Date(currentWeekStart);
     newStart.setDate(newStart.getDate() - 7);
@@ -656,6 +672,7 @@ export default function ReadingCalendar() {
             onMarkBookComplete={handleMarkBookComplete}
             onRemoveLog={handleRemoveLog}
             onBulkRemoveLogs={handleBulkRemoveLogs}
+            onClearDay={handleClearDay}
             isAdding={addLogMutation.isPending}
             isRemoving={removeLogMutation.isPending}
           />
