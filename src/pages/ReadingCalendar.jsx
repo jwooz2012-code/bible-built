@@ -296,24 +296,16 @@ export default function ReadingCalendar() {
   const yearMonths = useMemo(() => {
     const months = [];
     for (let m = 0; m < 12; m++) {
-      const firstDay = new Date(currentYear, m, 1);
-      const lastDay = new Date(currentYear, m + 1, 0);
-      const startingDayOfWeek = firstDay.getDay();
-      const daysInMonth = lastDay.getDate();
-
-      const days = [];
-      for (let i = 0; i < startingDayOfWeek; i++) {
-        days.push(null);
-      }
+      let total = 0;
       
-      for (let day = 1; day <= daysInMonth; day++) {
-        const date = new Date(currentYear, m, day);
-        const localDate = date.toLocaleDateString('en-CA');
-        const count = readingByDate[localDate]?.length || 0;
-        days.push({ day, date, localDate, count });
-      }
+      Object.entries(readingByDate).forEach(([date, logs]) => {
+        const d = new Date(date + 'T00:00:00');
+        if (d.getFullYear() === currentYear && d.getMonth() === m) {
+          total += logs.length;
+        }
+      });
       
-      months.push({ month: m, days });
+      months.push({ month: m, total });
     }
     return months;
   }, [currentYear, readingByDate]);
@@ -598,40 +590,31 @@ export default function ReadingCalendar() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="space-y-4"
+              className="grid grid-cols-2 gap-4"
             >
               {yearMonths.map((monthData, mIndex) => (
-                <div
+                <motion.div
                   key={mIndex}
-                  className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-4 shadow-lg border border-gray-200 dark:border-slate-700/50"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: mIndex * 0.05 }}
+                  className={`
+                    bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50
+                    ${monthData.total > 0 ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/30' : ''}
+                  `}
                 >
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-3">
+                  <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2">
                     {monthNames[monthData.month]}
                   </h3>
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {monthData.days.map((dayData, dIndex) => {
-                      if (!dayData) {
-                        return <div key={`empty-${mIndex}-${dIndex}`} className="aspect-square" />;
-                      }
-
-                      const isToday = dayData.date.toDateString() === today.toDateString();
-
-                      return (
-                        <button
-                          key={`${mIndex}-${dIndex}`}
-                          onClick={() => setSelectedDay(dayData)}
-                          className={`
-                            aspect-square rounded-md transition-all
-                            ${getYearIntensityColor(dayData.count)}
-                            ${dayData.count > 0 ? 'hover:scale-110' : ''}
-                            ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400 ring-offset-1' : ''}
-                          `}
-                          title={`${dayData.date.toLocaleDateString('en-US')}: ${dayData.count} chapters`}
-                        />
-                      );
-                    })}
-                  </div>
-                </div>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
+                    {monthData.total > 0 ? (
+                      <span className="text-emerald-600 dark:text-emerald-400">{monthData.total}</span>
+                    ) : (
+                      <span className="text-gray-300 dark:text-slate-700">0</span>
+                    )}
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters</p>
+                </motion.div>
               ))}
             </motion.div>
           </>
