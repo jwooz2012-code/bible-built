@@ -125,7 +125,7 @@ export function useChapterActions(
         id: progress.id,
         data: { 
           chapters_read: [],
-          chapter_read_counts: {}
+          chapter_read_dates: {}
         }
       });
     }
