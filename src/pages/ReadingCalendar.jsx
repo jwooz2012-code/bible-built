@@ -128,7 +128,7 @@ export default function ReadingCalendar() {
       daysInPeriod = isLeapYear ? 366 : 365;
       
       Object.entries(readingByDate).forEach(([date, logs]) => {
-        const d = new Date(date);
+        const d = new Date(date + 'T00:00:00');
         if (d.getFullYear() === currentYear) {
           total += logs.length;
           readingDays++;
