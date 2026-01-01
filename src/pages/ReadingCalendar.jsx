@@ -280,6 +280,12 @@ export default function ReadingCalendar() {
     await removeLogMutation.mutateAsync(logId);
   };
 
+  const handleBulkRemoveLogs = async (logIds) => {
+    for (const logId of logIds) {
+      await removeLogMutation.mutateAsync(logId);
+    }
+  };
+
   const handlePrevWeek = () => {
     const newStart = new Date(currentWeekStart);
     newStart.setDate(newStart.getDate() - 7);
@@ -643,6 +649,7 @@ export default function ReadingCalendar() {
             onAddMultipleChapters={handleAddMultipleChapters}
             onMarkBookComplete={handleMarkBookComplete}
             onRemoveLog={handleRemoveLog}
+            onBulkRemoveLogs={handleBulkRemoveLogs}
             isAdding={addLogMutation.isPending}
             isRemoving={removeLogMutation.isPending}
           />

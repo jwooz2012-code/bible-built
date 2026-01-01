@@ -18,12 +18,15 @@ export default function EditReadingSheet({
   onAddMultipleChapters,
   onMarkBookComplete,
   onRemoveLog, 
+  onBulkRemoveLogs,
   isAdding,
   isRemoving 
 }) {
   const [isAddMode, setIsAddMode] = useState(false);
   const [selectedBookIndex, setSelectedBookIndex] = useState(null);
   const [selectedChapters, setSelectedChapters] = useState([]);
+  const [selectedLogs, setSelectedLogs] = useState([]);
+  const [isBulkMode, setIsBulkMode] = useState(false);
 
   const handleAdd = async () => {
     if (selectedBookIndex !== null && selectedChapters.length > 0) {
@@ -53,20 +56,70 @@ export default function EditReadingSheet({
 
   const selectedBook = selectedBookIndex !== null ? BIBLE_BOOKS[selectedBookIndex] : null;
 
+  const toggleLogSelection = (logId) => {
+    setSelectedLogs(prev => 
+      prev.includes(logId) 
+        ? prev.filter(id => id !== logId)
+        : [...prev, logId]
+    );
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedLogs.length > 0) {
+      await onBulkRemoveLogs(selectedLogs);
+      setSelectedLogs([]);
+      setIsBulkMode(false);
+    }
+  };
+
   return (
     <div className="mt-6 space-y-4">
       {/* Existing logs */}
+      {logs.length > 0 && (
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
+            {logs.length} chapter{logs.length !== 1 ? 's' : ''} read
+          </p>
+          {logs.length > 1 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setIsBulkMode(!isBulkMode);
+                setSelectedLogs([]);
+              }}
+              className="text-xs"
+            >
+              {isBulkMode ? 'Cancel' : 'Select Multiple'}
+            </Button>
+          )}
+        </div>
+      )}
+      
       <div className="space-y-2 max-h-80 overflow-y-auto">
         {logs.map((log, index) => {
           const book = BIBLE_BOOKS[log.book_index];
+          const isSelected = selectedLogs.includes(log.id);
+          
           return (
             <div
               key={`${log.event_id}-${index}`}
-              className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-xl"
+              className={`
+                flex items-center justify-between p-3 rounded-xl transition-all
+                ${isSelected ? 'bg-red-50 dark:bg-red-950/20 ring-2 ring-red-500 dark:ring-red-400' : 'bg-gray-50 dark:bg-slate-800'}
+              `}
             >
-              <div>
-                <p className="font-medium text-gray-900 dark:text-slate-100">{book?.name}</p>
-                <p className="text-sm text-gray-600 dark:text-slate-400">Chapter {log.chapter}</p>
+              <div className="flex items-center gap-3 flex-1">
+                {isBulkMode && (
+                  <Checkbox
+                    checked={isSelected}
+                    onCheckedChange={() => toggleLogSelection(log.id)}
+                  />
+                )}
+                <div>
+                  <p className="font-medium text-gray-900 dark:text-slate-100">{book?.name}</p>
+                  <p className="text-sm text-gray-600 dark:text-slate-400">Chapter {log.chapter}</p>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <p className="text-xs text-gray-500 dark:text-slate-500">
@@ -75,20 +128,33 @@ export default function EditReadingSheet({
                     minute: '2-digit' 
                   })}
                 </p>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => onRemoveLog(log.id)}
-                  disabled={isRemoving}
-                  className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {!isBulkMode && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onRemoveLog(log.id)}
+                    disabled={isRemoving}
+                    className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                )}
               </div>
             </div>
           );
         })}
       </div>
+      
+      {isBulkMode && selectedLogs.length > 0 && (
+        <Button
+          onClick={handleBulkDelete}
+          disabled={isRemoving}
+          variant="destructive"
+          className="w-full"
+        >
+          {isRemoving ? 'Deleting...' : `Delete ${selectedLogs.length} Selected`}
+        </Button>
+      )}
 
       {/* Add chapter section */}
       {isAddMode ? (
