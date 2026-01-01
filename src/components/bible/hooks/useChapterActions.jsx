@@ -121,11 +121,14 @@ export function useChapterActions(
   const restartBook = async (bookName) => {
     const progress = getProgressForBook(bookName);
     if (progress) {
+      // Clear chapter_read_counts to reset visual progress, but keep completion_count
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: { 
           chapters_read: [],
-          chapter_read_dates: {}
+          chapter_read_dates: {},
+          chapter_read_counts: {},
+          completion_count: progress.completion_count // Preserve completion count
         }
       });
     }
