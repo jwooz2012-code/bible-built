@@ -66,7 +66,19 @@ export default function ReadingCalendar() {
     mutationFn: async (logId) => {
       return await base44.entities.ReadingLog.delete(logId);
     },
-    onSuccess: () => {
+    onMutate: async (logId) => {
+      await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
+      const previousLogs = queryClient.getQueryData(['readingLogs']);
+      queryClient.setQueryData(['readingLogs'], (old) => 
+        old?.filter(log => log.id !== logId) || []
+      );
+      return { previousLogs };
+    },
+    onError: (err, logId, context) => {
+      queryClient.setQueryData(['readingLogs'], context.previousLogs);
+      toast.error('Failed to remove chapter');
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
     },
   });
@@ -281,22 +293,50 @@ export default function ReadingCalendar() {
   };
 
   const handleBulkRemoveLogs = async (logIds) => {
-    await Promise.all(
-      logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+    await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
+    const previousLogs = queryClient.getQueryData(['readingLogs']);
+    
+    queryClient.setQueryData(['readingLogs'], (old) => 
+      old?.filter(log => !logIds.includes(log.id)) || []
     );
-    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-    toast.success(`${logIds.length} chapters removed`);
+    
+    try {
+      await Promise.all(
+        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+      );
+      toast.success(`${logIds.length} chapters removed`);
+    } catch (error) {
+      queryClient.setQueryData(['readingLogs'], previousLogs);
+      toast.error('Failed to delete chapters');
+    } finally {
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    }
   };
 
   const handleClearDay = async () => {
     if (selectedDay && selectedDayLogs.length > 0) {
       const logIds = selectedDayLogs.map(log => log.id);
-      await Promise.all(
-        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+      
+      await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
+      const previousLogs = queryClient.getQueryData(['readingLogs']);
+      
+      queryClient.setQueryData(['readingLogs'], (old) => 
+        old?.filter(log => !logIds.includes(log.id)) || []
       );
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      toast.success('Day cleared');
+      
       setSelectedDay(null);
+      toast.success('Day cleared');
+      
+      try {
+        await Promise.all(
+          logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+        );
+      } catch (error) {
+        queryClient.setQueryData(['readingLogs'], previousLogs);
+        toast.error('Failed to clear day');
+      } finally {
+        queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      }
     }
   };
 
