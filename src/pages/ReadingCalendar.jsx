@@ -68,7 +68,6 @@ export default function ReadingCalendar() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      toast.success('Chapter removed');
     },
   });
 
@@ -278,33 +277,26 @@ export default function ReadingCalendar() {
 
   const handleRemoveLog = async (logId) => {
     await removeLogMutation.mutateAsync(logId);
+    toast.success('Chapter removed');
   };
 
   const handleBulkRemoveLogs = async (logIds) => {
-    try {
-      await Promise.all(
-        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
-      );
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      toast.success(`${logIds.length} chapters removed`);
-    } catch (error) {
-      toast.error('Failed to delete some chapters');
-    }
+    await Promise.all(
+      logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+    );
+    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    toast.success(`${logIds.length} chapters removed`);
   };
 
   const handleClearDay = async () => {
     if (selectedDay && selectedDayLogs.length > 0) {
-      try {
-        const logIds = selectedDayLogs.map(log => log.id);
-        await Promise.all(
-          logIds.map(logId => base44.entities.ReadingLog.delete(logId))
-        );
-        queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-        toast.success('Day cleared');
-        setSelectedDay(null);
-      } catch (error) {
-        toast.error('Failed to clear day');
-      }
+      const logIds = selectedDayLogs.map(log => log.id);
+      await Promise.all(
+        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+      );
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Day cleared');
+      setSelectedDay(null);
     }
   };
 
