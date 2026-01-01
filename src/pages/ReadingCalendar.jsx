@@ -281,8 +281,14 @@ export default function ReadingCalendar() {
   };
 
   const handleBulkRemoveLogs = async (logIds) => {
-    for (const logId of logIds) {
-      await removeLogMutation.mutateAsync(logId);
+    try {
+      await Promise.all(
+        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+      );
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success(`${logIds.length} chapters removed`);
+    } catch (error) {
+      toast.error('Failed to delete some chapters');
     }
   };
 
