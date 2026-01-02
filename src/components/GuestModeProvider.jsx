@@ -14,11 +14,11 @@ export const useGuestMode = () => {
 const GUEST_MODE_ENABLED = true;
 
 const STORAGE_KEYS = {
-  READING_LOGS: 'guest_reading_logs',
-  BOOK_PROGRESS: 'guest_book_progress',
-  ACHIEVEMENTS: 'guest_achievements',
-  BIBLE_PROGRESS: 'guest_bible_progress',
-  LIFETIME_READING: 'guest_lifetime_reading',
+  READING_LOGS: 'biblebuilt_guest_progress_v1_reading_logs',
+  BOOK_PROGRESS: 'biblebuilt_guest_progress_v1_book_progress',
+  ACHIEVEMENTS: 'biblebuilt_guest_progress_v1_achievements',
+  BIBLE_PROGRESS: 'biblebuilt_guest_progress_v1_bible_progress',
+  LIFETIME_READING: 'biblebuilt_guest_progress_v1_lifetime_reading',
 };
 
 export const GuestModeProvider = ({ children }) => {
