@@ -161,7 +161,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setSelectedDay(dayData)}
                 className={`
-                  flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all
+                  flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all
                   ${dayData.count > 0 
                     ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105' 
                     : 'bg-gray-50 dark:bg-slate-700/20 hover:bg-gray-100 dark:hover:bg-slate-700/40'
@@ -172,11 +172,11 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
                 <span className={`text-xs font-medium ${dayData.count > 0 ? 'text-white/80' : 'text-gray-500 dark:text-slate-400'}`}>
                   {dayLetters[i]}
                 </span>
-                <span className={`text-base font-bold ${dayData.count > 0 ? 'text-white' : 'text-gray-900 dark:text-slate-100'}`}>
+                <span className={`text-lg font-bold ${dayData.count > 0 ? 'text-white' : 'text-gray-900 dark:text-slate-100'}`}>
                   {dayData.date.getDate()}
                 </span>
                 {dayData.count > 0 && (
-                  <span className="text-xs font-semibold text-white/90">
+                  <span className="text-sm font-semibold text-white/90">
                     {dayData.count}
                   </span>
                 )}
