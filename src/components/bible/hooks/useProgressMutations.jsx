@@ -9,12 +9,18 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    },
   });
 
   const unlockAchievementMutation = useMutation({
