@@ -29,16 +29,29 @@ export default function Stats() {
   
   const stats = calculateStats();
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   // Fetch reading logs for yearly stats
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryKey: ['readingLogs', user?.id],
+    queryFn: async () => {
+      return await base44.entities.ReadingLog.list();
+    },
+    enabled: !!user?.id,
+    staleTime: 0,
   });
 
   // Fetch lifetime reading data
   const { data: lifetimeData = [] } = useQuery({
-    queryKey: ['lifetimeReading'],
-    queryFn: () => base44.entities.LifetimeReading.list(),
+    queryKey: ['lifetimeReading', user?.id],
+    queryFn: async () => {
+      return await base44.entities.LifetimeReading.list();
+    },
+    enabled: !!user?.id,
+    staleTime: 0,
   });
 
   const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
@@ -69,7 +82,7 @@ export default function Stats() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lifetimeReading'] });
+      queryClient.invalidateQueries({ queryKey: ['lifetimeReading', user?.id] });
       toast.success('Lifetime reading history updated');
       setShowEditDialog(false);
     },
@@ -278,9 +291,9 @@ export default function Stats() {
         >
           <Button
             variant="outline"
-            onClick={() => {
-              base44.auth.logout();
-              base44.auth.redirectToLogin();
+            onClick={async () => {
+              queryClient.clear();
+              await base44.auth.logout();
             }}
             className="w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 text-gray-700 dark:text-gray-300"
           >

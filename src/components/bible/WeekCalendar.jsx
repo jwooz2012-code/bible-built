@@ -25,9 +25,18 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
     return new Date(d.setDate(diff));
   }, []);
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryKey: ['readingLogs', user?.id],
+    queryFn: async () => {
+      return await base44.entities.ReadingLog.list();
+    },
+    enabled: !!user?.id,
+    staleTime: 0,
   });
 
   const readingByDate = useMemo(() => {
@@ -60,8 +69,8 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
       toast.success('Chapter removed');
     },
   });
@@ -117,14 +126,14 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
         }
       }
       
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
       
       toast.success(`${logIds.length} chapters removed`);
     } catch (error) {
       toast.error('Failed to delete chapters');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
     }
   };
 
