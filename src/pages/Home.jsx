@@ -81,6 +81,7 @@ export default function Home() {
   
   const chaptersThisMonth = useMemo(() => {
     return readingLogs.filter(log => {
+      if (log.is_deleted) return false;
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
     }).length;
@@ -88,6 +89,7 @@ export default function Home() {
 
   const chaptersThisYear = useMemo(() => {
     return readingLogs.filter(log => {
+      if (log.is_deleted) return false;
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear;
     }).length;
