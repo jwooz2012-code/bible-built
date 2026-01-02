@@ -23,18 +23,9 @@ export default function Home() {
 
   const queryClient = useQueryClient();
 
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: () => base44.auth.me(),
-  });
-
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', user?.id],
-    queryFn: async () => {
-      return await base44.entities.ReadingLog.list();
-    },
-    enabled: !!user?.id,
-    staleTime: 0,
+    queryKey: ['readingLogs'],
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({
@@ -52,8 +43,8 @@ export default function Home() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
@@ -64,8 +55,8 @@ export default function Home() {
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter removed');
     },
   });

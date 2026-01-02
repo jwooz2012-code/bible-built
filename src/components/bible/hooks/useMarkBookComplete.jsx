@@ -3,18 +3,17 @@ import { BIBLE_BOOKS } from '../bibleData';
 
 export function useMarkBookComplete(
   user,
+  bibleProgress,
   getProgressForBook,
   createProgressMutation,
   updateProgressMutation,
+  createBibleProgressMutation,
+  updateBibleProgressMutation,
   checkAchievements
 ) {
   const markBookComplete = async (bookName) => {
-    // Fetch fresh user data at mutation time
-    const currentUser = await base44.auth.me();
-    if (!currentUser) return;
-
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book) return;
+    if (!book || !user) return;
 
     let progress = getProgressForBook(bookName);
     
@@ -26,12 +25,12 @@ export function useMarkBookComplete(
     const chapterReadDates = {};
     
     const readingLogEntries = allChapters.map(ch => ({
-      user_id: currentUser.id,
+      user_id: user.id,
       occurred_at: currentDate,
       local_date: localDate,
       book_index: book.index,
       chapter: ch,
-      event_id: `${currentUser.id}_${book.index}_${ch}_${Date.now()}_${ch}`
+      event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
     }));
     
     await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
@@ -39,6 +38,59 @@ export function useMarkBookComplete(
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;
     });
+    
+    const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
+    const bookKey = book.index.toString();
+    const existingChapters = chaptersMap[bookKey] || [];
+    
+    const mergedChapters = [...new Set([...existingChapters, ...allChapters])];
+    
+    const updatedMap = {
+      ...chaptersMap,
+      [bookKey]: mergedChapters
+    };
+    
+    let totalUniqueChapters = 0;
+    Object.values(updatedMap).forEach(chapters => {
+      if (Array.isArray(chapters)) {
+        totalUniqueChapters += chapters.length;
+      }
+    });
+    
+    if (totalUniqueChapters >= 1189) {
+      const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
+      
+      if (bibleProgress) {
+        await updateBibleProgressMutation.mutateAsync({
+          id: bibleProgress.id,
+          data: {
+            bible_completion_count: newCompletionCount,
+            chapters_completed_in_current_bible_run: {},
+            last_completed_at: new Date().toISOString(),
+          }
+        });
+      } else {
+        await createBibleProgressMutation.mutateAsync({
+          user_id: user.id,
+          bible_completion_count: newCompletionCount,
+          chapters_completed_in_current_bible_run: {},
+          last_completed_at: new Date().toISOString(),
+        });
+      }
+    } else {
+      if (bibleProgress) {
+        await updateBibleProgressMutation.mutateAsync({
+          id: bibleProgress.id,
+          data: { chapters_completed_in_current_bible_run: updatedMap }
+        });
+      } else {
+        await createBibleProgressMutation.mutateAsync({
+          user_id: user.id,
+          bible_completion_count: 0,
+          chapters_completed_in_current_bible_run: updatedMap,
+        });
+      }
+    }
     
     const chapterReadCounts = {};
     allChapters.forEach(ch => {
@@ -58,7 +110,7 @@ export function useMarkBookComplete(
       });
     } else {
       await createProgressMutation.mutateAsync({
-        user_id: currentUser.id,
+        user_id: user.id,
         book_name: bookName,
         book_index: book.index,
         testament: book.testament,
