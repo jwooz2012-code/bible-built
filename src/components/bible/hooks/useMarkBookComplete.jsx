@@ -1,5 +1,6 @@
 import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '../bibleData';
+import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useMarkBookComplete(
   user,
@@ -11,6 +12,7 @@ export function useMarkBookComplete(
   updateBibleProgressMutation,
   checkAchievements
 ) {
+  const { isGuest, guestAPI } = useGuestMode();
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book || !user) return;
@@ -33,7 +35,13 @@ export function useMarkBookComplete(
       event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
     }));
     
-    await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
+    if (isGuest) {
+      for (const entry of readingLogEntries) {
+        await guestAPI.readingLog.create(entry);
+      }
+    } else {
+      await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
+    }
     
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;

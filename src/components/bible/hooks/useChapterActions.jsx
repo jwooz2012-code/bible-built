@@ -1,6 +1,7 @@
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { BIBLE_BOOKS } from '../bibleData';
+import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useChapterActions(
   user,
@@ -12,6 +13,7 @@ export function useChapterActions(
   checkAchievements
 ) {
   const queryClient = useQueryClient();
+  const { isGuest, guestAPI } = useGuestMode();
 
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
@@ -75,14 +77,25 @@ export function useChapterActions(
     }
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
-    base44.entities.ReadingLog.create({
-      user_id: user.id,
-      occurred_at: isoString,
-      local_date: localDate,
-      book_index: book.index,
-      chapter: chapterNum,
-      event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-    });
+    if (isGuest) {
+      guestAPI.readingLog.create({
+        user_id: user.id,
+        occurred_at: isoString,
+        local_date: localDate,
+        book_index: book.index,
+        chapter: chapterNum,
+        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      });
+    } else {
+      base44.entities.ReadingLog.create({
+        user_id: user.id,
+        occurred_at: isoString,
+        local_date: localDate,
+        book_index: book.index,
+        chapter: chapterNum,
+        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      });
+    }
     
     // Calculate completion count
     const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
