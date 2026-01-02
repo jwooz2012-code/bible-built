@@ -25,25 +25,12 @@ export function useProgressData() {
     staleTime: 0,
   });
 
-  const { data: bibleProgressList = [], isLoading: bibleProgressLoading } = useQuery({
-    queryKey: ['bibleProgress', user?.id],
-    queryFn: async () => {
-      const data = await base44.entities.BibleProgress.list();
-      return data;
-    },
-    enabled: !!user?.id && !userError,
-    staleTime: 0,
-  });
-
-  const bibleProgress = bibleProgressList?.[0] || null;
-
-  const isLoading = userLoading || (!!user && (progressLoading || achievementsLoading || bibleProgressLoading));
+  const isLoading = userLoading || (!!user && (progressLoading || achievementsLoading));
 
   return {
     user,
     progressData,
     achievements,
-    bibleProgress,
     isLoading,
     userError,
   };
