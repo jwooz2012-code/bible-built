@@ -17,7 +17,8 @@ export function useChapterActions(
 
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book || !user) return;
+    if (!book) return;
+    if (!user) return;
 
     let progress = getProgressForBook(bookName);
     let chapterReadCounts = progress?.chapter_read_counts || {};

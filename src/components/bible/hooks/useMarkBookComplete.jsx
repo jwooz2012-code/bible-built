@@ -15,7 +15,8 @@ export function useMarkBookComplete(
   const { isGuest, guestAPI } = useGuestMode();
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book || !user) return;
+    if (!book) return;
+    if (!user) return;
 
     let progress = getProgressForBook(bookName);
     
