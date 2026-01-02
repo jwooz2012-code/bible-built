@@ -278,7 +278,10 @@ export default function Stats() {
         >
           <Button
             variant="outline"
-            onClick={() => base44.auth.logout()}
+            onClick={() => {
+              base44.auth.logout();
+              base44.auth.redirectToLogin();
+            }}
             className="w-full bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700 hover:bg-gray-50 dark:hover:bg-slate-700/50 text-gray-700 dark:text-gray-300"
           >
             <LogOut className="w-4 h-4 mr-2" />
