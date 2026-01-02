@@ -1,4 +1,5 @@
 import { base44 } from '@/api/base44Client';
+import { useQueryClient } from '@tanstack/react-query';
 import { BIBLE_BOOKS } from '../bibleData';
 
 export function useMarkBookComplete(
@@ -11,6 +12,7 @@ export function useMarkBookComplete(
   updateBibleProgressMutation,
   checkAchievements
 ) {
+  const queryClient = useQueryClient();
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book || !user) return;
@@ -122,6 +124,9 @@ export function useMarkBookComplete(
         last_read_date: currentDate,
       });
     }
+    
+    // Invalidate reading logs so calendars update
+    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
 
     setTimeout(() => checkAchievements(), 500);
   };
