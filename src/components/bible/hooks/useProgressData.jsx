@@ -1,36 +1,41 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useUser } from './useUser';
+import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useProgressData() {
   const { user } = useUser();
+  const { isGuest, guestAPI, guestUser } = useGuestMode();
+  
+  const activeUser = isGuest ? guestUser : user;
+  const api = isGuest ? guestAPI : base44.entities;
 
   const { data: progressData = [], isLoading } = useQuery({
-    queryKey: ['bookProgress', user?.id],
-    queryFn: async () => base44.entities.BookProgress.filter({ user_id: user?.id }),
-    enabled: !!user,
+    queryKey: ['bookProgress', activeUser?.id],
+    queryFn: async () => api.BookProgress.filter({ user_id: activeUser?.id }),
+    enabled: !!activeUser,
     initialData: [],
   });
 
   const { data: achievements = [] } = useQuery({
-    queryKey: ['achievements', user?.id],
-    queryFn: async () => base44.entities.Achievement.filter({ user_id: user?.id }),
-    enabled: !!user,
+    queryKey: ['achievements', activeUser?.id],
+    queryFn: async () => api.Achievement.filter({ user_id: activeUser?.id }),
+    enabled: !!activeUser,
     initialData: [],
   });
 
   const { data: bibleProgress } = useQuery({
-    queryKey: ['bibleProgress', user?.id],
+    queryKey: ['bibleProgress', activeUser?.id],
     queryFn: async () => {
-      const results = await base44.entities.BibleProgress.filter({ user_id: user?.id });
+      const results = await api.BibleProgress.filter({ user_id: activeUser?.id });
       return results[0] || null;
     },
-    enabled: !!user,
+    enabled: !!activeUser,
     initialData: null,
   });
 
   return {
-    user,
+    user: activeUser,
     progressData,
     achievements,
     bibleProgress,
