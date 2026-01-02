@@ -130,17 +130,14 @@ export function useChapterActions(
   };
 
   const restartBook = async (bookName) => {
+    // Start Over only resets visual state (chapters_read)
+    // Keeps all read counts intact
     const progress = getProgressForBook(bookName);
     if (progress) {
-      // Only clear chapters_read and chapter_read_dates to reset visual color
-      // Keep chapter_read_counts and completion_count to preserve history
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: { 
-          chapters_read: [],
-          chapter_read_dates: {},
-          completion_count: progress.completion_count,
-          chapter_read_counts: progress.chapter_read_counts
+          chapters_read: []
         }
       });
     }
