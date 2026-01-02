@@ -124,6 +124,17 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
               onAddMultipleChapters={onAddChapters}
               onMarkBookComplete={onMarkComplete}
               onRemoveLog={onRemoveLog}
+              onBulkRemoveLogs={async (logIds) => {
+                for (const logId of logIds) {
+                  await onRemoveLog(logId);
+                }
+              }}
+              onClearDay={async () => {
+                const dayLogs = readingByDate[selectedDay.localDate] || [];
+                for (const log of dayLogs) {
+                  await onRemoveLog(log.id);
+                }
+              }}
               isAdding={false}
               isRemoving={false}
             />
