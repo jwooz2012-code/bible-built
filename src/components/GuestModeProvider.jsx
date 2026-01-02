@@ -22,7 +22,7 @@ const STORAGE_KEYS = {
 };
 
 export const GuestModeProvider = ({ children }) => {
-  const [isGuest, setIsGuest] = useState(false);
+  const [isGuest, setIsGuest] = useState(GUEST_MODE_ENABLED);
   const [guestData, setGuestData] = useState({
     readingLogs: [],
     bookProgress: [],
