@@ -75,7 +75,7 @@ export function useChapterActions(
     }
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
-    base44.entities.ReadingLog.create({
+    await base44.entities.ReadingLog.create({
       user_id: user.id,
       occurred_at: isoString,
       local_date: localDate,
@@ -114,6 +114,9 @@ export function useChapterActions(
     }
 
     await updateBibleProgressChapter(book.index, chapterNum);
+    
+    // Invalidate reading logs so calendars update
+    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
 
     setTimeout(() => checkAchievements(), 500);
   };
