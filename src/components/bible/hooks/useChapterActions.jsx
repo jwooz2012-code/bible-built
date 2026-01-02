@@ -125,9 +125,9 @@ export function useChapterActions(
       await updateBibleProgressChapter(book.index, chapterNum);
       
       // Force immediate refetch across all pages
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'active' });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
 
       setTimeout(() => checkAchievements(), 500);
     } catch (error) {

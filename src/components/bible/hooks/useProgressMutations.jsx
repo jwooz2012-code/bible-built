@@ -9,17 +9,17 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'active' });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
     },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'active' });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
     },
   });
 
@@ -36,17 +36,17 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'active' });
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     },
   });
 
