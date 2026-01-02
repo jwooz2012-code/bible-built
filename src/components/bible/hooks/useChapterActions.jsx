@@ -77,7 +77,7 @@ export function useChapterActions(
       chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
       
       // Create reading log first
-      await base44.entities.ReadingLog.create({
+      console.log('Creating ReadingLog:', {
         user_id: user.id,
         occurred_at: isoString,
         local_date: localDate,
@@ -85,6 +85,17 @@ export function useChapterActions(
         chapter: chapterNum,
         event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
       });
+      
+      const logResult = await base44.entities.ReadingLog.create({
+        user_id: user.id,
+        occurred_at: isoString,
+        local_date: localDate,
+        book_index: book.index,
+        chapter: chapterNum,
+        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      });
+      
+      console.log('ReadingLog created:', logResult);
       
       // Calculate completion count
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
