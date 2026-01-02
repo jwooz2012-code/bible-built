@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
