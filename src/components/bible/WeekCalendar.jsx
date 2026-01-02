@@ -125,15 +125,11 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
               onMarkBookComplete={onMarkComplete}
               onRemoveLog={onRemoveLog}
               onBulkRemoveLogs={async (logIds) => {
-                for (const logId of logIds) {
-                  await onRemoveLog(logId);
-                }
+                await Promise.all(logIds.map(logId => onRemoveLog(logId)));
               }}
               onClearDay={async () => {
                 const dayLogs = readingByDate[selectedDay.localDate] || [];
-                for (const log of dayLogs) {
-                  await onRemoveLog(log.id);
-                }
+                await Promise.all(dayLogs.map(log => onRemoveLog(log.id)));
               }}
               isAdding={false}
               isRemoving={false}
