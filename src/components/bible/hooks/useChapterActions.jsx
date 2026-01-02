@@ -13,71 +13,25 @@ export function useChapterActions(
   const queryClient = useQueryClient();
 
   const toggleChapter = async (bookName, chapterNum) => {
-    // Fetch fresh user data at mutation time
     const currentUser = await base44.auth.me();
     if (!currentUser) return;
 
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book) return;
 
-    let progress = getProgressForBook(bookName);
-    let chapterReadCounts = progress?.chapter_read_counts || {};
-    let chaptersRead = progress?.chapters_read || [];
-    let chapterReadDates = progress?.chapter_read_dates || {};
+    const progress = getProgressForBook(bookName);
+    const chapterReadCounts = progress?.chapter_read_counts || {};
+    const chaptersRead = progress?.chapters_read || [];
+    const chapterReadDates = progress?.chapter_read_dates || {};
     
-    const currentCount = chapterReadCounts[chapterNum] || 0;
-    const newCount = currentCount + 1;
+    const newCount = (chapterReadCounts[chapterNum] || 0) + 1;
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
-    // Optimistic update
-    const optimisticCounts = { ...chapterReadCounts, [chapterNum]: newCount };
-    const optimisticChaptersRead = chaptersRead.includes(chapterNum) ? chaptersRead : [...chaptersRead, chapterNum];
-    const optimisticDates = { ...chapterReadDates, [chapterNum]: new Date().toISOString() };
-    
-    // Calculate completion count based on minimum reads across all chapters
-    const minReadCount = Math.min(...allChapters.map(ch => optimisticCounts[ch] || 0));
-    const newCompletionCount = minReadCount;
-    
-    const optimisticProgress = progress ? {
-      ...progress,
-      chapter_read_counts: optimisticCounts,
-      chapters_read: optimisticChaptersRead,
-      chapter_read_dates: optimisticDates,
-      completion_count: newCompletionCount,
-      last_read_date: new Date().toISOString(),
-    } : {
-      user_id: currentUser.id,
-      book_name: bookName,
-      book_index: book.index,
-      testament: book.testament,
-      total_chapters: book.chapters,
-      chapter_read_counts: optimisticCounts,
-      chapters_read: optimisticChaptersRead,
-      chapter_read_dates: optimisticDates,
-      completion_count: newCompletionCount,
-      last_read_date: new Date().toISOString(),
-    };
-    
-    // Update cache optimistically
-    queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
-      if (progress && progress.id) {
-        return old.map(p => p.id === progress.id ? optimisticProgress : p);
-      } else {
-        return [...old, { ...optimisticProgress, id: `temp_${Date.now()}` }];
-      }
-    });
-    
-    // Perform actual updates
     const now = new Date();
     const isoString = now.toISOString();
     const localDate = now.toLocaleDateString('en-CA');
     
-    chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
-    if (!chaptersRead.includes(chapterNum)) {
-      chaptersRead = [...chaptersRead, chapterNum];
-    }
-    chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
-    
+    // Create reading log entry
     await base44.entities.ReadingLog.create({
       user_id: currentUser.id,
       occurred_at: isoString,
@@ -87,47 +41,45 @@ export function useChapterActions(
       event_id: `${currentUser.id}_${book.index}_${chapterNum}_${Date.now()}`
     });
     
-    // Calculate completion count
-    const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
+    // Update progress data
+    const updatedCounts = { ...chapterReadCounts, [chapterNum]: newCount };
+    const updatedChaptersRead = chaptersRead.includes(chapterNum) 
+      ? chaptersRead 
+      : [...chaptersRead, chapterNum];
+    const updatedDates = { ...chapterReadDates, [chapterNum]: isoString };
+    const completionCount = Math.min(...allChapters.map(ch => updatedCounts[ch] || 0));
     
-    try {
-      if (progress && progress.id) {
-        const updateData = {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
+    if (progress?.id) {
+      await updateProgressMutation.mutateAsync({
+        id: progress.id,
+        data: {
+          chapter_read_counts: updatedCounts,
+          chapters_read: updatedChaptersRead,
+          chapter_read_dates: updatedDates,
           completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
-        };
-
-        await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
-      } else {
-        const createData = {
-          user_id: currentUser.id,
-          book_name: bookName,
-          book_index: book.index,
-          testament: book.testament,
-          total_chapters: book.chapters,
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
-          completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
-        };
-        await createProgressMutation.mutateAsync(createData);
-      }
-      
-      // Invalidate to refresh with server data
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', currentUser.id] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
-
-      setTimeout(() => checkAchievements(), 500);
-    } catch (error) {
-      console.error('Error toggling chapter:', error);
-      // Revert optimistic update on error
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', currentUser.id] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
+          last_read_date: isoString,
+        }
+      });
+    } else {
+      await createProgressMutation.mutateAsync({
+        user_id: currentUser.id,
+        book_name: bookName,
+        book_index: book.index,
+        testament: book.testament,
+        total_chapters: book.chapters,
+        chapter_read_counts: updatedCounts,
+        chapters_read: updatedChaptersRead,
+        chapter_read_dates: updatedDates,
+        completion_count: completionCount,
+        last_read_date: isoString,
+      });
     }
+    
+    // Refresh all data across views
+    queryClient.invalidateQueries({ queryKey: ['bookProgress', currentUser.id] });
+    queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
+    
+    setTimeout(() => checkAchievements(), 500);
   };
 
   const restartBook = async (bookName) => {
