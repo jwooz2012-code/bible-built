@@ -1,13 +1,9 @@
-import { useGuestMode } from '@/components/GuestModeProvider';
-
 export function useBibleProgressTracker(
   bibleProgress,
-  userParam,
+  user,
   createBibleProgressMutation,
   updateBibleProgressMutation
 ) {
-  const { isGuest, guestUser } = useGuestMode();
-  const user = isGuest ? guestUser : userParam;
 
   const updateBibleProgressChapter = async (bookIndex, chapterNum) => {
     if (!user) return;

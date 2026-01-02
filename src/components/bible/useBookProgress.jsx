@@ -5,9 +5,13 @@ import { useAchievements } from './hooks/useAchievements';
 import { useBibleProgressTracker } from './hooks/useBibleProgressTracker';
 import { useChapterActions } from './hooks/useChapterActions';
 import { useMarkBookComplete } from './hooks/useMarkBookComplete';
+import { useGuestMode } from '@/components/GuestModeProvider';
+import { base44 } from '@/api/base44Client';
 
 export function useBookProgress() {
   const { user, progressData, achievements, bibleProgress, isLoading } = useProgressData();
+  const { isGuest, guestAPI } = useGuestMode();
+  const api = isGuest ? guestAPI : base44.entities;
 
   const {
     createProgressMutation,
@@ -41,7 +45,8 @@ export function useBookProgress() {
     createProgressMutation,
     updateProgressMutation,
     updateBibleProgressChapter,
-    checkAchievements
+    checkAchievements,
+    api
   );
 
   const { markBookComplete } = useMarkBookComplete(
@@ -52,7 +57,9 @@ export function useBookProgress() {
     updateProgressMutation,
     createBibleProgressMutation,
     updateBibleProgressMutation,
-    checkAchievements
+    checkAchievements,
+    isGuest,
+    guestAPI
   );
 
   return {

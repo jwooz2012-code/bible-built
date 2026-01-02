@@ -1,21 +1,18 @@
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
 import { BIBLE_BOOKS } from '../bibleData';
-import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useChapterActions(
-  userParam,
+  user,
   progressData,
   getProgressForBook,
   createProgressMutation,
   updateProgressMutation,
   updateBibleProgressChapter,
-  checkAchievements
+  checkAchievements,
+  api
 ) {
   const queryClient = useQueryClient();
-  const { isGuest, guestAPI, guestUser } = useGuestMode();
-  const api = isGuest ? guestAPI : base44.entities;
-  const user = isGuest ? guestUser : userParam;
 
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);

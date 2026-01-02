@@ -1,19 +1,18 @@
 import { base44 } from '@/api/base44Client';
 import { BIBLE_BOOKS } from '../bibleData';
-import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useMarkBookComplete(
-  userParam,
+  user,
   bibleProgress,
   getProgressForBook,
   createProgressMutation,
   updateProgressMutation,
   createBibleProgressMutation,
   updateBibleProgressMutation,
-  checkAchievements
+  checkAchievements,
+  isGuest,
+  guestAPI
 ) {
-  const { isGuest, guestAPI, guestUser } = useGuestMode();
-  const user = isGuest ? guestUser : userParam;
 
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
