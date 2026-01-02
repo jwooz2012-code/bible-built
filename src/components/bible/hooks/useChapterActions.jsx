@@ -60,7 +60,7 @@ export function useChapterActions(
     };
     
     // Update cache optimistically
-    queryClient.setQueryData(['bookProgress'], (old = []) => {
+    queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
       if (progress) {
         return old.map(p => p.id === progress.id ? optimisticProgress : p);
       } else {
@@ -79,7 +79,7 @@ export function useChapterActions(
     }
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
-    base44.entities.ReadingLog.create({
+    await base44.entities.ReadingLog.create({
       user_id: currentUser.id,
       occurred_at: isoString,
       local_date: localDate,
