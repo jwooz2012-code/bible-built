@@ -3,7 +3,6 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { useGuestMode } from '@/components/GuestModeProvider';
 import {
   Sheet,
   SheetContent,
@@ -18,7 +17,6 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   const queryClient = useQueryClient();
   const today = new Date();
   const [selectedDay, setSelectedDay] = React.useState(null);
-  const { isGuest, guestAPI, guestUser } = useGuestMode();
 
   const currentWeekStart = useMemo(() => {
     const d = new Date();
@@ -28,14 +26,8 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   }, []);
 
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', isGuest ? 'guest' : 'user'],
-    queryFn: async () => {
-      if (isGuest) {
-        return guestAPI.readingLog.list();
-      }
-      const user = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: user.id });
-    },
+    queryKey: ['readingLogs'],
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const readingByDate = useMemo(() => {
@@ -65,9 +57,6 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
 
   const removeLogMutation = useMutation({
     mutationFn: async (logId) => {
-      if (isGuest) {
-        return await guestAPI.readingLog.delete(logId);
-      }
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
@@ -81,10 +70,8 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
     const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
     
     try {
-      const api = isGuest ? guestAPI : base44.entities;
-      
       await Promise.all(
-        logIds.map(logId => api.ReadingLog.delete(logId))
+        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
       );
       
       const bookUpdates = {};
@@ -98,10 +85,10 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
         bookUpdates[log.book_index][log.chapter]++;
       });
       
-      const user = isGuest ? guestUser : await base44.auth.me();
+      const user = await base44.auth.me();
       
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progress = await api.BookProgress.filter({ 
+        const progress = await base44.entities.BookProgress.filter({ 
           book_index: parseInt(bookIndex),
           user_id: user.id
         });
@@ -123,7 +110,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
           
           const chaptersRead = Object.keys(chapterReadCounts).map(Number);
           
-          await api.BookProgress.update(bookProgress.id, {
+          await base44.entities.BookProgress.update(bookProgress.id, {
             chapter_read_counts: chapterReadCounts,
             chapters_read: chaptersRead,
           });
@@ -171,7 +158,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
                 transition={{ delay: i * 0.05 }}
                 onClick={() => setSelectedDay(dayData)}
                 className={`
-                  flex flex-col items-center gap-2 py-3 px-2 rounded-xl transition-all
+                  flex flex-col items-center gap-1.5 p-2 rounded-xl transition-all
                   ${dayData.count > 0 
                     ? 'bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-md hover:shadow-lg hover:scale-105' 
                     : 'bg-gray-50 dark:bg-slate-700/20 hover:bg-gray-100 dark:hover:bg-slate-700/40'
@@ -182,11 +169,11 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
                 <span className={`text-xs font-medium ${dayData.count > 0 ? 'text-white/80' : 'text-gray-500 dark:text-slate-400'}`}>
                   {dayLetters[i]}
                 </span>
-                <span className={`text-lg font-bold ${dayData.count > 0 ? 'text-white' : 'text-gray-900 dark:text-slate-100'}`}>
+                <span className={`text-base font-bold ${dayData.count > 0 ? 'text-white' : 'text-gray-900 dark:text-slate-100'}`}>
                   {dayData.date.getDate()}
                 </span>
                 {dayData.count > 0 && (
-                  <span className="text-sm font-semibold text-white/90">
+                  <span className="text-xs font-semibold text-white/90">
                     {dayData.count}
                   </span>
                 )}

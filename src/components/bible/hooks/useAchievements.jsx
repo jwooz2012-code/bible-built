@@ -1,7 +1,6 @@
 import { ACHIEVEMENTS } from '../bibleData';
 
 export function useAchievements(progressData, achievements, unlockAchievementMutation, calculateStats, user) {
-
   const checkAchievements = async () => {
     if (!user) return;
     

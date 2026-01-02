@@ -16,53 +16,30 @@ import ThemeToggle from '@/components/ThemeToggle';
 import WeekCalendar from '@/components/bible/WeekCalendar';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
-import { useGuestMode } from '@/components/GuestModeProvider';
-import { useGuestSafeUser } from '@/components/useGuestSafeQuery';
 
 export default function Home() {
   const [testament, setTestament] = useState('all');
-  const { isGuest, guestAPI, guestUser } = useGuestMode();
-  const { data: user } = useGuestSafeUser();
   const { progressData, achievements, isLoading, getProgressForBook, calculateStats, updateProgressMutation, checkAchievements } = useBookProgress();
 
   const queryClient = useQueryClient();
 
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', isGuest ? 'guest' : 'user'],
-    queryFn: async () => {
-      if (isGuest) {
-        return guestAPI.readingLog.list();
-      }
-      const currentUser = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: currentUser.id });
-    },
-    initialData: [],
+    queryKey: ['readingLogs'],
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
-      if (isGuest) {
-        const dateObj = new Date(localDate + 'T12:00:00');
-        return await guestAPI.readingLog.create({
-          user_id: guestUser.id,
-          occurred_at: dateObj.toISOString(),
-          local_date: localDate,
-          book_index: bookIndex,
-          chapter: chapter,
-          event_id: `${guestUser.id}_${bookIndex}_${chapter}_${Date.now()}`,
-        });
-      }
-      
-      const currentUser = await base44.auth.me();
+      const user = await base44.auth.me();
       const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
-        user_id: currentUser.id,
+        user_id: user.id,
         occurred_at: dateObj.toISOString(),
         local_date: localDate,
         book_index: bookIndex,
         chapter: chapter,
-        event_id: `${currentUser.id}_${bookIndex}_${chapter}_${Date.now()}`,
+        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
       });
     },
     onSuccess: () => {
@@ -75,9 +52,6 @@ export default function Home() {
 
   const removeLogMutation = useMutation({
     mutationFn: async (logId) => {
-      if (isGuest) {
-        return await guestAPI.readingLog.delete(logId);
-      }
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
@@ -119,15 +93,16 @@ export default function Home() {
   }, [readingLogs, currentYear]);
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
-    const currentUser = isGuest ? guestUser : await base44.auth.me();
+    const user = await base44.auth.me();
     
     for (const chapter of chapters) {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = isGuest 
-      ? await guestAPI.bookProgress.filter({ book_index: bookIndex, user_id: currentUser.id })
-      : await base44.entities.BookProgress.filter({ book_index: bookIndex, user_id: currentUser.id });
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex,
+      user_id: user.id
+    });
     
     if (progress.length > 0) {
       const bookProgress = progress[0];
@@ -164,7 +139,7 @@ export default function Home() {
   };
 
   const handleMarkBookComplete = async (localDate, bookIndex) => {
-    const currentUser = isGuest ? guestUser : await base44.auth.me();
+    const user = await base44.auth.me();
     const book = BIBLE_BOOKS[bookIndex];
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
@@ -172,9 +147,10 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = isGuest
-      ? await guestAPI.bookProgress.filter({ book_index: bookIndex, user_id: currentUser.id })
-      : await base44.entities.BookProgress.filter({ book_index: bookIndex, user_id: currentUser.id });
+    const progress = await base44.entities.BookProgress.filter({ 
+      book_index: bookIndex,
+      user_id: user.id
+    });
     
     if (progress.length > 0) {
       const bookProgress = progress[0];

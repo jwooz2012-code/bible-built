@@ -4,7 +4,6 @@ export function useBibleProgressTracker(
   createBibleProgressMutation,
   updateBibleProgressMutation
 ) {
-
   const updateBibleProgressChapter = async (bookIndex, chapterNum) => {
     if (!user) return;
 

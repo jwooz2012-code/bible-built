@@ -9,15 +9,11 @@ export function useMarkBookComplete(
   updateProgressMutation,
   createBibleProgressMutation,
   updateBibleProgressMutation,
-  checkAchievements,
-  isGuest,
-  guestAPI
+  checkAchievements
 ) {
-
   const markBookComplete = async (bookName) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book) return;
-    if (!user) return;
+    if (!book || !user) return;
 
     let progress = getProgressForBook(bookName);
     
@@ -37,11 +33,7 @@ export function useMarkBookComplete(
       event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
     }));
     
-    if (isGuest) {
-      await guestAPI.ReadingLog.bulkCreate(readingLogEntries);
-    } else {
-      await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
-    }
+    await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
     
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;

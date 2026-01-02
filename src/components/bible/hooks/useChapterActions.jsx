@@ -9,15 +9,13 @@ export function useChapterActions(
   createProgressMutation,
   updateProgressMutation,
   updateBibleProgressChapter,
-  checkAchievements,
-  api
+  checkAchievements
 ) {
   const queryClient = useQueryClient();
 
   const toggleChapter = async (bookName, chapterNum) => {
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book) return;
-    if (!user) return;
+    if (!book || !user) return;
 
     let progress = getProgressForBook(bookName);
     let chapterReadCounts = progress?.chapter_read_counts || {};
@@ -77,7 +75,7 @@ export function useChapterActions(
     }
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
-    api.ReadingLog.create({
+    base44.entities.ReadingLog.create({
       user_id: user.id,
       occurred_at: isoString,
       local_date: localDate,

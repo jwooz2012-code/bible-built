@@ -3,7 +3,6 @@ import BookDetail from './pages/BookDetail';
 import BooksCompleted from './pages/BooksCompleted';
 import Home from './pages/Home';
 import ReadingCalendar from './pages/ReadingCalendar';
-import Settings from './pages/Settings';
 import Stats from './pages/Stats';
 import app from './pages/_app';
 import __Layout from './Layout.jsx';
@@ -15,7 +14,6 @@ export const PAGES = {
     "BooksCompleted": BooksCompleted,
     "Home": Home,
     "ReadingCalendar": ReadingCalendar,
-    "Settings": Settings,
     "Stats": Stats,
     "_app": app,
 }

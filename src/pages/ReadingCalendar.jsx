@@ -40,10 +40,7 @@ export default function ReadingCalendar() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: user.id });
-    },
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({
@@ -553,8 +550,8 @@ export default function ReadingCalendar() {
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
         >
-          <div className="text-center mb-5">
-            <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-2">
+          <div className="text-center mb-4">
+            <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1">
               <span className="text-green-600 dark:text-green-400">{viewStats.total}</span> chapters
             </p>
             <p className="text-sm text-gray-600 dark:text-slate-400">
@@ -563,14 +560,14 @@ export default function ReadingCalendar() {
               {view === 'year' && 'this year'}
             </p>
           </div>
-          <div className="flex justify-center gap-8 text-sm">
+          <div className="flex justify-center gap-6 text-sm">
             <div className="text-center">
-              <p className="font-semibold text-gray-900 dark:text-slate-100 mb-1">{viewStats.readingDays}</p>
+              <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.readingDays}</p>
               <p className="text-xs text-gray-500 dark:text-slate-400">reading days</p>
             </div>
             <div className="h-10 w-px bg-gray-200 dark:bg-slate-700" />
             <div className="text-center">
-              <p className="font-semibold text-gray-900 dark:text-slate-100 mb-1">{viewStats.avgPerDay}</p>
+              <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.avgPerDay}</p>
               <p className="text-xs text-gray-500 dark:text-slate-400">avg/day</p>
             </div>
           </div>
@@ -623,28 +620,28 @@ export default function ReadingCalendar() {
                   
                   return (
                     <motion.button
-                     key={i}
-                     initial={{ opacity: 0, y: 20 }}
-                     animate={{ opacity: 1, y: 0 }}
-                     transition={{ delay: i * 0.05 }}
-                     onClick={() => setSelectedDay(dayData)}
-                     className={`
-                       flex flex-col items-center gap-2.5 py-4 px-3 rounded-2xl transition-all
-                       ${dayData.count > 0 ? 'bg-gray-50 dark:bg-slate-700/30 hover:bg-gray-100 dark:hover:bg-slate-700/50' : 'bg-gray-50/50 dark:bg-slate-700/10'}
-                       ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
-                     `}
+                      key={i}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      onClick={() => setSelectedDay(dayData)}
+                      className={`
+                        flex flex-col items-center gap-2 p-4 rounded-2xl transition-all
+                        ${dayData.count > 0 ? 'bg-gray-50 dark:bg-slate-700/30 hover:bg-gray-100 dark:hover:bg-slate-700/50' : 'bg-gray-50/50 dark:bg-slate-700/10'}
+                        ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
+                      `}
                     >
-                     <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
-                       {dayLetters[i]}
-                     </span>
-                     <span className="text-xl font-bold text-gray-900 dark:text-slate-100">
-                       {dayData.date.getDate()}
-                     </span>
-                     {dayData.count > 0 && (
-                       <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                         {dayData.count}
-                       </span>
-                     )}
+                      <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
+                        {dayLetters[i]}
+                      </span>
+                      <span className="text-lg font-bold text-gray-900 dark:text-slate-100">
+                        {dayData.date.getDate()}
+                      </span>
+                      {dayData.count > 0 && (
+                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
+                          {dayData.count}
+                        </span>
+                      )}
                     </motion.button>
                   );
                 })}
@@ -693,18 +690,18 @@ export default function ReadingCalendar() {
               transition={{ delay: 0.3 }}
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
             >
-              <div className="grid grid-cols-7 gap-3 mb-4">
+              <div className="grid grid-cols-7 gap-4 mb-5">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
                   <div
                     key={i}
-                    className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center h-6"
+                    className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center"
                   >
                     {day}
                   </div>
                 ))}
               </div>
 
-              <div className="grid grid-cols-7 gap-3">
+              <div className="grid grid-cols-7 gap-4">
                 {calendarDays.map((dayData, index) => {
                   if (!dayData) {
                     return <div key={`empty-${index}`} className="aspect-square" />;
@@ -721,18 +718,18 @@ export default function ReadingCalendar() {
                       transition={{ delay: index * 0.01 }}
                       onClick={() => handleDayClick(dayData)}
                       className={`
-                        w-full aspect-square rounded-xl flex items-center justify-center p-2
-                        transition-all duration-200 min-h-[48px]
+                        w-full aspect-square rounded-xl flex items-center justify-center p-3
+                        transition-all duration-200 min-h-[44px]
                         ${hasReading ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg hover:from-emerald-700 hover:to-emerald-800 hover:scale-105' : 'bg-slate-50 dark:bg-slate-700/10 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:scale-105'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
                       {hasReading ? (
-                        <span className="text-base font-bold text-white">
+                        <span className="text-sm font-semibold text-white">
                           {dayData.count}
                         </span>
                       ) : (
-                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 dark:bg-slate-600" />
+                        <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
                       )}
                     </motion.button>
                   );
@@ -789,21 +786,21 @@ export default function ReadingCalendar() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: mIndex * 0.05 }}
                   className={`
-                    bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-5 shadow-lg border border-gray-200 dark:border-slate-700/50
+                    bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50
                     ${monthData.total > 0 ? 'ring-2 ring-emerald-500/30 dark:ring-emerald-400/30' : ''}
                   `}
                 >
-                  <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-3">
+                  <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2">
                     {monthNames[monthData.month]}
                   </h3>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100 mb-1.5">
+                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
                     {monthData.total > 0 ? (
                       <span className="text-emerald-600 dark:text-emerald-400">{monthData.total}</span>
                     ) : (
                       <span className="text-gray-300 dark:text-slate-700">0</span>
                     )}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-slate-500">chapters</p>
+                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters</p>
                 </motion.div>
               ))}
             </motion.div>
