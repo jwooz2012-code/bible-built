@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Trophy, BarChart3 } from 'lucide-react';
+import { Home, Trophy, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 export default function Layout({ children }) {
@@ -16,6 +16,7 @@ export default function Layout({ children }) {
     { name: 'Home', icon: Home, path: '/Home' },
     { name: 'Achievements', icon: Trophy, path: '/Achievements' },
     { name: 'Stats', icon: BarChart3, path: '/Stats' },
+    { name: 'Settings', icon: Settings, path: '/Settings' },
   ];
 
   return (
@@ -25,7 +26,7 @@ export default function Layout({ children }) {
 
         {/* Bottom Navigation */}
         <nav className="fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-800 safe-area-inset-bottom z-50 shadow-2xl shadow-slate-900/10 dark:shadow-slate-950/50">
-        <div className="max-w-lg mx-auto flex justify-around items-center h-16">
+        <div className="max-w-lg mx-auto grid grid-cols-4 items-center h-16">
           {navItems.map((item) => {
             const isActive = currentPath === item.path || 
               (item.path === '/Home' && currentPath === '/');
