@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 
 // Set to true for App Store review build, false for production
-export const IS_REVIEW_BUILD = false;
+export const IS_REVIEW_BUILD = true;
 
 const MOCK_REVIEWER = {
   id: "app_store_reviewer_temp_id_123",
