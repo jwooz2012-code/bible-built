@@ -8,24 +8,24 @@ export function useProgressData() {
   const { data: progressData = [], isLoading: progressLoading } = useQuery({
     queryKey: ['bookProgress', user?.id],
     queryFn: () => base44.entities.BookProgress.list(),
-    enabled: !!user && !userError,
+    enabled: !!user?.id && !userError,
   });
 
   const { data: achievements = [], isLoading: achievementsLoading } = useQuery({
     queryKey: ['achievements', user?.id],
     queryFn: () => base44.entities.Achievement.list(),
-    enabled: !!user && !userError,
+    enabled: !!user?.id && !userError,
   });
 
   const { data: bibleProgressList = [], isLoading: bibleProgressLoading } = useQuery({
     queryKey: ['bibleProgress', user?.id],
     queryFn: () => base44.entities.BibleProgress.list(),
-    enabled: !!user && !userError,
+    enabled: !!user?.id && !userError,
   });
 
   const bibleProgress = bibleProgressList?.[0] || null;
 
-  const isLoading = userLoading || progressLoading || achievementsLoading || bibleProgressLoading;
+  const isLoading = userLoading || (!!user && (progressLoading || achievementsLoading || bibleProgressLoading));
 
   return {
     user,

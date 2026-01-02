@@ -5,14 +5,11 @@ export function useUser() {
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
-      try {
-        return await base44.auth.me();
-      } catch (err) {
-        console.error('Failed to fetch user:', err);
-        throw err;
-      }
+      const userData = await base44.auth.me();
+      return userData;
     },
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 0, // Always fetch fresh user data
+    cacheTime: 0, // Don't cache user data
     retry: 1,
   });
 
