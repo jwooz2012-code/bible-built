@@ -126,9 +126,9 @@ export function useMarkBookComplete(
     }
     
     // Force immediate refetch of all queries so calendars update
-    await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
-    await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
-    await queryClient.refetchQueries({ queryKey: ['bibleProgress'] });
+    await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
+    await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
+    await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'all' });
 
     setTimeout(() => checkAchievements(), 500);
   };

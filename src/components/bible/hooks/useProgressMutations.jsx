@@ -10,16 +10,16 @@ export function useProgressMutations() {
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
     },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
     },
   });
 
