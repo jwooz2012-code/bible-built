@@ -77,7 +77,7 @@ export function useChapterActions(
     }
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
-    api.readingLog.create({
+    api.ReadingLog.create({
       user_id: user.id,
       occurred_at: isoString,
       local_date: localDate,

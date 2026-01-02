@@ -79,8 +79,7 @@ export const GuestModeProvider = ({ children }) => {
   };
 
   const guestAPI = {
-    // ReadingLog operations
-    readingLog: {
+    ReadingLog: {
       list: () => Promise.resolve(guestData.readingLogs),
       filter: ({ user_id }) => Promise.resolve(guestData.readingLogs),
       create: (data) => {
@@ -90,6 +89,13 @@ export const GuestModeProvider = ({ children }) => {
         saveToStorage(STORAGE_KEYS.READING_LOGS, updated);
         return Promise.resolve(newLog);
       },
+      bulkCreate: (dataArray) => {
+        const newLogs = dataArray.map((data, i) => ({ ...data, id: `guest_${Date.now()}_${Math.random()}_${i}` }));
+        const updated = [...guestData.readingLogs, ...newLogs];
+        setGuestData(prev => ({ ...prev, readingLogs: updated }));
+        saveToStorage(STORAGE_KEYS.READING_LOGS, updated);
+        return Promise.resolve(newLogs);
+      },
       delete: (id) => {
         const updated = guestData.readingLogs.filter(log => log.id !== id);
         setGuestData(prev => ({ ...prev, readingLogs: updated }));
@@ -98,12 +104,14 @@ export const GuestModeProvider = ({ children }) => {
       },
     },
     
-    // BookProgress operations
-    bookProgress: {
+    BookProgress: {
       list: () => Promise.resolve(guestData.bookProgress),
       filter: ({ book_index, user_id }) => {
-        const filtered = guestData.bookProgress.filter(bp => bp.book_index === book_index);
-        return Promise.resolve(filtered);
+        if (book_index !== undefined) {
+          const filtered = guestData.bookProgress.filter(bp => bp.book_index === book_index);
+          return Promise.resolve(filtered);
+        }
+        return Promise.resolve(guestData.bookProgress);
       },
       create: (data) => {
         const newProgress = { ...data, id: `guest_${Date.now()}_${Math.random()}` };
@@ -122,8 +130,7 @@ export const GuestModeProvider = ({ children }) => {
       },
     },
     
-    // Achievement operations
-    achievement: {
+    Achievement: {
       list: () => Promise.resolve(guestData.achievements),
       filter: ({ user_id }) => Promise.resolve(guestData.achievements),
       create: (data) => {
@@ -135,8 +142,7 @@ export const GuestModeProvider = ({ children }) => {
       },
     },
     
-    // BibleProgress operations
-    bibleProgress: {
+    BibleProgress: {
       list: () => Promise.resolve(guestData.bibleProgress ? [guestData.bibleProgress] : []),
       filter: ({ user_id }) => Promise.resolve(guestData.bibleProgress ? [guestData.bibleProgress] : []),
       create: (data) => {
@@ -153,8 +159,7 @@ export const GuestModeProvider = ({ children }) => {
       },
     },
     
-    // LifetimeReading operations
-    lifetimeReading: {
+    LifetimeReading: {
       list: () => Promise.resolve(guestData.lifetimeReading ? [guestData.lifetimeReading] : []),
       filter: ({ user_id }) => Promise.resolve(guestData.lifetimeReading ? [guestData.lifetimeReading] : []),
       create: (data) => {

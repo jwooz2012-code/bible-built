@@ -38,7 +38,7 @@ export function useMarkBookComplete(
     }));
     
     if (isGuest) {
-      await Promise.all(readingLogEntries.map(entry => guestAPI.readingLog.create(entry)));
+      await guestAPI.ReadingLog.bulkCreate(readingLogEntries);
     } else {
       await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
     }
