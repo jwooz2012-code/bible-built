@@ -65,60 +65,72 @@ export function useChapterActions(
     });
     
     // Perform actual updates
-    const now = new Date();
-    const isoString = now.toISOString();
-    const localDate = now.toLocaleDateString('en-CA');
-    
-    chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
-    if (!chaptersRead.includes(chapterNum)) {
-      chaptersRead = [...chaptersRead, chapterNum];
-    }
-    chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
-    
-    await base44.entities.ReadingLog.create({
-      user_id: user.id,
-      occurred_at: isoString,
-      local_date: localDate,
-      book_index: book.index,
-      chapter: chapterNum,
-      event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-    });
-    
-    // Calculate completion count
-    const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
-    
-    if (progress) {
-      const updateData = {
-        chapter_read_counts: chapterReadCounts,
-        chapters_read: chaptersRead,
-        chapter_read_dates: chapterReadDates,
-        completion_count: completionCount,
-        last_read_date: new Date().toISOString(),
-      };
+    try {
+      const now = new Date();
+      const isoString = now.toISOString();
+      const localDate = now.toLocaleDateString('en-CA');
       
-      await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
-    } else {
-      const createData = {
+      chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
+      if (!chaptersRead.includes(chapterNum)) {
+        chaptersRead = [...chaptersRead, chapterNum];
+      }
+      chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
+      
+      // Create reading log first
+      await base44.entities.ReadingLog.create({
         user_id: user.id,
-        book_name: bookName,
+        occurred_at: isoString,
+        local_date: localDate,
         book_index: book.index,
-        testament: book.testament,
-        total_chapters: book.chapters,
-        chapter_read_counts: chapterReadCounts,
-        chapters_read: chaptersRead,
-        chapter_read_dates: chapterReadDates,
-        completion_count: completionCount,
-        last_read_date: new Date().toISOString(),
-      };
-      await createProgressMutation.mutateAsync(createData);
+        chapter: chapterNum,
+        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      });
+      
+      // Calculate completion count
+      const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
+      
+      // Update book progress
+      if (progress) {
+        const updateData = {
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: chaptersRead,
+          chapter_read_dates: chapterReadDates,
+          completion_count: completionCount,
+          last_read_date: new Date().toISOString(),
+        };
+        
+        await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
+      } else {
+        const createData = {
+          user_id: user.id,
+          book_name: bookName,
+          book_index: book.index,
+          testament: book.testament,
+          total_chapters: book.chapters,
+          chapter_read_counts: chapterReadCounts,
+          chapters_read: chaptersRead,
+          chapter_read_dates: chapterReadDates,
+          completion_count: completionCount,
+          last_read_date: new Date().toISOString(),
+        };
+        await createProgressMutation.mutateAsync(createData);
+      }
+
+      await updateBibleProgressChapter(book.index, chapterNum);
+      
+      // Invalidate all queries to sync across pages
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+
+      setTimeout(() => checkAchievements(), 500);
+    } catch (error) {
+      console.error('Error toggling chapter:', error);
+      // Revert optimistic update on error
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      throw error;
     }
-
-    await updateBibleProgressChapter(book.index, chapterNum);
-    
-    // Invalidate reading logs so calendars update
-    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-
-    setTimeout(() => checkAchievements(), 500);
   };
 
   const restartBook = async (bookName) => {
