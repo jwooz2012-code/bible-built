@@ -76,15 +76,21 @@ export function useChapterActions(
       }
       chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
       
-      // Create reading log entry
-      await base44.entities.ReadingLog.create({
-        user_id: user.id,
-        occurred_at: isoString,
-        local_date: localDate,
-        book_index: book.index,
-        chapter: chapterNum,
-        event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-      });
+      // Create reading log entry with proper error handling
+      try {
+        const logEntry = await base44.entities.ReadingLog.create({
+          user_id: user.id,
+          occurred_at: isoString,
+          local_date: localDate,
+          book_index: book.index,
+          chapter: chapterNum,
+          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+        });
+        console.log('ReadingLog created successfully:', logEntry);
+      } catch (logError) {
+        console.error('Failed to create ReadingLog:', logError);
+        throw logError;
+      }
       
       // Calculate completion count
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
