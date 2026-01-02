@@ -8,7 +8,6 @@ export function useChapterActions(
   getProgressForBook,
   createProgressMutation,
   updateProgressMutation,
-  updateBibleProgressChapter,
   checkAchievements
 ) {
   const queryClient = useQueryClient();
@@ -117,8 +116,6 @@ export function useChapterActions(
         };
         await createProgressMutation.mutateAsync(createData);
       }
-
-      await updateBibleProgressChapter(book.index, chapterNum);
       
       // Invalidate to refresh with server data
       queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });

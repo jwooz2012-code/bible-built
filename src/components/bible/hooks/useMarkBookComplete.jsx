@@ -3,12 +3,9 @@ import { BIBLE_BOOKS } from '../bibleData';
 
 export function useMarkBookComplete(
   user,
-  bibleProgress,
   getProgressForBook,
   createProgressMutation,
   updateProgressMutation,
-  createBibleProgressMutation,
-  updateBibleProgressMutation,
   checkAchievements
 ) {
   const markBookComplete = async (bookName) => {
@@ -42,59 +39,6 @@ export function useMarkBookComplete(
     allChapters.forEach(ch => {
       chapterReadDates[ch] = currentDate;
     });
-    
-    const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
-    const bookKey = book.index.toString();
-    const existingChapters = chaptersMap[bookKey] || [];
-    
-    const mergedChapters = [...new Set([...existingChapters, ...allChapters])];
-    
-    const updatedMap = {
-      ...chaptersMap,
-      [bookKey]: mergedChapters
-    };
-    
-    let totalUniqueChapters = 0;
-    Object.values(updatedMap).forEach(chapters => {
-      if (Array.isArray(chapters)) {
-        totalUniqueChapters += chapters.length;
-      }
-    });
-    
-    if (totalUniqueChapters >= 1189) {
-      const newCompletionCount = (bibleProgress?.bible_completion_count || 0) + 1;
-      
-      if (bibleProgress) {
-        await updateBibleProgressMutation.mutateAsync({
-          id: bibleProgress.id,
-          data: {
-            bible_completion_count: newCompletionCount,
-            chapters_completed_in_current_bible_run: {},
-            last_completed_at: new Date().toISOString(),
-          }
-        });
-      } else {
-        await createBibleProgressMutation.mutateAsync({
-          user_id: currentUser.id,
-          bible_completion_count: newCompletionCount,
-          chapters_completed_in_current_bible_run: {},
-          last_completed_at: new Date().toISOString(),
-        });
-      }
-    } else {
-      if (bibleProgress) {
-        await updateBibleProgressMutation.mutateAsync({
-          id: bibleProgress.id,
-          data: { chapters_completed_in_current_bible_run: updatedMap }
-        });
-      } else {
-        await createBibleProgressMutation.mutateAsync({
-          user_id: currentUser.id,
-          bible_completion_count: 0,
-          chapters_completed_in_current_bible_run: updatedMap,
-        });
-      }
-    }
     
     const chapterReadCounts = {};
     allChapters.forEach(ch => {
