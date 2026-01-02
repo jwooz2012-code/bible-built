@@ -5,7 +5,9 @@ export function useBibleProgressTracker(
   updateBibleProgressMutation
 ) {
   const updateBibleProgressChapter = async (bookIndex, chapterNum) => {
-    if (!user) return;
+    // Fetch fresh user data at mutation time
+    const currentUser = await base44.auth.me();
+    if (!currentUser) return;
 
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
     const bookKey = bookIndex.toString();
@@ -38,7 +40,7 @@ export function useBibleProgressTracker(
           });
         } else {
           await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
+            user_id: currentUser.id,
             bible_completion_count: newCompletionCount,
             chapters_completed_in_current_bible_run: {},
             last_completed_at: new Date().toISOString(),
@@ -52,7 +54,7 @@ export function useBibleProgressTracker(
           });
         } else {
           await createBibleProgressMutation.mutateAsync({
-            user_id: user.id,
+            user_id: currentUser.id,
             bible_completion_count: 0,
             chapters_completed_in_current_bible_run: updatedMap,
           });

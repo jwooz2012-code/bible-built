@@ -14,8 +14,12 @@ export function useChapterActions(
   const queryClient = useQueryClient();
 
   const toggleChapter = async (bookName, chapterNum) => {
+    // Fetch fresh user data at mutation time
+    const currentUser = await base44.auth.me();
+    if (!currentUser) return;
+
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book || !user) return;
+    if (!book) return;
 
     let progress = getProgressForBook(bookName);
     let chapterReadCounts = progress?.chapter_read_counts || {};
@@ -43,7 +47,7 @@ export function useChapterActions(
       completion_count: newCompletionCount,
       last_read_date: new Date().toISOString(),
     } : {
-      user_id: user.id,
+      user_id: currentUser.id,
       book_name: bookName,
       book_index: book.index,
       testament: book.testament,
@@ -76,12 +80,12 @@ export function useChapterActions(
     chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
     
     base44.entities.ReadingLog.create({
-      user_id: user.id,
+      user_id: currentUser.id,
       occurred_at: isoString,
       local_date: localDate,
       book_index: book.index,
       chapter: chapterNum,
-      event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+      event_id: `${currentUser.id}_${book.index}_${chapterNum}_${Date.now()}`
     });
     
     // Calculate completion count
@@ -99,7 +103,7 @@ export function useChapterActions(
       await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
     } else {
       const createData = {
-        user_id: user.id,
+        user_id: currentUser.id,
         book_name: bookName,
         book_index: book.index,
         testament: book.testament,
