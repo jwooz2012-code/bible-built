@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { useGuestMode } from '@/components/GuestModeProvider';
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   const queryClient = useQueryClient();
   const today = new Date();
   const [selectedDay, setSelectedDay] = React.useState(null);
+  const { isGuest, guestAPI, guestUser } = useGuestMode();
 
   const currentWeekStart = useMemo(() => {
     const d = new Date();
@@ -26,8 +28,11 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   }, []);
 
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
+    queryKey: ['readingLogs', isGuest ? 'guest' : 'user'],
     queryFn: async () => {
+      if (isGuest) {
+        return guestAPI.readingLog.list();
+      }
       const user = await base44.auth.me();
       return base44.entities.ReadingLog.filter({ user_id: user.id });
     },
@@ -60,6 +65,9 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
 
   const removeLogMutation = useMutation({
     mutationFn: async (logId) => {
+      if (isGuest) {
+        return await guestAPI.readingLog.delete(logId);
+      }
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
@@ -73,8 +81,10 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
     const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
     
     try {
+      const api = isGuest ? guestAPI : base44.entities;
+      
       await Promise.all(
-        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
+        logIds.map(logId => api.ReadingLog.delete(logId))
       );
       
       const bookUpdates = {};
@@ -88,10 +98,10 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
         bookUpdates[log.book_index][log.chapter]++;
       });
       
-      const user = await base44.auth.me();
+      const user = isGuest ? guestUser : await base44.auth.me();
       
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progress = await base44.entities.BookProgress.filter({ 
+        const progress = await api.BookProgress.filter({ 
           book_index: parseInt(bookIndex),
           user_id: user.id
         });
@@ -113,7 +123,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
           
           const chaptersRead = Object.keys(chapterReadCounts).map(Number);
           
-          await base44.entities.BookProgress.update(bookProgress.id, {
+          await api.BookProgress.update(bookProgress.id, {
             chapter_read_counts: chapterReadCounts,
             chapters_read: chaptersRead,
           });
