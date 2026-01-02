@@ -1,16 +1,11 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useProgressMutations() {
   const queryClient = useQueryClient();
-  const { isGuest, guestAPI } = useGuestMode();
 
   const createProgressMutation = useMutation({
-    mutationFn: (data) => {
-      if (isGuest) return guestAPI.bookProgress.create(data);
-      return base44.entities.BookProgress.create(data);
-    },
+    mutationFn: (data) => base44.entities.BookProgress.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
@@ -18,10 +13,7 @@ export function useProgressMutations() {
   });
 
   const updateProgressMutation = useMutation({
-    mutationFn: ({ id, data }) => {
-      if (isGuest) return guestAPI.bookProgress.update(id, data);
-      return base44.entities.BookProgress.update(id, data);
-    },
+    mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });

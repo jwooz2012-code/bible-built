@@ -1,13 +1,13 @@
 import React from 'react';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { GuestModeProvider } from '@/components/GuestModeProvider';
+import { ReviewModeProvider } from '@/components/ReviewModeProvider';
 
 export default function App({ children }) {
   return (
-    <GuestModeProvider>
+    <ReviewModeProvider>
       <ThemeProvider>
         {children}
       </ThemeProvider>
-    </GuestModeProvider>
+    </ReviewModeProvider>
   );
 }
