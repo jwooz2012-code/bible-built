@@ -52,8 +52,10 @@ export default function Stats() {
       return logDate.getFullYear() === currentYear;
     });
 
-    const chaptersRead = thisYearLogs.length;
-    const uniqueDates = new Set(thisYearLogs.map(log => log.local_date));
+    // Deduplicate by event_id to avoid counting duplicates
+    const uniqueLogs = Array.from(new Map(thisYearLogs.map(log => [log.event_id, log])).values());
+    const chaptersRead = uniqueLogs.length;
+    const uniqueDates = new Set(uniqueLogs.map(log => log.local_date));
     const daysInWord = uniqueDates.size;
     const avgPerDay = daysInWord > 0 ? (chaptersRead / daysInWord).toFixed(1) : 0;
 

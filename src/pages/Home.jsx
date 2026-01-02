@@ -79,17 +79,23 @@ export default function Home() {
   const currentMonth = today.getMonth();
   
   const chaptersThisMonth = useMemo(() => {
-    return readingLogs.filter(log => {
+    const thisMonthLogs = readingLogs.filter(log => {
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
-    }).length;
+    });
+    // Deduplicate by event_id to avoid counting duplicates
+    const uniqueLogs = Array.from(new Map(thisMonthLogs.map(log => [log.event_id, log])).values());
+    return uniqueLogs.length;
   }, [readingLogs, currentYear, currentMonth]);
 
   const chaptersThisYear = useMemo(() => {
-    return readingLogs.filter(log => {
+    const thisYearLogs = readingLogs.filter(log => {
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear;
-    }).length;
+    });
+    // Deduplicate by event_id to avoid counting duplicates
+    const uniqueLogs = Array.from(new Map(thisYearLogs.map(log => [log.event_id, log])).values());
+    return uniqueLogs.length;
   }, [readingLogs, currentYear]);
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {

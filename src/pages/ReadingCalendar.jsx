@@ -86,10 +86,13 @@ export default function ReadingCalendar() {
     },
   });
 
-  // Group reading logs by local_date
+  // Group reading logs by local_date and deduplicate by event_id
   const readingByDate = useMemo(() => {
+    // First deduplicate by event_id
+    const uniqueLogs = Array.from(new Map(readingLogs.map(log => [log.event_id, log])).values());
+    
     const grouped = {};
-    readingLogs.forEach(log => {
+    uniqueLogs.forEach(log => {
       if (!grouped[log.local_date]) {
         grouped[log.local_date] = [];
       }
