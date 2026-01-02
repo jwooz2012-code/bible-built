@@ -30,6 +30,7 @@ export default function Home() {
       return base44.entities.ReadingLog.filter({ user_id: user.id });
     },
     staleTime: 0,
+    gcTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
