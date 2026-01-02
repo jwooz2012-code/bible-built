@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp } from 'lucide-react';
+import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
@@ -267,6 +267,23 @@ export default function Stats() {
               </p>
             </div>
           </div>
+        </motion.div>
+
+        {/* Logout Button */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mb-6"
+        >
+          <Button
+            variant="outline"
+            onClick={() => base44.auth.logout()}
+            className="w-full border-red-200 dark:border-red-900/30 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Sign Out
+          </Button>
         </motion.div>
       </div>
 
