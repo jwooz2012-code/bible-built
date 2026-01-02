@@ -216,10 +216,8 @@ export default function ReadingCalendar() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progress = await base44.entities.BookProgress.filter({ 
-      book_index: bookIndex,
-      user_id: user.id
-    });
+    const progressList = await base44.entities.BookProgress.list();
+    const progress = progressList.filter(p => p.book_index === bookIndex);
     
     if (progress.length > 0) {
       const bookProgress = progress[0];

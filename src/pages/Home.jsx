@@ -99,8 +99,8 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progressList = await base44.entities.BookProgress.list();
-    const progress = progressList.filter(p => p.book_index === bookIndex);
+    const allProgress = await base44.entities.BookProgress.list();
+    const progress = allProgress.filter(p => p.book_index === bookIndex);
     
     if (progress.length > 0) {
       const bookProgress = progress[0];
@@ -145,8 +145,8 @@ export default function Home() {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
     
-    const progressList = await base44.entities.BookProgress.list();
-    const progress = progressList.filter(p => p.book_index === bookIndex);
+    const allProgress = await base44.entities.BookProgress.list();
+    const progress = allProgress.filter(p => p.book_index === bookIndex);
     
     if (progress.length > 0) {
       const bookProgress = progress[0];
