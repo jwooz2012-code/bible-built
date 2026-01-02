@@ -9,28 +9,32 @@ export function useProgressData() {
     queryKey: ['bookProgress', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      return await base44.entities.BookProgress.list();
+      return await base44.entities.BookProgress.filter({ user_id: user.id });
     },
     enabled: !!user,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 
   const { data: achievements = [] } = useQuery({
     queryKey: ['achievements', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      return await base44.entities.Achievement.list();
+      return await base44.entities.Achievement.filter({ user_id: user.id });
     },
     enabled: !!user,
+    refetchOnMount: 'always',
   });
 
   const { data: bibleProgress } = useQuery({
     queryKey: ['bibleProgress', user?.id],
     queryFn: async () => {
       if (!user) return null;
-      const results = await base44.entities.BibleProgress.list();
+      const results = await base44.entities.BibleProgress.filter({ user_id: user.id });
       return results[0] || null;
     },
     enabled: !!user,
+    refetchOnMount: 'always',
   });
 
   return {
