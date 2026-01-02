@@ -118,6 +118,7 @@ export function useChapterActions(
       }
       
       // Invalidate to refresh with server data
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', currentUser.id] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
 
       setTimeout(() => checkAchievements(), 500);
