@@ -41,7 +41,10 @@ export default function ReadingCalendar() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: async () => {
+      const user = await base44.auth.me();
+      return base44.entities.ReadingLog.filter({ user_id: user.id });
+    },
   });
 
   const addLogMutation = useMutation({
