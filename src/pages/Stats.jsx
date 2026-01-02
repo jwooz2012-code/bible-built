@@ -1,32 +1,21 @@
-import React, { useState, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, Book, ScrollText, Pencil, Calendar, TrendingUp, LogOut } from 'lucide-react';
+import { ArrowLeft, BookOpen, Book, ScrollText, Calendar, TrendingUp, LogOut } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'sonner';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 export default function Stats() {
   const { isLoading, calculateStats } = useBookProgress();
   const queryClient = useQueryClient();
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [lifetimeEdits, setLifetimeEdits] = useState({
-    bible: 0,
-    oldTestament: 0,
-    newTestament: 0
-  });
-  
   const stats = calculateStats();
 
   const { data: user } = useQuery({
@@ -44,17 +33,7 @@ export default function Stats() {
     staleTime: 0,
   });
 
-  // Fetch lifetime reading data
-  const { data: lifetimeData = [] } = useQuery({
-    queryKey: ['lifetimeReading', user?.id],
-    queryFn: async () => {
-      return await base44.entities.LifetimeReading.list();
-    },
-    enabled: !!user?.id,
-    staleTime: 0,
-  });
 
-  const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
 
   // Calculate yearly stats
   const yearlyStats = useMemo(() => {
@@ -72,38 +51,7 @@ export default function Stats() {
     return { chaptersRead, daysInWord, avgPerDay };
   }, [readingLogs]);
 
-  const updateLifetimeMutation = useMutation({
-    mutationFn: async (data) => {
-      if (lifetimeData.length > 0) {
-        return await base44.entities.LifetimeReading.update(lifetimeData[0].id, data);
-      } else {
-        const user = await base44.auth.me();
-        return await base44.entities.LifetimeReading.create({ ...data, user_id: user.id });
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['lifetimeReading', user?.id] });
-      toast.success('Lifetime reading history updated');
-      setShowEditDialog(false);
-    },
-  });
 
-  const handleEditOpen = () => {
-    setLifetimeEdits({
-      bible: currentLifetime.bible_count || 0,
-      oldTestament: currentLifetime.old_testament_count || 0,
-      newTestament: currentLifetime.new_testament_count || 0,
-    });
-    setShowEditDialog(true);
-  };
-
-  const handleSaveLifetime = () => {
-    updateLifetimeMutation.mutate({
-      bible_count: parseInt(lifetimeEdits.bible) || 0,
-      old_testament_count: parseInt(lifetimeEdits.oldTestament) || 0,
-      new_testament_count: parseInt(lifetimeEdits.newTestament) || 0,
-    });
-  };
 
   const oldTestamentPercent = Math.round((stats.oldTestamentChaptersRead / stats.oldTestamentTotalChapters) * 100);
   const newTestamentPercent = Math.round((stats.newTestamentChaptersRead / stats.newTestamentTotalChapters) * 100);
@@ -239,44 +187,34 @@ export default function Stats() {
           </div>
         </motion.div>
 
-        {/* Lifetime Reading Section */}
+        {/* Lifetime Completions Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           className="mb-6"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div>
-              <h2 className="text-lg font-bold text-black dark:text-white">Lifetime Reading</h2>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleEditOpen}
-              className="text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-            >
-              <Pencil className="w-4 h-4 mr-1" />
-              Edit
-            </Button>
+          <div className="mb-3">
+            <h2 className="text-lg font-bold text-black dark:text-white">Lifetime Completions</h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Based on your reading history</p>
           </div>
           <div className="space-y-3">
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Bible Read Through</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Full Bible</p>
               <p className="text-2xl font-bold text-black dark:text-white">
-                {currentLifetime.bible_count || 0} {currentLifetime.bible_count === 1 ? 'time' : 'times'}
+                {stats.fullBibleComplete || 0} {stats.fullBibleComplete === 1 ? 'time' : 'times'}
               </p>
             </div>
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Old Testament Read Through</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Old Testament</p>
               <p className="text-2xl font-bold text-black dark:text-white">
-                {currentLifetime.old_testament_count || 0} {currentLifetime.old_testament_count === 1 ? 'time' : 'times'}
+                {stats.oldTestamentComplete || 0} {stats.oldTestamentComplete === 1 ? 'time' : 'times'}
               </p>
             </div>
             <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm rounded-2xl p-4 shadow-md shadow-slate-200/50 dark:shadow-slate-950/50 border border-slate-200 dark:border-slate-700">
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">New Testament Read Through</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">New Testament</p>
               <p className="text-2xl font-bold text-black dark:text-white">
-                {currentLifetime.new_testament_count || 0} {currentLifetime.new_testament_count === 1 ? 'time' : 'times'}
+                {stats.newTestamentComplete || 0} {stats.newTestamentComplete === 1 ? 'time' : 'times'}
               </p>
             </div>
           </div>
@@ -303,60 +241,7 @@ export default function Stats() {
         </motion.div>
       </div>
 
-      {/* Edit Lifetime Reading Dialog */}
-      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit Reading History</DialogTitle>
-            <DialogDescription className="pt-2 text-sm text-gray-600 dark:text-gray-400">
-              You may record past read-throughs without recreating them. This does not affect daily or yearly reading stats.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 pt-4">
-            <div>
-              <Label htmlFor="bible">Bible read through</Label>
-              <Input
-                id="bible"
-                type="number"
-                min="0"
-                value={lifetimeEdits.bible}
-                onChange={(e) => setLifetimeEdits({ ...lifetimeEdits, bible: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="oldTestament">Old Testament read through</Label>
-              <Input
-                id="oldTestament"
-                type="number"
-                min="0"
-                value={lifetimeEdits.oldTestament}
-                onChange={(e) => setLifetimeEdits({ ...lifetimeEdits, oldTestament: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label htmlFor="newTestament">New Testament read through</Label>
-              <Input
-                id="newTestament"
-                type="number"
-                min="0"
-                value={lifetimeEdits.newTestament}
-                onChange={(e) => setLifetimeEdits({ ...lifetimeEdits, newTestament: e.target.value })}
-                className="mt-1"
-              />
-            </div>
-            <div className="flex gap-2 pt-2">
-              <Button variant="outline" onClick={() => setShowEditDialog(false)} className="flex-1">
-                Cancel
-              </Button>
-              <Button onClick={handleSaveLifetime} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
-                Save
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
+
     </div>
   );
 }
