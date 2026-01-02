@@ -58,12 +58,14 @@ export function useChapterActions(
       last_read_date: new Date().toISOString(),
     };
     
-    // Update cache optimistically only if progress already exists
-    if (progress && progress.id) {
-      queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
+    // Update cache optimistically
+    queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
+      if (progress && progress.id) {
         return old.map(p => p.id === progress.id ? optimisticProgress : p);
-      });
-    }
+      } else {
+        return [...old, { ...optimisticProgress, id: `temp_${Date.now()}` }];
+      }
+    });
     
     // Perform actual updates
     const now = new Date();
