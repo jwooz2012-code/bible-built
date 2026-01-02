@@ -35,15 +35,15 @@ export default function Layout({ children }) {
                 key={item.name}
                 to={createPageUrl(item.name)}
                 className={`
-                  flex flex-col items-center justify-center px-6 py-2 rounded-xl transition-all
+                  flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all
                   ${isActive 
                     ? 'text-slate-900 dark:text-slate-50 scale-105' 
                     : 'text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:scale-105'
                   }
                 `}
               >
-                <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2.5]' : ''}`} />
-                <span className={`text-xs mt-1 ${isActive ? 'font-semibold' : ''}`}>
+                <item.icon className={`w-5 h-5 ${isActive ? 'stroke-[2.5]' : ''}`} />
+                <span className={`text-[10px] mt-1 ${isActive ? 'font-semibold' : ''}`}>
                   {item.name}
                 </span>
               </Link>
