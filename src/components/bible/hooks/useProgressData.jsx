@@ -3,28 +3,29 @@ import { base44 } from '@/api/base44Client';
 import { useUser } from './useUser';
 
 export function useProgressData() {
-  const { user } = useUser();
+  const { user, isLoading: userLoading, error: userError } = useUser();
 
-  const { data: progressData = [], isLoading } = useQuery({
+  const { data: progressData = [], isLoading: progressLoading } = useQuery({
     queryKey: ['bookProgress', user?.id],
-    queryFn: () => base44.entities.BookProgress.filter({ user_id: user?.id }),
-    enabled: !!user,
+    queryFn: () => base44.entities.BookProgress.list(),
+    enabled: !!user && !userError,
   });
 
-  const { data: achievements = [] } = useQuery({
+  const { data: achievements = [], isLoading: achievementsLoading } = useQuery({
     queryKey: ['achievements', user?.id],
-    queryFn: () => base44.entities.Achievement.filter({ user_id: user?.id }),
-    enabled: !!user,
+    queryFn: () => base44.entities.Achievement.list(),
+    enabled: !!user && !userError,
   });
 
-  const { data: bibleProgress } = useQuery({
+  const { data: bibleProgressList = [], isLoading: bibleProgressLoading } = useQuery({
     queryKey: ['bibleProgress', user?.id],
-    queryFn: async () => {
-      const results = await base44.entities.BibleProgress.filter({ user_id: user?.id });
-      return results[0] || null;
-    },
-    enabled: !!user,
+    queryFn: () => base44.entities.BibleProgress.list(),
+    enabled: !!user && !userError,
   });
+
+  const bibleProgress = bibleProgressList?.[0] || null;
+
+  const isLoading = userLoading || progressLoading || achievementsLoading || bibleProgressLoading;
 
   return {
     user,
@@ -32,5 +33,6 @@ export function useProgressData() {
     achievements,
     bibleProgress,
     isLoading,
+    userError,
   };
 }
