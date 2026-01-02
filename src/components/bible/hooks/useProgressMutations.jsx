@@ -11,7 +11,10 @@ export function useProgressMutations() {
       if (isGuest) return guestAPI.bookProgress.create(data);
       return base44.entities.BookProgress.create(data);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    },
   });
 
   const updateProgressMutation = useMutation({
@@ -19,7 +22,10 @@ export function useProgressMutations() {
       if (isGuest) return guestAPI.bookProgress.update(id, data);
       return base44.entities.BookProgress.update(id, data);
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    },
   });
 
   const unlockAchievementMutation = useMutation({
