@@ -119,11 +119,14 @@ export function useChapterActions(
       }
 
       await updateBibleProgressChapter(book.index, chapterNum);
+      
+      // Invalidate to refresh with server data
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
 
       setTimeout(() => checkAchievements(), 500);
     } catch (error) {
       console.error('Error toggling chapter:', error);
-      // Invalidate queries to refresh from server
+      // Revert optimistic update on error
       queryClient.invalidateQueries({ queryKey: ['bookProgress', currentUser.id] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs', currentUser.id] });
     }

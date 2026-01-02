@@ -6,12 +6,10 @@ export function useProgressMutations() {
 
   const createProgressMutation = useMutation({
     mutationFn: (data) => base44.entities.BookProgress.create(data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
   });
 
   const unlockAchievementMutation = useMutation({
