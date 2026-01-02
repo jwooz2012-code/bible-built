@@ -58,14 +58,12 @@ export function useChapterActions(
       last_read_date: new Date().toISOString(),
     };
     
-    // Update cache optimistically
-    queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
-      if (progress) {
+    // Update cache optimistically only if progress already exists
+    if (progress && progress.id) {
+      queryClient.setQueryData(['bookProgress', currentUser.id], (old = []) => {
         return old.map(p => p.id === progress.id ? optimisticProgress : p);
-      } else {
-        return [...old, optimisticProgress];
-      }
-    });
+      });
+    }
     
     // Perform actual updates
     const now = new Date();
@@ -91,7 +89,7 @@ export function useChapterActions(
     const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
     
     try {
-      if (progress) {
+      if (progress && progress.id) {
         const updateData = {
           chapter_read_counts: chapterReadCounts,
           chapters_read: chaptersRead,
@@ -99,7 +97,7 @@ export function useChapterActions(
           completion_count: completionCount,
           last_read_date: new Date().toISOString(),
         };
-        
+
         await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
       } else {
         const createData = {
@@ -133,7 +131,7 @@ export function useChapterActions(
     // Start Over only resets visual state (chapters_read)
     // Keeps all read counts intact
     const progress = getProgressForBook(bookName);
-    if (progress) {
+    if (progress && progress.id) {
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: { 
