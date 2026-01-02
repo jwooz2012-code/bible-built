@@ -19,6 +19,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import EditReadingSheet from '@/components/bible/EditReadingSheet';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { toast } from 'sonner';
+import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export default function ReadingCalendar() {
   const today = new Date();
@@ -40,7 +41,10 @@ export default function ReadingCalendar() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: () => {
+      if (IS_REVIEW_BUILD) return [];
+      return base44.entities.ReadingLog.list();
+    },
   });
 
   const addLogMutation = useMutation({

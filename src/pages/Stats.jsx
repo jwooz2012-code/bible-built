@@ -16,6 +16,7 @@ import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export default function Stats() {
   const { isLoading, calculateStats } = useBookProgress();
@@ -32,13 +33,19 @@ export default function Stats() {
   // Fetch reading logs for yearly stats
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: () => {
+      if (IS_REVIEW_BUILD) return [];
+      return base44.entities.ReadingLog.list();
+    },
   });
 
   // Fetch lifetime reading data
   const { data: lifetimeData = [] } = useQuery({
     queryKey: ['lifetimeReading'],
-    queryFn: () => base44.entities.LifetimeReading.list(),
+    queryFn: () => {
+      if (IS_REVIEW_BUILD) return [];
+      return base44.entities.LifetimeReading.list();
+    },
   });
 
   const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
