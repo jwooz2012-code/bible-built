@@ -28,10 +28,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => {
-      if (IS_REVIEW_BUILD) return [];
-      return base44.entities.ReadingLog.list();
-    },
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const readingByDate = useMemo(() => {
