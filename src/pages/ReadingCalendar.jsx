@@ -353,10 +353,8 @@ export default function ReadingCalendar() {
       const user = await base44.auth.me();
       
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progress = await base44.entities.BookProgress.filter({ 
-          book_index: parseInt(bookIndex),
-          user_id: user.id
-        });
+        const progressList = await base44.entities.BookProgress.list();
+        const progress = progressList.filter(p => p.book_index === parseInt(bookIndex));
         
         if (progress.length > 0) {
           const bookProgress = progress[0];
@@ -419,10 +417,8 @@ export default function ReadingCalendar() {
       const user = await base44.auth.me();
       
       for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progress = await base44.entities.BookProgress.filter({ 
-          book_index: parseInt(bookIndex),
-          user_id: user.id
-        });
+        const progressList = await base44.entities.BookProgress.list();
+        const progress = progressList.filter(p => p.book_index === parseInt(bookIndex));
         
         if (progress.length > 0) {
           const bookProgress = progress[0];
