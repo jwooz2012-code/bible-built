@@ -5,7 +5,10 @@ export function useProgressMutations() {
   const queryClient = useQueryClient();
 
   const createProgressMutation = useMutation({
-    mutationFn: (data) => base44.entities.BookProgress.create(data),
+    mutationFn: async (data) => {
+      const user = await base44.auth.me();
+      return base44.entities.BookProgress.create({ ...data, user_id: user.id });
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['bookProgress'] }),
   });
 
@@ -15,12 +18,18 @@ export function useProgressMutations() {
   });
 
   const unlockAchievementMutation = useMutation({
-    mutationFn: (data) => base44.entities.Achievement.create(data),
+    mutationFn: async (data) => {
+      const user = await base44.auth.me();
+      return base44.entities.Achievement.create({ ...data, user_id: user.id });
+    },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['achievements'] }),
   });
 
   const createBibleProgressMutation = useMutation({
-    mutationFn: (data) => base44.entities.BibleProgress.create(data),
+    mutationFn: async (data) => {
+      const user = await base44.auth.me();
+      return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
