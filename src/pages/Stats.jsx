@@ -16,7 +16,6 @@ import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
-import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export default function Stats() {
   const { isLoading, calculateStats } = useBookProgress();

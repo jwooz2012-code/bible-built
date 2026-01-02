@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/sheet";
 import EditReadingSheet from './EditReadingSheet';
 import { BIBLE_BOOKS } from './bibleData';
-import { IS_REVIEW_BUILD } from '../auth/useReviewUser';
 
 export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLog }) {
   const queryClient = useQueryClient();
@@ -28,10 +27,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: user.id });
-    },
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const readingByDate = useMemo(() => {

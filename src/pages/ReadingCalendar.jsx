@@ -19,7 +19,6 @@ import ThemeToggle from '@/components/ThemeToggle';
 import EditReadingSheet from '@/components/bible/EditReadingSheet';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { toast } from 'sonner';
-import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export default function ReadingCalendar() {
   const today = new Date();
@@ -41,10 +40,7 @@ export default function ReadingCalendar() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: user.id });
-    },
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({

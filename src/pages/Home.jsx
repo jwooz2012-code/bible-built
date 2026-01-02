@@ -16,36 +16,30 @@ import ThemeToggle from '@/components/ThemeToggle';
 import WeekCalendar from '@/components/bible/WeekCalendar';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
-import { IS_REVIEW_BUILD, useReviewUser } from '@/components/auth/useReviewUser';
 
 export default function Home() {
   const [testament, setTestament] = useState('all');
-  const { user: currentUser } = useReviewUser();
   const { progressData, achievements, isLoading, getProgressForBook, calculateStats, updateProgressMutation, checkAchievements } = useBookProgress();
 
   const queryClient = useQueryClient();
 
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', currentUser?.id],
-    queryFn: async () => {
-      if (!currentUser) return [];
-      return base44.entities.ReadingLog.filter({ user_id: currentUser.id });
-    },
-    enabled: !!currentUser,
+    queryKey: ['readingLogs'],
+    queryFn: () => base44.entities.ReadingLog.list(),
   });
 
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
-      if (!currentUser) throw new Error('No user');
+      const user = await base44.auth.me();
       const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
-        user_id: currentUser.id,
+        user_id: user.id,
         occurred_at: dateObj.toISOString(),
         local_date: localDate,
         book_index: bookIndex,
         chapter: chapter,
-        event_id: `${currentUser.id}_${bookIndex}_${chapter}_${Date.now()}`,
+        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
       });
     },
     onSuccess: () => {
@@ -86,7 +80,6 @@ export default function Home() {
   
   const chaptersThisMonth = useMemo(() => {
     return readingLogs.filter(log => {
-      if (log.is_deleted) return false;
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
     }).length;
@@ -94,14 +87,13 @@ export default function Home() {
 
   const chaptersThisYear = useMemo(() => {
     return readingLogs.filter(log => {
-      if (log.is_deleted) return false;
       const logDate = new Date(log.occurred_at);
       return logDate.getFullYear() === currentYear;
     }).length;
   }, [readingLogs, currentYear]);
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
-    if (!currentUser) return;
+    const user = await base44.auth.me();
     
     for (const chapter of chapters) {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
@@ -109,7 +101,7 @@ export default function Home() {
     
     const progress = await base44.entities.BookProgress.filter({ 
       book_index: bookIndex,
-      user_id: currentUser.id
+      user_id: user.id
     });
     
     if (progress.length > 0) {
@@ -147,7 +139,7 @@ export default function Home() {
   };
 
   const handleMarkBookComplete = async (localDate, bookIndex) => {
-    if (!currentUser) return;
+    const user = await base44.auth.me();
     const book = BIBLE_BOOKS[bookIndex];
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
@@ -157,7 +149,7 @@ export default function Home() {
     
     const progress = await base44.entities.BookProgress.filter({ 
       book_index: bookIndex,
-      user_id: currentUser.id
+      user_id: user.id
     });
     
     if (progress.length > 0) {

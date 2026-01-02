@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useUser } from './useUser';
-import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export function useProgressData() {
   const { user } = useUser();
