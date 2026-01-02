@@ -28,8 +28,11 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
   });
 
   const readingByDate = useMemo(() => {
+    // Deduplicate by event_id first
+    const uniqueLogs = Array.from(new Map(readingLogs.map(log => [log.event_id, log])).values());
+    
     const grouped = {};
-    readingLogs.forEach(log => {
+    uniqueLogs.forEach(log => {
       if (!grouped[log.local_date]) {
         grouped[log.local_date] = [];
       }
