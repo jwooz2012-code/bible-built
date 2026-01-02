@@ -66,6 +66,7 @@ export function useChapterActions(
     
     // Perform actual updates
     try {
+      console.log('🔵 Attempting to create ReadingLog entry for:', { bookName, chapterNum, userId: user.id });
       const now = new Date();
       const isoString = now.toISOString();
       const localDate = now.toLocaleDateString('en-CA');
@@ -78,6 +79,14 @@ export function useChapterActions(
       
       // Create reading log entry with proper error handling
       try {
+        console.log('🟡 About to call base44.entities.ReadingLog.create with:', {
+          user_id: user.id,
+          occurred_at: isoString,
+          local_date: localDate,
+          book_index: book.index,
+          chapter: chapterNum,
+          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+        });
         const logEntry = await base44.entities.ReadingLog.create({
           user_id: user.id,
           occurred_at: isoString,
@@ -86,9 +95,10 @@ export function useChapterActions(
           chapter: chapterNum,
           event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
         });
-        console.log('ReadingLog created successfully:', logEntry);
+        console.log('✅ ReadingLog created successfully:', logEntry);
       } catch (logError) {
-        console.error('Failed to create ReadingLog:', logError);
+        console.error('❌ Failed to create ReadingLog:', logError);
+        console.error('❌ ReadingLog creation error details:', logError.message, logError.stack);
         throw logError;
       }
       
@@ -131,7 +141,8 @@ export function useChapterActions(
 
       setTimeout(() => checkAchievements(), 500);
     } catch (error) {
-      console.error('Error toggling chapter:', error);
+      console.error('❌ Error toggling chapter (outer catch):', error);
+      console.error('❌ Full error object:', error);
       // Revert optimistic update on error
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
