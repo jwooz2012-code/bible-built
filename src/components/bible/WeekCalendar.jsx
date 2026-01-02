@@ -28,6 +28,7 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
       const user = await base44.auth.me();
       return base44.entities.ReadingLog.filter({ user_id: user.id });
     },
+    staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
