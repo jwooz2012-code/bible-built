@@ -6,6 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -91,6 +92,35 @@ export default function Stats() {
       new_testament_count: parseInt(lifetimeEdits.newTestament) || 0,
     });
   };
+
+  const clearAllDataMutation = useMutation({
+    mutationFn: async () => {
+      // Delete all ReadingLogs
+      const logs = await base44.entities.ReadingLog.list();
+      await Promise.all(logs.map(log => base44.entities.ReadingLog.delete(log.id)));
+      
+      // Delete all BookProgress
+      const progress = await base44.entities.BookProgress.list();
+      await Promise.all(progress.map(p => base44.entities.BookProgress.delete(p.id)));
+      
+      // Delete all Achievements
+      const achievements = await base44.entities.Achievement.list();
+      await Promise.all(achievements.map(a => base44.entities.Achievement.delete(a.id)));
+      
+      // Delete all BibleProgress
+      const bibleProgress = await base44.entities.BibleProgress.list();
+      await Promise.all(bibleProgress.map(bp => base44.entities.BibleProgress.delete(bp.id)));
+      
+      // Delete LifetimeReading
+      const lifetime = await base44.entities.LifetimeReading.list();
+      await Promise.all(lifetime.map(lt => base44.entities.LifetimeReading.delete(lt.id)));
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries();
+      toast.success('All reading data cleared');
+      window.location.reload();
+    },
+  });
 
   const oldTestamentPercent = Math.round((stats.oldTestamentChaptersRead / stats.oldTestamentTotalChapters) * 100);
   const newTestamentPercent = Math.round((stats.newTestamentChaptersRead / stats.newTestamentTotalChapters) * 100);
@@ -269,13 +299,41 @@ export default function Stats() {
           </div>
         </motion.div>
 
-        {/* Logout Button */}
+        {/* Clear Data & Logout Section */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mb-6"
+          className="space-y-3 mb-6"
         >
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="w-full border-orange-200 dark:border-orange-900/30 text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+              >
+                Clear All Reading Data
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Clear All Data?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will permanently delete all your reading logs, progress, achievements, and stats. This cannot be undone.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => clearAllDataMutation.mutate()}
+                  className="bg-red-600 hover:bg-red-700"
+                >
+                  Clear Everything
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           <Button
             variant="outline"
             onClick={() => base44.auth.logout()}
