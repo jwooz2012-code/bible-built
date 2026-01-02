@@ -36,17 +36,17 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['bibleProgress'], refetchType: 'active' });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
     },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['bibleProgress'], refetchType: 'active' });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
     },
   });
 
