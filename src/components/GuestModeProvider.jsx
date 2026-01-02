@@ -33,15 +33,38 @@ export const GuestModeProvider = ({ children }) => {
 
   useEffect(() => {
     if (GUEST_MODE_ENABLED) {
-      // Load guest data from localStorage
-      const loadedData = {
-        readingLogs: JSON.parse(localStorage.getItem(STORAGE_KEYS.READING_LOGS) || '[]'),
-        bookProgress: JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOK_PROGRESS) || '[]'),
-        achievements: JSON.parse(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS) || '[]'),
-        bibleProgress: JSON.parse(localStorage.getItem(STORAGE_KEYS.BIBLE_PROGRESS) || 'null'),
-        lifetimeReading: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIFETIME_READING) || 'null'),
+      // Explicitly initialize with empty data structure
+      const emptyData = {
+        readingLogs: [],
+        bookProgress: [],
+        achievements: [],
+        bibleProgress: null,
+        lifetimeReading: null,
       };
-      setGuestData(loadedData);
+      
+      // Try to load from localStorage, but ensure it's valid
+      try {
+        const stored = {
+          readingLogs: JSON.parse(localStorage.getItem(STORAGE_KEYS.READING_LOGS) || '[]'),
+          bookProgress: JSON.parse(localStorage.getItem(STORAGE_KEYS.BOOK_PROGRESS) || '[]'),
+          achievements: JSON.parse(localStorage.getItem(STORAGE_KEYS.ACHIEVEMENTS) || '[]'),
+          bibleProgress: JSON.parse(localStorage.getItem(STORAGE_KEYS.BIBLE_PROGRESS) || 'null'),
+          lifetimeReading: JSON.parse(localStorage.getItem(STORAGE_KEYS.LIFETIME_READING) || 'null'),
+        };
+        
+        // Only use stored data if it's the correct structure
+        setGuestData({
+          readingLogs: Array.isArray(stored.readingLogs) ? stored.readingLogs : [],
+          bookProgress: Array.isArray(stored.bookProgress) ? stored.bookProgress : [],
+          achievements: Array.isArray(stored.achievements) ? stored.achievements : [],
+          bibleProgress: stored.bibleProgress || null,
+          lifetimeReading: stored.lifetimeReading || null,
+        });
+      } catch (e) {
+        // If there's any error, use empty data
+        setGuestData(emptyData);
+      }
+      
       setIsGuest(true);
     }
   }, []);
