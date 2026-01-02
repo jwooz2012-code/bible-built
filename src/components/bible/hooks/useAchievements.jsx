@@ -1,6 +1,10 @@
 import { ACHIEVEMENTS } from '../bibleData';
+import { useGuestMode } from '@/components/GuestModeProvider';
 
-export function useAchievements(progressData, achievements, unlockAchievementMutation, calculateStats, user) {
+export function useAchievements(progressData, achievements, unlockAchievementMutation, calculateStats, userParam) {
+  const { isGuest, guestUser } = useGuestMode();
+  const user = isGuest ? guestUser : userParam;
+
   const checkAchievements = async () => {
     if (!user) return;
     
