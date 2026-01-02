@@ -16,6 +16,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import WeekCalendar from '@/components/bible/WeekCalendar';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
+import { IS_REVIEW_BUILD } from '@/components/auth/useReviewUser';
 
 export default function Home() {
   const [testament, setTestament] = useState('all');
@@ -25,7 +26,10 @@ export default function Home() {
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: () => {
+      if (IS_REVIEW_BUILD) return [];
+      return base44.entities.ReadingLog.list();
+    },
   });
 
   const addLogMutation = useMutation({
