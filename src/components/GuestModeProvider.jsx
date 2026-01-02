@@ -1,10 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
-const GuestModeContext = createContext();
+const GuestModeContext = createContext({
+  isGuest: false,
+  guestAPI: null,
+  guestUser: null,
+  isGuestModeEnabled: false,
+});
 
 export const useGuestMode = () => {
   const context = useContext(GuestModeContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useGuestMode must be used within GuestModeProvider');
   }
   return context;
