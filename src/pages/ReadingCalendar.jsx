@@ -38,9 +38,18 @@ export default function ReadingCalendar() {
   const queryClient = useQueryClient();
   const { updateProgressMutation, checkAchievements } = useBookProgress();
 
+  const { data: user } = useQuery({
+    queryKey: ['user'],
+    queryFn: () => base44.auth.me(),
+  });
+
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryKey: ['readingLogs', user?.id],
+    queryFn: async () => {
+      return await base44.entities.ReadingLog.list();
+    },
+    enabled: !!user?.id,
+    staleTime: 0,
   });
 
   const addLogMutation = useMutation({
@@ -58,8 +67,8 @@ export default function ReadingCalendar() {
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
@@ -70,19 +79,19 @@ export default function ReadingCalendar() {
       return await base44.entities.ReadingLog.delete(logId);
     },
     onMutate: async (logId) => {
-      await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
-      const previousLogs = queryClient.getQueryData(['readingLogs']);
-      queryClient.setQueryData(['readingLogs'], (old) => 
+      await queryClient.cancelQueries({ queryKey: ['readingLogs', user?.id] });
+      const previousLogs = queryClient.getQueryData(['readingLogs', user?.id]);
+      queryClient.setQueryData(['readingLogs', user?.id], (old) => 
         old?.filter(log => log.id !== logId) || []
       );
       return { previousLogs };
     },
     onError: (err, logId, context) => {
-      queryClient.setQueryData(['readingLogs'], context.previousLogs);
+      queryClient.setQueryData(['readingLogs', user?.id], context.previousLogs);
       toast.error('Failed to remove chapter');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
     },
   });
 
@@ -333,10 +342,10 @@ export default function ReadingCalendar() {
   const handleBulkRemoveLogs = async (logIds) => {
     const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
     
-    await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
-    const previousLogs = queryClient.getQueryData(['readingLogs']);
+    await queryClient.cancelQueries({ queryKey: ['readingLogs', user?.id] });
+    const previousLogs = queryClient.getQueryData(['readingLogs', user?.id]);
     
-    queryClient.setQueryData(['readingLogs'], (old) => 
+    queryClient.setQueryData(['readingLogs', user?.id], (old) => 
       old?.filter(log => !logIds.includes(log.id)) || []
     );
     
@@ -388,15 +397,15 @@ export default function ReadingCalendar() {
         }
       }
       
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
       
       toast.success(`${logIds.length} chapters removed`);
     } catch (error) {
-      queryClient.setQueryData(['readingLogs'], previousLogs);
+      queryClient.setQueryData(['readingLogs', user?.id], previousLogs);
       toast.error('Failed to delete chapters');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
     }
   };
 
@@ -454,16 +463,16 @@ export default function ReadingCalendar() {
         }
       }
       
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
       
       setSelectedDay(null);
       toast.success('Day cleared');
     } catch (error) {
       console.error('Clear day error:', error);
       toast.error('Failed to clear day');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', user?.id] });
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', user?.id] });
     }
   };
 
