@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/sheet";
 import EditReadingSheet from './EditReadingSheet';
 import { BIBLE_BOOKS } from './bibleData';
+import { IS_REVIEW_BUILD } from '../auth/useReviewUser';
 
 export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLog }) {
   const queryClient = useQueryClient();
@@ -27,7 +28,10 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
 
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryFn: () => {
+      if (IS_REVIEW_BUILD) return [];
+      return base44.entities.ReadingLog.list();
+    },
   });
 
   const readingByDate = useMemo(() => {
