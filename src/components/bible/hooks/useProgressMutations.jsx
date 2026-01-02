@@ -10,16 +10,16 @@ export function useProgressMutations() {
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'], refetchType: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
     },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'], refetchType: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
     },
   });
 
@@ -37,16 +37,16 @@ export function useProgressMutations() {
       return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['bibleProgress'], refetchType: 'active' });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bibleProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
     },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ['bibleProgress'], refetchType: 'active' });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress'], refetchType: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bibleProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
     },
   });
 
