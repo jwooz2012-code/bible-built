@@ -92,9 +92,12 @@ export default function WeekCalendar({ onAddChapters, onMarkComplete, onRemoveLo
                   {dayData.date.getDate()}
                 </span>
                 {dayData.count > 0 && (
-                  <span className="text-xs font-semibold text-white/90">
-                    {dayData.count}
-                  </span>
+                  <div className="flex flex-col items-center -mt-0.5">
+                    <span className="text-sm font-bold text-white">
+                      {dayData.count}
+                    </span>
+                    <span className="text-[8px] text-white/70 font-medium">ch</span>
+                  </div>
                 )}
               </motion.button>
             );

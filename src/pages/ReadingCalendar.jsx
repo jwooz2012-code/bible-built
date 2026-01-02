@@ -631,9 +631,12 @@ export default function ReadingCalendar() {
                         {dayData.date.getDate()}
                       </span>
                       {dayData.count > 0 && (
-                        <span className="text-sm font-semibold text-green-600 dark:text-green-400">
-                          {dayData.count}
-                        </span>
+                        <div className="flex flex-col items-center -mt-1">
+                          <span className="text-base font-bold text-green-600 dark:text-green-400">
+                            {dayData.count}
+                          </span>
+                          <span className="text-[8px] text-green-600/70 dark:text-green-400/70 font-medium">ch</span>
+                        </div>
                       )}
                     </motion.button>
                   );
@@ -718,9 +721,12 @@ export default function ReadingCalendar() {
                       `}
                     >
                       {hasReading ? (
-                        <span className="text-sm font-semibold text-white">
-                          {dayData.count}
-                        </span>
+                        <div className="flex flex-col items-center">
+                          <span className="text-lg font-bold text-white">
+                            {dayData.count}
+                          </span>
+                          <span className="text-[9px] text-white/70 font-medium">ch</span>
+                        </div>
                       ) : (
                         <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
                       )}
@@ -786,14 +792,17 @@ export default function ReadingCalendar() {
                   <h3 className="text-sm font-semibold text-gray-600 dark:text-slate-400 mb-2">
                     {monthNames[monthData.month]}
                   </h3>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-slate-100">
-                    {monthData.total > 0 ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">{monthData.total}</span>
-                    ) : (
-                      <span className="text-gray-300 dark:text-slate-700">0</span>
-                    )}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters</p>
+                  <div className="flex items-baseline gap-1">
+                    <p className="text-4xl font-bold text-gray-900 dark:text-slate-100">
+                      {monthData.total > 0 ? (
+                        <span className="text-emerald-600 dark:text-emerald-400">{monthData.total}</span>
+                      ) : (
+                        <span className="text-gray-300 dark:text-slate-700">0</span>
+                      )}
+                    </p>
+                    <p className="text-xs text-gray-500 dark:text-slate-500">ch</p>
+                  </div>
+                  <p className="text-xs text-gray-500 dark:text-slate-500 mt-1">chapters read</p>
                 </motion.div>
               ))}
             </motion.div>
