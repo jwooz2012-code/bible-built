@@ -10,16 +10,16 @@ export function useProgressMutations() {
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'active' });
     },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'active' });
     },
   });
 
@@ -37,16 +37,16 @@ export function useProgressMutations() {
       return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
     },
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bibleProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
     },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
     onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bibleProgress'] });
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'] });
+      await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'active' });
+      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'active' });
     },
   });
 
