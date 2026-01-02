@@ -1,8 +1,10 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useGuestMode } from '@/components/GuestModeProvider';
 
 export function useProgressMutations() {
   const queryClient = useQueryClient();
+  const { isGuest, guestAPI } = useGuestMode();
 
   const createProgressMutation = useMutation({
     mutationFn: (data) => base44.entities.BookProgress.create(data),
