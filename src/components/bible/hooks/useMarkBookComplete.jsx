@@ -24,7 +24,6 @@ export function useMarkBookComplete(
       user_id: user.id, 
       book_index: bookIndex 
     }))?.[0] ?? null;
-    console.log("markBookComplete: existing progress", existing);
     
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
@@ -42,9 +41,7 @@ export function useMarkBookComplete(
     
     try {
       await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
-      console.log("ReadingLog bulk saved", { userId: user.id, date: dateKey, bookIndex, count: allChapters.length });
     } catch (logError) {
-      console.error('Failed to create reading logs:', logError);
       throw logError;
     }
     
@@ -120,10 +117,8 @@ export function useMarkBookComplete(
 
     let saved;
     if (existing?.id) {
-      console.log("markBookComplete: saving via update", { bookIndex, id: existing.id });
       saved = await base44.entities.BookProgress.update(existing.id, progressPayload);
     } else {
-      console.log("markBookComplete: saving via create", { bookIndex });
       saved = await base44.entities.BookProgress.create({
         user_id: user.id,
         book_name: bookName,
@@ -133,7 +128,6 @@ export function useMarkBookComplete(
         ...progressPayload
       });
     }
-    console.log("markBookComplete: savedRow", saved);
     
     // Update book-specific cache for BookDetail
     queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
