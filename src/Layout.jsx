@@ -19,15 +19,14 @@ export default function Layout({ children }) {
     { name: 'Settings', icon: Settings, path: '/settings' },
   ];
 
-  const isAuthPage = currentPath === '/auth';
+
 
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-background">
         {children}
 
-        {!isAuthPage && (
-          <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-xl border-t border-border z-50">
+        <nav className="fixed bottom-0 left-0 right-0 bg-card/80 backdrop-blur-xl border-t border-border z-50">
             <div className="max-w-lg mx-auto flex justify-around items-center h-16 px-4">
               {navItems.map((item) => {
                 const isActive = currentPath === item.path || 
@@ -53,7 +52,6 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-        )}
       </div>
     </ThemeProvider>
   );

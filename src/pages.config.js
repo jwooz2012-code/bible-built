@@ -1,4 +1,3 @@
-import Auth from './pages/Auth';
 import Calendar from './pages/Calendar';
 import Home from './pages/Home';
 import Settings from './pages/Settings';
@@ -8,7 +7,6 @@ import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
-    "Auth": Auth,
     "Calendar": Calendar,
     "Home": Home,
     "Settings": Settings,
