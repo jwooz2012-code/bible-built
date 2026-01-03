@@ -20,7 +20,9 @@ export function useToggleChapterRead() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId 
+      });
       toast.success('Chapter marked as read');
     },
     onError: (error) => {
@@ -37,7 +39,9 @@ export function useToggleChapterRead() {
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId 
+      });
       toast.success('Chapter unmarked');
     },
     onError: (error) => {

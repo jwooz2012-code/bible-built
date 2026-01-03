@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -43,34 +44,44 @@ export default function Home() {
   const { markRead, undoRead } = useToggleChapterRead();
 
   const getBookYearProgress = (bookIndex) => {
-    return yearLogs.filter(log => log.bookIndex === bookIndex).length;
+    const distinctChapters = new Set(
+      yearLogs.filter(log => log.bookIndex === bookIndex).map(log => log.chapterId)
+    );
+    return distinctChapters.size;
   };
 
   const getBookTodayCount = (bookIndex) => {
     return todayLogs.filter(log => log.bookIndex === bookIndex).length;
   };
 
-  const handleChapterAction = (action) => {
+  const handleChapterAction = async (action) => {
     if (!selectedChapter) return;
+    if (!userId) {
+      toast.error('Please log in again');
+      return;
+    }
     
     const { book, chapter, chapterId, isRead } = selectedChapter;
     
-    if (action === 'mark' && !isRead) {
-      markRead.mutate({
-        userId,
-        dateKey: today,
-        timestamp: new Date().toISOString(),
-        book: book.name,
-        bookIndex: book.index,
-        chapter,
-        chapterId,
-        testament: book.testament,
-      });
-    } else if (action === 'undo' && isRead) {
-      undoRead.mutate({ userId, dateKey: today, chapterId });
+    try {
+      if (action === 'mark' && !isRead) {
+        await markRead.mutateAsync({
+          userId,
+          dateKey: today,
+          timestamp: new Date().toISOString(),
+          book: book.name,
+          bookIndex: book.index,
+          chapter,
+          chapterId,
+          testament: book.testament,
+        });
+      } else if (action === 'undo' && isRead) {
+        await undoRead.mutateAsync({ userId, dateKey: today, chapterId });
+      }
+      setSelectedChapter(null);
+    } catch (error) {
+      console.error('Chapter action failed:', error);
     }
-    
-    setSelectedChapter(null);
   };
 
   const handleDeleteLog = async (logId) => {
@@ -204,20 +215,22 @@ export default function Home() {
             {!selectedChapter?.isRead && (
               <Button
                 onClick={() => handleChapterAction('mark')}
+                disabled={!userId || markRead.isPending}
                 className="w-full"
                 size="lg"
               >
-                Mark as Read
+                {markRead.isPending ? 'Saving...' : 'Mark as Read'}
               </Button>
             )}
             {selectedChapter?.isRead && (
               <Button
                 onClick={() => handleChapterAction('undo')}
+                disabled={!userId || undoRead.isPending}
                 variant="outline"
                 className="w-full"
                 size="lg"
               >
-                Undo
+                {undoRead.isPending ? 'Removing...' : 'Undo'}
               </Button>
             )}
             <Button
