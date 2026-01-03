@@ -24,15 +24,32 @@ export function useToggleChapterRead() {
       return result;
     },
     onSuccess: (data, variables) => {
-      console.log('[markRead] Invalidating queries for:', variables.userId, variables.dateKey);
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => {
-          const match = query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
-          if (match) console.log('[markRead] Invalidating readingLogs query:', query.queryKey);
-          return match;
-        }
+      console.log('[markRead] SUCCESS - Created log:', data);
+      console.log('[markRead] DateKey written:', data.dateKey, 'DateKey expected:', variables.dateKey);
+      
+      // Directly update dayLogs cache
+      queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
+        console.log('[markRead] Updating dayLogs cache. Old count:', old.length);
+        const updated = [...old, data];
+        console.log('[markRead] New dayLogs count:', updated.length);
+        return updated;
       });
+      
+      // Update readingLogs cache for any matching range queries
+      queryClient.setQueriesData(
+        { 
+          predicate: (query) => {
+            return query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
+          }
+        },
+        (old = []) => {
+          console.log('[markRead] Updating readingLogs cache. Old count:', old.length);
+          const updated = [...old, data];
+          console.log('[markRead] New readingLogs count:', updated.length);
+          return updated;
+        }
+      );
+      
       toast.success('Chapter marked as read');
     },
     onError: (error) => {
@@ -54,15 +71,31 @@ export function useToggleChapterRead() {
       return result;
     },
     onSuccess: (data, variables) => {
-      console.log('[undoRead] Invalidating queries for:', variables.userId, variables.dateKey);
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => {
-          const match = query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
-          if (match) console.log('[undoRead] Invalidating readingLogs query:', query.queryKey);
-          return match;
-        }
+      console.log('[undoRead] SUCCESS - Deleted chapterId:', variables.chapterId);
+      
+      // Directly update dayLogs cache
+      queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
+        console.log('[undoRead] Updating dayLogs cache. Old count:', old.length);
+        const updated = old.filter(log => log.chapterId !== variables.chapterId);
+        console.log('[undoRead] New dayLogs count:', updated.length);
+        return updated;
       });
+      
+      // Update readingLogs cache
+      queryClient.setQueriesData(
+        { 
+          predicate: (query) => {
+            return query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
+          }
+        },
+        (old = []) => {
+          console.log('[undoRead] Updating readingLogs cache. Old count:', old.length);
+          const updated = old.filter(log => log.chapterId !== variables.chapterId || log.dateKey !== variables.dateKey);
+          console.log('[undoRead] New readingLogs count:', updated.length);
+          return updated;
+        }
+      );
+      
       toast.success('Chapter unmarked');
     },
     onError: (error) => {

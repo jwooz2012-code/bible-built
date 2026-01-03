@@ -32,8 +32,10 @@ export default function Home() {
 
   const userId = user?.id;
   const today = new Date().toISOString().slice(0, 10);
+  console.log('[Home] Current userId:', userId, 'today:', today);
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+  console.log('[Home] todayLogs count:', todayLogs.length, 'allTimeLogs count:', allTimeLogs.length);
 
   const todayChapterIds = getChapterIdsSet(todayLogs);
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
