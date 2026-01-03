@@ -133,10 +133,10 @@ export function useMarkBookComplete(
       });
     }
     
-    // Force immediate refetch of all queries so calendars update
-    await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
-    await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
-    await queryClient.refetchQueries({ queryKey: ['bibleProgress'], type: 'all' });
+    // Force refetch of all data
+    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
 
     setTimeout(() => checkAchievements(), 500);
   };
