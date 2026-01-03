@@ -23,7 +23,14 @@ export default function BookDetail() {
   const [celebrationCount, setCelebrationCount] = useState(0);
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
+  
+  // Always get fresh progress data on every render
   const progress = getProgressForBook(bookName);
+  
+  // Log for debugging
+  useEffect(() => {
+    console.log('📊 BookDetail render - progressData:', progressData?.length, 'progress for', bookName, ':', progress);
+  }, [progressData, bookName, progress]);
   
   if (!book) {
     return (
