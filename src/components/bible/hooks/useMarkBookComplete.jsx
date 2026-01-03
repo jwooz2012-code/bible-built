@@ -17,6 +17,7 @@ export function useMarkBookComplete(
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book || !user) return;
 
+    const bookIndex = Number(book?.book_index ?? book?.bookIndex ?? book?.index);
     let progress = getProgressForBook(bookName);
     
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
@@ -30,9 +31,9 @@ export function useMarkBookComplete(
       user_id: user.id,
       occurred_at: currentDate,
       local_date: localDate,
-      book_index: book.index,
+      book_index: bookIndex,
       chapter: ch,
-      event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
+      event_id: `${user.id}_${bookIndex}_${ch}_${Date.now()}_${ch}`
     }));
     
     try {
@@ -47,7 +48,7 @@ export function useMarkBookComplete(
     });
     
     const chaptersMap = bibleProgress?.chapters_completed_in_current_bible_run || {};
-    const bookKey = book.index.toString();
+    const bookKey = bookIndex.toString();
     const existingChapters = chaptersMap[bookKey] || [];
     
     const mergedChapters = [...new Set([...existingChapters, ...allChapters])];
@@ -104,35 +105,41 @@ export function useMarkBookComplete(
       chapterReadCounts[ch] = ((progress?.chapter_read_counts || {})[ch] || 0) + 1;
     });
 
+    const progressPayload = {
+      chapters_read: allChapters,
+      chapter_read_dates: chapterReadDates,
+      chapter_read_counts: chapterReadCounts,
+      completion_count: (progress?.completion_count || 0) + 1,
+      last_read_date: currentDate,
+    };
+
+    let saved;
     if (progress) {
-      await updateProgressMutation.mutateAsync({
-        id: progress.id,
-        data: {
-          chapters_read: allChapters,
-          chapter_read_dates: chapterReadDates,
-          chapter_read_counts: chapterReadCounts,
-          completion_count: (progress.completion_count || 0) + 1,
-          last_read_date: currentDate,
-        }
-      });
+      saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
     } else {
-      await createProgressMutation.mutateAsync({
+      saved = await base44.entities.BookProgress.create({
         user_id: user.id,
         book_name: bookName,
-        book_index: book.index,
+        book_index: bookIndex,
         testament: book.testament,
         total_chapters: book.chapters,
-        chapters_read: allChapters,
-        chapter_read_dates: chapterReadDates,
-        chapter_read_counts: chapterReadCounts,
-        completion_count: 1,
-        last_read_date: currentDate,
+        ...progressPayload
       });
     }
     
-    // Force refetch of all data
+    // Update book-specific cache for BookDetail
+    queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
+    
+    // Update global list cache for Stats/overview
+    queryClient.setQueryData(["bookProgress"], (old = []) => {
+      const list = Array.isArray(old) ? old : [];
+      const idx = list.findIndex(p => p.id === saved.id);
+      if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
+      return [...list, saved];
+    });
+    
+    // Invalidate non-bookProgress queries only
     queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-    queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
 
     setTimeout(() => checkAchievements(), 500);

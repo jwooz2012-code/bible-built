@@ -54,7 +54,7 @@ export default function BookDetail() {
     gcTime: 0,
   });
   
-  console.log("BookDetail key:", queryKey, "progress:", progress);
+  console.log("BookDetail READ", { key: queryKey, progress });
   
   if (!book) {
     return (

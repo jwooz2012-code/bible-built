@@ -129,8 +129,10 @@ export function useChapterActions(
         throw e;
       }
 
-      // 2) Immediately update React Query cache with saved data BEFORE invalidation
-      // Update global list
+      // 2) Update book-specific cache for BookDetail
+      queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
+      
+      // 3) Update global list cache for Stats/overview
       queryClient.setQueryData(["bookProgress"], (old = []) => {
         const list = Array.isArray(old) ? old : [];
         const idx = list.findIndex(p => p.id === saved.id);
@@ -138,10 +140,7 @@ export function useChapterActions(
         return [...list, saved];
       });
       
-      // Update book-specific query key for BookDetail
-      console.log("toggleChapter setQueryData key:", ["bookProgress", user.id, bookIndex], "savedRow:", saved);
-      queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
-      console.log("toggleChapter: cache updated successfully");
+      console.log("SAVE OK", { bookIndex, key: ["bookProgress", user.id, bookIndex], savedRow: saved });
 
       // 4) Create ReadingLog (best effort – never undo progress if this fails)
       try {
@@ -158,12 +157,10 @@ export function useChapterActions(
         toast.error("Progress saved, but log failed");
       }
 
-      // 5) Invalidate non-book queries only
-      console.log("toggleChapter: invalidating queries");
+      // 5) Invalidate non-bookProgress queries only
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bibleProgress" });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "readingLogs" });
 
-      console.log("toggleChapter: COMPLETE SUCCESS");
       setTimeout(() => checkAchievements(), 500);
 
       return saved;
@@ -171,7 +168,6 @@ export function useChapterActions(
       } catch (error) {
       console.error('Error toggling chapter:', error);
       toast.error(error?.message || 'Failed to save progress');
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bookProgress' });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
       throw error;
       }
