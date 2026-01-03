@@ -30,8 +30,8 @@ export default function ChapterTile({ chapter, isReadToday, isInCurrentCycle, on
     >
       {chapter}
       {isReadToday && (
-        <div className="absolute top-1 right-1">
-          <Check className="w-3 h-3" />
+        <div className="absolute top-1 right-1 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full p-0.5">
+          <Check className="w-3 h-3 text-white" strokeWidth={3} />
         </div>
       )}
     </button>

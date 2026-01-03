@@ -20,7 +20,7 @@ export default function BookCard({ book, todayCount, currentCycleProgress, times
         <div className="flex items-start justify-between mb-1">
           <h3 className="font-semibold text-foreground">{book.name}</h3>
           {timesThrough > 0 && (
-            <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+            <span className="text-[10px] font-bold text-white bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 px-2 py-1 rounded-full shadow-sm">
               ×{timesThrough}
             </span>
           )}
