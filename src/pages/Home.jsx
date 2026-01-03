@@ -36,7 +36,7 @@ export default function Home() {
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
 
   const todayChapterIds = getChapterIdsSet(todayLogs);
-  const { markRead, undoRead } = useToggleChapterRead();
+  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
 
   const getBookProgress = (book) => {
     const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
@@ -77,13 +77,13 @@ export default function Home() {
           testament: book.testament,
         };
         console.log('Payload:', payload);
-        const result = await markRead.mutateAsync(payload);
+        const result = await markRead(payload);
         console.log('>>> Mark read SUCCESS:', result);
       } else {
         console.log('>>> CALLING undoRead.mutateAsync');
         const payload = { userId, dateKey: today, chapterId };
         console.log('Payload:', payload);
-        const result = await undoRead.mutateAsync(payload);
+        const result = await undoRead(payload);
         console.log('>>> Undo read SUCCESS:', result);
       }
     } catch (error) {
@@ -217,7 +217,7 @@ export default function Home() {
                     isReadToday={isReadToday}
                     isInCurrentCycle={isInCurrentCycle}
                     onClick={() => handleChapterClick(selectedBook, chapter, chapterId, isReadToday)}
-                    disabled={markRead.isPending || undoRead.isPending}
+                    disabled={isMarkingRead || isUndoingRead}
                   />
                 );
               })}

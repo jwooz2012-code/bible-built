@@ -71,5 +71,10 @@ export function useToggleChapterRead() {
     },
   });
 
-  return { markRead, undoRead };
+  return { 
+    markRead: markRead.mutateAsync,
+    undoRead: undoRead.mutateAsync,
+    isMarkingRead: markRead.isPending,
+    isUndoingRead: undoRead.isPending,
+  };
 }
