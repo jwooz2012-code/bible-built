@@ -120,13 +120,7 @@ export function useChapterActions(
       // 5) Update cache IMMEDIATELY - this becomes authoritative for next click
       queryClient.setQueryData(key, savedRow);
       
-      // Also update global list caches
-      queryClient.setQueryData(["bookProgress"], (old = []) => {
-        const list = Array.isArray(old) ? old : [];
-        const idx = list.findIndex(p => p.id === savedRow.id);
-        if (idx >= 0) return [...list.slice(0, idx), savedRow, ...list.slice(idx + 1)];
-        return [...list, savedRow];
-      });
+      // Update global list cache
       queryClient.setQueryData(["bookProgress", user.id], (old = []) => {
         const list = Array.isArray(old) ? old : [];
         const idx = list.findIndex(p => p.id === savedRow.id);

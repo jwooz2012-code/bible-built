@@ -4,35 +4,36 @@ import { useUser } from './useUser';
 
 export function useProgressData() {
   const { user } = useUser();
+  const userId = user?.id;
 
   const { data: progressData = [], isLoading } = useQuery({
-    queryKey: ['bookProgress'],
+    queryKey: ['bookProgress', userId],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.BookProgress.filter({ user_id: user.id });
+      return await base44.entities.BookProgress.filter({ user_id: userId });
     },
+    enabled: !!userId,
     staleTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true,
   });
 
   const { data: achievements = [] } = useQuery({
-    queryKey: ['achievements'],
+    queryKey: ['achievements', userId],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return await base44.entities.Achievement.filter({ user_id: user.id });
+      return await base44.entities.Achievement.filter({ user_id: userId });
     },
+    enabled: !!userId,
     staleTime: 0,
     refetchOnMount: 'always',
   });
 
   const { data: bibleProgress } = useQuery({
-    queryKey: ['bibleProgress'],
+    queryKey: ['bibleProgress', userId],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      const results = await base44.entities.BibleProgress.filter({ user_id: user.id });
+      const results = await base44.entities.BibleProgress.filter({ user_id: userId });
       return results[0] || null;
     },
+    enabled: !!userId,
     staleTime: 0,
     refetchOnMount: 'always',
   });
