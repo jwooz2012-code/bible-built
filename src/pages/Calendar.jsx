@@ -64,10 +64,20 @@ export default function Calendar() {
   };
 
   const handleDeleteLog = async (logId) => {
-    await base44.entities.ReadingLog.delete(logId);
-    setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
-    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-    toast.success('Reading removed');
+    try {
+      await base44.entities.ReadingLog.delete(logId);
+      setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Reading removed');
+    } catch (error) {
+      console.error('Delete error:', error);
+      if (error.message?.includes('not found')) {
+        setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
+        queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      } else {
+        toast.error('Failed to delete reading');
+      }
+    }
   };
 
   const handleAddReading = async () => {
