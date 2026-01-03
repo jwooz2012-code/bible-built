@@ -1,4 +1,4 @@
-import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData.js';
+import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
 
 export function useReadingStats(logs = []) {
   const otCount = logs.filter(log => log.testament === 'OT').length;
