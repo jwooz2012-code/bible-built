@@ -12,6 +12,18 @@ export function useToggleChapterRead() {
         throw new Error('User ID is required. Please log in again.');
       }
       
+      console.log('[markRead] BEFORE CREATE - userId being written:', userId);
+      console.log('[markRead] BEFORE CREATE - Full payload:', {
+        userId,
+        dateKey,
+        timestamp,
+        book,
+        bookIndex,
+        chapter,
+        chapterId,
+        testament
+      });
+      
       // Create the ReadingLog entry
       const result = await base44.entities.ReadingLog.create({
         userId,
@@ -24,7 +36,13 @@ export function useToggleChapterRead() {
         testament,
       });
       
-      console.log('[markRead] Created log:', result);
+      console.log('[markRead] AFTER CREATE - Returned log:', result);
+      console.log('[markRead] AFTER CREATE - Saved userId:', result.userId);
+      console.log('[markRead] AFTER CREATE - Match check:', { 
+        sentUserId: userId, 
+        savedUserId: result.userId, 
+        match: userId === result.userId 
+      });
       
       // Verify the record was actually saved and has an id
       if (!result || !result.id) {
@@ -32,19 +50,20 @@ export function useToggleChapterRead() {
       }
       
       // Verify the record is readable (temporary verification)
+      console.log('[markRead] VERIFICATION - Querying with:', { userId, dateKey, chapterId });
       const verification = await base44.entities.ReadingLog.filter({ userId, dateKey, chapterId });
-      console.log('[markRead] Verification read-back:', { 
-        userId, 
-        dateKey, 
-        chapterId, 
-        foundCount: verification.length,
-        savedId: result.id
-      });
+      console.log('[markRead] VERIFICATION - Read-back results:', verification);
+      console.log('[markRead] VERIFICATION - Found count:', verification.length);
       
       if (verification.length === 0) {
         console.error('[markRead] CRITICAL: Saved record not visible in read-back!');
-        console.error('[markRead] Check: userId match, dateKey match, security rules');
-        throw new Error('Saved record not visible - check security/userId/dateKey');
+        console.error('[markRead] userId sent:', userId);
+        console.error('[markRead] userId saved:', result.userId);
+        console.error('[markRead] dateKey sent:', dateKey);
+        console.error('[markRead] dateKey saved:', result.dateKey);
+        console.error('[markRead] Security rule expects data.userId == {{user.id}}');
+        console.error('[markRead] Check if authenticated user.id matches the userId we are writing');
+        throw new Error('Saved record not visible - userId or security mismatch');
       }
       
       return result;

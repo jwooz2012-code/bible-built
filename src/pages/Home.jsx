@@ -26,7 +26,14 @@ export default function Home() {
   useEffect(() => {
     let mounted = true;
     base44.auth.me()
-      .then(u => { if (mounted) { setUser(u); setIsLoading(false); } })
+      .then(u => { 
+        if (mounted) { 
+          console.log('[Home] Authenticated user object:', u);
+          console.log('[Home] user.id (used by security {{user.id}}):', u?.id);
+          setUser(u); 
+          setIsLoading(false); 
+        } 
+      })
       .catch(() => { if (mounted) setIsLoading(false); });
     return () => { mounted = false; };
   }, []);
