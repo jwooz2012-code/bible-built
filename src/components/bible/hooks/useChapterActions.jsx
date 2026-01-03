@@ -51,7 +51,7 @@ export function useChapterActions(
     try {
       const now = new Date();
       const isoString = now.toISOString();
-      const localDate = now.toLocaleDateString('en-CA');
+      const dateKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
 
       // Update local variables for final persisted payload
       chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
@@ -111,12 +111,12 @@ export function useChapterActions(
         await base44.entities.ReadingLog.create({
           user_id: user.id,
           occurred_at: isoString,
-          local_date: localDate,
+          local_date: dateKey,
           book_index: bookIndex,
           chapter: chapterNum,
           event_id: `${user.id}_${bookIndex}_${chapterNum}_${Date.now()}`
         });
-        console.log("ReadingLog saved", { userId: user.id, date: localDate, bookIndex, chapterNum });
+        console.log("ReadingLog saved", { userId: user.id, date: dateKey, bookIndex, chapterNum });
       } catch (logErr) {
         console.error("ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");

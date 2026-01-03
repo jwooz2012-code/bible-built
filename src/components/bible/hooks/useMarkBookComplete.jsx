@@ -30,13 +30,13 @@ export function useMarkBookComplete(
     
     const now = new Date();
     const currentDate = now.toISOString();
-    const localDate = now.toLocaleDateString('en-CA');
+    const dateKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
     const chapterReadDates = {};
     
     const readingLogEntries = allChapters.map(ch => ({
       user_id: user.id,
       occurred_at: currentDate,
-      local_date: localDate,
+      local_date: dateKey,
       book_index: bookIndex,
       chapter: ch,
       event_id: `${user.id}_${bookIndex}_${ch}_${Date.now()}_${ch}`
@@ -44,7 +44,7 @@ export function useMarkBookComplete(
     
     try {
       await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
-      console.log("ReadingLog bulk saved", { userId: user.id, date: localDate, bookIndex, count: allChapters.length });
+      console.log("ReadingLog bulk saved", { userId: user.id, date: dateKey, bookIndex, count: allChapters.length });
     } catch (logError) {
       console.error('Failed to create reading logs:', logError);
       throw logError;
