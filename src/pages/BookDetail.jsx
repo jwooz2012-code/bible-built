@@ -60,6 +60,11 @@ export default function BookDetail() {
   const percentComplete = Math.round((chaptersRead.length / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
+    console.log("CHAPTER TILE CLICK", chapterNum, "toggleChapter exists:", !!toggleChapter);
+    if (!toggleChapter) {
+      console.error("toggleChapter is undefined!");
+      return;
+    }
     await toggleChapter(bookName, chapterNum);
   };
 
@@ -176,10 +181,12 @@ export default function BookDetail() {
               return (
                 <motion.button
                   key={chapterNum}
+                  type="button"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleChapterToggle(chapterNum)}
+                  disabled={false}
                   className={`
                     aspect-square rounded-xl font-medium text-sm relative
                     flex flex-col items-center justify-center transition-all duration-200
