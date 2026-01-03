@@ -26,7 +26,6 @@ export default function BookDetail() {
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
   
-  // Book-specific query for immediate updates
   const { data: progress, isLoading } = useQuery({
     queryKey: ["bookProgress", user?.id, book?.index],
     queryFn: async () => {

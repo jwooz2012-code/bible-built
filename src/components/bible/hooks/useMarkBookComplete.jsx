@@ -35,13 +35,10 @@ export function useMarkBookComplete(
       event_id: `${user.id}_${book.index}_${ch}_${Date.now()}_${ch}`
     }));
     
-    console.log('🔵 Attempting to bulkCreate ReadingLog entries for book:', bookName, 'Total chapters:', allChapters.length);
     try {
-      const result = await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
-      console.log('✅ ReadingLog bulkCreate successful:', result);
+      await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
     } catch (logError) {
-      console.error('❌ Failed to bulkCreate ReadingLog:', logError);
-      console.error('❌ Error details:', logError.message, logError.stack);
+      console.error('Failed to create reading logs:', logError);
       throw logError;
     }
     

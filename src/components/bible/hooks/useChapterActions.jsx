@@ -98,18 +98,13 @@ export function useChapterActions(
       let saved;
       try {
         if (progress) {
-          // Update existing progress
           saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
-          console.log("✅ BookProgress updated:", saved);
         } else {
-          // Create new progress
           saved = await base44.entities.BookProgress.create(progressPayload);
-          console.log("✅ BookProgress created:", saved);
         }
       } catch (e) {
-        console.error("❌ BookProgress operation failed:", e);
+        console.error("Failed to save progress:", e);
         toast.error(e?.message || "Failed to save progress");
-        // On fatal failure, revert optimistic state by invalidating and return early
         queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
         return;
       }
@@ -126,14 +121,6 @@ export function useChapterActions(
       // Update book-specific query key for BookDetail
       queryClient.setQueryData(["bookProgress", user.id, book.index], saved);
 
-      // 3) Verify persistence with a fresh fetch
-      try {
-        const fresh = await base44.entities.BookProgress.filter({ user_id: user.id, book_index: book.index });
-        console.log("🔎 fresh BookProgress after save:", fresh);
-      } catch (verifyErr) {
-        console.error("⚠️ verification fetch failed:", verifyErr);
-      }
-
       // 4) Create ReadingLog (best effort – never undo progress if this fails)
       try {
         await base44.entities.ReadingLog.create({
@@ -145,8 +132,8 @@ export function useChapterActions(
           event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
         });
       } catch (logErr) {
-        console.error("⚠️ ReadingLog failed (non-fatal):", logErr);
-        toast.error("Saved progress, log failed");
+        console.error("ReadingLog creation failed:", logErr);
+        toast.error("Progress saved, but log failed");
       }
 
       // 5) Invalidate broadly to catch param keys AFTER cache set
@@ -156,14 +143,13 @@ export function useChapterActions(
 
       setTimeout(() => checkAchievements(), 500);
 
-    } catch (error) {
-      console.error('❌ Error toggling chapter (fatal):', error);
-      toast.error(error?.message || 'Failed to save progress.');
-      // Revert optimistic update on fatal error
+      } catch (error) {
+      console.error('Error toggling chapter:', error);
+      toast.error(error?.message || 'Failed to save progress');
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bookProgress' });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
       throw error;
-    }
+      }
   };
 
   const restartBook = async (bookName) => {
