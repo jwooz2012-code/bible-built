@@ -7,6 +7,9 @@ export function useToggleChapterRead() {
 
   const markRead = useMutation({
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
+      if (!userId) {
+        throw new Error('User ID is required. Please log in again.');
+      }
       return await base44.entities.ReadingLog.create({
         userId,
         timestamp,
@@ -32,6 +35,9 @@ export function useToggleChapterRead() {
 
   const undoRead = useMutation({
     mutationFn: async ({ userId, dateKey, chapterId }) => {
+      if (!userId) {
+        throw new Error('User ID is required. Please log in again.');
+      }
       const logs = await base44.entities.ReadingLog.filter({ userId, dateKey, chapterId });
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];

@@ -92,12 +92,17 @@ export default function Home() {
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 10);
 
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
       </div>
     );
+  }
+
+  if (!user || !userId) {
+    window.location.href = '/auth';
+    return null;
   }
 
   const formattedDate = new Date().toLocaleDateString('en-US', { 

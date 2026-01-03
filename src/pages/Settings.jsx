@@ -35,12 +35,17 @@ export default function Settings() {
     }
   };
 
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
       </div>
     );
+  }
+
+  if (!user) {
+    window.location.href = '/auth';
+    return null;
   }
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

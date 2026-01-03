@@ -5,7 +5,8 @@ export function useReadingLogsRange(userId, startDate, endDate) {
   return useQuery({
     queryKey: ['readingLogs', userId, startDate, endDate],
     queryFn: async () => {
-      if (!userId || !startDate || !endDate) return [];
+      if (!userId) throw new Error('User ID is required');
+      if (!startDate || !endDate) return [];
       const logs = await base44.entities.ReadingLog.filter({ userId });
       return logs.filter(log => log.dateKey >= startDate && log.dateKey <= endDate);
     },

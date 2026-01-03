@@ -58,12 +58,17 @@ export default function Calendar() {
     setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
   };
 
-  if (isLoading || !user) {
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
       </div>
     );
+  }
+
+  if (!user || !userId) {
+    window.location.href = '/auth';
+    return null;
   }
 
   return (
