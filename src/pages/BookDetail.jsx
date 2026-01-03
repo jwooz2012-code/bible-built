@@ -184,23 +184,20 @@ export default function BookDetail() {
               const chapterNum = Number(n);
               const isRead = (counts[String(chapterNum)] ?? counts[chapterNum] ?? 0) > 0 || chapters.includes(chapterNum);
               const readCount = counts[String(chapterNum)] ?? counts[chapterNum] ?? 0;
+              
+              const baseClass = "aspect-square rounded-xl font-medium text-sm relative flex flex-col items-center justify-center transition-all duration-200";
+              const readClass = "bg-gradient-to-br from-green-500 to-green-600 text-white hover:scale-105";
+              const unreadClass = "bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-green-500 dark:hover:border-green-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105";
+              
               return (
                 <motion.button
-                  key={chapterNum}
+                  key={`${chapterNum}-${readCount}`}
                   type="button"
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: index * 0.01 }}
                   onClick={() => handleChapterToggle(chapterNum)}
-                  disabled={false}
-                  className={`
-                    aspect-square rounded-xl font-medium text-sm relative
-                    flex flex-col items-center justify-center transition-all duration-200
-                    ${isRead
-                      ? 'bg-gradient-to-br from-green-500 to-green-600 text-white hover:scale-105'
-                      : 'bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white hover:border-green-500 dark:hover:border-green-500 hover:bg-slate-50 dark:hover:bg-slate-700 hover:scale-105'
-                    }
-                  `}
+                  className={`${baseClass} ${isRead ? readClass : unreadClass}`}
                 >
                   <span className="text-sm font-bold">{chapterNum}</span>
                   {readCount > 0 && (
