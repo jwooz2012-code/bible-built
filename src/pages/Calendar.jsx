@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { groupLogsByDay } from '@/components/bible/utils/logUtils';
+import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
+import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function Calendar() {
   const [user, setUser] = useState(null);
@@ -15,6 +19,12 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [selectedDayLogs, setSelectedDayLogs] = useState([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedBook, setSelectedBook] = useState('');
+  const [selectedChapter, setSelectedChapter] = useState('');
+  const [isAdding, setIsAdding] = useState(false);
+  
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     let mounted = true;
@@ -56,6 +66,47 @@ export default function Calendar() {
   const handleDeleteLog = async (logId) => {
     await base44.entities.ReadingLog.delete(logId);
     setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
+    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+    toast.success('Reading removed');
+  };
+
+  const handleAddReading = async () => {
+    if (!selectedBook || !selectedChapter) {
+      toast.error('Please select a book and chapter');
+      return;
+    }
+
+    setIsAdding(true);
+    try {
+      const book = BIBLE_BOOKS.find(b => b.name === selectedBook);
+      const chapter = parseInt(selectedChapter);
+      const chapterId = generateChapterId(book.index, chapter);
+      
+      const timestamp = new Date(selectedDay + 'T12:00:00').toISOString();
+      
+      const newLog = await base44.entities.ReadingLog.create({
+        userId,
+        timestamp,
+        dateKey: selectedDay,
+        book: book.name,
+        bookIndex: book.index,
+        chapter,
+        chapterId,
+        testament: book.testament,
+      });
+
+      setSelectedDayLogs(prev => [...prev, newLog]);
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      setShowAddForm(false);
+      setSelectedBook('');
+      setSelectedChapter('');
+      toast.success('Reading added');
+    } catch (error) {
+      console.error('Add reading error:', error);
+      toast.error('Failed to add reading');
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   if (isLoading) {
@@ -149,28 +200,103 @@ export default function Calendar() {
               })}
             </SheetTitle>
           </SheetHeader>
-          <div className="mt-6 space-y-2">
-            {selectedDayLogs.length === 0 ? (
-              <p className="text-muted-foreground text-center py-8 text-sm">No chapters read this day</p>
-            ) : (
-              selectedDayLogs.map(log => (
-                <div
-                  key={log.id}
-                  className="flex items-center justify-between p-3 bg-secondary rounded-xl"
-                >
-                  <span className="font-medium text-foreground text-sm">
-                    {log.book} {log.chapter}
-                  </span>
-                  <Button
-                    variant="ghost"
+          
+          <div className="mt-6 space-y-4">
+            <Button 
+              onClick={() => setShowAddForm(!showAddForm)}
+              variant="outline" 
+              className="w-full"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Reading
+            </Button>
+
+            {showAddForm && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="bg-secondary p-4 rounded-xl space-y-3"
+              >
+                <Select value={selectedBook} onValueChange={(val) => {
+                  setSelectedBook(val);
+                  setSelectedChapter('');
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select book" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[300px]">
+                    {BIBLE_BOOKS.map(book => (
+                      <SelectItem key={book.index} value={book.name}>
+                        {book.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {selectedBook && (
+                  <Select value={selectedChapter} onValueChange={setSelectedChapter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select chapter" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {Array.from({ length: BIBLE_BOOKS.find(b => b.name === selectedBook)?.chapters || 0 }, (_, i) => i + 1).map(ch => (
+                        <SelectItem key={ch} value={String(ch)}>
+                          Chapter {ch}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleAddReading}
+                    disabled={isAdding || !selectedBook || !selectedChapter}
+                    className="flex-1"
                     size="sm"
-                    onClick={() => handleDeleteLog(log.id)}
                   >
-                    <X className="w-4 h-4" />
+                    {isAdding ? 'Adding...' : 'Add'}
+                  </Button>
+                  <Button 
+                    onClick={() => {
+                      setShowAddForm(false);
+                      setSelectedBook('');
+                      setSelectedChapter('');
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Cancel
                   </Button>
                 </div>
-              ))
+              </motion.div>
             )}
+
+            <div className="space-y-2">
+              {selectedDayLogs.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8 text-sm">No chapters read this day</p>
+              ) : (
+                selectedDayLogs.map(log => (
+                  <div
+                    key={log.id}
+                    className="flex items-center justify-between p-3 bg-secondary rounded-xl"
+                  >
+                    <span className="font-medium text-foreground text-sm">
+                      {log.book} {log.chapter}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDeleteLog(log.id)}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </SheetContent>
       </Sheet>
