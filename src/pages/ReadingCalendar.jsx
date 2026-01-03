@@ -1,24 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
-import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import ThemeToggle from '@/components/ThemeToggle';
-import EditReadingSheet from '@/components/bible/EditReadingSheet';
-import { useBookProgress } from '@/components/bible/useBookProgress';
-import { toast } from 'sonner';
+import { base44 } from '@/api/base44Client';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 
 export default function ReadingCalendar() {
@@ -28,13 +16,6 @@ export default function ReadingCalendar() {
   const [view, setView] = useState(initialView);
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [currentWeekStart, setCurrentWeekStart] = useState(() => {
-    const d = new Date();
-    const day = d.getDay();
-    const diff = d.getDate() - day;
-    return new Date(d.setDate(diff));
-  });
-  const [selectedDay, setSelectedDay] = useState(null);
   const [me, setMe] = React.useState(null);
 
   React.useEffect(() => {
@@ -47,60 +28,15 @@ export default function ReadingCalendar() {
 
   const userId = me?.id;
 
-  const queryClient = useQueryClient();
-  const { updateProgressMutation, checkAchievements } = useBookProgress();
-
-  const calendarStartDate = view === 'week' 
-    ? currentWeekStart.toISOString().split('T')[0]
-    : view === 'month'
+  const calendarStartDate = view === 'month'
     ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`
     : `${currentYear}-01-01`;
 
-  const calendarEndDate = view === 'week'
-    ? new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    : view === 'month'
+  const calendarEndDate = view === 'month'
     ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(new Date(currentYear, currentMonth + 1, 0).getDate()).padStart(2, '0')}`
     : `${currentYear}-12-31`;
 
   const { data: readingLogs = [] } = useReadingLogsRange(userId, calendarStartDate, calendarEndDate);
-
-  const addLogMutation = useMutation({
-    mutationFn: async ({ localDate, bookIndex, chapter }) => {
-      return await base44.entities.ReadingLog.create({
-        user_id: userId,
-        date: localDate,
-        book_index: bookIndex,
-        chapter: chapter
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-      toast.success('Chapter added');
-      setTimeout(() => checkAchievements(), 500);
-    },
-  });
-
-  const removeLogMutation = useMutation({
-    mutationFn: async (logId) => {
-      return await base44.entities.ReadingLog.delete(logId);
-    },
-    onMutate: async (logId) => {
-      await queryClient.cancelQueries({ queryKey: ['readingLogs', userId] });
-      const previousLogs = queryClient.getQueryData(['readingLogs', userId]);
-      queryClient.setQueryData(['readingLogs', userId], (old) => 
-        old?.filter(log => log.id !== logId) || []
-      );
-      return { previousLogs };
-    },
-    onError: (err, logId, context) => {
-      queryClient.setQueryData(['readingLogs', userId], context.previousLogs);
-      toast.error('Failed to remove chapter');
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-    },
-  });
 
   const readingByDate = useMemo(() => {
     const grouped = {};
@@ -113,58 +49,17 @@ export default function ReadingCalendar() {
     return grouped;
   }, [readingLogs]);
 
-  // Week view logic
-  const weekDays = useMemo(() => {
-    const days = [];
-    for (let i = 0; i < 7; i++) {
-      const date = new Date(currentWeekStart);
-      date.setDate(currentWeekStart.getDate() + i);
-      const localDate = date.toLocaleDateString('en-CA');
-      const count = readingByDate[localDate]?.length || 0;
-      days.push({ date, localDate, count, dayOfWeek: i });
-    }
-    return days;
-  }, [currentWeekStart, readingByDate]);
-
-  // Calculate totals and stats for current view
   const viewStats = useMemo(() => {
-    let total = 0;
-    let readingDays = 0;
-    let daysInPeriod = 0;
-
-    if (view === 'week') {
-      daysInPeriod = 7;
-      weekDays.forEach(day => {
-        if (day.count > 0) {
-          total += day.count;
-          readingDays++;
-        }
-      });
-    } else if (view === 'month') {
-      const firstDay = new Date(currentYear, currentMonth, 1);
-      const lastDay = new Date(currentYear, currentMonth + 1, 0);
-      daysInPeriod = lastDay.getDate();
-      
-      Object.entries(readingByDate).forEach(([date, logs]) => {
-        total += logs.length;
-        readingDays++;
-      });
-    } else if (view === 'year') {
-      const isLeapYear = (currentYear % 4 === 0 && currentYear % 100 !== 0) || (currentYear % 400 === 0);
-      daysInPeriod = isLeapYear ? 366 : 365;
-      
-      Object.entries(readingByDate).forEach(([date, logs]) => {
-        total += logs.length;
-        readingDays++;
-      });
-    }
-
+    const total = readingLogs.length;
+    const readingDays = Object.keys(readingByDate).length;
+    const daysInPeriod = view === 'month' 
+      ? new Date(currentYear, currentMonth + 1, 0).getDate()
+      : ((currentYear % 4 === 0 && currentYear % 100 !== 0) || (currentYear % 400 === 0)) ? 366 : 365;
     const avgPerDay = daysInPeriod > 0 ? (total / daysInPeriod).toFixed(1) : 0;
 
-    return { total, readingDays, avgPerDay, daysInPeriod };
-  }, [view, readingByDate, currentMonth, currentYear, weekDays]);
+    return { total, readingDays, avgPerDay };
+  }, [readingLogs, readingByDate, view, currentMonth, currentYear]);
 
-  // Generate calendar grid
   const calendarDays = useMemo(() => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -173,12 +68,10 @@ export default function ReadingCalendar() {
 
     const days = [];
     
-    // Add empty cells for days before month starts
     for (let i = 0; i < startingDayOfWeek; i++) {
       days.push(null);
     }
     
-    // Add days of the month
     for (let day = 1; day <= daysInMonth; day++) {
       const date = new Date(currentYear, currentMonth, day);
       const localDate = date.toLocaleDateString('en-CA');
@@ -188,6 +81,17 @@ export default function ReadingCalendar() {
     
     return days;
   }, [currentMonth, currentYear, readingByDate]);
+
+  const yearMonths = useMemo(() => {
+    const months = [];
+    for (let m = 0; m < 12; m++) {
+      const monthStart = `${currentYear}-${String(m + 1).padStart(2, '0')}-01`;
+      const monthEnd = `${currentYear}-${String(m + 1).padStart(2, '0')}-${String(new Date(currentYear, m + 1, 0).getDate()).padStart(2, '0')}`;
+      const total = readingLogs.filter(log => log.date >= monthStart && log.date <= monthEnd).length;
+      months.push({ month: m, total });
+    }
+    return months;
+  }, [currentYear, readingLogs]);
 
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
     'July', 'August', 'September', 'October', 'November', 'December'];
@@ -210,303 +114,13 @@ export default function ReadingCalendar() {
     }
   };
 
-  const handleDayClick = (dayData) => {
-    if (dayData) {
-      setSelectedDay(dayData);
-    }
-  };
-
-  const selectedDayLogs = selectedDay ? readingByDate[selectedDay.localDate] || [] : [];
-
-  const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
-    const user = await base44.auth.me();
-    
-    for (const chapter of chapters) {
-      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
-    }
-    
-    const progressList = await base44.entities.BookProgress.list();
-    const progress = progressList.filter(p => p.book_index === bookIndex);
-    
-    if (progress.length > 0) {
-      const bookProgress = progress[0];
-      const book = BIBLE_BOOKS[bookIndex];
-      
-      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      chapters.forEach(chapter => {
-        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
-      });
-      
-      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), ...chapters])];
-      
-      const chapterReadDates = { ...bookProgress.chapter_read_dates };
-      chapters.forEach(chapter => {
-        chapterReadDates[chapter] = localDate;
-      });
-      
-      let completionCount = bookProgress.completion_count || 0;
-      if (chaptersRead.length === book.chapters) {
-        completionCount += 1;
-      }
-      
-      await updateProgressMutation.mutateAsync({
-        id: bookProgress.id,
-        data: {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
-          completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
-        }
-      });
-    }
-  };
-
-  const handleMarkBookComplete = async (localDate, bookIndex) => {
-    const user = await base44.auth.me();
-    const book = BIBLE_BOOKS[bookIndex];
-    const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
-    
-    for (const chapter of allChapters) {
-      await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
-    }
-    
-    const progressList = await base44.entities.BookProgress.list();
-    const progress = progressList.filter(p => p.book_index === bookIndex);
-    
-    if (progress.length > 0) {
-      const bookProgress = progress[0];
-      
-      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      allChapters.forEach(chapter => {
-        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
-      });
-      
-      const chapterReadDates = { ...bookProgress.chapter_read_dates };
-      allChapters.forEach(chapter => {
-        chapterReadDates[chapter] = localDate;
-      });
-      
-      await updateProgressMutation.mutateAsync({
-        id: bookProgress.id,
-        data: {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: allChapters,
-          chapter_read_dates: chapterReadDates,
-          completion_count: (bookProgress.completion_count || 0) + 1,
-          last_read_date: new Date().toISOString(),
-        }
-      });
-    }
-  };
-
-  const handleRemoveLog = async (logId) => {
-    const user = await base44.auth.me();
-    const log = readingLogs.find(l => l.id === logId);
-    if (!log) return;
-    
-    await removeLogMutation.mutateAsync(logId);
-    
-    const progressList = await base44.entities.BookProgress.list();
-    const progress = progressList.filter(p => p.book_index === log.book_index);
-    
-    if (progress.length > 0) {
-      const bookProgress = progress[0];
-      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      const currentCount = chapterReadCounts[log.chapter] || 0;
-      
-      if (currentCount > 1) {
-        chapterReadCounts[log.chapter] = currentCount - 1;
-      } else {
-        delete chapterReadCounts[log.chapter];
-      }
-      
-      const chaptersRead = Object.keys(chapterReadCounts).map(Number);
-      
-      await base44.entities.BookProgress.update(bookProgress.id, {
-        chapter_read_counts: chapterReadCounts,
-        chapters_read: chaptersRead,
-      });
-    }
-    
-    await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-    toast.success('Chapter removed');
-  };
-
-  const handleBulkRemoveLogs = async (logIds) => {
-    const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
-    
-    await queryClient.cancelQueries({ queryKey: ['readingLogs', userId] });
-    const previousLogs = queryClient.getQueryData(['readingLogs', userId]);
-    
-    queryClient.setQueryData(['readingLogs', userId], (old) => 
-      old?.filter(log => !logIds.includes(log.id)) || []
-    );
-    
-    try {
-      await Promise.all(
-        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
-      );
-      
-      const bookUpdates = {};
-      logsToRemove.forEach(log => {
-        if (!bookUpdates[log.book_index]) {
-          bookUpdates[log.book_index] = {};
-        }
-        if (!bookUpdates[log.book_index][log.chapter]) {
-          bookUpdates[log.book_index][log.chapter] = 0;
-        }
-        bookUpdates[log.book_index][log.chapter]++;
-      });
-      
-      const user = await base44.auth.me();
-      
-      for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progressList = await base44.entities.BookProgress.list();
-        const progress = progressList.filter(p => p.book_index === parseInt(bookIndex));
-        
-        if (progress.length > 0) {
-          const bookProgress = progress[0];
-          const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-          
-          Object.entries(chapterCounts).forEach(([chapter, count]) => {
-            const currentCount = chapterReadCounts[chapter] || 0;
-            const newCount = currentCount - count;
-            
-            if (newCount > 0) {
-              chapterReadCounts[chapter] = newCount;
-            } else {
-              delete chapterReadCounts[chapter];
-            }
-          });
-          
-          const chaptersRead = Object.keys(chapterReadCounts).map(Number);
-          
-          await base44.entities.BookProgress.update(bookProgress.id, {
-            chapter_read_counts: chapterReadCounts,
-            chapters_read: chaptersRead,
-          });
-        }
-      }
-      
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-      
-      toast.success(`${logIds.length} chapters removed`);
-    } catch (error) {
-      queryClient.setQueryData(['readingLogs', userId], previousLogs);
-      toast.error('Failed to delete chapters');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-    }
-  };
-
-  const handleClearDay = async () => {
-    if (!selectedDay || selectedDayLogs.length === 0) return;
-    
-    const logIds = selectedDayLogs.map(log => log.id);
-    const logsToRemove = [...selectedDayLogs];
-    
-    try {
-      await Promise.all(
-        logIds.map(logId => base44.entities.ReadingLog.delete(logId))
-      );
-      
-      const bookUpdates = {};
-      logsToRemove.forEach(log => {
-        if (!bookUpdates[log.book_index]) {
-          bookUpdates[log.book_index] = {};
-        }
-        if (!bookUpdates[log.book_index][log.chapter]) {
-          bookUpdates[log.book_index][log.chapter] = 0;
-        }
-        bookUpdates[log.book_index][log.chapter]++;
-      });
-      
-      const user = await base44.auth.me();
-      
-      for (const [bookIndex, chapterCounts] of Object.entries(bookUpdates)) {
-        const progressList = await base44.entities.BookProgress.list();
-        const progress = progressList.filter(p => p.book_index === parseInt(bookIndex));
-        
-        if (progress.length > 0) {
-          const bookProgress = progress[0];
-          const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-          
-          Object.entries(chapterCounts).forEach(([chapter, count]) => {
-            const currentCount = chapterReadCounts[chapter] || 0;
-            const newCount = currentCount - count;
-            
-            if (newCount > 0) {
-              chapterReadCounts[chapter] = newCount;
-            } else {
-              delete chapterReadCounts[chapter];
-            }
-          });
-          
-          const chaptersRead = Object.keys(chapterReadCounts).map(Number);
-          
-          await base44.entities.BookProgress.update(bookProgress.id, {
-            chapter_read_counts: chapterReadCounts,
-            chapters_read: chaptersRead,
-          });
-        }
-      }
-      
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-      
-      setSelectedDay(null);
-      toast.success('Day cleared');
-    } catch (error) {
-      toast.error('Failed to clear day');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
-    }
-  };
-
-  const handlePrevWeek = () => {
-    const newStart = new Date(currentWeekStart);
-    newStart.setDate(newStart.getDate() - 7);
-    setCurrentWeekStart(newStart);
-  };
-
-  const handleNextWeek = () => {
-    const newStart = new Date(currentWeekStart);
-    newStart.setDate(newStart.getDate() + 7);
-    setCurrentWeekStart(newStart);
-  };
-
-  const yearMonths = useMemo(() => {
-    const months = [];
-    for (let m = 0; m < 12; m++) {
-      let total = 0;
-      Object.entries(readingByDate).forEach(([date, logs]) => {
-        total += logs.length;
-      });
-      months.push({ month: m, total });
-    }
-    return months;
-  }, [readingByDate]);
-
-  const handlePrevYear = () => {
-    setCurrentYear(currentYear - 1);
-  };
-
-  const handleNextYear = () => {
-    setCurrentYear(currentYear + 1);
-  };
-
-  const getYearIntensityColor = (count) => {
-    if (count === 0) return 'bg-gray-100 dark:bg-slate-800/30';
-    return 'bg-emerald-600 dark:bg-emerald-600';
-  };
+  const handlePrevYear = () => setCurrentYear(currentYear - 1);
+  const handleNextYear = () => setCurrentYear(currentYear + 1);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white dark:from-slate-950 dark:to-slate-900">
       <ThemeToggle />
       <div className="max-w-lg mx-auto px-4 py-6 pb-24">
-        {/* Header */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -524,19 +138,16 @@ export default function ReadingCalendar() {
             </div>
           </div>
 
-          {/* View Tabs */}
           <Tabs value={view} onValueChange={setView}>
-            <TabsList className="grid w-full grid-cols-3 bg-white dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700/50">
-              <TabsTrigger value="week">Week</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-slate-800/80 border border-gray-200 dark:border-slate-700/50">
               <TabsTrigger value="month">Month</TabsTrigger>
               <TabsTrigger value="year">Year</TabsTrigger>
             </TabsList>
           </Tabs>
         </motion.div>
 
-        {/* Summary Header */}
         <motion.div
-          key={`${view}-${currentMonth}-${currentYear}-${currentWeekStart}`}
+          key={`${view}-${currentMonth}-${currentYear}`}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
@@ -547,7 +158,6 @@ export default function ReadingCalendar() {
               <span className="text-green-600 dark:text-green-400">{viewStats.total}</span> chapters
             </p>
             <p className="text-sm text-gray-600 dark:text-slate-400">
-              {view === 'week' && 'this week'}
               {view === 'month' && 'this month'}
               {view === 'year' && 'this year'}
             </p>
@@ -557,95 +167,9 @@ export default function ReadingCalendar() {
               <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.readingDays}</p>
               <p className="text-xs text-gray-500 dark:text-slate-400">reading days</p>
             </div>
-            <div className="h-10 w-px bg-gray-200 dark:bg-slate-700" />
-            <div className="text-center">
-              <p className="font-semibold text-gray-900 dark:text-slate-100">{viewStats.avgPerDay}</p>
-              <p className="text-xs text-gray-500 dark:text-slate-400">avg/day</p>
-            </div>
           </div>
         </motion.div>
 
-        {/* Week View */}
-        {view === 'week' && (
-          <>
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.2 }}
-              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
-            >
-              <div className="flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handlePrevWeek}
-                  className="rounded-full"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </Button>
-                <div className="text-center">
-                  <h2 className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                    {weekDays[0]?.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {weekDays[6]?.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-                  </h2>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleNextWeek}
-                  className="rounded-full"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </Button>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50"
-            >
-              <div className="grid grid-cols-7 gap-3">
-                {weekDays.map((dayData, i) => {
-                  const isToday = dayData.date.toDateString() === today.toDateString();
-                  const dayLetters = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
-                  
-                  return (
-                    <motion.button
-                      key={i}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      onClick={() => setSelectedDay(dayData)}
-                      className={`
-                        flex flex-col items-center gap-2 p-4 rounded-2xl transition-all
-                        ${dayData.count > 0 ? 'bg-gray-50 dark:bg-slate-700/30 hover:bg-gray-100 dark:hover:bg-slate-700/50' : 'bg-gray-50/50 dark:bg-slate-700/10'}
-                        ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
-                      `}
-                    >
-                      <span className="text-xs font-semibold text-gray-500 dark:text-slate-400">
-                        {dayLetters[i]}
-                      </span>
-                      <span className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                        {dayData.date.getDate()}
-                      </span>
-                      {dayData.count > 0 && (
-                        <div className="flex flex-col items-center -mt-1">
-                          <span className="text-base font-bold text-green-600 dark:text-green-400">
-                            {dayData.count}
-                          </span>
-                          <span className="text-[8px] text-green-600/70 dark:text-green-400/70 font-medium">ch</span>
-                        </div>
-                      )}
-                    </motion.button>
-                  );
-                })}
-              </div>
-            </motion.div>
-          </>
-        )}
-
-        {/* Month View */}
         {view === 'month' && (
           <>
             <motion.div
@@ -655,25 +179,13 @@ export default function ReadingCalendar() {
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
               <div className="flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handlePrevMonth}
-                  className="rounded-full"
-                >
+                <Button variant="ghost" size="icon" onClick={handlePrevMonth} className="rounded-full">
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
-                    {monthNames[currentMonth]} {currentYear}
-                  </h2>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleNextMonth}
-                  className="rounded-full"
-                >
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
+                  {monthNames[currentMonth]} {currentYear}
+                </h2>
+                <Button variant="ghost" size="icon" onClick={handleNextMonth} className="rounded-full">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -687,10 +199,7 @@ export default function ReadingCalendar() {
             >
               <div className="grid grid-cols-7 gap-4 mb-5">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                  <div
-                    key={i}
-                    className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400 flex items-center justify-center"
-                  >
+                  <div key={i} className="text-center text-xs font-semibold text-gray-500 dark:text-slate-400">
                     {day}
                   </div>
                 ))}
@@ -698,38 +207,32 @@ export default function ReadingCalendar() {
 
               <div className="grid grid-cols-7 gap-4">
                 {calendarDays.map((dayData, index) => {
-                  if (!dayData) {
-                    return <div key={`empty-${index}`} className="aspect-square" />;
-                  }
+                  if (!dayData) return <div key={`empty-${index}`} className="aspect-square" />;
 
                   const isToday = dayData.date.toDateString() === today.toDateString();
                   const hasReading = dayData.count > 0;
 
                   return (
-                    <motion.button
+                    <motion.div
                       key={dayData.day}
                       initial={{ opacity: 0, scale: 0.8 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: index * 0.01 }}
-                      onClick={() => handleDayClick(dayData)}
                       className={`
-                        w-full aspect-square rounded-xl flex items-center justify-center p-3
-                        transition-all duration-200 min-h-[44px]
-                        ${hasReading ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 shadow-md shadow-emerald-600/20 hover:shadow-lg hover:from-emerald-700 hover:to-emerald-800 hover:scale-105' : 'bg-slate-50 dark:bg-slate-700/10 hover:bg-slate-100 dark:hover:bg-slate-700/30 hover:scale-105'}
+                        w-full aspect-square rounded-xl flex items-center justify-center p-3 min-h-[44px]
+                        ${hasReading ? 'bg-gradient-to-br from-emerald-600 to-emerald-700 dark:from-emerald-600 dark:to-emerald-700 shadow-md' : 'bg-slate-50 dark:bg-slate-700/10'}
                         ${isToday ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''}
                       `}
                     >
                       {hasReading ? (
                         <div className="flex flex-col items-center">
-                          <span className="text-lg font-bold text-white">
-                            {dayData.count}
-                          </span>
+                          <span className="text-lg font-bold text-white">{dayData.count}</span>
                           <span className="text-[9px] text-white/70 font-medium">ch</span>
                         </div>
                       ) : (
                         <span className="w-1 h-1 rounded-full bg-gray-300 dark:bg-slate-600" />
                       )}
-                    </motion.button>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -737,7 +240,6 @@ export default function ReadingCalendar() {
           </>
         )}
 
-        {/* Year View */}
         {view === 'year' && (
           <>
             <motion.div
@@ -747,25 +249,11 @@ export default function ReadingCalendar() {
               className="bg-white dark:bg-slate-800/80 dark:backdrop-blur-sm rounded-3xl p-6 shadow-lg border border-gray-200 dark:border-slate-700/50 mb-6"
             >
               <div className="flex items-center justify-between">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handlePrevYear}
-                  className="rounded-full"
-                >
+                <Button variant="ghost" size="icon" onClick={handlePrevYear} className="rounded-full">
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
-                <div className="text-center">
-                  <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
-                    {currentYear}
-                  </h2>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleNextYear}
-                  className="rounded-full"
-                >
+                <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">{currentYear}</h2>
+                <Button variant="ghost" size="icon" onClick={handleNextYear} className="rounded-full">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
               </div>
@@ -808,38 +296,6 @@ export default function ReadingCalendar() {
           </>
         )}
       </div>
-
-      {/* Bottom Sheet */}
-      <Sheet open={!!selectedDay} onOpenChange={(open) => !open && setSelectedDay(null)}>
-        <SheetContent side="bottom" className="rounded-t-3xl">
-          <SheetHeader>
-            <SheetTitle>
-              {selectedDay && selectedDay.date.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                month: 'long', 
-                day: 'numeric', 
-                year: 'numeric' 
-              })}
-            </SheetTitle>
-            <SheetDescription>
-              Total chapters read: <span className="font-semibold text-emerald-600 dark:text-emerald-500">{selectedDayLogs.length}</span>
-            </SheetDescription>
-          </SheetHeader>
-          {selectedDay && (
-            <EditReadingSheet
-              selectedDay={selectedDay}
-              logs={selectedDayLogs}
-              onAddMultipleChapters={handleAddMultipleChapters}
-              onMarkBookComplete={handleMarkBookComplete}
-              onRemoveLog={handleRemoveLog}
-              onBulkRemoveLogs={handleBulkRemoveLogs}
-              onClearDay={handleClearDay}
-              isAdding={addLogMutation.isPending}
-              isRemoving={removeLogMutation.isPending}
-            />
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   );
 }

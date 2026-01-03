@@ -10,6 +10,5 @@ export function useReadingLogsRange(userId, startDate, endDate) {
     },
     enabled: !!userId && !!startDate && !!endDate,
     staleTime: 0,
-    refetchOnMount: 'always',
   });
 }
