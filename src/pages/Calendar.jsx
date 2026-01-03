@@ -6,8 +6,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sh
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
 import ThemeToggle from '@/components/ThemeToggle';
-import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange.js';
-import { groupLogsByDay } from '@/components/bible/utils/logUtils.js';
+import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
+import { groupLogsByDay } from '@/components/bible/utils/logUtils';
 
 export default function Calendar() {
   const [user, setUser] = useState(null);

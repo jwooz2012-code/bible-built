@@ -4,9 +4,9 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProgressRing from '@/components/bible/ProgressRing';
-import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange.js';
-import { useReadingStats } from '@/components/bible/hooks/useReadingStats.js';
-import { TOTAL_CHAPTERS } from '@/components/bible/bibleData.js';
+import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
+import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
+import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
