@@ -139,6 +139,12 @@ export function useChapterActions(
         if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
         return [...list, saved];
       });
+      queryClient.setQueryData(["bookProgress", user.id], (old = []) => {
+        const list = Array.isArray(old) ? old : [];
+        const idx = list.findIndex(p => p.id === saved.id);
+        if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
+        return [...list, saved];
+      });
       
       console.log("SAVE OK", { bookIndex, key: ["bookProgress", user.id, bookIndex], savedRow: saved });
 

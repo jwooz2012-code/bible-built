@@ -38,6 +38,7 @@ export function useMarkBookComplete(
     
     try {
       await base44.entities.ReadingLog.bulkCreate(readingLogEntries);
+      console.log("ReadingLog bulk saved", { userId: user.id, date: localDate, bookIndex, count: allChapters.length });
     } catch (logError) {
       console.error('Failed to create reading logs:', logError);
       throw logError;
@@ -132,6 +133,12 @@ export function useMarkBookComplete(
     
     // Update global list cache for Stats/overview
     queryClient.setQueryData(["bookProgress"], (old = []) => {
+      const list = Array.isArray(old) ? old : [];
+      const idx = list.findIndex(p => p.id === saved.id);
+      if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
+      return [...list, saved];
+    });
+    queryClient.setQueryData(["bookProgress", user.id], (old = []) => {
       const list = Array.isArray(old) ? old : [];
       const idx = list.findIndex(p => p.id === saved.id);
       if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
