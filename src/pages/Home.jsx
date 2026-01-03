@@ -14,8 +14,9 @@ import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
+import { useAllBookCycleStates } from '@/components/bible/hooks/useAllBookCycleStates';
+import { useBookCycleState } from '@/components/bible/hooks/useBookCycleState';
 import { getChapterIdsSet } from '@/components/bible/utils/logUtils';
-import { calculateBookProgress } from '@/components/bible/utils/bookProgress';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Home() {
@@ -40,76 +41,91 @@ export default function Home() {
   }, []);
 
   const userId = user?.id;
-  const today = getDateKey(); // Use standardized dateKey generation
-  console.log('[Home] Current userId:', userId, 'today:', today);
+  const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
-  console.log('[Home] todayLogs count:', todayLogs.length, 'allTimeLogs count:', allTimeLogs.length);
-
+  const { data: allCycleStates = [] } = useAllBookCycleStates(userId);
+  
   const todayChapterIds = getChapterIdsSet(todayLogs);
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
   const { markAllRead, isMarkingAll } = useMarkAllRead();
+  
+  const selectedBookCycleState = useBookCycleState(userId, selectedBook?.index);
 
-  const getBookProgress = (book) => {
-    const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
-    return calculateBookProgress(bookLogs, book.chapters);
+  const getCycleStateForBook = (bookIndex) => {
+    const state = allCycleStates.find(s => s.bookIndex === bookIndex);
+    return state?.currentCycle || 1;
   };
 
-  const getBookTodayCount = (bookIndex) => {
-    return todayLogs.filter(log => log.bookIndex === bookIndex).length;
+  const getBookStats = (book) => {
+    const currentCycle = getCycleStateForBook(book.index);
+    const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
+    
+    // Chapters read in current cycle
+    const currentCycleLogs = bookLogs.filter(log => log.cycle === currentCycle);
+    const currentCycleChapterSet = new Set(currentCycleLogs.map(log => log.chapter));
+    const currentCycleProgress = currentCycleChapterSet.size;
+    
+    // Calculate completed cycles (times through)
+    const maxCompletedCycle = currentCycle - 1;
+    const timesThrough = Math.max(0, maxCompletedCycle);
+    
+    // Check if current cycle is complete
+    if (currentCycleProgress === book.chapters) {
+      return {
+        currentCycleProgress,
+        timesThrough: currentCycle,
+        currentCycleChapterSet,
+      };
+    }
+    
+    return {
+      currentCycleProgress,
+      timesThrough,
+      currentCycleChapterSet,
+    };
+  };
+
+  const getChapterStats = (bookIndex, chapter) => {
+    const chapterId = generateChapterId(bookIndex, chapter);
+    const chapterLogs = allTimeLogs.filter(log => log.chapterId === chapterId);
+    const cyclesRead = new Set(chapterLogs.map(log => log.cycle)).size;
+    const currentCycle = getCycleStateForBook(bookIndex);
+    const isReadInCurrentCycle = chapterLogs.some(log => log.cycle === currentCycle);
+    const isReadToday = todayChapterIds.has(chapterId);
+    
+    return { cyclesRead, isReadInCurrentCycle, isReadToday };
   };
 
   const handleChapterClick = async (book, chapter, chapterId, isReadToday) => {
-    console.log('=== CHAPTER CLICK START ===');
-    console.log('UserId:', userId);
-    console.log('Book:', book.name, 'Chapter:', chapter);
-    console.log('ChapterId:', chapterId);
-    console.log('IsReadToday:', isReadToday);
-    console.log('Today:', today);
-    console.log('markRead object:', markRead);
-    console.log('undoRead object:', undoRead);
-    
     if (!userId) {
-      console.error('NO USER ID');
       toast.error('Please log in again');
       return;
     }
     
+    const currentCycle = getCycleStateForBook(book.index);
+    
     try {
       if (!isReadToday) {
-        console.log('>>> CALLING markRead.mutateAsync');
         const now = new Date();
-        const payload = {
+        await markRead({
           userId,
-          dateKey: getDateKey(now), // Use standardized dateKey
+          dateKey: getDateKey(now),
           timestamp: now.toISOString(),
           book: book.name,
           bookIndex: book.index,
           chapter,
           chapterId,
           testament: book.testament,
-        };
-        console.log('Payload:', payload);
-        const result = await markRead(payload);
-        console.log('>>> Mark read SUCCESS:', result);
-        
-        // Verify result has id
-        if (!result || !result.id) {
-          throw new Error('Save failed - no record ID returned');
-        }
+          cycle: currentCycle,
+        });
       } else {
-        console.log('>>> CALLING undoRead.mutateAsync');
-        const payload = { userId, dateKey: getDateKey(), chapterId };
-        console.log('Payload:', payload);
-        const result = await undoRead(payload);
-        console.log('>>> Undo read SUCCESS:', result);
+        await undoRead({ userId, dateKey: getDateKey(), chapterId });
       }
     } catch (error) {
-      console.error('!!! MUTATION ERROR:', error);
-      console.error('Error details:', error.message, error.stack);
+      console.error('Chapter click error:', error);
       toast.error(error?.message || 'Action failed. Please try again.');
     }
-    console.log('=== CHAPTER CLICK END ===');
   };
 
   const handleDeleteLog = async (logId) => {
@@ -148,14 +164,13 @@ export default function Home() {
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
               {BIBLE_BOOKS.map(book => {
-                const progress = getBookProgress(book);
+                const stats = getBookStats(book);
                 return (
                   <BookCard
                     key={book.index}
                     book={book}
-                    todayCount={getBookTodayCount(book.index)}
-                    currentCycleProgress={progress.currentCycleProgress}
-                    timesThrough={progress.timesThrough}
+                    currentCycleProgress={stats.currentCycleProgress}
+                    timesThrough={stats.timesThrough}
                     onClick={() => setSelectedBook(book)}
                   />
                 );
@@ -225,7 +240,8 @@ export default function Home() {
                   variant="outline" 
                   onClick={async () => {
                     try {
-                      await markAllRead({ userId, book: selectedBook });
+                      const cycle = selectedBookCycleState.currentCycle;
+                      await markAllRead({ userId, book: selectedBook, cycle });
                     } catch (error) {
                       console.error('Mark all read failed:', error);
                     }
@@ -234,22 +250,28 @@ export default function Home() {
                 >
                   {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
                 </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => selectedBookCycleState.restartBook()}
+                  disabled={selectedBookCycleState.isRestarting}
+                >
+                  {selectedBookCycleState.isRestarting ? 'Restarting...' : 'Restart Book'}
+                </Button>
                 <Button variant="ghost" onClick={() => setSelectedBook(null)}>Back</Button>
               </div>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
-                const isReadToday = todayChapterIds.has(chapterId);
-                const bookProgress = getBookProgress(selectedBook);
-                const isInCurrentCycle = bookProgress.currentCycleChapters.has(chapter);
+                const chapterStats = getChapterStats(selectedBook.index, chapter);
                 return (
                   <ChapterTile
                     key={chapter}
                     chapter={chapter}
-                    isReadToday={isReadToday}
-                    isInCurrentCycle={isInCurrentCycle}
-                    onClick={() => handleChapterClick(selectedBook, chapter, chapterId, isReadToday)}
+                    isReadToday={chapterStats.isReadToday}
+                    isInCurrentCycle={chapterStats.isReadInCurrentCycle}
+                    cyclesRead={chapterStats.cyclesRead}
+                    onClick={() => handleChapterClick(selectedBook, chapter, chapterId, chapterStats.isReadToday)}
                     disabled={isMarkingRead || isUndoingRead}
                   />
                 );
