@@ -49,19 +49,16 @@ export default function Home() {
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
       const user = await base44.auth.me();
-      const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
         user_id: user.id,
-        occurred_at: dateObj.toISOString(),
-        local_date: localDate,
+        date: localDate,
         book_index: bookIndex,
         chapter: chapter,
-        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
@@ -73,7 +70,7 @@ export default function Home() {
       return await base44.entities.ReadingLog.delete(logId);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter removed');
     },
@@ -97,23 +94,17 @@ export default function Home() {
   const currentMonth = today.getMonth();
   
   const chaptersThisMonth = useMemo(() => {
-    const thisMonthLogs = readingLogs.filter(log => {
-      const logDate = new Date(log.occurred_at);
+    return readingLogs.filter(log => {
+      const logDate = new Date(log.date + 'T00:00:00');
       return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
-    });
-    // Deduplicate by event_id to avoid counting duplicates
-    const uniqueLogs = Array.from(new Map(thisMonthLogs.map(log => [log.event_id, log])).values());
-    return uniqueLogs.length;
+    }).length;
   }, [readingLogs, currentYear, currentMonth]);
 
   const chaptersThisYear = useMemo(() => {
-    const thisYearLogs = readingLogs.filter(log => {
-      const logDate = new Date(log.occurred_at);
+    return readingLogs.filter(log => {
+      const logDate = new Date(log.date + 'T00:00:00');
       return logDate.getFullYear() === currentYear;
-    });
-    // Deduplicate by event_id to avoid counting duplicates
-    const uniqueLogs = Array.from(new Map(thisYearLogs.map(log => [log.event_id, log])).values());
-    return uniqueLogs.length;
+    }).length;
   }, [readingLogs, currentYear]);
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {

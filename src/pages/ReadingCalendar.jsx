@@ -63,10 +63,8 @@ export default function ReadingCalendar() {
 
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
-      const user = await base44.auth.me();
-      
       return await base44.entities.ReadingLog.create({
-        user_id: user.id,
+        user_id: userId,
         date: localDate,
         book_index: bookIndex,
         chapter: chapter
@@ -74,8 +72,6 @@ export default function ReadingCalendar() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['stats', userId] });
-      queryClient.invalidateQueries({ queryKey: ['calendar', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
@@ -87,19 +83,19 @@ export default function ReadingCalendar() {
       return await base44.entities.ReadingLog.delete(logId);
     },
     onMutate: async (logId) => {
-      await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
-      const previousLogs = queryClient.getQueryData(['readingLogs']);
-      queryClient.setQueryData(['readingLogs'], (old) => 
+      await queryClient.cancelQueries({ queryKey: ['readingLogs', userId] });
+      const previousLogs = queryClient.getQueryData(['readingLogs', userId]);
+      queryClient.setQueryData(['readingLogs', userId], (old) => 
         old?.filter(log => log.id !== logId) || []
       );
       return { previousLogs };
     },
     onError: (err, logId, context) => {
-      queryClient.setQueryData(['readingLogs'], context.previousLogs);
+      queryClient.setQueryData(['readingLogs', userId], context.previousLogs);
       toast.error('Failed to remove chapter');
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
     },
   });
 
@@ -345,10 +341,10 @@ export default function ReadingCalendar() {
   const handleBulkRemoveLogs = async (logIds) => {
     const logsToRemove = readingLogs.filter(log => logIds.includes(log.id));
     
-    await queryClient.cancelQueries({ queryKey: ['readingLogs'] });
-    const previousLogs = queryClient.getQueryData(['readingLogs']);
+    await queryClient.cancelQueries({ queryKey: ['readingLogs', userId] });
+    const previousLogs = queryClient.getQueryData(['readingLogs', userId]);
     
-    queryClient.setQueryData(['readingLogs'], (old) => 
+    queryClient.setQueryData(['readingLogs', userId], (old) => 
       old?.filter(log => !logIds.includes(log.id)) || []
     );
     
@@ -398,14 +394,14 @@ export default function ReadingCalendar() {
         }
       }
       
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       
       toast.success(`${logIds.length} chapters removed`);
     } catch (error) {
-      queryClient.setQueryData(['readingLogs'], previousLogs);
+      queryClient.setQueryData(['readingLogs', userId], previousLogs);
       toast.error('Failed to delete chapters');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     }
   };
@@ -462,15 +458,14 @@ export default function ReadingCalendar() {
         }
       }
       
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       
       setSelectedDay(null);
       toast.success('Day cleared');
     } catch (error) {
-      console.error('Clear day error:', error);
       toast.error('Failed to clear day');
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       await queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
     }
   };
