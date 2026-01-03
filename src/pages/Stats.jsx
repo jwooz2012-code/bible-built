@@ -5,7 +5,8 @@ import { base44 } from '@/api/base44Client';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProgressRing from '@/components/bible/ProgressRing';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange.js';
-import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData.js';
+import { useReadingStats } from '@/components/bible/hooks/useReadingStats.js';
+import { TOTAL_CHAPTERS } from '@/components/bible/bibleData.js';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
@@ -27,21 +28,8 @@ export default function Stats() {
   const { data: yearLogs = [], isLoading: yearLoading } = useReadingLogsRange(userId, yearStart, yearEnd);
   const { data: lifetimeLogs = [], isLoading: lifetimeLoading } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
 
-  const yearOTCount = yearLogs.filter(log => log.testament === 'OT').length;
-  const yearNTCount = yearLogs.filter(log => log.testament === 'NT').length;
-  const yearTotalCount = yearLogs.length;
-
-  const lifetimeOTCount = lifetimeLogs.filter(log => log.testament === 'OT').length;
-  const lifetimeNTCount = lifetimeLogs.filter(log => log.testament === 'NT').length;
-  const lifetimeTotalCount = lifetimeLogs.length;
-
-  const yearTotalPercent = Math.round((yearTotalCount / TOTAL_CHAPTERS) * 100);
-  const yearOTPercent = Math.round((yearOTCount / OT_CHAPTERS) * 100);
-  const yearNTPercent = Math.round((yearNTCount / NT_CHAPTERS) * 100);
-
-  const timesThroughBible = Math.floor(lifetimeTotalCount / TOTAL_CHAPTERS);
-  const progressToNext = lifetimeTotalCount % TOTAL_CHAPTERS;
-  const percentToNext = Math.round((progressToNext / TOTAL_CHAPTERS) * 100);
+  const yearStats = useReadingStats(yearLogs);
+  const lifetimeStats = useReadingStats(lifetimeLogs);
 
   if (isLoading || !user) {
     return (
@@ -83,26 +71,26 @@ export default function Stats() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm text-gray-500 dark:text-gray-400">Total Chapters</p>
-                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{yearTotalCount}</p>
+                  <p className="text-3xl font-bold text-gray-900 dark:text-white">{yearStats.totalCount}</p>
                   <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                    {yearTotalCount} of {TOTAL_CHAPTERS}
+                    {yearStats.totalCount} of {TOTAL_CHAPTERS}
                   </p>
                 </div>
-                <ProgressRing progress={yearTotalPercent} size={100} strokeWidth={8}>
-                  <span className="text-xl font-bold text-gray-900 dark:text-white">{yearTotalPercent}%</span>
+                <ProgressRing progress={yearStats.totalPercent} size={100} strokeWidth={8}>
+                  <span className="text-xl font-bold text-gray-900 dark:text-white">{yearStats.totalPercent}%</span>
                 </ProgressRing>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="text-center p-4 bg-gray-50 dark:bg-slate-700 rounded-xl">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Old Testament</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{yearOTCount}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{yearOTPercent}%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{yearStats.otCount}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{yearStats.otPercent}%</p>
                 </div>
                 <div className="text-center p-4 bg-gray-50 dark:bg-slate-700 rounded-xl">
                   <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">New Testament</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{yearNTCount}</p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{yearNTPercent}%</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white">{yearStats.ntCount}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{yearStats.ntPercent}%</p>
                 </div>
               </div>
             </div>
@@ -128,24 +116,24 @@ export default function Stats() {
             <div className="space-y-6">
               <div className="text-center p-6 bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl">
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Times Through the Bible</p>
-                <p className="text-5xl font-bold text-green-600 dark:text-green-400">{timesThroughBible}</p>
+                <p className="text-5xl font-bold text-green-600 dark:text-green-400">{lifetimeStats.timesThroughBible}</p>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mt-2">
-                  {percentToNext}% progress to next ({progressToNext}/{TOTAL_CHAPTERS})
+                  {lifetimeStats.percentToNext}% progress to next ({lifetimeStats.progressToNext}/{TOTAL_CHAPTERS})
                 </p>
               </div>
 
               <div>
                 <p className="text-lg font-semibold text-gray-900 dark:text-white mb-3">Total Chapters Read</p>
-                <p className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{lifetimeTotalCount}</p>
+                <p className="text-4xl font-bold text-gray-900 dark:text-white mb-4">{lifetimeStats.totalCount}</p>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-xl">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Old Testament</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{lifetimeOTCount}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{lifetimeStats.otCount}</p>
                   </div>
                   <div className="p-4 bg-gray-50 dark:bg-slate-700 rounded-xl">
                     <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">New Testament</p>
-                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{lifetimeNTCount}</p>
+                    <p className="text-2xl font-bold text-gray-900 dark:text-white">{lifetimeStats.ntCount}</p>
                   </div>
                 </div>
               </div>

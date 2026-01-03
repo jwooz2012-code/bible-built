@@ -7,6 +7,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange.js';
+import { groupLogsByDay } from '@/components/bible/utils/logUtils.js';
 
 export default function Calendar() {
   const [user, setUser] = useState(null);
@@ -33,13 +34,7 @@ export default function Calendar() {
 
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
 
-  const logsByDay = {};
-  logs.forEach(log => {
-    if (!logsByDay[log.dateKey]) {
-      logsByDay[log.dateKey] = [];
-    }
-    logsByDay[log.dateKey].push(log);
-  });
+  const logsByDay = groupLogsByDay(logs);
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
