@@ -28,28 +28,56 @@ export function useChapterActions(
     }
 
     const bookIndexNum = Number(book.index);
+    const bookIndexStr = String(bookIndexNum);
     console.log("toggleChapter bookIndex:", bookIndexNum);
-    console.log("book_index types", { incoming: book.index, num: bookIndexNum, typeofIncoming: typeof book.index, typeofNum: typeof bookIndexNum });
 
-    // Fetch fresh progress from database to ensure we have valid ID
-    const existingRows = await base44.entities.BookProgress.filter({ 
-      user_id: user.id, 
-      book_index: bookIndexNum 
+    // 1) Fetch rows by numeric index first
+    let rows = await base44.entities.BookProgress.filter({
+      user_id: user.id,
+      book_index: bookIndexNum
     });
-    const existing = existingRows?.[0] ?? null;
-    console.log("existingRows len", existingRows?.length, existingRows?.[0]);
-    console.log("existing progress", existing);
 
-    // Merge existing counts instead of starting fresh
-    let chapterReadCounts = { ...(existing?.chapter_read_counts || {}) };
-    let chaptersRead = [...(existing?.chapters_read || [])];
-    let chapterReadDates = { ...(existing?.chapter_read_dates || {}) };
+    // 2) If none, fetch rows by string index (legacy rows)
+    if (!rows || rows.length === 0) {
+      rows = await base44.entities.BookProgress.filter({
+        user_id: user.id,
+        book_index: bookIndexStr
+      });
+    }
 
-    const currentCount = chapterReadCounts[chapterNum] || 0;
+    console.log("book_index lookup", { incoming: book.index, bookIndexNum, bookIndexStr, rowsLen: rows?.length });
+
+    // 3) If multiple rows exist, merge them (caused by earlier bug)
+    const primary = rows?.[0] ?? null;
+    let mergedCounts = {};
+    let mergedChaptersRead = [];
+    let mergedDates = {};
+    
+    if (rows && rows.length > 1) {
+      console.log("merging duplicate rows", rows.length);
+      rows.forEach(row => {
+        Object.entries(row.chapter_read_counts || {}).forEach(([ch, count]) => {
+          mergedCounts[ch] = Math.max(mergedCounts[ch] || 0, count);
+        });
+        mergedChaptersRead = [...new Set([...mergedChaptersRead, ...(row.chapters_read || [])])];
+        Object.assign(mergedDates, row.chapter_read_dates || {});
+      });
+    } else if (primary) {
+      mergedCounts = { ...(primary.chapter_read_counts || {}) };
+      mergedChaptersRead = [...(primary.chapters_read || [])];
+      mergedDates = { ...(primary.chapter_read_dates || {}) };
+    }
+
+    console.log("existingRows len", rows?.length, rows?.[0]);
+
+    // 4) Build nextCounts starting from existing counts
+    const key = String(chapterNum);
+    const currentCount = mergedCounts[key] || 0;
     const newCount = currentCount + 1;
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
 
     console.log("toggleChapter: chapter", chapterNum, "count:", currentCount, "->", newCount);
+    console.log("saving via", primary?.id ? "update" : "create", { chapterNum });
     
     // Perform actual updates
     try {
@@ -58,41 +86,50 @@ export function useChapterActions(
       const dateKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
 
       // Update the specific chapter count (merge, don't replace)
-      chapterReadCounts[chapterNum] = newCount;
-      if (!chaptersRead.includes(chapterNum)) {
-        chaptersRead.push(chapterNum);
-      }
-      chapterReadDates[chapterNum] = isoString;
+      const nextCounts = { ...mergedCounts };
+      nextCounts[key] = newCount;
+      
+      const nextChaptersRead = mergedChaptersRead.includes(chapterNum) ? mergedChaptersRead : [...mergedChaptersRead, chapterNum];
+      
+      const nextDates = { ...mergedDates };
+      nextDates[key] = isoString;
 
       // Calculate completion count (how many full read-throughs)
-      const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
+      const completionCount = Math.min(...allChapters.map(ch => nextCounts[ch] || 0));
 
-      // 1) Persist BookProgress (source of truth) using direct entity operations
+      // 5) Save - normalize to numeric book_index going forward
       const progressPayload = {
         user_id: user.id,
         book_name: bookName,
         book_index: bookIndexNum,
         testament: book.testament,
         total_chapters: book.chapters,
-        chapter_read_counts: chapterReadCounts,
-        chapters_read: chaptersRead,
-        chapter_read_dates: chapterReadDates,
+        chapter_read_counts: nextCounts,
+        chapters_read: nextChaptersRead,
+        chapter_read_dates: nextDates,
         completion_count: completionCount,
         last_read_date: isoString,
       };
 
       let saved;
-      // HARD GUARD: if any row exists for this book, always UPDATE
-      if (existingRows.length > 0 && existing?.id) {
-        console.log("saving progress via update", { bookIndexNum, chapterNum, id: existing.id });
-        saved = await base44.entities.BookProgress.update(existing.id, progressPayload);
+      if (primary?.id) {
+        saved = await base44.entities.BookProgress.update(primary.id, progressPayload);
+        console.log("saved via update", { id: primary.id, chapterNum });
+        
+        // Delete duplicate rows if any
+        if (rows.length > 1) {
+          for (let i = 1; i < rows.length; i++) {
+            await base44.entities.BookProgress.delete(rows[i].id);
+            console.log("deleted duplicate row", rows[i].id);
+          }
+        }
       } else {
-        console.log("saving progress via create", { bookIndexNum, chapterNum });
         saved = await base44.entities.BookProgress.create(progressPayload);
+        console.log("saved via create", { chapterNum });
       }
       console.log("savedRow", saved);
 
-      // 2) Update book-specific cache for BookDetail
+      // 6) Update book-specific cache for BookDetail
       queryClient.setQueryData(["bookProgress", user.id, bookIndexNum], saved);
       
       // 3) Update global list cache for Stats/overview
