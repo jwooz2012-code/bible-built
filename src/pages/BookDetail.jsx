@@ -38,6 +38,23 @@ export default function BookDetail() {
   
   console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "userId:", userId);
   
+  const logsQueryKey = ["readingLogsByBook", userId, bookIndex];
+  const { data: readingLogs = [], isLoading: logsLoading } = useQuery({
+    queryKey: logsQueryKey,
+    queryFn: async () => {
+      if (!userId || bookIndex === undefined) return [];
+      const logs = await base44.entities.ReadingLog.filter({ 
+        user_id: userId, 
+        book_index: bookIndex 
+      });
+      console.log('[BookDetail] ReadingLog query returned:', logs.length, 'logs');
+      return logs;
+    },
+    enabled: !!userId && bookIndex !== undefined,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
   const progressQueryKey = ["bookProgress", userId, bookIndex];
   const { data: progress, isLoading: progressLoading } = useQuery({
     queryKey: progressQueryKey,
@@ -48,21 +65,6 @@ export default function BookDetail() {
         book_index: bookIndex 
       });
       return results?.[0] ?? null;
-    },
-    enabled: !!userId && Number.isFinite(bookIndex),
-    staleTime: 0,
-    gcTime: 0,
-  });
-
-  const logsQueryKey = ["readingLogsByBook", userId, bookIndex];
-  const { data: readingLogs = [], isLoading: logsLoading } = useQuery({
-    queryKey: logsQueryKey,
-    queryFn: async () => {
-      if (!userId || !Number.isFinite(bookIndex)) return [];
-      return await base44.entities.ReadingLog.filter({ 
-        user_id: userId, 
-        book_index: bookIndex 
-      });
     },
     enabled: !!userId && Number.isFinite(bookIndex),
     staleTime: 0,
@@ -87,6 +89,8 @@ export default function BookDetail() {
   const completionCount = progress?.completion_count || 0;
   
   const readChaptersSet = new Set(readingLogs.map(log => Number(log.chapter)));
+  console.log('[BookDetail] Read chapters from ReadingLog:', Array.from(readChaptersSet));
+  
   const currentRunChaptersCount = readChaptersSet.size;
   const percentComplete = Math.round((currentRunChaptersCount / book.chapters) * 100);
 

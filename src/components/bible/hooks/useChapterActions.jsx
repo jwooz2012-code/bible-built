@@ -129,22 +129,25 @@ export function useChapterActions(
       });
 
       // 4) Create ReadingLog for calendar/stats
-      try {
-        await base44.entities.ReadingLog.create({
-          user_id: user.id,
-          date: dateKey,
-          book_index: bookIndexNum,
-          chapter: chapterNum
-        });
-      } catch (logErr) {
-        toast.error("Progress saved, but log failed");
-      }
+      console.log('[toggleChapter] Creating ReadingLog:', { user_id: user.id, date: dateKey, book_index: bookIndexNum, chapter: chapterNum });
+      
+      await base44.entities.ReadingLog.create({
+        user_id: user.id,
+        date: dateKey,
+        book_index: bookIndexNum,
+        chapter: chapterNum
+      });
+
+      console.log('[toggleChapter] ReadingLog created successfully');
 
       // 5) Invalidate queries with userId-specific keys
-      queryClient.invalidateQueries({ queryKey: ["readingLogsByBook", user.id, bookIndexNum] });
-      queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["bookProgress", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });
+      console.log('[toggleChapter] Invalidating queries for userId:', user.id, 'bookIndex:', bookIndexNum);
+      
+      await queryClient.invalidateQueries({ queryKey: ["readingLogsByBook", user.id, bookIndexNum] });
+      await queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["bookProgress", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["stats", user.id] });
+      await queryClient.invalidateQueries({ queryKey: ["calendar", user.id] });
 
       setTimeout(() => checkAchievements(), 500);
 
