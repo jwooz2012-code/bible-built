@@ -48,17 +48,25 @@ export default function Home() {
   };
 
   const handleChapterClick = async (book, chapter, chapterId, isReadToday) => {
+    console.log('=== CHAPTER CLICK START ===');
+    console.log('UserId:', userId);
+    console.log('Book:', book.name, 'Chapter:', chapter);
+    console.log('ChapterId:', chapterId);
+    console.log('IsReadToday:', isReadToday);
+    console.log('Today:', today);
+    console.log('markRead object:', markRead);
+    console.log('undoRead object:', undoRead);
+    
     if (!userId) {
+      console.error('NO USER ID');
       toast.error('Please log in again');
       return;
     }
     
-    console.log('Chapter clicked:', { book: book.name, chapter, chapterId, isReadToday, userId });
-    
     try {
       if (!isReadToday) {
-        console.log('Marking as read...');
-        const result = await markRead.mutateAsync({
+        console.log('>>> CALLING markRead.mutateAsync');
+        const payload = {
           userId,
           dateKey: today,
           timestamp: new Date().toISOString(),
@@ -67,17 +75,23 @@ export default function Home() {
           chapter,
           chapterId,
           testament: book.testament,
-        });
-        console.log('Mark read result:', result);
+        };
+        console.log('Payload:', payload);
+        const result = await markRead.mutateAsync(payload);
+        console.log('>>> Mark read SUCCESS:', result);
       } else {
-        console.log('Undoing read...');
-        const result = await undoRead.mutateAsync({ userId, dateKey: today, chapterId });
-        console.log('Undo result:', result);
+        console.log('>>> CALLING undoRead.mutateAsync');
+        const payload = { userId, dateKey: today, chapterId };
+        console.log('Payload:', payload);
+        const result = await undoRead.mutateAsync(payload);
+        console.log('>>> Undo read SUCCESS:', result);
       }
     } catch (error) {
-      console.error('Chapter action failed:', error);
+      console.error('!!! MUTATION ERROR:', error);
+      console.error('Error details:', error.message, error.stack);
       toast.error(error?.message || 'Action failed. Please try again.');
     }
+    console.log('=== CHAPTER CLICK END ===');
   };
 
   const handleDeleteLog = async (logId) => {
