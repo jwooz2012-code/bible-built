@@ -2,13 +2,24 @@ import React from 'react';
 import { Check } from 'lucide-react';
 
 export default function ChapterTile({ chapter, isReadToday, isInCurrentCycle, onClick, disabled }) {
+  const handleClick = (e) => {
+    console.log('[ChapterTile] Click event fired for chapter:', chapter);
+    console.log('[ChapterTile] Disabled?', disabled);
+    if (onClick) {
+      onClick(e);
+    } else {
+      console.warn('[ChapterTile] No onClick handler provided');
+    }
+  };
+
   return (
     <button
-      onClick={onClick}
+      onClick={handleClick}
       disabled={disabled}
       className={`
         aspect-square rounded-xl flex items-center justify-center font-medium text-sm
         transition-all relative
+        ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
         ${isReadToday
           ? 'bg-accent text-accent-foreground'
           : isInCurrentCycle
