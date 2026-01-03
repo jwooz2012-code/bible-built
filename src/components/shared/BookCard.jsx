@@ -1,8 +1,8 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function BookCard({ book, todayCount, yearProgress, onClick }) {
-  const progressPct = Math.min((yearProgress / book.chapters) * 100, 100);
+export default function BookCard({ book, todayCount, currentCycleProgress, timesThrough, onClick }) {
+  const progressPct = Math.min((currentCycleProgress / book.chapters) * 100, 100);
   
   return (
     <motion.button
@@ -17,11 +17,18 @@ export default function BookCard({ book, todayCount, yearProgress, onClick }) {
         />
       )}
       <div className="relative z-10">
-        <h3 className="font-semibold text-foreground mb-1">{book.name}</h3>
+        <div className="flex items-start justify-between mb-1">
+          <h3 className="font-semibold text-foreground">{book.name}</h3>
+          {timesThrough > 0 && (
+            <span className="text-[10px] font-medium text-accent bg-accent/10 px-1.5 py-0.5 rounded">
+              ×{timesThrough}
+            </span>
+          )}
+        </div>
         <p className="text-xs text-muted-foreground">
-          {todayCount > 0 ? `Today: ${todayCount}` : `${yearProgress}/${book.chapters} this year`}
+          Chapters: {currentCycleProgress}/{book.chapters}
         </p>
-        {yearProgress > 0 && (
+        {currentCycleProgress > 0 && (
           <div className="mt-3 h-1 bg-secondary rounded-full overflow-hidden">
             <div
               className="h-full bg-accent transition-all duration-500"

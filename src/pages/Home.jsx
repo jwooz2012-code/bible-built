@@ -14,6 +14,7 @@ import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { getChapterIdsSet } from '@/components/bible/utils/logUtils';
+import { calculateBookProgress } from '@/components/bible/utils/bookProgress';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -32,22 +33,15 @@ export default function Home() {
 
   const userId = user?.id;
   const today = new Date().toISOString().slice(0, 10);
-  const currentYear = new Date().getFullYear();
-  const yearStart = `${currentYear}-01-01`;
-  const yearEnd = `${currentYear}-12-31`;
-
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
-  const { data: yearLogs = [] } = useReadingLogsRange(userId, yearStart, yearEnd);
-  const { data: recentLogs = [] } = useReadingLogsRange(userId, '2000-01-01', today);
+  const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
 
   const todayChapterIds = getChapterIdsSet(todayLogs);
   const { markRead, undoRead } = useToggleChapterRead();
 
-  const getBookYearProgress = (bookIndex) => {
-    const distinctChapters = new Set(
-      yearLogs.filter(log => log.bookIndex === bookIndex).map(log => log.chapterId)
-    );
-    return distinctChapters.size;
+  const getBookProgress = (book) => {
+    const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
+    return calculateBookProgress(bookLogs, book.chapters);
   };
 
   const getBookTodayCount = (bookIndex) => {
@@ -88,7 +82,7 @@ export default function Home() {
     await base44.entities.ReadingLog.delete(logId);
   };
 
-  const last10Logs = recentLogs
+  const last10Logs = allTimeLogs
     .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
     .slice(0, 10);
 
@@ -119,15 +113,19 @@ export default function Home() {
         {!selectedBook ? (
           <>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
-              {BIBLE_BOOKS.map(book => (
-                <BookCard
-                  key={book.index}
-                  book={book}
-                  todayCount={getBookTodayCount(book.index)}
-                  yearProgress={getBookYearProgress(book.index)}
-                  onClick={() => setSelectedBook(book)}
-                />
-              ))}
+              {BIBLE_BOOKS.map(book => {
+                const progress = getBookProgress(book);
+                return (
+                  <BookCard
+                    key={book.index}
+                    book={book}
+                    todayCount={getBookTodayCount(book.index)}
+                    currentCycleProgress={progress.currentCycleProgress}
+                    timesThrough={progress.timesThrough}
+                    onClick={() => setSelectedBook(book)}
+                  />
+                );
+              })}
             </div>
 
             {last10Logs.length > 0 && (
