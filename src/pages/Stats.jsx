@@ -31,12 +31,18 @@ export default function Stats() {
 
   React.useEffect(() => {
     let mounted = true;
-    base44.auth.me().then(u => { if (mounted) setMe(u); }).catch(() => setMe(null));
+    base44.auth.me().then(u => { 
+      console.log("✅ Stats: user fetched", u?.id);
+      if (mounted) setMe(u); 
+    }).catch(() => {
+      console.error("❌ Stats: user fetch failed");
+      setMe(null);
+    });
     return () => { mounted = false; };
   }, []);
 
   const userId = me?.id;
-  console.log("Stats userId", userId);
+  console.log("📊 Stats userId before queries:", userId);
   
   const stats = calculateStats();
 
