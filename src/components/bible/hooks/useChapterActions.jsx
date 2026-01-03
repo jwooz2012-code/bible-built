@@ -153,11 +153,9 @@ export function useChapterActions(
       try {
         await base44.entities.ReadingLog.create({
           user_id: user.id,
-          occurred_at: isoString,
-          local_date: dateKey,
+          date: dateKey,
           book_index: bookIndexNum,
-          chapter: chapterNum,
-          event_id: `${user.id}_${bookIndexNum}_${chapterNum}_${Date.now()}`
+          chapter: chapterNum
         });
         console.log("ReadingLog WRITE OK", { user_id: user.id, date: dateKey, bookIndexNum, chapterNum });
       } catch (logErr) {

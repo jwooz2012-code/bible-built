@@ -46,7 +46,7 @@ export default function Stats() {
     queryFn: async () => {
       if (!userId) return [];
       const rows = await base44.entities.ReadingLog.filter({ user_id: userId });
-      console.log("Stats readingLogs query", { userId, count: rows?.length, sample: rows?.[0], sampleDate: rows?.[0]?.local_date });
+      console.log("Stats readingLogs query", { userId, count: rows?.length, sample: rows?.[0] });
       return rows;
     },
     enabled: !!userId,

@@ -54,8 +54,8 @@ export default function ReadingCalendar() {
       if (!userId) return [];
       const rows = await base44.entities.ReadingLog.filter({ user_id: userId });
       const today = new Date().toISOString().slice(0, 10);
-      const todayRows = rows.filter(r => r.local_date === today);
-      console.log("Calendar readingLogs query", { userId, count: rows?.length, sample: rows?.[0], sampleDate: rows?.[0]?.local_date, today, todayCount: todayRows.length });
+      const todayRows = rows.filter(r => r.date === today);
+      console.log("Calendar readingLogs query", { userId, count: rows?.length, sample: rows?.[0], today, todayCount: todayRows.length });
       return rows;
     },
     enabled: !!userId,
