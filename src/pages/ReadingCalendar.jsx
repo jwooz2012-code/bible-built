@@ -34,16 +34,27 @@ export default function ReadingCalendar() {
     return new Date(d.setDate(diff));
   });
   const [selectedDay, setSelectedDay] = useState(null);
+  const [me, setMe] = React.useState(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    base44.auth.me().then(u => { if (mounted) setMe(u); }).catch(() => setMe(null));
+    return () => { mounted = false; };
+  }, []);
+
+  const userId = me?.id;
+  console.log("Calendar userId", userId);
 
   const queryClient = useQueryClient();
   const { updateProgressMutation, checkAchievements } = useBookProgress();
 
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
+    queryKey: ['readingLogs', userId],
     queryFn: async () => {
-      const user = await base44.auth.me();
-      return base44.entities.ReadingLog.filter({ user_id: user.id });
+      if (!userId) return [];
+      return base44.entities.ReadingLog.filter({ user_id: userId });
     },
+    enabled: !!userId,
     staleTime: 0,
     gcTime: 0,
     refetchOnMount: 'always',

@@ -142,7 +142,7 @@ export function useChapterActions(
       
       console.log("SAVE OK", { bookIndex, key: ["bookProgress", user.id, bookIndex], savedRow: saved });
 
-      // 4) Create ReadingLog (best effort – never undo progress if this fails)
+      // 4) Create ReadingLog for calendar/stats
       try {
         await base44.entities.ReadingLog.create({
           user_id: user.id,
@@ -152,14 +152,15 @@ export function useChapterActions(
           chapter: chapterNum,
           event_id: `${user.id}_${bookIndex}_${chapterNum}_${Date.now()}`
         });
+        console.log("ReadingLog saved", { userId: user.id, date: localDate, bookIndex, chapterNum });
       } catch (logErr) {
         console.error("ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");
       }
 
-      // 5) Invalidate non-bookProgress queries only
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bibleProgress" });
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "readingLogs" });
+      // 5) Invalidate specific queries with userId
+      queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });
 
       setTimeout(() => checkAchievements(), 500);
 

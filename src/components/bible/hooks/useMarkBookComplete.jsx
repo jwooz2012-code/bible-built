@@ -138,9 +138,9 @@ export function useMarkBookComplete(
       return [...list, saved];
     });
     
-    // Invalidate non-bookProgress queries only
-    queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-    queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+    // Invalidate specific queries with userId
+    queryClient.invalidateQueries({ queryKey: ['readingLogs', user.id] });
+    queryClient.invalidateQueries({ queryKey: ['bibleProgress', user.id] });
 
     setTimeout(() => checkAchievements(), 500);
   };

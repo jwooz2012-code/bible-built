@@ -27,19 +27,37 @@ export default function Stats() {
     oldTestament: 0,
     newTestament: 0
   });
+  const [me, setMe] = React.useState(null);
+
+  React.useEffect(() => {
+    let mounted = true;
+    base44.auth.me().then(u => { if (mounted) setMe(u); }).catch(() => setMe(null));
+    return () => { mounted = false; };
+  }, []);
+
+  const userId = me?.id;
+  console.log("Stats userId", userId);
   
   const stats = calculateStats();
 
   // Fetch reading logs for yearly stats
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs'],
-    queryFn: () => base44.entities.ReadingLog.list(),
+    queryKey: ['readingLogs', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      return base44.entities.ReadingLog.filter({ user_id: userId });
+    },
+    enabled: !!userId,
   });
 
   // Fetch lifetime reading data
   const { data: lifetimeData = [] } = useQuery({
-    queryKey: ['lifetimeReading'],
-    queryFn: () => base44.entities.LifetimeReading.list(),
+    queryKey: ['lifetimeReading', userId],
+    queryFn: async () => {
+      if (!userId) return [];
+      return base44.entities.LifetimeReading.filter({ user_id: userId });
+    },
+    enabled: !!userId,
   });
 
   const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
@@ -127,7 +145,7 @@ export default function Stats() {
   const oldTestamentPercent = Math.round((stats.oldTestamentChaptersRead / stats.oldTestamentTotalChapters) * 100);
   const newTestamentPercent = Math.round((stats.newTestamentChaptersRead / stats.newTestamentTotalChapters) * 100);
 
-  if (isLoading) {
+  if (!me || isLoading) {
     return (
       <div className="min-h-screen bg-white dark:bg-gray-900 p-4">
         <div className="max-w-lg mx-auto space-y-6">
