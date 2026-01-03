@@ -45,12 +45,11 @@ export default function Stats() {
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs', userId],
     queryFn: async () => {
-      return await base44.entities.ReadingLog.list();
+      return await base44.entities.ReadingLog.filter({ user_id: userId });
     },
     enabled: !!userId,
     staleTime: 0,
     refetchOnMount: 'always',
-    select: (data) => data.filter(log => log.user_id === userId),
   });
 
   // Fetch lifetime reading data
