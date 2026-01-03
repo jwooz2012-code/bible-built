@@ -81,6 +81,9 @@ export function useChapterActions(
       // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
 
+      // Debug: Check available functions
+      console.log("Available base44.functions:", Object.keys(base44.functions || {}));
+
       // 1) Persist BookProgress (source of truth) using backend function
       const progressPayload = {
         user_id: user.id,
