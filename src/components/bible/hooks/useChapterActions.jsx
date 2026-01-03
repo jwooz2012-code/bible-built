@@ -15,17 +15,30 @@ export function useChapterActions(
   const queryClient = useQueryClient();
 
   const toggleChapter = async (bookName, chapterNum) => {
+    console.log("toggleChapter START", { bookName, chapterNum, userId: user?.id });
+
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
-    if (!book || !user) return;
+    if (!book) {
+      console.error("toggleChapter: book not found", bookName);
+      throw new Error("Book not found");
+    }
+    if (!user) {
+      console.error("toggleChapter: user not found");
+      throw new Error("User not authenticated");
+    }
 
     let progress = getProgressForBook(bookName);
+    console.log("toggleChapter: current progress:", progress);
+
     let chapterReadCounts = progress?.chapter_read_counts || {};
     let chaptersRead = progress?.chapters_read || [];
     let chapterReadDates = progress?.chapter_read_dates || {};
-    
+
     const currentCount = chapterReadCounts[chapterNum] || 0;
     const newCount = currentCount + 1;
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
+
+    console.log("toggleChapter: chapter", chapterNum, "count:", currentCount, "->", newCount);
     
     // Optimistic update
     const optimisticCounts = { ...chapterReadCounts, [chapterNum]: newCount };
@@ -98,15 +111,19 @@ export function useChapterActions(
       let saved;
       try {
         if (progress) {
+          console.log("toggleChapter: updating existing progress", progress.id);
           saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
+          console.log("toggleChapter: update successful", saved);
         } else {
+          console.log("toggleChapter: creating new progress");
           saved = await base44.entities.BookProgress.create(progressPayload);
+          console.log("toggleChapter: create successful", saved);
         }
       } catch (e) {
         console.error("Failed to save progress:", e);
         toast.error(e?.message || "Failed to save progress");
         queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
-        return;
+        throw e;
       }
 
       // 2) Immediately update React Query cache with saved data BEFORE invalidation
@@ -119,7 +136,9 @@ export function useChapterActions(
       });
       
       // Update book-specific query key for BookDetail
+      console.log("toggleChapter: updating cache keys", ["bookProgress", user.id, book.index]);
       queryClient.setQueryData(["bookProgress", user.id, book.index], saved);
+      console.log("toggleChapter: cache updated successfully");
 
       // 4) Create ReadingLog (best effort – never undo progress if this fails)
       try {
@@ -137,10 +156,12 @@ export function useChapterActions(
       }
 
       // 5) Invalidate broadly to catch param keys AFTER cache set
+      console.log("toggleChapter: invalidating queries");
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bibleProgress" });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "readingLogs" });
 
+      console.log("toggleChapter: COMPLETE SUCCESS");
       setTimeout(() => checkAchievements(), 500);
 
       } catch (error) {

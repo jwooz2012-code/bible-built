@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -60,12 +61,16 @@ export default function BookDetail() {
   const percentComplete = Math.round((chaptersRead.length / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
-    console.log("CHAPTER TILE CLICK", chapterNum, "toggleChapter exists:", !!toggleChapter);
-    if (!toggleChapter) {
-      console.error("toggleChapter is undefined!");
-      return;
+    console.log("CHAPTER TILE CLICK", chapterNum);
+    console.log("toggleChapter type:", typeof toggleChapter);
+    console.log("bookName:", bookName, "book.index:", book?.index);
+    try {
+      const result = await toggleChapter(bookName, chapterNum);
+      console.log("toggleChapter result:", result);
+    } catch (e) {
+      console.error("toggleChapter threw:", e);
+      toast.error(e?.message || "Failed to update chapter");
     }
-    await toggleChapter(bookName, chapterNum);
   };
 
   const handleRestart = async () => {
