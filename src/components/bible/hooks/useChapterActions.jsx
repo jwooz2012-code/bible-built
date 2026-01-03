@@ -140,17 +140,10 @@ export function useChapterActions(
         toast.error("Progress saved, but log failed");
       }
 
-      // 5) Invalidate ReadingLog-driven queries with userId-specific keys
-      const invalidateKeys = [
-        ["readingLogs", user.id],
-        ["stats", user.id],
-        ["calendar", user.id],
-        ["bibleProgress", user.id]
-      ];
-      
-      invalidateKeys.forEach(key => {
-        queryClient.invalidateQueries({ queryKey: key });
-      });
+      // 5) Invalidate queries with userId-specific keys
+      queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["bookProgress", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });
 
       setTimeout(() => checkAchievements(), 500);
 
