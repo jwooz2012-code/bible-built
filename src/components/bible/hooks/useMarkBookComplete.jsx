@@ -35,11 +35,9 @@ export function useMarkBookComplete(
     
     const readingLogEntries = allChapters.map(ch => ({
       user_id: user.id,
-      occurred_at: currentDate,
-      local_date: dateKey,
+      date: dateKey,
       book_index: bookIndex,
-      chapter: ch,
-      event_id: `${user.id}_${bookIndex}_${ch}_${Date.now()}_${ch}`
+      chapter: ch
     }));
     
     try {

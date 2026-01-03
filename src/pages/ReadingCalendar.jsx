@@ -68,19 +68,18 @@ export default function ReadingCalendar() {
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
       const user = await base44.auth.me();
-      const dateObj = new Date(localDate + 'T12:00:00');
       
       return await base44.entities.ReadingLog.create({
         user_id: user.id,
-        occurred_at: dateObj.toISOString(),
-        local_date: localDate,
+        date: localDate,
         book_index: bookIndex,
-        chapter: chapter,
-        event_id: `${user.id}_${bookIndex}_${chapter}_${Date.now()}`,
+        chapter: chapter
       });
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+      queryClient.invalidateQueries({ queryKey: ['stats', userId] });
+      queryClient.invalidateQueries({ queryKey: ['calendar', userId] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
@@ -108,17 +107,15 @@ export default function ReadingCalendar() {
     },
   });
 
-  // Group reading logs by local_date and deduplicate by event_id
+  // Group reading logs by date
   const readingByDate = useMemo(() => {
-    // First deduplicate by event_id
-    const uniqueLogs = Array.from(new Map(readingLogs.map(log => [log.event_id, log])).values());
-    
     const grouped = {};
-    uniqueLogs.forEach(log => {
-      if (!grouped[log.local_date]) {
-        grouped[log.local_date] = [];
+    readingLogs.forEach(log => {
+      const dateStr = log.date || new Date(log.created_date).toISOString().split('T')[0];
+      if (!grouped[dateStr]) {
+        grouped[dateStr] = [];
       }
-      grouped[log.local_date].push(log);
+      grouped[dateStr].push(log);
     });
     return grouped;
   }, [readingLogs]);
