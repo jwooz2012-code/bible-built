@@ -4,7 +4,7 @@ import { X, ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import BookCard from '@/components/shared/BookCard';
@@ -20,7 +20,6 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedChapter, setSelectedChapter] = useState(null);
   const [showRecent, setShowRecent] = useState(false);
 
   useEffect(() => {
@@ -48,18 +47,18 @@ export default function Home() {
     return todayLogs.filter(log => log.bookIndex === bookIndex).length;
   };
 
-  const handleChapterAction = async (action) => {
-    if (!selectedChapter) return;
+  const handleChapterClick = async (book, chapter, chapterId, isReadToday) => {
     if (!userId) {
       toast.error('Please log in again');
       return;
     }
     
-    const { book, chapter, chapterId, isRead } = selectedChapter;
+    console.log('Chapter clicked:', { book: book.name, chapter, chapterId, isReadToday, userId });
     
     try {
-      if (action === 'mark' && !isRead) {
-        await markRead.mutateAsync({
+      if (!isReadToday) {
+        console.log('Marking as read...');
+        const result = await markRead.mutateAsync({
           userId,
           dateKey: today,
           timestamp: new Date().toISOString(),
@@ -69,10 +68,11 @@ export default function Home() {
           chapterId,
           testament: book.testament,
         });
-        setSelectedChapter(null);
-      } else if (action === 'undo' && isRead) {
-        await undoRead.mutateAsync({ userId, dateKey: today, chapterId });
-        setSelectedChapter(null);
+        console.log('Mark read result:', result);
+      } else {
+        console.log('Undoing read...');
+        const result = await undoRead.mutateAsync({ userId, dateKey: today, chapterId });
+        console.log('Undo result:', result);
       }
     } catch (error) {
       console.error('Chapter action failed:', error);
@@ -202,7 +202,7 @@ export default function Home() {
                     chapter={chapter}
                     isReadToday={isReadToday}
                     isInCurrentCycle={isInCurrentCycle}
-                    onClick={() => setSelectedChapter({ book: selectedBook, chapter, chapterId, isRead: isReadToday })}
+                    onClick={() => handleChapterClick(selectedBook, chapter, chapterId, isReadToday)}
                     disabled={markRead.isPending || undoRead.isPending}
                   />
                 );
@@ -212,45 +212,7 @@ export default function Home() {
         )}
       </div>
 
-      <Sheet open={!!selectedChapter} onOpenChange={() => setSelectedChapter(null)}>
-        <SheetContent side="bottom" className="max-h-[40vh]">
-          <SheetHeader>
-            <SheetTitle>
-              {selectedChapter?.book.name} {selectedChapter?.chapter}
-            </SheetTitle>
-          </SheetHeader>
-          <div className="mt-6 space-y-3">
-            {!selectedChapter?.isRead && (
-              <Button
-                onClick={() => handleChapterAction('mark')}
-                disabled={!userId || markRead.isPending}
-                className="w-full"
-                size="lg"
-              >
-                {markRead.isPending ? 'Saving...' : 'Mark as Read'}
-              </Button>
-            )}
-            {selectedChapter?.isRead && (
-              <Button
-                onClick={() => handleChapterAction('undo')}
-                disabled={!userId || undoRead.isPending}
-                variant="outline"
-                className="w-full"
-                size="lg"
-              >
-                {undoRead.isPending ? 'Removing...' : 'Undo'}
-              </Button>
-            )}
-            <Button
-              onClick={() => setSelectedChapter(null)}
-              variant="ghost"
-              className="w-full"
-            >
-              Cancel
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+
     </div>
   );
 }
