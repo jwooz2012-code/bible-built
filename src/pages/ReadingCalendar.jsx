@@ -38,12 +38,18 @@ export default function ReadingCalendar() {
 
   React.useEffect(() => {
     let mounted = true;
-    base44.auth.me().then(u => { if (mounted) setMe(u); }).catch(() => setMe(null));
+    base44.auth.me().then(u => { 
+      console.log("✅ Calendar: user fetched", u?.id);
+      if (mounted) setMe(u); 
+    }).catch(() => {
+      console.error("❌ Calendar: user fetch failed");
+      setMe(null);
+    });
     return () => { mounted = false; };
   }, []);
 
   const userId = me?.id;
-  console.log("Calendar userId", userId);
+  console.log("📅 Calendar userId before queries:", userId);
 
   const queryClient = useQueryClient();
   const { updateProgressMutation, checkAchievements } = useBookProgress();
