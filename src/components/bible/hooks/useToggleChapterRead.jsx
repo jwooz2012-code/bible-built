@@ -7,7 +7,7 @@ export function useToggleChapterRead() {
   const queryClient = useQueryClient();
 
   const markRead = useMutation({
-    mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
+    mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament, cycle }) => {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
       }
@@ -21,7 +21,8 @@ export function useToggleChapterRead() {
         bookIndex,
         chapter,
         chapterId,
-        testament
+        testament,
+        cycle
       });
       
       // Create the ReadingLog entry
@@ -34,6 +35,7 @@ export function useToggleChapterRead() {
         chapter,
         chapterId,
         testament,
+        cycle: cycle || 1,
       });
       
       console.log('[markRead] AFTER CREATE - Returned log:', result);

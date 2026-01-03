@@ -8,7 +8,7 @@ export function useMarkAllRead() {
   const queryClient = useQueryClient();
 
   const markAllReadMutation = useMutation({
-    mutationFn: async ({ userId, book }) => {
+    mutationFn: async ({ userId, book, cycle }) => {
       const now = new Date();
       const dateKey = getDateKey(now);
       const timestamp = now.toISOString();
@@ -25,6 +25,7 @@ export function useMarkAllRead() {
           chapter,
           chapterId,
           testament: book.testament,
+          cycle: cycle || 1,
         };
       });
 
@@ -34,6 +35,8 @@ export function useMarkAllRead() {
       const today = getDateKey(new Date());
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, today] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId, '2000-01-01', '2099-12-31'] });
+      queryClient.invalidateQueries({ queryKey: ['bookCycleState', variables.userId, variables.book.index] });
+      queryClient.invalidateQueries({ queryKey: ['allBookCycleStates', variables.userId] });
       toast.success(`All chapters of ${variables.book.name} marked as read!`);
     },
     onError: (error) => {
