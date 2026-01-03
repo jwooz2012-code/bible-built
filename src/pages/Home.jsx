@@ -69,12 +69,14 @@ export default function Home() {
           chapterId,
           testament: book.testament,
         });
+        setSelectedChapter(null);
       } else if (action === 'undo' && isRead) {
         await undoRead.mutateAsync({ userId, dateKey: today, chapterId });
+        setSelectedChapter(null);
       }
-      setSelectedChapter(null);
     } catch (error) {
       console.error('Chapter action failed:', error);
+      toast.error(error?.message || 'Action failed. Please try again.');
     }
   };
 
