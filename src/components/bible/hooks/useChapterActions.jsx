@@ -151,15 +151,17 @@ export function useChapterActions(
 
       // 4) Create ReadingLog for calendar/stats
       try {
-        await base44.entities.ReadingLog.create({
+        const logPayload = {
           user_id: user.id,
           date: dateKey,
           book_index: bookIndexNum,
           chapter: chapterNum
-        });
-        console.log("ReadingLog WRITE OK", { user_id: user.id, date: dateKey, bookIndexNum, chapterNum });
+        };
+        console.log("📝 READINGLOG WRITE", logPayload);
+        await base44.entities.ReadingLog.create(logPayload);
+        console.log("📝 READINGLOG WRITE OK", logPayload);
       } catch (logErr) {
-        console.error("ReadingLog creation failed:", logErr);
+        console.error("❌ ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");
       }
 

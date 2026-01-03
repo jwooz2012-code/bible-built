@@ -52,10 +52,12 @@ export default function ReadingCalendar() {
     queryKey: ['readingLogs', userId],
     queryFn: async () => {
       if (!userId) return [];
-      const rows = await base44.entities.ReadingLog.filter({ user_id: userId });
+      const filterObj = { user_id: userId };
+      console.log("📅 CALENDAR QUERY", { queryKey: ['readingLogs', userId], filterObj });
+      const rows = await base44.entities.ReadingLog.filter(filterObj);
       const today = new Date().toISOString().slice(0, 10);
       const todayRows = rows.filter(r => r.date === today);
-      console.log("Calendar readingLogs query", { userId, count: rows?.length, sample: rows?.[0], today, todayCount: todayRows.length });
+      console.log("📅 CALENDAR RESULT", { rowsLength: rows?.length, sample: rows?.[0], today, todayCount: todayRows.length });
       return rows;
     },
     enabled: !!userId,
