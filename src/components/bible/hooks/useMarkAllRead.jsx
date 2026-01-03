@@ -31,8 +31,9 @@ export function useMarkAllRead() {
       return await base44.entities.ReadingLog.bulkCreate(logs);
     },
     onSuccess: (data, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['dayLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      const today = getDateKey(new Date());
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, today] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId, '2000-01-01', '2099-12-31'] });
       toast.success(`All chapters of ${variables.book.name} marked as read!`);
     },
     onError: (error) => {
