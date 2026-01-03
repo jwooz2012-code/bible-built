@@ -81,9 +81,6 @@ export function useChapterActions(
       // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
 
-      // Debug: Check available functions
-      console.log("functions keys:", base44.functions ? Object.keys(base44.functions) : "NO base44.functions");
-
       // 1) Persist BookProgress (source of truth) using backend function
       const progressPayload = {
         user_id: user.id,
@@ -97,9 +94,17 @@ export function useChapterActions(
         completion_count: completionCount,
         last_read_date: isoString,
       };
-      await base44.functions["upsert Book Progress"](progressPayload);
+      const saved = await base44.functions["upsert Book Progress"](progressPayload);
 
-      // 2) Create ReadingLog (best effort – never undo progress if this fails)
+      // 2) Immediately update React Query cache with saved data
+      queryClient.setQueryData(['bookProgress'], (old = []) => {
+        const list = Array.isArray(old) ? old : [];
+        const idx = list.findIndex(p => p.book_index === saved.book_index && p.user_id === saved.user_id);
+        if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
+        return [...list, saved];
+      });
+
+      // 3) Create ReadingLog (best effort – never undo progress if this fails)
       try {
         await base44.entities.ReadingLog.create({
           user_id: user.id,
@@ -115,10 +120,10 @@ export function useChapterActions(
         // continue, do not throw
       }
 
-      // Refresh views
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
+      // 4) Invalidate broadly to catch param keys
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bookProgress' });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bibleProgress' });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
 
       setTimeout(() => checkAchievements(), 500);
 
@@ -126,8 +131,8 @@ export function useChapterActions(
       console.error('❌ Error toggling chapter (fatal):', error);
       toast.error(error?.message || 'Failed to save progress.');
       // Revert optimistic update on fatal error
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bookProgress' });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
       throw error;
     }
   };
