@@ -13,9 +13,9 @@ export default function Layout({ children }) {
   }, [location.pathname]);
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/Home' },
-    { name: 'Achievements', icon: Trophy, path: '/Achievements' },
-    { name: 'Stats', icon: BarChart3, path: '/Stats' },
+    { name: 'Home', icon: Home, path: '/home' },
+    { name: 'Achievements', icon: Trophy, path: '/achievements' },
+    { name: 'Stats', icon: BarChart3, path: '/stats' },
   ];
 
   return (
@@ -28,7 +28,7 @@ export default function Layout({ children }) {
         <div className="max-w-lg mx-auto flex justify-around items-center h-16">
           {navItems.map((item) => {
             const isActive = currentPath === item.path || 
-              (item.path === '/Home' && currentPath === '/');
+              (item.path === '/home' && currentPath === '/');
             return (
               <Link
                 key={item.name}
