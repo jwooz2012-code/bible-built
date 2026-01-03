@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
-import ThemeToggle from '@/components/ThemeToggle';
+import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { groupLogsByDay } from '@/components/bible/utils/logUtils';
 
@@ -33,7 +33,6 @@ export default function Calendar() {
   const monthEnd = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
-
   const logsByDay = groupLogsByDay(logs);
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -46,14 +45,6 @@ export default function Calendar() {
   for (let i = 1; i <= daysInMonth; i++) {
     days.push(i);
   }
-
-  const handlePrevMonth = () => {
-    setCurrentDate(new Date(year, month - 1, 1));
-  };
-
-  const handleNextMonth = () => {
-    setCurrentDate(new Date(year, month + 1, 1));
-  };
 
   const handleDayClick = (day) => {
     if (!day) return;
@@ -69,45 +60,37 @@ export default function Calendar() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pb-24">
-      <ThemeToggle />
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Calendar</h1>
-          <p className="text-gray-600 dark:text-gray-400">Track your daily reading</p>
-        </motion.div>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-lg"
+          className="bg-card border border-border rounded-2xl p-6"
         >
           <div className="flex items-center justify-between mb-6">
-            <Button variant="ghost" size="icon" onClick={handlePrevMonth}>
+            <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h2 className="text-xl font-semibold text-foreground">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h2>
-            <Button variant="ghost" size="icon" onClick={handleNextMonth}>
+            <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month + 1, 1))}>
               <ChevronRight className="w-5 h-5" />
             </Button>
           </div>
 
           <div className="grid grid-cols-7 gap-2 mb-2">
-            {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-              <div key={day} className="text-center text-sm font-medium text-gray-500 dark:text-gray-400 py-2">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
+              <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
                 {day}
               </div>
             ))}
@@ -120,9 +103,7 @@ export default function Calendar() {
           ) : (
             <div className="grid grid-cols-7 gap-2">
               {days.map((day, i) => {
-                if (!day) {
-                  return <div key={i} />;
-                }
+                if (!day) return <div key={i} />;
                 const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const count = logsByDay[dateKey]?.length || 0;
                 const isToday = dateKey === new Date().toISOString().slice(0, 10);
@@ -132,17 +113,17 @@ export default function Calendar() {
                     key={i}
                     onClick={() => handleDayClick(day)}
                     className={`
-                      aspect-square rounded-lg p-2 flex flex-col items-center justify-center
-                      transition-all hover:scale-105
-                      ${isToday ? 'ring-2 ring-blue-500' : ''}
+                      aspect-square rounded-xl p-2 flex flex-col items-center justify-center
+                      transition-all text-sm font-medium
+                      ${isToday ? 'ring-2 ring-accent' : ''}
                       ${count > 0
-                        ? 'bg-green-600 text-white hover:bg-green-700'
-                        : 'bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-slate-600'
+                        ? 'bg-accent text-accent-foreground'
+                        : 'bg-secondary text-secondary-foreground hover:bg-accent/10'
                       }
                     `}
                   >
-                    <span className="text-sm font-semibold">{day}</span>
-                    {count > 0 && <span className="text-xs mt-1">{count}</span>}
+                    {day}
+                    {count > 0 && <span className="text-xs mt-0.5">{count}</span>}
                   </button>
                 );
               })}
@@ -152,7 +133,7 @@ export default function Calendar() {
       </div>
 
       <Sheet open={!!selectedDay} onOpenChange={() => setSelectedDay(null)}>
-        <SheetContent side="bottom" className="max-h-[80vh] overflow-auto">
+        <SheetContent side="bottom" className="max-h-[70vh] overflow-auto">
           <SheetHeader>
             <SheetTitle>
               {selectedDay && new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-US', {
@@ -165,21 +146,20 @@ export default function Calendar() {
           </SheetHeader>
           <div className="mt-6 space-y-2">
             {selectedDayLogs.length === 0 ? (
-              <p className="text-gray-500 dark:text-gray-400 text-center py-8">No chapters read this day</p>
+              <p className="text-muted-foreground text-center py-8 text-sm">No chapters read this day</p>
             ) : (
               selectedDayLogs.map(log => (
                 <div
                   key={log.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-800 rounded-lg"
+                  className="flex items-center justify-between p-3 bg-secondary rounded-xl"
                 >
-                  <span className="font-medium text-gray-900 dark:text-white">
+                  <span className="font-medium text-foreground text-sm">
                     {log.book} {log.chapter}
                   </span>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDeleteLog(log.id)}
-                    className="text-red-600 hover:text-red-700"
                   >
                     <X className="w-4 h-4" />
                   </Button>

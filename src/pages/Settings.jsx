@@ -4,13 +4,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
-import ThemeToggle from '@/components/ThemeToggle';
-import { LogOut, Mail, Clock } from 'lucide-react';
+import PageHeader from '@/components/shared/PageHeader';
+import { useTheme } from '@/components/ThemeProvider';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     let mounted = true;
@@ -35,7 +37,7 @@ export default function Settings() {
 
   if (isLoading || !user) {
     return (
-      <div className="min-h-screen bg-white dark:bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
       </div>
     );
@@ -44,40 +46,32 @@ export default function Settings() {
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 pb-24">
-      <ThemeToggle />
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Settings</h1>
-          <p className="text-gray-600 dark:text-gray-400">Manage your account</p>
-        </motion.div>
+    <div className="min-h-screen bg-background pb-20">
+      <div className="max-w-2xl mx-auto px-4 py-6">
+        <PageHeader title="Settings" subtitle="Manage your account" />
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-6"
+          className="space-y-4"
         >
           <Card>
             <CardHeader>
-              <CardTitle>Account Information</CardTitle>
-              <CardDescription>Your profile details</CardDescription>
+              <CardTitle>Account</CardTitle>
+              <CardDescription>Your profile information</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-3">
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Name</p>
-                <p className="text-lg text-gray-900 dark:text-white">{user.full_name}</p>
+                <p className="text-xs text-muted-foreground">Name</p>
+                <p className="text-sm font-medium text-foreground">{user.full_name}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Email</p>
-                <p className="text-lg text-gray-900 dark:text-white">{user.email}</p>
+                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-sm font-medium text-foreground">{user.email}</p>
               </div>
               <div>
-                <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Role</p>
-                <p className="text-lg text-gray-900 dark:text-white capitalize">{user.role}</p>
+                <p className="text-xs text-muted-foreground">Timezone</p>
+                <p className="text-sm font-medium text-foreground">{timezone}</p>
               </div>
             </CardContent>
           </Card>
@@ -85,13 +79,47 @@ export default function Settings() {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Timezone
+                <Palette className="w-5 h-5" />
+                Appearance
               </CardTitle>
-              <CardDescription>Your detected timezone</CardDescription>
+              <CardDescription>Choose your theme</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-lg text-gray-900 dark:text-white">{timezone}</p>
+              <div className="grid grid-cols-3 gap-3">
+                <button
+                  onClick={() => setTheme('system')}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
+                    theme === 'system' 
+                      ? 'border-accent bg-accent/10' 
+                      : 'border-border bg-secondary hover:bg-accent/5'
+                  }`}
+                >
+                  <Monitor className="w-5 h-5" />
+                  <span className="text-xs font-medium">System</span>
+                </button>
+                <button
+                  onClick={() => setTheme('light')}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
+                    theme === 'light' 
+                      ? 'border-accent bg-accent/10' 
+                      : 'border-border bg-secondary hover:bg-accent/5'
+                  }`}
+                >
+                  <Sun className="w-5 h-5" />
+                  <span className="text-xs font-medium">Light</span>
+                </button>
+                <button
+                  onClick={() => setTheme('dark')}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
+                    theme === 'dark' 
+                      ? 'border-accent bg-accent/10' 
+                      : 'border-border bg-secondary hover:bg-accent/5'
+                  }`}
+                >
+                  <Moon className="w-5 h-5" />
+                  <span className="text-xs font-medium">Dark</span>
+                </button>
+              </div>
             </CardContent>
           </Card>
 
