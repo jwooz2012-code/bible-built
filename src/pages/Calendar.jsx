@@ -67,7 +67,7 @@ export default function Calendar() {
   }
 
   if (!user || !userId) {
-    window.location.href = '/auth';
+    base44.auth.redirectToLogin();
     return null;
   }
 

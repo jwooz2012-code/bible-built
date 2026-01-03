@@ -39,7 +39,7 @@ export default function Stats() {
   }
 
   if (!user || !userId) {
-    window.location.href = '/auth';
+    base44.auth.redirectToLogin();
     return null;
   }
 

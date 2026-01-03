@@ -23,7 +23,7 @@ export default function Settings() {
   }, []);
 
   const handleLogout = () => {
-    base44.auth.logout('/auth');
+    base44.auth.logout();
   };
 
   const handleResendVerification = async () => {
@@ -44,7 +44,7 @@ export default function Settings() {
   }
 
   if (!user) {
-    window.location.href = '/auth';
+    base44.auth.redirectToLogin();
     return null;
   }
 
