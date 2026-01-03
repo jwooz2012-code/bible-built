@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Check, RotateCcw, Trophy, Sparkles } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -20,36 +19,38 @@ export default function BookDetail() {
   const bookName = urlParams.get('book');
   const navigate = useNavigate();
   
-  const { user, toggleChapter, restartBook, markBookComplete } = useBookProgress();
+  const { toggleChapter, restartBook, markBookComplete } = useBookProgress();
   const [showCelebration, setShowCelebration] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [celebrationCount, setCelebrationCount] = useState(0);
+  const [me, setMe] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+    base44.auth.me().then(u => { if (mounted) setMe(u); }).catch(() => setMe(null));
+    return () => { mounted = false; };
+  }, []);
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
+  const userId = me?.id;
   const bookIndex = Number(book?.index);
   const queryClient = useQueryClient();
   
-  console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "user.id:", user?.id);
+  console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "userId:", userId);
   
-  const queryKey = ["bookProgress", user?.id, bookIndex];
+  const queryKey = ["bookProgress", userId, bookIndex];
   const { data: progress, isLoading } = useQuery({
     queryKey,
     queryFn: async () => {
-      if (!user?.id || !Number.isFinite(bookIndex)) return null;
+      if (!userId || !Number.isFinite(bookIndex)) return null;
       const results = await base44.entities.BookProgress.filter({ 
-        user_id: user.id, 
+        user_id: userId, 
         book_index: bookIndex 
       });
       console.log("BookDetail query results:", results);
-      // Fall back to cached data if filter returns empty
-      if (!results?.length) {
-        const cached = queryClient.getQueryData(queryKey);
-        console.log("BookDetail: No results, using cached:", cached);
-        return cached ?? null;
-      }
-      return results[0];
+      return results?.[0] ?? null;
     },
-    enabled: !!user?.id && Number.isFinite(bookIndex),
+    enabled: !!userId && Number.isFinite(bookIndex),
     staleTime: 0,
     gcTime: 0,
   });
@@ -98,7 +99,7 @@ export default function BookDetail() {
     setShowCelebration(true);
   };
 
-  if (isLoading) {
+  if (!me || isLoading) {
     return (
       <div className="min-h-screen bg-white p-4">
         <div className="max-w-lg mx-auto space-y-6">
