@@ -82,7 +82,10 @@ export default function Home() {
     const cyclesRead = new Set(chapterLogs.map(log => log.cycle)).size;
     const currentCycle = getCycleStateForBook(bookIndex);
     const isReadInCurrentCycle = chapterLogs.some(log => log.cycle === currentCycle);
-    const isReadToday = todayChapterIds.has(chapterId);
+    
+    // Check if read today in the CURRENT cycle only
+    const todayLogsForChapter = todayLogs.filter(log => log.chapterId === chapterId);
+    const isReadToday = todayLogsForChapter.some(log => log.cycle === currentCycle);
     
     return { cyclesRead, isReadInCurrentCycle, isReadToday };
   };
