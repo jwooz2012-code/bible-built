@@ -7,9 +7,12 @@ export function useDayReadingLogs(userId, dateKey) {
     queryFn: async () => {
       if (!userId) throw new Error('User ID is required');
       if (!dateKey) return [];
-      return await base44.entities.ReadingLog.filter({ userId, dateKey });
+      const logs = await base44.entities.ReadingLog.filter({ userId, dateKey });
+      console.log('[useDayReadingLogs] Fetched logs:', { userId, dateKey, count: logs.length });
+      return logs;
     },
     enabled: !!userId && !!dateKey,
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }

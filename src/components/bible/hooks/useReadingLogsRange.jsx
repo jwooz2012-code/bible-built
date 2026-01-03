@@ -8,9 +8,12 @@ export function useReadingLogsRange(userId, startDate, endDate) {
       if (!userId) throw new Error('User ID is required');
       if (!startDate || !endDate) return [];
       const logs = await base44.entities.ReadingLog.filter({ userId });
-      return logs.filter(log => log.dateKey >= startDate && log.dateKey <= endDate);
+      const filtered = logs.filter(log => log.dateKey >= startDate && log.dateKey <= endDate);
+      console.log('[useReadingLogsRange] Fetched logs:', { userId, startDate, endDate, count: filtered.length });
+      return filtered;
     },
     enabled: !!userId && !!startDate && !!endDate,
     staleTime: 0,
+    refetchOnMount: 'always',
   });
 }
