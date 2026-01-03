@@ -81,33 +81,20 @@ export function useChapterActions(
       // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
 
-      // 1) Persist BookProgress (source of truth)
-      if (progress) {
-        const updateData = {
-          // include user_id to satisfy any RLS policies if required
-          user_id: user.id,
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
-          completion_count: completionCount,
-          last_read_date: isoString,
-        };
-        await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
-      } else {
-        const createData = {
-          user_id: user.id,
-          book_name: bookName,
-          book_index: book.index,
-          testament: book.testament,
-          total_chapters: book.chapters,
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
-          completion_count: completionCount,
-          last_read_date: isoString,
-        };
-        await createProgressMutation.mutateAsync(createData);
-      }
+      // 1) Persist BookProgress (source of truth) using backend function
+      const progressPayload = {
+        user_id: user.id,
+        book_name: bookName,
+        book_index: book.index,
+        testament: book.testament,
+        total_chapters: book.chapters,
+        chapter_read_counts: chapterReadCounts,
+        chapters_read: chaptersRead,
+        chapter_read_dates: chapterReadDates,
+        completion_count: completionCount,
+        last_read_date: isoString,
+      };
+      await base44.functions.upsertBookProgress(progressPayload);
 
       // 2) Create ReadingLog (best effort – never undo progress if this fails)
       try {
