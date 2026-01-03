@@ -81,7 +81,7 @@ export function useChapterActions(
       // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
 
-      // 1) Persist BookProgress (source of truth) using backend function
+      // 1) Persist BookProgress (source of truth) using direct entity operations
       const progressPayload = {
         user_id: user.id,
         book_name: bookName,
@@ -95,18 +95,21 @@ export function useChapterActions(
         last_read_date: isoString,
       };
 
-      const fn = base44.functions?.["upsert Book Progress"];
-      console.log("base44.functions keys:", base44.functions ? Object.keys(base44.functions) : "NO base44.functions");
-      console.log("upsert fn exists:", !!fn);
-
       let saved;
       try {
-        saved = await fn(progressPayload);
-        console.log("✅ upsert result:", saved);
+        if (progress) {
+          // Update existing progress
+          saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
+          console.log("✅ BookProgress updated:", saved);
+        } else {
+          // Create new progress
+          saved = await base44.entities.BookProgress.create(progressPayload);
+          console.log("✅ BookProgress created:", saved);
+        }
       } catch (e) {
-        console.error("❌ upsert failed:", e);
-        toast.error(e?.message || "Upsert failed");
-        // On fatal upsert failure, revert optimistic state by invalidating and return early
+        console.error("❌ BookProgress operation failed:", e);
+        toast.error(e?.message || "Failed to save progress");
+        // On fatal failure, revert optimistic state by invalidating and return early
         queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
         return;
       }
@@ -114,7 +117,7 @@ export function useChapterActions(
       // 2) Immediately update React Query cache with saved data BEFORE invalidation
       queryClient.setQueryData(["bookProgress"], (old = []) => {
         const list = Array.isArray(old) ? old : [];
-        const idx = list.findIndex(p => p.book_index === saved.book_index && p.user_id === saved.user_id);
+        const idx = list.findIndex(p => p.id === saved.id);
         if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
         return [...list, saved];
       });
@@ -122,7 +125,7 @@ export function useChapterActions(
       // 3) Verify persistence with a fresh fetch
       try {
         const fresh = await base44.entities.BookProgress.filter({ user_id: user.id, book_index: book.index });
-        console.log("🔎 fresh BookProgress after upsert:", fresh);
+        console.log("🔎 fresh BookProgress after save:", fresh);
       } catch (verifyErr) {
         console.error("⚠️ verification fetch failed:", verifyErr);
       }
