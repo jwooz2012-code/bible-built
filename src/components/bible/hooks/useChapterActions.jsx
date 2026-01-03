@@ -158,9 +158,8 @@ export function useChapterActions(
         toast.error("Progress saved, but log failed");
       }
 
-      // 5) Invalidate broadly to catch param keys AFTER cache set
+      // 5) Invalidate non-book queries only
       console.log("toggleChapter: invalidating queries");
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bibleProgress" });
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "readingLogs" });
 

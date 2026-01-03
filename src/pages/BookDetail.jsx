@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
@@ -27,11 +27,13 @@ export default function BookDetail() {
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
   const bookIndex = Number(book?.index);
+  const queryClient = useQueryClient();
   
   console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "user.id:", user?.id);
   
+  const queryKey = ["bookProgress", user?.id, bookIndex];
   const { data: progress, isLoading } = useQuery({
-    queryKey: ["bookProgress", user?.id, bookIndex],
+    queryKey,
     queryFn: async () => {
       if (!user?.id || !Number.isFinite(bookIndex)) return null;
       const results = await base44.entities.BookProgress.filter({ 
@@ -39,14 +41,20 @@ export default function BookDetail() {
         book_index: bookIndex 
       });
       console.log("BookDetail query results:", results);
-      return results?.[0] ?? null;
+      // Fall back to cached data if filter returns empty
+      if (!results?.length) {
+        const cached = queryClient.getQueryData(queryKey);
+        console.log("BookDetail: No results, using cached:", cached);
+        return cached ?? null;
+      }
+      return results[0];
     },
     enabled: !!user?.id && Number.isFinite(bookIndex),
     staleTime: 0,
     gcTime: 0,
   });
   
-  console.log("BookDetail key:", ["bookProgress", user?.id, bookIndex], "progress:", progress);
+  console.log("BookDetail key:", queryKey, "progress:", progress);
   
   if (!book) {
     return (
