@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function BookCard({ book, todayCount, currentCycleProgress, timesThrough, onClick }) {
+export default function BookCard({ book, currentCycleProgress, timesThrough, onClick }) {
   const progressPct = Math.min((currentCycleProgress / book.chapters) * 100, 100);
   
   return (

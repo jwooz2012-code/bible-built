@@ -66,18 +66,8 @@ export default function Home() {
     const currentCycleChapterSet = new Set(currentCycleLogs.map(log => log.chapter));
     const currentCycleProgress = currentCycleChapterSet.size;
     
-    // Calculate completed cycles (times through)
-    const maxCompletedCycle = currentCycle - 1;
-    const timesThrough = Math.max(0, maxCompletedCycle);
-    
-    // Check if current cycle is complete
-    if (currentCycleProgress === book.chapters) {
-      return {
-        currentCycleProgress,
-        timesThrough: currentCycle,
-        currentCycleChapterSet,
-      };
-    }
+    // Times through = completed cycles only
+    const timesThrough = Math.max(0, currentCycle - 1);
     
     return {
       currentCycleProgress,
