@@ -141,6 +141,7 @@ export function useChapterActions(
       }
 
       // 5) Invalidate queries with userId-specific keys
+      queryClient.invalidateQueries({ queryKey: ["readingLogsByBook", user.id, bookIndexNum] });
       queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
       queryClient.invalidateQueries({ queryKey: ["bookProgress", user.id] });
       queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });

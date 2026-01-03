@@ -38,24 +38,37 @@ export default function BookDetail() {
   
   console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "userId:", userId);
   
-  const queryKey = ["bookProgress", userId, bookIndex];
-  const { data: progress, isLoading } = useQuery({
-    queryKey,
+  const progressQueryKey = ["bookProgress", userId, bookIndex];
+  const { data: progress, isLoading: progressLoading } = useQuery({
+    queryKey: progressQueryKey,
     queryFn: async () => {
       if (!userId || !Number.isFinite(bookIndex)) return null;
       const results = await base44.entities.BookProgress.filter({ 
         user_id: userId, 
         book_index: bookIndex 
       });
-      console.log("BookDetail query results:", results);
       return results?.[0] ?? null;
     },
     enabled: !!userId && Number.isFinite(bookIndex),
     staleTime: 0,
     gcTime: 0,
   });
-  
-  console.log("BookDetail READ", { key: queryKey, progress });
+
+  const logsQueryKey = ["readingLogsByBook", userId, bookIndex];
+  const { data: readingLogs = [], isLoading: logsLoading } = useQuery({
+    queryKey: logsQueryKey,
+    queryFn: async () => {
+      if (!userId || !Number.isFinite(bookIndex)) return [];
+      return await base44.entities.ReadingLog.filter({ 
+        user_id: userId, 
+        book_index: bookIndex 
+      });
+    },
+    enabled: !!userId && Number.isFinite(bookIndex),
+    staleTime: 0,
+  });
+
+  const isLoading = progressLoading || logsLoading;
   
   if (!book) {
     return (
@@ -71,12 +84,10 @@ export default function BookDetail() {
   }
 
   const counts = progress?.chapter_read_counts ?? {};
-  const currentRun = progress?.current_run_chapters ?? {};
-  const chapters = progress?.chapters_read ?? [];
   const completionCount = progress?.completion_count || 0;
   
-  // Calculate current run progress for percentage
-  const currentRunChaptersCount = Object.keys(currentRun).filter(k => currentRun[k]).length;
+  const readChaptersSet = new Set(readingLogs.map(log => Number(log.chapter)));
+  const currentRunChaptersCount = readChaptersSet.size;
   const percentComplete = Math.round((currentRunChaptersCount / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
@@ -201,9 +212,7 @@ export default function BookDetail() {
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((n, index) => {
               const chapterNum = Number(n);
-              // Visual fill based on current run state
-              const isRead = currentRun[String(chapterNum)] || currentRun[chapterNum] || false;
-              // Badge shows lifetime count
+              const isRead = readChaptersSet.has(chapterNum);
               const readCount = counts[String(chapterNum)] ?? counts[chapterNum] ?? 0;
               
               const baseClass = "aspect-square rounded-xl font-medium text-sm relative flex flex-col items-center justify-center transition-all duration-200";
