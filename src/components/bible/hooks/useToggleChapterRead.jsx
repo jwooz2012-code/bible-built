@@ -23,32 +23,39 @@ export function useToggleChapterRead() {
       console.log('[markRead] Created log:', result);
       return result;
     },
-    onSuccess: (data, variables) => {
-      console.log('[markRead] SUCCESS - Created log:', data);
-      console.log('[markRead] DateKey written:', data.dateKey, 'DateKey expected:', variables.dateKey);
+    onSuccess: (createdLog, variables) => {
+      console.log('[markRead] SUCCESS - Created log:', createdLog);
+      console.log('[markRead] DateKey written:', createdLog.dateKey, 'Expected:', variables.dateKey, 'Match:', createdLog.dateKey === variables.dateKey);
       
-      // Directly update dayLogs cache
+      // Directly update dayLogs cache (dedupe by id)
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
-        console.log('[markRead] Updating dayLogs cache. Old count:', old.length);
-        const updated = [...old, data];
-        console.log('[markRead] New dayLogs count:', updated.length);
-        return updated;
+        const prev = Array.isArray(old) ? old : [];
+        if (prev.some(x => x.id === createdLog.id)) {
+          console.log('[markRead] Duplicate prevented in dayLogs');
+          return prev;
+        }
+        console.log('[markRead] Adding to dayLogs. Old:', prev.length, 'New:', prev.length + 1);
+        return [createdLog, ...prev];
       });
       
-      // Update readingLogs cache for any matching range queries
+      // Update readingLogs cache for any matching range queries (dedupe by id)
       queryClient.setQueriesData(
         { 
-          predicate: (query) => {
-            return query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
-          }
+          predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
         },
         (old = []) => {
-          console.log('[markRead] Updating readingLogs cache. Old count:', old.length);
-          const updated = [...old, data];
-          console.log('[markRead] New readingLogs count:', updated.length);
-          return updated;
+          const prev = Array.isArray(old) ? old : [];
+          if (prev.some(x => x.id === createdLog.id)) return prev;
+          console.log('[markRead] Adding to readingLogs. Old:', prev.length, 'New:', prev.length + 1);
+          return [createdLog, ...prev];
         }
       );
+      
+      // Invalidate as backstop
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
+      });
       
       toast.success('Chapter marked as read');
     },
@@ -66,35 +73,39 @@ export function useToggleChapterRead() {
       const logs = await base44.entities.ReadingLog.filter({ userId, dateKey, chapterId });
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-      const result = await base44.entities.ReadingLog.delete(latestLog.id);
-      console.log('[undoRead] Deleted log:', latestLog.id);
-      return result;
+      await base44.entities.ReadingLog.delete(latestLog.id);
+      console.log('[undoRead] Deleted log id:', latestLog.id, 'chapterId:', chapterId);
+      return { deletedId: latestLog.id, chapterId, dateKey };
     },
     onSuccess: (data, variables) => {
-      console.log('[undoRead] SUCCESS - Deleted chapterId:', variables.chapterId);
+      console.log('[undoRead] SUCCESS - Deleted id:', data.deletedId, 'chapterId:', data.chapterId);
       
-      // Directly update dayLogs cache
+      // Directly update dayLogs cache (remove by id)
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
-        console.log('[undoRead] Updating dayLogs cache. Old count:', old.length);
-        const updated = old.filter(log => log.chapterId !== variables.chapterId);
-        console.log('[undoRead] New dayLogs count:', updated.length);
+        const prev = Array.isArray(old) ? old : [];
+        const updated = prev.filter(log => log.id !== data.deletedId);
+        console.log('[undoRead] Removing from dayLogs. Old:', prev.length, 'New:', updated.length);
         return updated;
       });
       
-      // Update readingLogs cache
+      // Update readingLogs cache (remove by id)
       queryClient.setQueriesData(
         { 
-          predicate: (query) => {
-            return query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId;
-          }
+          predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
         },
         (old = []) => {
-          console.log('[undoRead] Updating readingLogs cache. Old count:', old.length);
-          const updated = old.filter(log => log.chapterId !== variables.chapterId || log.dateKey !== variables.dateKey);
-          console.log('[undoRead] New readingLogs count:', updated.length);
+          const prev = Array.isArray(old) ? old : [];
+          const updated = prev.filter(log => log.id !== data.deletedId);
+          console.log('[undoRead] Removing from readingLogs. Old:', prev.length, 'New:', updated.length);
           return updated;
         }
       );
+      
+      // Invalidate as backstop
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
+      queryClient.invalidateQueries({ 
+        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
+      });
       
       toast.success('Chapter unmarked');
     },
