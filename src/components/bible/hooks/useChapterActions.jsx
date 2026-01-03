@@ -94,17 +94,40 @@ export function useChapterActions(
         completion_count: completionCount,
         last_read_date: isoString,
       };
-      const saved = await base44.functions["upsert Book Progress"](progressPayload);
 
-      // 2) Immediately update React Query cache with saved data
-      queryClient.setQueryData(['bookProgress'], (old = []) => {
+      const fn = base44.functions?.["upsert Book Progress"];
+      console.log("base44.functions keys:", base44.functions ? Object.keys(base44.functions) : "NO base44.functions");
+      console.log("upsert fn exists:", !!fn);
+
+      let saved;
+      try {
+        saved = await fn(progressPayload);
+        console.log("✅ upsert result:", saved);
+      } catch (e) {
+        console.error("❌ upsert failed:", e);
+        toast.error(e?.message || "Upsert failed");
+        // On fatal upsert failure, revert optimistic state by invalidating and return early
+        queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
+        return;
+      }
+
+      // 2) Immediately update React Query cache with saved data BEFORE invalidation
+      queryClient.setQueryData(["bookProgress"], (old = []) => {
         const list = Array.isArray(old) ? old : [];
         const idx = list.findIndex(p => p.book_index === saved.book_index && p.user_id === saved.user_id);
         if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
         return [...list, saved];
       });
 
-      // 3) Create ReadingLog (best effort – never undo progress if this fails)
+      // 3) Verify persistence with a fresh fetch
+      try {
+        const fresh = await base44.entities.BookProgress.filter({ user_id: user.id, book_index: book.index });
+        console.log("🔎 fresh BookProgress after upsert:", fresh);
+      } catch (verifyErr) {
+        console.error("⚠️ verification fetch failed:", verifyErr);
+      }
+
+      // 4) Create ReadingLog (best effort – never undo progress if this fails)
       try {
         await base44.entities.ReadingLog.create({
           user_id: user.id,
@@ -114,16 +137,15 @@ export function useChapterActions(
           chapter: chapterNum,
           event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
         });
-      } catch (logError) {
-        console.error('⚠️ ReadingLog create failed (non-fatal):', logError);
-        toast.error('Saved progress, but log failed to write.');
-        // continue, do not throw
+      } catch (logErr) {
+        console.error("⚠️ ReadingLog failed (non-fatal):", logErr);
+        toast.error("Saved progress, log failed");
       }
 
-      // 4) Invalidate broadly to catch param keys
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bookProgress' });
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'bibleProgress' });
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
+      // 5) Invalidate broadly to catch param keys AFTER cache set
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bibleProgress" });
+      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "readingLogs" });
 
       setTimeout(() => checkAchievements(), 500);
 
