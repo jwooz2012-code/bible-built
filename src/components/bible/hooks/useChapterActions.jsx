@@ -27,19 +27,23 @@ export function useChapterActions(
       throw new Error("User not authenticated");
     }
 
-    const bookIndex = Number(book.index);
-    console.log("toggleChapter bookIndex:", bookIndex);
+    const bookIndexNum = Number(book.index);
+    console.log("toggleChapter bookIndex:", bookIndexNum);
+    console.log("book_index types", { incoming: book.index, num: bookIndexNum, typeofIncoming: typeof book.index, typeofNum: typeof bookIndexNum });
 
     // Fetch fresh progress from database to ensure we have valid ID
-    const existing = (await base44.entities.BookProgress.filter({ 
+    const existingRows = await base44.entities.BookProgress.filter({ 
       user_id: user.id, 
-      book_index: bookIndex 
-    }))?.[0] ?? null;
+      book_index: bookIndexNum 
+    });
+    const existing = existingRows?.[0] ?? null;
+    console.log("existingRows len", existingRows?.length, existingRows?.[0]);
     console.log("existing progress", existing);
 
-    let chapterReadCounts = existing?.chapter_read_counts || {};
-    let chaptersRead = existing?.chapters_read || [];
-    let chapterReadDates = existing?.chapter_read_dates || {};
+    // Merge existing counts instead of starting fresh
+    let chapterReadCounts = { ...(existing?.chapter_read_counts || {}) };
+    let chaptersRead = [...(existing?.chapters_read || [])];
+    let chapterReadDates = { ...(existing?.chapter_read_dates || {}) };
 
     const currentCount = chapterReadCounts[chapterNum] || 0;
     const newCount = currentCount + 1;
@@ -53,12 +57,12 @@ export function useChapterActions(
       const isoString = now.toISOString();
       const dateKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
 
-      // Update local variables for final persisted payload
-      chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
+      // Update the specific chapter count (merge, don't replace)
+      chapterReadCounts[chapterNum] = newCount;
       if (!chaptersRead.includes(chapterNum)) {
-        chaptersRead = [...chaptersRead, chapterNum];
+        chaptersRead.push(chapterNum);
       }
-      chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
+      chapterReadDates[chapterNum] = isoString;
 
       // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
@@ -67,7 +71,7 @@ export function useChapterActions(
       const progressPayload = {
         user_id: user.id,
         book_name: bookName,
-        book_index: bookIndex,
+        book_index: bookIndexNum,
         testament: book.testament,
         total_chapters: book.chapters,
         chapter_read_counts: chapterReadCounts,
@@ -78,17 +82,18 @@ export function useChapterActions(
       };
 
       let saved;
-      if (existing?.id) {
-        console.log("saving progress via update", { bookIndex, chapterNum, id: existing.id });
+      // HARD GUARD: if any row exists for this book, always UPDATE
+      if (existingRows.length > 0 && existing?.id) {
+        console.log("saving progress via update", { bookIndexNum, chapterNum, id: existing.id });
         saved = await base44.entities.BookProgress.update(existing.id, progressPayload);
       } else {
-        console.log("saving progress via create", { bookIndex, chapterNum });
+        console.log("saving progress via create", { bookIndexNum, chapterNum });
         saved = await base44.entities.BookProgress.create(progressPayload);
       }
       console.log("savedRow", saved);
 
       // 2) Update book-specific cache for BookDetail
-      queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
+      queryClient.setQueryData(["bookProgress", user.id, bookIndexNum], saved);
       
       // 3) Update global list cache for Stats/overview
       queryClient.setQueryData(["bookProgress"], (old = []) => {
@@ -104,7 +109,7 @@ export function useChapterActions(
         return [...list, saved];
       });
       
-      console.log("SAVE OK", { bookIndex, key: ["bookProgress", user.id, bookIndex], savedRow: saved });
+      console.log("SAVE OK", { bookIndexNum, key: ["bookProgress", user.id, bookIndexNum], savedRow: saved });
 
       // 4) Create ReadingLog for calendar/stats
       try {
@@ -112,11 +117,11 @@ export function useChapterActions(
           user_id: user.id,
           occurred_at: isoString,
           local_date: dateKey,
-          book_index: bookIndex,
+          book_index: bookIndexNum,
           chapter: chapterNum,
-          event_id: `${user.id}_${bookIndex}_${chapterNum}_${Date.now()}`
+          event_id: `${user.id}_${bookIndexNum}_${chapterNum}_${Date.now()}`
         });
-        console.log("ReadingLog saved", { userId: user.id, date: dateKey, bookIndex, chapterNum });
+        console.log("ReadingLog saved", { userId: user.id, date: dateKey, bookIndexNum, chapterNum });
       } catch (logErr) {
         console.error("ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");
