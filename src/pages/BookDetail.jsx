@@ -6,6 +6,8 @@ import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 import ProgressRing from '@/components/bible/ProgressRing';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -17,20 +19,28 @@ export default function BookDetail() {
   const bookName = urlParams.get('book');
   const navigate = useNavigate();
   
-  const { progressData, isLoading, getProgressForBook, toggleChapter, restartBook, markBookComplete, updateProgressMutation } = useBookProgress();
+  const { user, toggleChapter, restartBook, markBookComplete } = useBookProgress();
   const [showCelebration, setShowCelebration] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [celebrationCount, setCelebrationCount] = useState(0);
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
   
-  // Always get fresh progress data on every render
-  const progress = getProgressForBook(bookName);
-  
-  // Log for debugging
-  useEffect(() => {
-    console.log('📊 BookDetail render - progressData:', progressData?.length, 'progress for', bookName, ':', progress);
-  }, [progressData, bookName, progress]);
+  // Book-specific query for immediate updates
+  const { data: progress, isLoading } = useQuery({
+    queryKey: ["bookProgress", user?.id, book?.index],
+    queryFn: async () => {
+      if (!user?.id || !book?.index) return null;
+      const results = await base44.entities.BookProgress.filter({ 
+        user_id: user.id, 
+        book_index: book.index 
+      });
+      return results?.[0] ?? null;
+    },
+    enabled: !!user?.id && !!book?.index,
+    staleTime: 0,
+    gcTime: 0,
+  });
   
   if (!book) {
     return (

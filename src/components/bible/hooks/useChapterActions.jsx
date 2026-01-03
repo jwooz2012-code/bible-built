@@ -115,12 +115,16 @@ export function useChapterActions(
       }
 
       // 2) Immediately update React Query cache with saved data BEFORE invalidation
+      // Update global list
       queryClient.setQueryData(["bookProgress"], (old = []) => {
         const list = Array.isArray(old) ? old : [];
         const idx = list.findIndex(p => p.id === saved.id);
         if (idx >= 0) return [...list.slice(0, idx), saved, ...list.slice(idx + 1)];
         return [...list, saved];
       });
+      
+      // Update book-specific query key for BookDetail
+      queryClient.setQueryData(["bookProgress", user.id, book.index], saved);
 
       // 3) Verify persistence with a fresh fetch
       try {
