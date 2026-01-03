@@ -16,16 +16,22 @@ export default function Auth() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    console.log('[Auth] Signup initiated:', { email, fullName, hasPassword: !!password });
+    
     if (!email || !password || !fullName) {
       toast.error('Please fill in all fields');
       return;
     }
+    
     setLoading(true);
     try {
+      console.log('[Auth] Calling base44.auth.signup...');
       await base44.auth.signup(email, password, { full_name: fullName });
+      console.log('[Auth] Signup successful, verification email sent');
       setMode('verify');
       toast.success('Account created! Check your email to verify.');
     } catch (error) {
+      console.error('[Auth] Signup error:', error);
       toast.error(error?.message || 'Signup failed');
     }
     setLoading(false);
