@@ -191,13 +191,16 @@ export default function Home() {
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
-                const isRead = todayChapterIds.has(chapterId);
+                const isReadToday = todayChapterIds.has(chapterId);
+                const bookProgress = getBookProgress(selectedBook);
+                const isInCurrentCycle = bookProgress.currentCycleChapters.has(chapter);
                 return (
                   <ChapterTile
                     key={chapter}
                     chapter={chapter}
-                    isRead={isRead}
-                    onClick={() => setSelectedChapter({ book: selectedBook, chapter, chapterId, isRead })}
+                    isReadToday={isReadToday}
+                    isInCurrentCycle={isInCurrentCycle}
+                    onClick={() => setSelectedChapter({ book: selectedBook, chapter, chapterId, isRead: isReadToday })}
                     disabled={markRead.isPending || undoRead.isPending}
                   />
                 );
