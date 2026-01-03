@@ -55,10 +55,10 @@ export default function BookDetail() {
     );
   }
 
-  const chaptersRead = progress?.chapters_read || [];
-  const chapterReadCounts = progress?.chapter_read_counts || {};
+  const counts = progress?.chapter_read_counts ?? {};
+  const chapters = progress?.chapters_read ?? [];
   const completionCount = progress?.completion_count || 0;
-  const percentComplete = Math.round((chaptersRead.length / book.chapters) * 100);
+  const percentComplete = Math.round((chapters.length / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
     console.log("CHAPTER TILE CLICK", chapterNum);
@@ -131,7 +131,7 @@ export default function BookDetail() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Progress</p>
               <p className="text-3xl font-bold text-black dark:text-white">{percentComplete}%</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {chaptersRead.length} of {book.chapters} chapters
+                {chapters.length} of {book.chapters} chapters
               </p>
 
               {completionCount > 0 && (
@@ -147,7 +147,7 @@ export default function BookDetail() {
           </div>
 
           <div className="flex gap-2 mt-4">
-            {chaptersRead.length > 0 && (
+            {chapters.length > 0 && (
               <Button
                variant="ghost"
                size="sm"
@@ -158,7 +158,7 @@ export default function BookDetail() {
                Start Over
               </Button>
               )}
-              {chaptersRead.length < book.chapters && (
+              {chapters.length < book.chapters && (
               <Button
                variant="default"
                size="sm"
@@ -180,9 +180,10 @@ export default function BookDetail() {
         >
           <h3 className="text-lg font-semibold text-black dark:text-white mb-4">Chapters</h3>
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
-            {Array.from({ length: book.chapters }, (_, i) => i + 1).map((chapterNum, index) => {
-              const isRead = chaptersRead.includes(chapterNum);
-              const readCount = chapterReadCounts[chapterNum] || 0;
+            {Array.from({ length: book.chapters }, (_, i) => i + 1).map((n, index) => {
+              const chapterNum = Number(n);
+              const isRead = (counts[String(chapterNum)] ?? counts[chapterNum] ?? 0) > 0 || chapters.includes(chapterNum);
+              const readCount = counts[String(chapterNum)] ?? counts[chapterNum] ?? 0;
               return (
                 <motion.button
                   key={chapterNum}
