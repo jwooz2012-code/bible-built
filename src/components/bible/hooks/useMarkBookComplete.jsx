@@ -18,7 +18,13 @@ export function useMarkBookComplete(
     if (!book || !user) return;
 
     const bookIndex = Number(book?.book_index ?? book?.bookIndex ?? book?.index);
-    let progress = getProgressForBook(bookName);
+    
+    // Fetch fresh progress from database to ensure we have valid ID
+    const existing = (await base44.entities.BookProgress.filter({ 
+      user_id: user.id, 
+      book_index: bookIndex 
+    }))?.[0] ?? null;
+    console.log("markBookComplete: existing progress", existing);
     
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
@@ -103,21 +109,23 @@ export function useMarkBookComplete(
     
     const chapterReadCounts = {};
     allChapters.forEach(ch => {
-      chapterReadCounts[ch] = ((progress?.chapter_read_counts || {})[ch] || 0) + 1;
+      chapterReadCounts[ch] = ((existing?.chapter_read_counts || {})[ch] || 0) + 1;
     });
 
     const progressPayload = {
       chapters_read: allChapters,
       chapter_read_dates: chapterReadDates,
       chapter_read_counts: chapterReadCounts,
-      completion_count: (progress?.completion_count || 0) + 1,
+      completion_count: (existing?.completion_count || 0) + 1,
       last_read_date: currentDate,
     };
 
     let saved;
-    if (progress) {
-      saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
+    if (existing?.id) {
+      console.log("markBookComplete: saving via update", { bookIndex, id: existing.id });
+      saved = await base44.entities.BookProgress.update(existing.id, progressPayload);
     } else {
+      console.log("markBookComplete: saving via create", { bookIndex });
       saved = await base44.entities.BookProgress.create({
         user_id: user.id,
         book_name: bookName,
@@ -127,6 +135,7 @@ export function useMarkBookComplete(
         ...progressPayload
       });
     }
+    console.log("markBookComplete: savedRow", saved);
     
     // Update book-specific cache for BookDetail
     queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
@@ -147,6 +156,8 @@ export function useMarkBookComplete(
     
     // Invalidate specific queries with userId
     queryClient.invalidateQueries({ queryKey: ['readingLogs', user.id] });
+    queryClient.invalidateQueries({ queryKey: ['stats', user.id] });
+    queryClient.invalidateQueries({ queryKey: ['calendar', user.id] });
     queryClient.invalidateQueries({ queryKey: ['bibleProgress', user.id] });
 
     setTimeout(() => checkAchievements(), 500);

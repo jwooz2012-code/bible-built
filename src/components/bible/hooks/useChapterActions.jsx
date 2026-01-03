@@ -30,56 +30,22 @@ export function useChapterActions(
     const bookIndex = Number(book.index);
     console.log("toggleChapter bookIndex:", bookIndex);
 
-    let progress = getProgressForBook(bookName);
-    console.log("toggleChapter: current progress:", progress);
+    // Fetch fresh progress from database to ensure we have valid ID
+    const existing = (await base44.entities.BookProgress.filter({ 
+      user_id: user.id, 
+      book_index: bookIndex 
+    }))?.[0] ?? null;
+    console.log("existing progress", existing);
 
-    let chapterReadCounts = progress?.chapter_read_counts || {};
-    let chaptersRead = progress?.chapters_read || [];
-    let chapterReadDates = progress?.chapter_read_dates || {};
+    let chapterReadCounts = existing?.chapter_read_counts || {};
+    let chaptersRead = existing?.chapters_read || [];
+    let chapterReadDates = existing?.chapter_read_dates || {};
 
     const currentCount = chapterReadCounts[chapterNum] || 0;
     const newCount = currentCount + 1;
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
 
     console.log("toggleChapter: chapter", chapterNum, "count:", currentCount, "->", newCount);
-    
-    // Optimistic update
-    const optimisticCounts = { ...chapterReadCounts, [chapterNum]: newCount };
-    const optimisticChaptersRead = chaptersRead.includes(chapterNum) ? chaptersRead : [...chaptersRead, chapterNum];
-    const optimisticDates = { ...chapterReadDates, [chapterNum]: new Date().toISOString() };
-    
-    // Calculate completion count based on minimum reads across all chapters
-    const minReadCount = Math.min(...allChapters.map(ch => optimisticCounts[ch] || 0));
-    const newCompletionCount = minReadCount;
-    
-    const optimisticProgress = progress ? {
-      ...progress,
-      chapter_read_counts: optimisticCounts,
-      chapters_read: optimisticChaptersRead,
-      chapter_read_dates: optimisticDates,
-      completion_count: newCompletionCount,
-      last_read_date: new Date().toISOString(),
-    } : {
-      user_id: user.id,
-      book_name: bookName,
-      book_index: book.index,
-      testament: book.testament,
-      total_chapters: book.chapters,
-      chapter_read_counts: optimisticCounts,
-      chapters_read: optimisticChaptersRead,
-      chapter_read_dates: optimisticDates,
-      completion_count: newCompletionCount,
-      last_read_date: new Date().toISOString(),
-    };
-    
-    // Update cache optimistically
-    queryClient.setQueryData(['bookProgress'], (old = []) => {
-      if (progress) {
-        return old.map(p => p.id === progress.id ? optimisticProgress : p);
-      } else {
-        return [...old, optimisticProgress];
-      }
-    });
     
     // Perform actual updates
     try {
@@ -112,22 +78,14 @@ export function useChapterActions(
       };
 
       let saved;
-      try {
-        if (progress) {
-          console.log("toggleChapter: updating existing progress", progress.id);
-          saved = await base44.entities.BookProgress.update(progress.id, progressPayload);
-          console.log("toggleChapter: update successful", saved);
-        } else {
-          console.log("toggleChapter: creating new progress");
-          saved = await base44.entities.BookProgress.create(progressPayload);
-          console.log("toggleChapter: create successful", saved);
-        }
-      } catch (e) {
-        console.error("Failed to save progress:", e);
-        toast.error(e?.message || "Failed to save progress");
-        queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === "bookProgress" });
-        throw e;
+      if (existing?.id) {
+        console.log("saving progress via update", { bookIndex, chapterNum, id: existing.id });
+        saved = await base44.entities.BookProgress.update(existing.id, progressPayload);
+      } else {
+        console.log("saving progress via create", { bookIndex, chapterNum });
+        saved = await base44.entities.BookProgress.create(progressPayload);
       }
+      console.log("savedRow", saved);
 
       // 2) Update book-specific cache for BookDetail
       queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
@@ -166,18 +124,19 @@ export function useChapterActions(
 
       // 5) Invalidate specific queries with userId
       queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["stats", user.id] });
+      queryClient.invalidateQueries({ queryKey: ["calendar", user.id] });
       queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });
 
       setTimeout(() => checkAchievements(), 500);
 
       return saved;
 
-      } catch (error) {
+    } catch (error) {
       console.error('Error toggling chapter:', error);
       toast.error(error?.message || 'Failed to save progress');
-      queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
       throw error;
-      }
+    }
       };
 
   const restartBook = async (bookName) => {
