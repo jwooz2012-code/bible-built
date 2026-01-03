@@ -27,6 +27,9 @@ export function useChapterActions(
       throw new Error("User not authenticated");
     }
 
+    const bookIndex = Number(book.index);
+    console.log("toggleChapter bookIndex:", bookIndex);
+
     let progress = getProgressForBook(bookName);
     console.log("toggleChapter: current progress:", progress);
 
@@ -98,7 +101,7 @@ export function useChapterActions(
       const progressPayload = {
         user_id: user.id,
         book_name: bookName,
-        book_index: book.index,
+        book_index: bookIndex,
         testament: book.testament,
         total_chapters: book.chapters,
         chapter_read_counts: chapterReadCounts,
@@ -136,8 +139,8 @@ export function useChapterActions(
       });
       
       // Update book-specific query key for BookDetail
-      console.log("toggleChapter: updating cache keys", ["bookProgress", user.id, book.index]);
-      queryClient.setQueryData(["bookProgress", user.id, book.index], saved);
+      console.log("toggleChapter setQueryData key:", ["bookProgress", user.id, bookIndex], "savedRow:", saved);
+      queryClient.setQueryData(["bookProgress", user.id, bookIndex], saved);
       console.log("toggleChapter: cache updated successfully");
 
       // 4) Create ReadingLog (best effort – never undo progress if this fails)
@@ -146,9 +149,9 @@ export function useChapterActions(
           user_id: user.id,
           occurred_at: isoString,
           local_date: localDate,
-          book_index: book.index,
+          book_index: bookIndex,
           chapter: chapterNum,
-          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+          event_id: `${user.id}_${bookIndex}_${chapterNum}_${Date.now()}`
         });
       } catch (logErr) {
         console.error("ReadingLog creation failed:", logErr);

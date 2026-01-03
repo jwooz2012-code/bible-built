@@ -26,21 +26,27 @@ export default function BookDetail() {
   const [celebrationCount, setCelebrationCount] = useState(0);
 
   const book = BIBLE_BOOKS.find(b => b.name === bookName);
+  const bookIndex = Number(book?.index);
+  
+  console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "user.id:", user?.id);
   
   const { data: progress, isLoading } = useQuery({
-    queryKey: ["bookProgress", user?.id, book?.index],
+    queryKey: ["bookProgress", user?.id, bookIndex],
     queryFn: async () => {
-      if (!user?.id || !book?.index) return null;
+      if (!user?.id || !Number.isFinite(bookIndex)) return null;
       const results = await base44.entities.BookProgress.filter({ 
         user_id: user.id, 
-        book_index: book.index 
+        book_index: bookIndex 
       });
+      console.log("BookDetail query results:", results);
       return results?.[0] ?? null;
     },
-    enabled: !!user?.id && !!book?.index,
+    enabled: !!user?.id && Number.isFinite(bookIndex),
     staleTime: 0,
     gcTime: 0,
   });
+  
+  console.log("BookDetail key:", ["bookProgress", user?.id, bookIndex], "progress:", progress);
   
   if (!book) {
     return (
