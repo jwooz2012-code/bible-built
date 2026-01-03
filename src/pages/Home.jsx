@@ -44,9 +44,20 @@ export default function Home() {
   const { markAllRead, isMarkingAll } = useMarkAllRead();
 
   const getBookStats = (book) => {
+    const chapterCounts = {};
+    for (let i = 1; i <= book.chapters; i++) {
+      chapterCounts[i] = 0;
+    }
+    
     const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
-    const uniqueChapters = new Set(bookLogs.map(log => log.chapter));
-    return { chaptersRead: uniqueChapters.size };
+    bookLogs.forEach(log => {
+      if (chapterCounts[log.chapter] !== undefined) {
+        chapterCounts[log.chapter]++;
+      }
+    });
+    
+    const minCount = Math.min(...Object.values(chapterCounts));
+    return { completions: minCount };
   };
 
   const getChapterStats = (bookIndex, chapter) => {
@@ -120,7 +131,7 @@ export default function Home() {
                   <BookCard
                     key={book.index}
                     book={book}
-                    chaptersRead={stats.chaptersRead}
+                    completions={stats.completions}
                     onClick={() => setSelectedBook(book)}
                   />
                 );
