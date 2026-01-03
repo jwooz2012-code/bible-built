@@ -1,5 +1,6 @@
 import { base44 } from '@/api/base44Client';
 import { useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { BIBLE_BOOKS } from '../bibleData';
 
 export function useChapterActions(
@@ -66,55 +67,31 @@ export function useChapterActions(
     
     // Perform actual updates
     try {
-      console.log('🔵 Attempting to create ReadingLog entry for:', { bookName, chapterNum, userId: user.id });
       const now = new Date();
       const isoString = now.toISOString();
       const localDate = now.toLocaleDateString('en-CA');
-      
+
+      // Update local variables for final persisted payload
       chapterReadCounts = { ...chapterReadCounts, [chapterNum]: newCount };
       if (!chaptersRead.includes(chapterNum)) {
         chaptersRead = [...chaptersRead, chapterNum];
       }
       chapterReadDates = { ...chapterReadDates, [chapterNum]: isoString };
-      
-      // Create reading log entry with proper error handling
-      try {
-        console.log('🟡 About to call base44.entities.ReadingLog.create with:', {
-          user_id: user.id,
-          occurred_at: isoString,
-          local_date: localDate,
-          book_index: book.index,
-          chapter: chapterNum,
-          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-        });
-        const logEntry = await base44.entities.ReadingLog.create({
-          user_id: user.id,
-          occurred_at: isoString,
-          local_date: localDate,
-          book_index: book.index,
-          chapter: chapterNum,
-          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
-        });
-        console.log('✅ ReadingLog created successfully:', logEntry);
-      } catch (logError) {
-        console.error('❌ Failed to create ReadingLog:', logError);
-        console.error('❌ ReadingLog creation error details:', logError.message, logError.stack);
-        throw logError;
-      }
-      
-      // Calculate completion count
+
+      // Calculate completion count (how many full read-throughs)
       const completionCount = Math.min(...allChapters.map(ch => chapterReadCounts[ch] || 0));
-      
-      // Update book progress
+
+      // 1) Persist BookProgress (source of truth)
       if (progress) {
         const updateData = {
+          // include user_id to satisfy any RLS policies if required
+          user_id: user.id,
           chapter_read_counts: chapterReadCounts,
           chapters_read: chaptersRead,
           chapter_read_dates: chapterReadDates,
           completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
+          last_read_date: isoString,
         };
-        
         await updateProgressMutation.mutateAsync({ id: progress.id, data: updateData });
       } else {
         const createData = {
@@ -127,23 +104,38 @@ export function useChapterActions(
           chapters_read: chaptersRead,
           chapter_read_dates: chapterReadDates,
           completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
+          last_read_date: isoString,
         };
         await createProgressMutation.mutateAsync(createData);
       }
 
-      await updateBibleProgressChapter(book.index, chapterNum);
-      
-      // Force refetch of all data
+      // 2) Create ReadingLog (best effort – never undo progress if this fails)
+      try {
+        await base44.entities.ReadingLog.create({
+          user_id: user.id,
+          occurred_at: isoString,
+          local_date: localDate,
+          book_index: book.index,
+          chapter: chapterNum,
+          event_id: `${user.id}_${book.index}_${chapterNum}_${Date.now()}`
+        });
+      } catch (logError) {
+        console.error('⚠️ ReadingLog create failed (non-fatal):', logError);
+        toast.error('Saved progress, but log failed to write.');
+        // continue, do not throw
+      }
+
+      // Refresh views
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
 
       setTimeout(() => checkAchievements(), 500);
+
     } catch (error) {
-      console.error('❌ Error toggling chapter (outer catch):', error);
-      console.error('❌ Full error object:', error);
-      // Revert optimistic update on error
+      console.error('❌ Error toggling chapter (fatal):', error);
+      toast.error(error?.message || 'Failed to save progress.');
+      // Revert optimistic update on fatal error
       queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
       throw error;
