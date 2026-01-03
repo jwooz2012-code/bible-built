@@ -9,17 +9,19 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BookProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
+    onSuccess: async (data) => {
+      const userId = data.user_id;
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
     },
   });
 
   const updateProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BookProgress.update(id, data),
-    onSuccess: async () => {
-      await queryClient.refetchQueries({ queryKey: ['bookProgress'], type: 'all' });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'], type: 'all' });
+    onSuccess: async (data) => {
+      const userId = data.user_id;
+      await queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
     },
   });
 
@@ -28,7 +30,10 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.Achievement.create({ ...data, user_id: user.id });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['achievements'] }),
+    onSuccess: (data) => {
+      const userId = data.user_id;
+      queryClient.invalidateQueries({ queryKey: ['achievements', userId] });
+    },
   });
 
   const createBibleProgressMutation = useMutation({
@@ -36,17 +41,19 @@ export function useProgressMutations() {
       const user = await base44.auth.me();
       return base44.entities.BibleProgress.create({ ...data, user_id: user.id });
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    onSuccess: (data) => {
+      const userId = data.user_id;
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress', userId] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
     },
   });
 
   const updateBibleProgressMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.BibleProgress.update(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['bibleProgress'] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+    onSuccess: (data) => {
+      const userId = data.user_id;
+      queryClient.invalidateQueries({ queryKey: ['bibleProgress', userId] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
     },
   });
 
