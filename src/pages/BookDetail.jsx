@@ -71,9 +71,13 @@ export default function BookDetail() {
   }
 
   const counts = progress?.chapter_read_counts ?? {};
+  const currentRun = progress?.current_run_chapters ?? {};
   const chapters = progress?.chapters_read ?? [];
   const completionCount = progress?.completion_count || 0;
-  const percentComplete = Math.round((chapters.length / book.chapters) * 100);
+  
+  // Calculate current run progress for percentage
+  const currentRunChaptersCount = Object.keys(currentRun).filter(k => currentRun[k]).length;
+  const percentComplete = Math.round((currentRunChaptersCount / book.chapters) * 100);
 
   const handleChapterToggle = async (chapterNum) => {
     console.log("CHAPTER TILE CLICK", chapterNum);
@@ -146,7 +150,7 @@ export default function BookDetail() {
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Current Progress</p>
               <p className="text-3xl font-bold text-black dark:text-white">{percentComplete}%</p>
               <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                {chapters.length} of {book.chapters} chapters
+                {currentRunChaptersCount} of {book.chapters} chapters
               </p>
 
               {completionCount > 0 && (
@@ -162,7 +166,7 @@ export default function BookDetail() {
           </div>
 
           <div className="flex gap-2 mt-4">
-            {chapters.length > 0 && (
+            {currentRunChaptersCount > 0 && (
               <Button
                variant="ghost"
                size="sm"
@@ -173,7 +177,7 @@ export default function BookDetail() {
                Start Over
               </Button>
               )}
-              {chapters.length < book.chapters && (
+              {currentRunChaptersCount < book.chapters && (
               <Button
                variant="default"
                size="sm"
@@ -197,7 +201,9 @@ export default function BookDetail() {
           <div className="grid grid-cols-5 sm:grid-cols-7 gap-2">
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((n, index) => {
               const chapterNum = Number(n);
-              const isRead = (counts[String(chapterNum)] ?? counts[chapterNum] ?? 0) > 0 || chapters.includes(chapterNum);
+              // Visual fill based on current run state
+              const isRead = currentRun[String(chapterNum)] || currentRun[chapterNum] || false;
+              // Badge shows lifetime count
               const readCount = counts[String(chapterNum)] ?? counts[chapterNum] ?? 0;
               
               const baseClass = "aspect-square rounded-xl font-medium text-sm relative flex flex-col items-center justify-center transition-all duration-200";

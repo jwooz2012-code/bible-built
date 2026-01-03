@@ -68,6 +68,7 @@ export function useChapterActions(
     const mergedCounts = { ...(existing?.chapter_read_counts || {}) };
     const mergedChaptersRead = [...(existing?.chapters_read || [])];
     const mergedDates = { ...(existing?.chapter_read_dates || {}) };
+    const currentRunChapters = { ...(existing?.current_run_chapters || {}) };
 
     // 3) Build nextCounts starting from existing counts
     const chapterKey = String(chapterNum);
@@ -84,17 +85,25 @@ export function useChapterActions(
       const isoString = now.toISOString();
       const dateKey = now.toISOString().slice(0, 10); // YYYY-MM-DD
 
-      // Update the specific chapter count (merge, don't replace)
+      // Update lifetime counts
       const nextCounts = { ...mergedCounts };
       nextCounts[chapterKey] = newCount;
+      
+      // Update current run state (visual fill)
+      const nextCurrentRun = { ...currentRunChapters };
+      nextCurrentRun[chapterKey] = true;
       
       const nextChaptersRead = mergedChaptersRead.includes(chapterNum) ? mergedChaptersRead : [...mergedChaptersRead, chapterNum];
       
       const nextDates = { ...mergedDates };
       nextDates[chapterKey] = isoString;
 
-      // Calculate completion count (how many full read-throughs)
-      const completionCount = Math.min(...allChapters.map(ch => nextCounts[ch] || 0));
+      // Calculate completion count based on current run
+      const currentRunChaptersRead = Object.keys(nextCurrentRun).filter(k => nextCurrentRun[k]).length;
+      let completionCount = existing?.completion_count || 0;
+      if (currentRunChaptersRead === book.chapters) {
+        completionCount += 1;
+      }
 
       // 4) Save - normalize to numeric book_index going forward
       const progressPayload = {
@@ -104,6 +113,7 @@ export function useChapterActions(
         testament: book.testament,
         total_chapters: book.chapters,
         chapter_read_counts: nextCounts,
+        current_run_chapters: nextCurrentRun,
         chapters_read: nextChaptersRead,
         chapter_read_dates: nextDates,
         completion_count: completionCount,
@@ -149,17 +159,24 @@ export function useChapterActions(
           chapter: chapterNum,
           event_id: `${user.id}_${bookIndexNum}_${chapterNum}_${Date.now()}`
         });
-        console.log("ReadingLog saved", { userId: user.id, date: dateKey, bookIndexNum, chapterNum });
+        console.log("ReadingLog WRITE OK", { user_id: user.id, date: dateKey, bookIndexNum, chapterNum });
       } catch (logErr) {
         console.error("ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");
       }
 
-      // 5) Invalidate specific queries with userId
-      queryClient.invalidateQueries({ queryKey: ["readingLogs", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["stats", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["calendar", user.id] });
-      queryClient.invalidateQueries({ queryKey: ["bibleProgress", user.id] });
+      // 5) Invalidate ReadingLog-driven queries with userId-specific keys
+      const invalidateKeys = [
+        ["readingLogs", user.id],
+        ["stats", user.id],
+        ["calendar", user.id],
+        ["bibleProgress", user.id]
+      ];
+      console.log("Invalidating ReadingLog queries", invalidateKeys);
+      
+      invalidateKeys.forEach(key => {
+        queryClient.invalidateQueries({ queryKey: key });
+      });
 
       setTimeout(() => checkAchievements(), 500);
 
@@ -175,15 +192,14 @@ export function useChapterActions(
   const restartBook = async (bookName) => {
     const progress = getProgressForBook(bookName);
     if (progress) {
-      // Only clear chapters_read and chapter_read_dates to reset visual color
-      // Keep chapter_read_counts and completion_count to preserve history
+      // Only clear current_run_chapters to reset visual state
+      // Keep chapter_read_counts (lifetime counts) to preserve history
       await updateProgressMutation.mutateAsync({
         id: progress.id,
         data: { 
+          current_run_chapters: {},
           chapters_read: [],
-          chapter_read_dates: {},
-          completion_count: progress.completion_count,
-          chapter_read_counts: progress.chapter_read_counts
+          chapter_read_dates: {}
         }
       });
     }
