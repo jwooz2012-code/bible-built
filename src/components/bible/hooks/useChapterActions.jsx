@@ -164,6 +164,8 @@ export function useChapterActions(
       console.log("toggleChapter: COMPLETE SUCCESS");
       setTimeout(() => checkAchievements(), 500);
 
+      return saved;
+
       } catch (error) {
       console.error('Error toggling chapter:', error);
       toast.error(error?.message || 'Failed to save progress');
@@ -171,7 +173,7 @@ export function useChapterActions(
       queryClient.invalidateQueries({ predicate: q => Array.isArray(q.queryKey) && q.queryKey[0] === 'readingLogs' });
       throw error;
       }
-  };
+      };
 
   const restartBook = async (bookName) => {
     const progress = getProgressForBook(bookName);
