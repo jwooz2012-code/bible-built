@@ -19,6 +19,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import EditReadingSheet from '@/components/bible/EditReadingSheet';
 import { useBookProgress } from '@/components/bible/useBookProgress';
 import { toast } from 'sonner';
+import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 
 export default function ReadingCalendar() {
   const today = new Date();
@@ -49,19 +50,19 @@ export default function ReadingCalendar() {
   const queryClient = useQueryClient();
   const { updateProgressMutation, checkAchievements } = useBookProgress();
 
-  const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', userId],
-    queryFn: async () => {
-      const rows = await base44.entities.ReadingLog.filter({ user_id: userId });
-      console.log("CAL_READINGLOG_ROWS", rows.length);
-      return rows;
-    },
-    enabled: !!userId,
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
-  });
+  const calendarStartDate = view === 'week' 
+    ? currentWeekStart.toISOString().split('T')[0]
+    : view === 'month'
+    ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`
+    : `${currentYear}-01-01`;
+
+  const calendarEndDate = view === 'week'
+    ? new Date(currentWeekStart.getTime() + 6 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    : view === 'month'
+    ? `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(new Date(currentYear, currentMonth + 1, 0).getDate()).padStart(2, '0')}`
+    : `${currentYear}-12-31`;
+
+  const { data: readingLogs = [] } = useReadingLogsRange(userId, calendarStartDate, calendarEndDate);
 
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
@@ -101,15 +102,13 @@ export default function ReadingCalendar() {
     },
   });
 
-  // Group reading logs by date
   const readingByDate = useMemo(() => {
     const grouped = {};
     readingLogs.forEach(log => {
-      const dateStr = log.date || new Date(log.created_date).toISOString().split('T')[0];
-      if (!grouped[dateStr]) {
-        grouped[dateStr] = [];
+      if (!grouped[log.date]) {
+        grouped[log.date] = [];
       }
-      grouped[dateStr].push(log);
+      grouped[log.date].push(log);
     });
     return grouped;
   }, [readingLogs]);
@@ -147,22 +146,16 @@ export default function ReadingCalendar() {
       daysInPeriod = lastDay.getDate();
       
       Object.entries(readingByDate).forEach(([date, logs]) => {
-        const d = new Date(date + 'T00:00:00');
-        if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
-          total += logs.length;
-          readingDays++;
-        }
+        total += logs.length;
+        readingDays++;
       });
     } else if (view === 'year') {
       const isLeapYear = (currentYear % 4 === 0 && currentYear % 100 !== 0) || (currentYear % 400 === 0);
       daysInPeriod = isLeapYear ? 366 : 365;
       
       Object.entries(readingByDate).forEach(([date, logs]) => {
-        const d = new Date(date + 'T00:00:00');
-        if (d.getFullYear() === currentYear) {
-          total += logs.length;
-          readingDays++;
-        }
+        total += logs.length;
+        readingDays++;
       });
     }
 
@@ -484,23 +477,17 @@ export default function ReadingCalendar() {
     setCurrentWeekStart(newStart);
   };
 
-  // Year view logic
   const yearMonths = useMemo(() => {
     const months = [];
     for (let m = 0; m < 12; m++) {
       let total = 0;
-      
       Object.entries(readingByDate).forEach(([date, logs]) => {
-        const d = new Date(date + 'T00:00:00');
-        if (d.getFullYear() === currentYear && d.getMonth() === m) {
-          total += logs.length;
-        }
+        total += logs.length;
       });
-      
       months.push({ month: m, total });
     }
     return months;
-  }, [currentYear, readingByDate]);
+  }, [readingByDate]);
 
   const handlePrevYear = () => {
     setCurrentYear(currentYear - 1);

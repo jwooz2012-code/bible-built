@@ -17,6 +17,7 @@ import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 
 export default function Stats() {
   const { isLoading, calculateStats } = useBookProgress();
@@ -41,18 +42,19 @@ export default function Stats() {
   
   const stats = calculateStats();
 
-  // Fetch reading logs for yearly stats
-  const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', userId],
-    queryFn: async () => {
-      const rows = await base44.entities.ReadingLog.filter({ user_id: userId });
-      console.log("STATS_READINGLOG_ROWS", rows.length);
-      return rows;
-    },
-    enabled: !!userId,
-    staleTime: 0,
-    refetchOnMount: 'always',
-  });
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  const monthEnd = new Date(currentYear, currentMonth + 1, 0);
+  const monthEndStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(monthEnd.getDate()).padStart(2, '0')}`;
+
+  const yearStart = `${currentYear}-01-01`;
+  const yearEnd = `${currentYear}-12-31`;
+
+  const { data: monthLogs = [] } = useReadingLogsRange(userId, monthStart, monthEndStr);
+  const { data: yearLogs = [] } = useReadingLogsRange(userId, yearStart, yearEnd);
 
   // Fetch lifetime reading data
   const { data: lifetimeData = [] } = useQuery({
@@ -66,28 +68,14 @@ export default function Stats() {
 
   const currentLifetime = lifetimeData[0] || { bible_count: 0, old_testament_count: 0, new_testament_count: 0 };
 
-  // Calculate yearly stats
   const yearlyStats = useMemo(() => {
-    if (!readingLogs.length) return { chaptersRead: 0, daysInWord: 0, avgPerDay: 0 };
-    
-    const currentYear = new Date().getFullYear();
-    const thisYearLogs = readingLogs.filter(log => {
-      const year = log.date ? parseInt(log.date.split('-')[0]) : new Date(log.created_date).getFullYear();
-      return year === currentYear;
-    });
-
-    const uniqueDates = new Set();
-    thisYearLogs.forEach(log => {
-      const dateStr = log.date || new Date(log.created_date).toISOString().split('T')[0];
-      uniqueDates.add(dateStr);
-    });
-
-    const chaptersRead = thisYearLogs.length;
+    const uniqueDates = new Set(yearLogs.map(log => log.date));
+    const chaptersRead = yearLogs.length;
     const daysInWord = uniqueDates.size;
     const avgPerDay = daysInWord > 0 ? (chaptersRead / daysInWord).toFixed(1) : 0;
 
     return { chaptersRead, daysInWord, avgPerDay };
-  }, [readingLogs]);
+  }, [yearLogs]);
 
   const updateLifetimeMutation = useMutation({
     mutationFn: async (data) => {

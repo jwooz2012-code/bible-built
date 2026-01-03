@@ -33,17 +33,37 @@ export default function Home() {
 
   const userId = me?.id;
 
-  const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', userId],
+  const today = new Date();
+  const currentYear = today.getFullYear();
+  const currentMonth = today.getMonth();
+
+  const monthStart = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-01`;
+  const monthEnd = new Date(currentYear, currentMonth + 1, 0);
+  const monthEndStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(monthEnd.getDate()).padStart(2, '0')}`;
+
+  const yearStart = `${currentYear}-01-01`;
+  const yearEnd = `${currentYear}-12-31`;
+
+  const { data: monthLogs = [] } = useQuery({
+    queryKey: ['readingLogs', userId, monthStart, monthEndStr],
     queryFn: async () => {
-      if (!userId) return [];
-      return base44.entities.ReadingLog.filter({ user_id: userId });
+      const logs = await base44.entities.ReadingLog.filter({ user_id: userId });
+      return logs.filter(log => log.date >= monthStart && log.date <= monthEndStr);
     },
     enabled: !!userId,
     staleTime: 0,
-    gcTime: 0,
     refetchOnMount: 'always',
-    refetchOnWindowFocus: true,
+  });
+
+  const { data: yearLogs = [] } = useQuery({
+    queryKey: ['readingLogs', userId, yearStart, yearEnd],
+    queryFn: async () => {
+      const logs = await base44.entities.ReadingLog.filter({ user_id: userId });
+      return logs.filter(log => log.date >= yearStart && log.date <= yearEnd);
+    },
+    enabled: !!userId,
+    staleTime: 0,
+    refetchOnMount: 'always',
   });
 
   const addLogMutation = useMutation({
@@ -88,24 +108,8 @@ export default function Home() {
     .sort((a, b) => new Date(b.last_read_date) - new Date(a.last_read_date))
     .slice(0, 2);
 
-  // Calculate chapters read this month and year
-  const today = new Date();
-  const currentYear = today.getFullYear();
-  const currentMonth = today.getMonth();
-  
-  const chaptersThisMonth = useMemo(() => {
-    return readingLogs.filter(log => {
-      const logDate = new Date(log.date + 'T00:00:00');
-      return logDate.getFullYear() === currentYear && logDate.getMonth() === currentMonth;
-    }).length;
-  }, [readingLogs, currentYear, currentMonth]);
-
-  const chaptersThisYear = useMemo(() => {
-    return readingLogs.filter(log => {
-      const logDate = new Date(log.date + 'T00:00:00');
-      return logDate.getFullYear() === currentYear;
-    }).length;
-  }, [readingLogs, currentYear]);
+  const chaptersThisMonth = monthLogs.length;
+  const chaptersThisYear = yearLogs.length;
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
     const user = await base44.auth.me();
