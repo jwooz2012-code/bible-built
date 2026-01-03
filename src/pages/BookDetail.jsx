@@ -39,7 +39,7 @@ export default function BookDetail() {
   console.log("BookDetail render - bookName:", bookName, "bookIndex:", bookIndex, "userId:", userId);
   
   const logsQueryKey = ["readingLogsByBook", userId, bookIndex];
-  const { data: readingLogs = [], isLoading: logsLoading } = useQuery({
+  const { data: readingLogs = [], isLoading } = useQuery({
     queryKey: logsQueryKey,
     queryFn: async () => {
       if (!userId || bookIndex === undefined) return [];
@@ -47,30 +47,13 @@ export default function BookDetail() {
         user_id: userId, 
         book_index: bookIndex 
       });
-      console.log('[BookDetail] ReadingLog query returned:', logs.length, 'logs');
+      console.log('[BookDetail] ReadingLog fetched:', logs.length, 'entries for book', bookIndex);
       return logs;
     },
     enabled: !!userId && bookIndex !== undefined,
     staleTime: 0,
     refetchOnMount: 'always',
   });
-
-  const progressQueryKey = ["bookProgress", userId, bookIndex];
-  const { data: progress, isLoading: progressLoading } = useQuery({
-    queryKey: progressQueryKey,
-    queryFn: async () => {
-      if (!userId || !Number.isFinite(bookIndex)) return null;
-      const results = await base44.entities.BookProgress.filter({ 
-        user_id: userId, 
-        book_index: bookIndex 
-      });
-      return results?.[0] ?? null;
-    },
-    enabled: !!userId && Number.isFinite(bookIndex),
-    staleTime: 0,
-  });
-
-  const isLoading = progressLoading || logsLoading;
   
   if (!book) {
     return (
@@ -85,14 +68,18 @@ export default function BookDetail() {
     );
   }
 
-  const counts = progress?.chapter_read_counts ?? {};
-  const completionCount = progress?.completion_count || 0;
-  
   const readChaptersSet = new Set(readingLogs.map(log => Number(log.chapter)));
-  console.log('[BookDetail] Read chapters from ReadingLog:', Array.from(readChaptersSet));
+  console.log('[BookDetail] Chapters marked read:', Array.from(readChaptersSet).sort((a, b) => a - b));
+  
+  const chapterReadCounts = {};
+  readingLogs.forEach(log => {
+    const ch = Number(log.chapter);
+    chapterReadCounts[ch] = (chapterReadCounts[ch] || 0) + 1;
+  });
   
   const currentRunChaptersCount = readChaptersSet.size;
   const percentComplete = Math.round((currentRunChaptersCount / book.chapters) * 100);
+  const completionCount = currentRunChaptersCount === book.chapters ? 1 : 0;
 
   const handleChapterToggle = async (chapterNum) => {
     console.log("CHAPTER TILE CLICK", chapterNum);
@@ -217,7 +204,7 @@ export default function BookDetail() {
             {Array.from({ length: book.chapters }, (_, i) => i + 1).map((n, index) => {
               const chapterNum = Number(n);
               const isRead = readChaptersSet.has(chapterNum);
-              const readCount = counts[String(chapterNum)] ?? counts[chapterNum] ?? 0;
+              const readCount = chapterReadCounts[chapterNum] || 0;
               
               const baseClass = "aspect-square rounded-xl font-medium text-sm relative flex flex-col items-center justify-center transition-all duration-200";
               const readClass = "bg-gradient-to-br from-green-500 to-green-600 text-white hover:scale-105";

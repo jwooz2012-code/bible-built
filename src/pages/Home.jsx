@@ -19,7 +19,7 @@ import { BIBLE_BOOKS, ACHIEVEMENTS } from '@/components/bible/bibleData';
 
 export default function Home() {
   const [testament, setTestament] = useState('all');
-  const { progressData, achievements, isLoading, getProgressForBook, calculateStats, updateProgressMutation, checkAchievements } = useBookProgress();
+  const { achievements, isLoading, checkAchievements } = useBookProgress();
 
   const queryClient = useQueryClient();
 
@@ -66,6 +66,16 @@ export default function Home() {
     refetchOnMount: 'always',
   });
 
+  const { data: allLogs = [] } = useQuery({
+    queryKey: ['readingLogs', userId],
+    queryFn: async () => {
+      return await base44.entities.ReadingLog.filter({ user_id: userId });
+    },
+    enabled: !!userId,
+    staleTime: 0,
+    refetchOnMount: 'always',
+  });
+
   const addLogMutation = useMutation({
     mutationFn: async ({ localDate, bookIndex, chapter }) => {
       const user = await base44.auth.me();
@@ -77,34 +87,53 @@ export default function Home() {
         chapter: chapter,
       });
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogsByBook', userId, variables.bookIndex] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
   });
 
   const removeLogMutation = useMutation({
-    mutationFn: async (logId) => {
+    mutationFn: async ({ logId, bookIndex }) => {
       return await base44.entities.ReadingLog.delete(logId);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogsByBook', userId, variables.bookIndex] });
       toast.success('Chapter removed');
     },
   });
 
-  const stats = calculateStats();
   const unlockedAchievements = achievements.map(a => a.achievement_id);
 
   const filteredBooks = testament === 'all' 
     ? BIBLE_BOOKS 
     : BIBLE_BOOKS.filter(b => b.testament === testament);
 
-  const recentlyRead = progressData
-    .filter(p => p.last_read_date)
+  const bookProgress = {};
+  allLogs.forEach(log => {
+    const bookIndex = log.book_index;
+    if (!bookProgress[bookIndex]) {
+      bookProgress[bookIndex] = new Set();
+    }
+    bookProgress[bookIndex].add(Number(log.chapter));
+  });
+
+  const recentlyRead = Object.entries(bookProgress)
+    .map(([bookIndex, chaptersSet]) => {
+      const book = BIBLE_BOOKS[Number(bookIndex)];
+      if (!book) return null;
+      const logs = allLogs.filter(l => l.book_index === Number(bookIndex));
+      const lastRead = logs.length > 0 ? Math.max(...logs.map(l => new Date(l.date).getTime())) : 0;
+      return {
+        book_name: book.name,
+        chapters_read: Array.from(chaptersSet),
+        last_read_date: new Date(lastRead).toISOString(),
+      };
+    })
+    .filter(Boolean)
     .sort((a, b) => new Date(b.last_read_date) - new Date(a.last_read_date))
     .slice(0, 2);
 
@@ -112,89 +141,22 @@ export default function Home() {
   const chaptersThisYear = yearLogs.length;
 
   const handleAddMultipleChapters = async (localDate, bookIndex, chapters) => {
-    const user = await base44.auth.me();
-    
     for (const chapter of chapters) {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
-    }
-    
-    const allProgress = await base44.entities.BookProgress.list();
-    const progress = allProgress.filter(p => p.book_index === bookIndex);
-    
-    if (progress.length > 0) {
-      const bookProgress = progress[0];
-      const book = BIBLE_BOOKS[bookIndex];
-      
-      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      chapters.forEach(chapter => {
-        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
-      });
-      
-      const chaptersRead = [...new Set([...(bookProgress.chapters_read || []), ...chapters])];
-      
-      const chapterReadDates = { ...bookProgress.chapter_read_dates };
-      chapters.forEach(chapter => {
-        chapterReadDates[chapter] = localDate;
-      });
-      
-      let completionCount = bookProgress.completion_count || 0;
-      if (chaptersRead.length === book.chapters) {
-        completionCount += 1;
-      }
-      
-      await updateProgressMutation.mutateAsync({
-        id: bookProgress.id,
-        data: {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: chaptersRead,
-          chapter_read_dates: chapterReadDates,
-          completion_count: completionCount,
-          last_read_date: new Date().toISOString(),
-        }
-      });
     }
   };
 
   const handleMarkBookComplete = async (localDate, bookIndex) => {
-    const user = await base44.auth.me();
     const book = BIBLE_BOOKS[bookIndex];
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
     
     for (const chapter of allChapters) {
       await addLogMutation.mutateAsync({ localDate, bookIndex, chapter });
     }
-    
-    const allProgress = await base44.entities.BookProgress.list();
-    const progress = allProgress.filter(p => p.book_index === bookIndex);
-    
-    if (progress.length > 0) {
-      const bookProgress = progress[0];
-      
-      const chapterReadCounts = { ...bookProgress.chapter_read_counts };
-      allChapters.forEach(chapter => {
-        chapterReadCounts[chapter] = (chapterReadCounts[chapter] || 0) + 1;
-      });
-      
-      const chapterReadDates = { ...bookProgress.chapter_read_dates };
-      allChapters.forEach(chapter => {
-        chapterReadDates[chapter] = localDate;
-      });
-      
-      await updateProgressMutation.mutateAsync({
-        id: bookProgress.id,
-        data: {
-          chapter_read_counts: chapterReadCounts,
-          chapters_read: allChapters,
-          chapter_read_dates: chapterReadDates,
-          completion_count: (bookProgress.completion_count || 0) + 1,
-          last_read_date: new Date().toISOString(),
-        }
-      });
-    }
   };
 
-  const handleRemoveLog = async (logId) => {
-    await removeLogMutation.mutateAsync(logId);
+  const handleRemoveLog = async (logId, bookIndex) => {
+    await removeLogMutation.mutateAsync({ logId, bookIndex });
   };
 
   if (isLoading) {
@@ -326,14 +288,21 @@ export default function Home() {
               exit={{ opacity: 0 }}
               className="grid grid-cols-2 gap-4"
             >
-              {filteredBooks.map((book, i) => (
-                <BookCard
-                  key={book.name}
-                  book={book}
-                  progress={getProgressForBook(book.name)}
-                  index={i}
-                />
-              ))}
+              {filteredBooks.map((book, i) => {
+                const chaptersRead = bookProgress[book.index] || new Set();
+                const progress = {
+                  chapters_read: Array.from(chaptersRead),
+                  completion_count: chaptersRead.size === book.chapters ? 1 : 0,
+                };
+                return (
+                  <BookCard
+                    key={book.name}
+                    book={book}
+                    progress={progress}
+                    index={i}
+                  />
+                );
+              })}
             </motion.div>
           </AnimatePresence>
         </motion.div>
