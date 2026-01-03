@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export function useToggleChapterRead() {
   const queryClient = useQueryClient();
@@ -10,6 +11,8 @@ export function useToggleChapterRead() {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
       }
+      
+      // Create the ReadingLog entry
       const result = await base44.entities.ReadingLog.create({
         userId,
         timestamp,
@@ -20,7 +23,30 @@ export function useToggleChapterRead() {
         chapterId,
         testament,
       });
+      
       console.log('[markRead] Created log:', result);
+      
+      // Verify the record was actually saved and has an id
+      if (!result || !result.id) {
+        throw new Error('Failed to save reading log - no ID returned');
+      }
+      
+      // Verify the record is readable (temporary verification)
+      const verification = await base44.entities.ReadingLog.filter({ userId, dateKey, chapterId });
+      console.log('[markRead] Verification read-back:', { 
+        userId, 
+        dateKey, 
+        chapterId, 
+        foundCount: verification.length,
+        savedId: result.id
+      });
+      
+      if (verification.length === 0) {
+        console.error('[markRead] CRITICAL: Saved record not visible in read-back!');
+        console.error('[markRead] Check: userId match, dateKey match, security rules');
+        throw new Error('Saved record not visible - check security/userId/dateKey');
+      }
+      
       return result;
     },
     onSuccess: (createdLog, variables) => {

@@ -15,6 +15,7 @@ import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterR
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { getChapterIdsSet } from '@/components/bible/utils/logUtils';
 import { calculateBookProgress } from '@/components/bible/utils/bookProgress';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -31,7 +32,7 @@ export default function Home() {
   }, []);
 
   const userId = user?.id;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = getDateKey(); // Use standardized dateKey generation
   console.log('[Home] Current userId:', userId, 'today:', today);
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
@@ -68,10 +69,11 @@ export default function Home() {
     try {
       if (!isReadToday) {
         console.log('>>> CALLING markRead.mutateAsync');
+        const now = new Date();
         const payload = {
           userId,
-          dateKey: today,
-          timestamp: new Date().toISOString(),
+          dateKey: getDateKey(now), // Use standardized dateKey
+          timestamp: now.toISOString(),
           book: book.name,
           bookIndex: book.index,
           chapter,
@@ -81,9 +83,14 @@ export default function Home() {
         console.log('Payload:', payload);
         const result = await markRead(payload);
         console.log('>>> Mark read SUCCESS:', result);
+        
+        // Verify result has id
+        if (!result || !result.id) {
+          throw new Error('Save failed - no record ID returned');
+        }
       } else {
         console.log('>>> CALLING undoRead.mutateAsync');
-        const payload = { userId, dateKey: today, chapterId };
+        const payload = { userId, dateKey: getDateKey(), chapterId };
         console.log('Payload:', payload);
         const result = await undoRead(payload);
         console.log('>>> Undo read SUCCESS:', result);
