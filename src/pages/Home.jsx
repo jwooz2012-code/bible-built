@@ -183,9 +183,9 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-card border border-border rounded-2xl p-6"
           >
-            <div className="flex items-center justify-between mb-6 gap-2">
-              <h2 className="text-xl md:text-2xl font-semibold text-foreground">{selectedBook.name}</h2>
-              <div className="flex gap-1 flex-wrap justify-end">
+            <div className="flex items-center justify-between mb-6 gap-3">
+              <h2 className="text-lg md:text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
+              <div className="flex gap-2 shrink-0">
                 <Button 
                   variant="outline"
                   size="sm"
@@ -197,11 +197,11 @@ export default function Home() {
                     }
                   }}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="text-xs"
+                  className="text-xs px-2 h-8"
                 >
                   {isMarkingAll ? '...' : 'Mark All'}
                 </Button>
-                <Button variant="ghost" size="sm" onClick={() => setSelectedBook(null)}>Back</Button>
+                <Button variant="ghost" size="sm" className="h-8" onClick={() => setSelectedBook(null)}>Back</Button>
               </div>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
