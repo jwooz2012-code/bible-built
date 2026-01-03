@@ -39,17 +39,12 @@ export default function ReadingCalendar() {
   React.useEffect(() => {
     let mounted = true;
     base44.auth.me().then(u => { 
-      console.log("✅ Calendar: user fetched", u?.id);
       if (mounted) setMe(u); 
-    }).catch(() => {
-      console.error("❌ Calendar: user fetch failed");
-      setMe(null);
-    });
+    }).catch(() => setMe(null));
     return () => { mounted = false; };
   }, []);
 
   const userId = me?.id;
-  console.log("📅 Calendar userId before queries:", userId);
 
   const queryClient = useQueryClient();
   const { updateProgressMutation, checkAchievements } = useBookProgress();
@@ -58,13 +53,7 @@ export default function ReadingCalendar() {
     queryKey: ['readingLogs', userId],
     queryFn: async () => {
       if (!userId) return [];
-      const filterObj = { user_id: userId };
-      console.log("📅 CALENDAR QUERY", { queryKey: ['readingLogs', userId], filterObj });
-      const rows = await base44.entities.ReadingLog.filter(filterObj);
-      const today = new Date().toISOString().slice(0, 10);
-      const todayRows = rows.filter(r => r.date === today);
-      console.log("📅 CALENDAR RESULT", { rowsLength: rows?.length, sample: rows?.[0], today, todayCount: todayRows.length });
-      return rows;
+      return await base44.entities.ReadingLog.filter({ user_id: userId });
     },
     enabled: !!userId,
     staleTime: 0,
@@ -117,7 +106,6 @@ export default function ReadingCalendar() {
 
   // Group reading logs by date
   const readingByDate = useMemo(() => {
-    console.log("📅 CALENDAR GROUP START", { totalLogs: readingLogs.length, sample: readingLogs[0] });
     const grouped = {};
     readingLogs.forEach(log => {
       const dateStr = log.date || new Date(log.created_date).toISOString().split('T')[0];
@@ -125,13 +113,6 @@ export default function ReadingCalendar() {
         grouped[dateStr] = [];
       }
       grouped[dateStr].push(log);
-    });
-    const today = new Date().toISOString().slice(0, 10);
-    console.log("📅 CALENDAR GROUP RESULT", { 
-      datesWithLogs: Object.keys(grouped).length, 
-      today, 
-      todayCount: grouped[today]?.length || 0,
-      allDates: Object.keys(grouped) 
     });
     return grouped;
   }, [readingLogs]);

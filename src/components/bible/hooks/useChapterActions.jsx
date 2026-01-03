@@ -15,25 +15,19 @@ export function useChapterActions(
   const queryClient = useQueryClient();
 
   const toggleChapter = async (bookName, chapterNum) => {
-    console.log("toggleChapter START", { bookName, chapterNum, userId: user?.id });
-
     const book = BIBLE_BOOKS.find(b => b.name === bookName);
     if (!book) {
-      console.error("toggleChapter: book not found", bookName);
       throw new Error("Book not found");
     }
     if (!user) {
-      console.error("toggleChapter: user not found");
       throw new Error("User not authenticated");
     }
 
     const bookIndexNum = Number(book.index);
     const key = ["bookProgress", user.id, bookIndexNum];
-    console.log("toggleChapter bookIndex:", bookIndexNum);
 
     // 1) Check cache FIRST - this is authoritative after create/update
     const cached = queryClient.getQueryData(key);
-    console.log("cache before", cached);
     
     let existing = cached && cached.id ? cached : null;
 
@@ -57,9 +51,8 @@ export function useChapterActions(
         
         // Delete duplicates if found
         if (rows.length > 1) {
-          console.log("found duplicates, cleaning up", rows.length);
           for (let i = 1; i < rows.length; i++) {
-            await base44.entities.BookProgress.delete(rows[i].id).catch(e => console.error("delete failed", e));
+            await base44.entities.BookProgress.delete(rows[i].id).catch(() => {});
           }
         }
       }
@@ -75,9 +68,6 @@ export function useChapterActions(
     const currentCount = mergedCounts[chapterKey] || 0;
     const newCount = currentCount + 1;
     const allChapters = Array.from({ length: book.chapters }, (_, i) => i + 1);
-
-    console.log("toggleChapter: chapter", chapterNum, "count:", currentCount, "->", newCount);
-    console.log("saving via", existing?.id ? "update" : "create", { bookIndexNum, chapterNum });
     
     // Perform actual updates
     try {
@@ -123,12 +113,9 @@ export function useChapterActions(
       let savedRow;
       if (existing?.id) {
         savedRow = await base44.entities.BookProgress.update(existing.id, progressPayload);
-        console.log("saved via update", { id: existing.id, chapterNum });
       } else {
         savedRow = await base44.entities.BookProgress.create(progressPayload);
-        console.log("saved via create", { chapterNum });
       }
-      console.log("savedRow", savedRow);
 
       // 5) Update cache IMMEDIATELY - this becomes authoritative for next click
       queryClient.setQueryData(key, savedRow);
@@ -146,22 +133,16 @@ export function useChapterActions(
         if (idx >= 0) return [...list.slice(0, idx), savedRow, ...list.slice(idx + 1)];
         return [...list, savedRow];
       });
-      
-      console.log("SAVE OK", { bookIndexNum, key, savedRow });
 
       // 4) Create ReadingLog for calendar/stats
       try {
-        const logPayload = {
+        await base44.entities.ReadingLog.create({
           user_id: user.id,
           date: dateKey,
           book_index: bookIndexNum,
           chapter: chapterNum
-        };
-        console.log("📝 READINGLOG WRITE", logPayload);
-        await base44.entities.ReadingLog.create(logPayload);
-        console.log("📝 READINGLOG WRITE OK", logPayload);
+        });
       } catch (logErr) {
-        console.error("❌ ReadingLog creation failed:", logErr);
         toast.error("Progress saved, but log failed");
       }
 
@@ -172,7 +153,6 @@ export function useChapterActions(
         ["calendar", user.id],
         ["bibleProgress", user.id]
       ];
-      console.log("Invalidating ReadingLog queries", invalidateKeys);
       
       invalidateKeys.forEach(key => {
         queryClient.invalidateQueries({ queryKey: key });

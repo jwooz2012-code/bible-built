@@ -32,17 +32,12 @@ export default function Stats() {
   React.useEffect(() => {
     let mounted = true;
     base44.auth.me().then(u => { 
-      console.log("✅ Stats: user fetched", u?.id);
       if (mounted) setMe(u); 
-    }).catch(() => {
-      console.error("❌ Stats: user fetch failed");
-      setMe(null);
-    });
+    }).catch(() => setMe(null));
     return () => { mounted = false; };
   }, []);
 
   const userId = me?.id;
-  console.log("📊 Stats userId before queries:", userId);
   
   const stats = calculateStats();
 
@@ -51,11 +46,7 @@ export default function Stats() {
     queryKey: ['readingLogs', userId],
     queryFn: async () => {
       if (!userId) return [];
-      const filterObj = { user_id: userId };
-      console.log("📊 STATS QUERY", { queryKey: ['readingLogs', userId], filterObj });
-      const rows = await base44.entities.ReadingLog.filter(filterObj);
-      console.log("📊 STATS RESULT", { rowsLength: rows?.length, sample: rows?.[0] });
-      return rows;
+      return await base44.entities.ReadingLog.filter({ user_id: userId });
     },
     enabled: !!userId,
     staleTime: 0,
@@ -76,17 +67,13 @@ export default function Stats() {
 
   // Calculate yearly stats
   const yearlyStats = useMemo(() => {
-    console.log("📊 STATS CALC START", { totalLogs: readingLogs.length, sample: readingLogs[0] });
     if (!readingLogs.length) return { chaptersRead: 0, daysInWord: 0, avgPerDay: 0 };
     
     const currentYear = new Date().getFullYear();
-    console.log("📊 STATS FILTER YEAR", { currentYear });
-    
     const thisYearLogs = readingLogs.filter(log => {
       const year = log.date ? parseInt(log.date.split('-')[0]) : new Date(log.created_date).getFullYear();
       return year === currentYear;
     });
-    console.log("📊 STATS AFTER YEAR FILTER", { thisYearLogsCount: thisYearLogs.length, samples: thisYearLogs.slice(0, 3) });
 
     const uniqueDates = new Set();
     thisYearLogs.forEach(log => {
@@ -97,8 +84,6 @@ export default function Stats() {
     const chaptersRead = thisYearLogs.length;
     const daysInWord = uniqueDates.size;
     const avgPerDay = daysInWord > 0 ? (chaptersRead / daysInWord).toFixed(1) : 0;
-
-    console.log("📊 STATS FINAL", { chaptersRead, daysInWord, avgPerDay });
 
     return { chaptersRead, daysInWord, avgPerDay };
   }, [readingLogs]);
