@@ -111,6 +111,7 @@ export default function ReadingCalendar() {
 
   // Group reading logs by date
   const readingByDate = useMemo(() => {
+    console.log("📅 CALENDAR GROUP START", { totalLogs: readingLogs.length, sample: readingLogs[0] });
     const grouped = {};
     readingLogs.forEach(log => {
       const dateStr = log.date || new Date(log.created_date).toISOString().split('T')[0];
@@ -118,6 +119,13 @@ export default function ReadingCalendar() {
         grouped[dateStr] = [];
       }
       grouped[dateStr].push(log);
+    });
+    const today = new Date().toISOString().slice(0, 10);
+    console.log("📅 CALENDAR GROUP RESULT", { 
+      datesWithLogs: Object.keys(grouped).length, 
+      today, 
+      todayCount: grouped[today]?.length || 0,
+      allDates: Object.keys(grouped) 
     });
     return grouped;
   }, [readingLogs]);

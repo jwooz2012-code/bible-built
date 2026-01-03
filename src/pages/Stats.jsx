@@ -70,13 +70,17 @@ export default function Stats() {
 
   // Calculate yearly stats
   const yearlyStats = useMemo(() => {
+    console.log("📊 STATS CALC START", { totalLogs: readingLogs.length, sample: readingLogs[0] });
     if (!readingLogs.length) return { chaptersRead: 0, daysInWord: 0, avgPerDay: 0 };
     
     const currentYear = new Date().getFullYear();
+    console.log("📊 STATS FILTER YEAR", { currentYear });
+    
     const thisYearLogs = readingLogs.filter(log => {
       const year = log.date ? parseInt(log.date.split('-')[0]) : new Date(log.created_date).getFullYear();
       return year === currentYear;
     });
+    console.log("📊 STATS AFTER YEAR FILTER", { thisYearLogsCount: thisYearLogs.length, samples: thisYearLogs.slice(0, 3) });
 
     const uniqueDates = new Set();
     thisYearLogs.forEach(log => {
@@ -88,7 +92,7 @@ export default function Stats() {
     const daysInWord = uniqueDates.size;
     const avgPerDay = daysInWord > 0 ? (chaptersRead / daysInWord).toFixed(1) : 0;
 
-    console.log("Stats calculation", { chaptersRead, daysInWord, avgPerDay, logsCount: thisYearLogs.length });
+    console.log("📊 STATS FINAL", { chaptersRead, daysInWord, avgPerDay });
 
     return { chaptersRead, daysInWord, avgPerDay };
   }, [readingLogs]);
