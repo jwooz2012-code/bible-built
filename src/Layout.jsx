@@ -14,7 +14,7 @@ export default function Layout({ children }) {
 
   const navItems = [
     { name: 'Home', icon: Home, path: '/home' },
-    { name: 'Achievements', icon: Trophy, path: '/achievements' },
+    { name: 'Calendar', icon: Trophy, path: '/calendar' },
     { name: 'Stats', icon: BarChart3, path: '/stats' },
   ];
 
