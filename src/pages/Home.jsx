@@ -59,7 +59,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
       toast.success('Chapter added');
       setTimeout(() => checkAchievements(), 500);
     },
@@ -71,7 +71,7 @@ export default function Home() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
-      queryClient.invalidateQueries({ queryKey: ['bookProgress'] });
+      queryClient.invalidateQueries({ queryKey: ['bookProgress', userId] });
       toast.success('Chapter removed');
     },
   });
