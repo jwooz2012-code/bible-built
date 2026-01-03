@@ -13,6 +13,7 @@ import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
+import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getChapterIdsSet } from '@/components/bible/utils/logUtils';
 import { calculateBookProgress } from '@/components/bible/utils/bookProgress';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -47,6 +48,7 @@ export default function Home() {
 
   const todayChapterIds = getChapterIdsSet(todayLogs);
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
+  const { markAllRead, isMarkingAll } = useMarkAllRead();
 
   const getBookProgress = (book) => {
     const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
@@ -218,7 +220,22 @@ export default function Home() {
           >
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-2xl font-semibold text-foreground">{selectedBook.name}</h2>
-              <Button variant="ghost" onClick={() => setSelectedBook(null)}>Back</Button>
+              <div className="flex gap-2">
+                <Button 
+                  variant="outline" 
+                  onClick={async () => {
+                    try {
+                      await markAllRead({ userId, book: selectedBook });
+                    } catch (error) {
+                      console.error('Mark all read failed:', error);
+                    }
+                  }}
+                  disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+                >
+                  {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
+                </Button>
+                <Button variant="ghost" onClick={() => setSelectedBook(null)}>Back</Button>
+              </div>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
