@@ -179,7 +179,7 @@ export default function Calendar() {
                     key={i}
                     onClick={() => handleDayClick(day)}
                     className={`
-                      aspect-square rounded-xl p-2 flex flex-col items-center justify-center
+                      aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5
                       transition-all text-sm font-medium
                       ${isToday ? 'ring-2 ring-accent' : ''}
                       ${count > 0
@@ -188,8 +188,10 @@ export default function Calendar() {
                       }
                     `}
                   >
-                    {day}
-                    {count > 0 && <span className="text-xs mt-0.5">{count}</span>}
+                    <span>{day}</span>
+                    <span className="text-xs h-[14px] flex items-center justify-center">
+                      {count > 0 ? count : ''}
+                    </span>
                   </button>
                 );
               })}
