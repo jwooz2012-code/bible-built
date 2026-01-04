@@ -23,6 +23,7 @@ export default function Calendar() {
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isClearing, setIsClearing] = useState(false);
   
   const queryClient = useQueryClient();
 
@@ -83,6 +84,7 @@ export default function Calendar() {
   const handleClearDay = async () => {
     if (!selectedDay || selectedDayLogs.length === 0) return;
     
+    setIsClearing(true);
     try {
       for (const log of selectedDayLogs) {
         await base44.entities.ReadingLog.delete(log.id);
@@ -93,6 +95,8 @@ export default function Calendar() {
     } catch (error) {
       console.error('Clear day error:', error);
       toast.error('Failed to clear day');
+    } finally {
+      setIsClearing(false);
     }
   };
 
@@ -248,9 +252,9 @@ export default function Calendar() {
                 onClick={handleClearDay}
                 variant="destructive"
                 size="sm"
-                disabled={selectedDayLogs.length === 0}
+                disabled={isClearing || selectedDayLogs.length === 0}
               >
-                Clear Day
+                {isClearing ? 'Clearing...' : 'Clear Day'}
               </Button>
             </div>
 
