@@ -19,28 +19,24 @@ export default function BookCard({ book, completions, onClick }) {
         e.currentTarget.style.borderColor = 'hsl(var(--border))';
       }}
     >
+      {completions > 0 && (
+        <div 
+          className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-md border-[1.5px] border-white/30 dark:border-white/20 z-20"
+          style={{
+            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))'
+          }}
+        >
+          <span className="text-[10px] font-bold leading-none text-white">{completions}</span>
+        </div>
+      )}
       <div className="relative z-10 flex items-center justify-center min-h-full py-2">
-        <div className="flex items-center justify-between gap-2 w-full">
-          <div className="flex flex-col gap-1 flex-1">
-            <h3 className="font-semibold text-foreground text-[14px] leading-[1.2] line-clamp-2">{book.name}</h3>
-            {completions > 0 && (
-              <div 
-                className="w-7 h-0.5 rounded-full"
-                style={{ background: 'var(--energy-gradient)' }}
-              />
-            )}
-          </div>
+        <div className="flex flex-col gap-1 w-full">
+          <h3 className="font-semibold text-foreground text-[14px] leading-[1.2] line-clamp-2">{book.name}</h3>
           {completions > 0 && (
             <div 
-              className="w-[24px] h-[24px] rounded-full flex items-center justify-center shrink-0"
-              style={{
-                background: 'rgba(249, 115, 22, 0.12)',
-                border: '1.5px solid var(--energy-orange)',
-                lineHeight: 1
-              }}
-            >
-              <span className="text-[11px] font-bold text-foreground" style={{ lineHeight: 1 }}>{completions}</span>
-            </div>
+              className="w-7 h-0.5 rounded-full mt-0.5"
+              style={{ background: 'var(--energy-gradient)' }}
+            />
           )}
         </div>
       </div>
