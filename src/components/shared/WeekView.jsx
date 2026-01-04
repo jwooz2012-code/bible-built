@@ -45,23 +45,36 @@ export default function WeekView({ logs = [] }) {
               key={i}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
-              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3 border bg-secondary border-border"
+              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3 border"
               style={isToday ? {
+                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
+                borderColor: 'var(--energy-orange)',
                 boxShadow: '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.2)))'
-              } : {}}
+              } : {
+                background: 'hsl(var(--secondary))',
+                borderColor: 'hsl(var(--border))'
+              }}
             >
-              <span className="text-[10px] font-medium text-muted-foreground">
+              <span 
+                className="text-[10px] font-medium"
+                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
+              >
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span className="text-sm font-semibold text-foreground">
+              <span 
+                className="text-sm font-semibold"
+                style={{ color: 'hsl(var(--foreground))' }}
+              >
                 {date.getDate()}
               </span>
               <div className="h-[14px] flex items-center justify-center">
                 {count > 0 && (
-                  <div 
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ background: 'var(--energy-gradient)' }}
-                  />
+                  <span 
+                    className="text-[10px] font-bold"
+                    style={{ color: 'hsl(var(--foreground))' }}
+                  >
+                    {count}
+                  </span>
                 )}
               </div>
             </motion.button>
