@@ -147,7 +147,7 @@ export default function Calendar() {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center text-sm text-muted-foreground mb-4"
+            className="text-center text-xs text-muted-foreground mb-4 opacity-75"
           >
             You read on {daysReadInLast7} of the last 7 days.
           </motion.div>
@@ -208,8 +208,8 @@ export default function Calendar() {
                       borderColor: 'transparent'
                     }}
                   >
-                    <span className={isToday ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
-                    <span className="text-xs h-4 flex items-center justify-center font-bold" style={count > 0 ? { color: '#F59E0B' } : { color: 'transparent' }}>
+                    <span className={isToday ? "text-accent-foreground font-bold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
+                    <span className="text-xs h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: '#F59E0B' } : { color: 'transparent' }}>
                       {count > 0 ? count : '•'}
                     </span>
                   </button>
