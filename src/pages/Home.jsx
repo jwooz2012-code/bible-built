@@ -185,7 +185,7 @@ export default function Home() {
             } 
           />
         </div>
-        <p className="text-[13px] text-muted-foreground mb-8 opacity-70">
+        <p className="text-sm text-muted-foreground mb-8 opacity-70">
           {getWeeklyQuote()}
         </p>
         
