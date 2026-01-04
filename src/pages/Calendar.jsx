@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
@@ -23,6 +24,8 @@ export default function Calendar() {
   const [selectedChapter, setSelectedChapter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showClearDialog, setShowClearDialog] = useState(false);
+  const [isClearingDay, setIsClearingDay] = useState(false);
   
   const queryClient = useQueryClient();
 
@@ -122,6 +125,27 @@ export default function Calendar() {
       toast.error('Failed to add reading');
     } finally {
       setIsAdding(false);
+    }
+  };
+
+  const handleClearDay = async () => {
+    setIsClearingDay(true);
+    const logsToDelete = [...selectedDayLogs];
+    const count = logsToDelete.length;
+    
+    try {
+      for (const log of logsToDelete) {
+        await base44.entities.ReadingLog.delete(log.id);
+      }
+      
+      await queryClient.invalidateQueries();
+      setShowClearDialog(false);
+      toast.success(`Cleared ${count} reading${count !== 1 ? 's' : ''}`);
+    } catch (error) {
+      toast.error('Failed to clear day');
+      await queryClient.invalidateQueries();
+    } finally {
+      setIsClearingDay(false);
     }
   };
 
@@ -234,15 +258,29 @@ export default function Calendar() {
           </SheetHeader>
           
           <div className="mt-6 space-y-4">
-            <Button 
-              onClick={() => setShowAddForm(!showAddForm)}
-              variant="outline" 
-              className="w-full"
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Reading
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowAddForm(!showAddForm)}
+                variant="outline" 
+                className="flex-1"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Reading
+              </Button>
+              
+              {selectedDayLogs.length > 0 && (
+                <Button 
+                  onClick={() => setShowClearDialog(true)}
+                  variant="outline" 
+                  className="flex-1"
+                  size="sm"
+                  disabled={isClearingDay}
+                >
+                  Clear Day
+                </Button>
+              )}
+            </div>
 
             {showAddForm && (
               <motion.div
@@ -333,6 +371,30 @@ export default function Calendar() {
           </div>
         </SheetContent>
       </Sheet>
+
+      <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear this day?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove all reading entries for {selectedDay && new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+              })}. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isClearingDay}>Cancel</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleClearDay}
+              disabled={isClearingDay}
+            >
+              {isClearingDay ? 'Clearing...' : 'Clear Day'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
