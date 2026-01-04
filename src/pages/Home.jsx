@@ -176,19 +176,21 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <PageHeader 
-          title={
-            readingDays < 7 ? "You showed up today." :
-            readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
-            `${yearChaptersRead} chapters read in ${currentYear}`
-          } 
-        />
+        <div className="mb-6">
+          <PageHeader 
+            title={
+              readingDays < 7 ? "You showed up today." :
+              readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
+              `${yearChaptersRead} chapters read in ${currentYear}`
+            } 
+          />
+          <p className="text-sm text-muted-foreground mt-2 opacity-80">
+            {getWeeklyQuote()}
+          </p>
+        </div>
         
         {!selectedBook && (
           <>
-            <p className="text-sm text-muted-foreground mb-4 opacity-80">
-              {getWeeklyQuote()}
-            </p>
 
             {weekChaptersRead > 0 && (
               <p className="text-sm text-muted-foreground mb-6 opacity-70">
