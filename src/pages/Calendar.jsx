@@ -80,6 +80,20 @@ export default function Calendar() {
     }
   };
 
+  const handleClearDay = async () => {
+    if (!selectedDay || selectedDayLogs.length === 0) return;
+    
+    try {
+      await Promise.all(selectedDayLogs.map(log => base44.entities.ReadingLog.delete(log.id)));
+      setSelectedDayLogs([]);
+      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
+      toast.success('Day cleared');
+    } catch (error) {
+      console.error('Clear day error:', error);
+      toast.error('Failed to clear day');
+    }
+  };
+
   const handleAddReading = async () => {
     if (!selectedBook || !selectedChapter) {
       toast.error('Please select a book and chapter');
@@ -218,15 +232,25 @@ export default function Calendar() {
           </SheetHeader>
           
           <div className="mt-6 space-y-4">
-            <Button 
-              onClick={() => setShowAddForm(!showAddForm)}
-              variant="outline" 
-              className="w-full"
-              size="sm"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Add Reading
-            </Button>
+            <div className="flex gap-2">
+              <Button 
+                onClick={() => setShowAddForm(!showAddForm)}
+                variant="outline" 
+                className="flex-1"
+                size="sm"
+              >
+                <Plus className="w-4 h-4 mr-2" />
+                Add Reading
+              </Button>
+              <Button 
+                onClick={handleClearDay}
+                variant="destructive"
+                size="sm"
+                disabled={selectedDayLogs.length === 0}
+              >
+                Clear Day
+              </Button>
+            </div>
 
             {showAddForm && (
               <motion.div
