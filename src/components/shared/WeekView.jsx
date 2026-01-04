@@ -45,7 +45,7 @@ export default function WeekView({ logs = [] }) {
             key={i}
             whileTap={{ scale: 0.95 }}
             onClick={() => handleDayClick(date)}
-            className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all py-3 border"
+            className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all py-3 border"
             style={isToday ? {
               background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
               borderColor: 'var(--energy-orange)',
@@ -61,20 +61,20 @@ export default function WeekView({ logs = [] }) {
             }}
             >
               <span 
-                className="text-[10px] font-medium"
+                className="text-[11px] font-medium tracking-wide"
                 style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
               >
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
               <span 
-                className="text-base font-semibold text-foreground"
+                className="text-lg font-semibold text-foreground my-0.5"
               >
                 {date.getDate()}
               </span>
-              <div className="h-[14px] flex items-center justify-center">
+              <div className="h-4 flex items-center justify-center">
                 {count > 0 && (
                   <span 
-                    className="text-[11px] font-bold text-foreground"
+                    className="text-xs font-bold text-foreground"
                   >
                     {count}
                   </span>

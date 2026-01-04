@@ -158,12 +158,12 @@ export default function Home() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className="h-8 w-8 p-0 shrink-0" 
+                  className="h-9 w-9 p-0 shrink-0" 
                   onClick={() => setSelectedBook(null)}
                 >
-                  <ArrowLeft className="w-4 h-4" />
+                  <ArrowLeft className="w-5 h-5" />
                 </Button>
-                <h2 className="text-lg font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
+                <h2 className="text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               </div>
               <Button 
                 variant="outline"
@@ -181,10 +181,10 @@ export default function Home() {
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
-            <p className="text-xs text-muted-foreground text-center mb-4">
+            <p className="text-xs text-muted-foreground text-center mb-5">
               Tap a chapter to mark it read.
             </p>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
                 const chapterStats = getChapterStats(selectedBook.index, chapter);

@@ -106,10 +106,10 @@ export default function Stats() {
           ) : (
             <div className="space-y-6">
               <div>
-                <div className="flex items-baseline justify-between mb-2">
+                <div className="flex items-baseline justify-between mb-3">
                   <span className="text-sm text-muted-foreground">Total Progress</span>
                   <span className="text-2xl font-semibold text-foreground">
-                    {yearStats.totalCount} <span className="text-sm text-muted-foreground">/ {TOTAL_CHAPTERS}</span>
+                    {yearStats.totalCount} <span className="text-sm text-muted-foreground font-normal">/ {TOTAL_CHAPTERS}</span>
                   </span>
                 </div>
                 <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
@@ -126,14 +126,14 @@ export default function Stats() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="bg-secondary rounded-xl p-4">
-                  <p className="text-xs text-muted-foreground mb-1">Old Testament</p>
-                  <p className="text-2xl font-semibold text-foreground">{yearStats.otCount}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{yearStats.otPercent}%</p>
+                  <p className="text-xs text-muted-foreground mb-2">Old Testament</p>
+                  <p className="text-2xl font-semibold text-foreground mb-1">{yearStats.otCount}</p>
+                  <p className="text-xs text-muted-foreground">{yearStats.otPercent}%</p>
                 </div>
                 <div className="bg-secondary rounded-xl p-4">
-                  <p className="text-xs text-muted-foreground mb-1">New Testament</p>
-                  <p className="text-2xl font-semibold text-foreground">{yearStats.ntCount}</p>
-                  <p className="text-xs text-muted-foreground mt-1">{yearStats.ntPercent}%</p>
+                  <p className="text-xs text-muted-foreground mb-2">New Testament</p>
+                  <p className="text-2xl font-semibold text-foreground mb-1">{yearStats.ntCount}</p>
+                  <p className="text-xs text-muted-foreground">{yearStats.ntPercent}%</p>
                 </div>
               </div>
             </div>
@@ -169,16 +169,16 @@ export default function Stats() {
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Total Chapters Read</p>
-                <p className="text-4xl font-semibold text-foreground mb-4">{lifetimeStats.totalCount}</p>
+                <p className="text-sm text-muted-foreground mb-3">Total Chapters Read</p>
+                <p className="text-4xl font-semibold text-foreground mb-5">{lifetimeStats.totalCount}</p>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="bg-secondary rounded-xl p-4">
-                    <p className="text-xs text-muted-foreground mb-1">Old Testament</p>
+                    <p className="text-xs text-muted-foreground mb-2">Old Testament</p>
                     <p className="text-2xl font-semibold text-foreground">{lifetimeStats.otCount}</p>
                   </div>
                   <div className="bg-secondary rounded-xl p-4">
-                    <p className="text-xs text-muted-foreground mb-1">New Testament</p>
+                    <p className="text-xs text-muted-foreground mb-2">New Testament</p>
                     <p className="text-2xl font-semibold text-foreground">{lifetimeStats.ntCount}</p>
                   </div>
                 </div>
@@ -240,12 +240,12 @@ export default function Stats() {
                       />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <h3 className={`font-semibold ${
+                      <h3 className={`font-semibold text-[15px] ${
                         achievement.achieved ? 'text-foreground' : 'text-muted-foreground'
                       }`}>
                         {achievement.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-0.5">{achievement.subtitle}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{achievement.subtitle}</p>
                     </div>
                     {achievement.achieved && (
                       <div 

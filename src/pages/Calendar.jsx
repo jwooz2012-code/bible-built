@@ -175,7 +175,7 @@ export default function Calendar() {
                   <button
                     key={i}
                     onClick={() => handleDayClick(day)}
-                    className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary hover:opacity-80 border"
+                    className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium bg-secondary hover:opacity-80 border"
                     style={count > 0 ? {
                       background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
                       borderWidth: '1.5px',
@@ -189,8 +189,8 @@ export default function Calendar() {
                       borderColor: 'transparent'
                     }}
                   >
-                    <span className="text-foreground font-semibold">{day}</span>
-                    <span className="text-xs h-[14px] flex items-center justify-center font-bold text-foreground">
+                    <span className="text-foreground font-semibold text-[15px]">{day}</span>
+                    <span className="text-xs h-4 flex items-center justify-center font-bold text-foreground">
                       {count > 0 ? count : ''}
                     </span>
                   </button>

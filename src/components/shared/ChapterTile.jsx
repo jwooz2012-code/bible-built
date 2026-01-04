@@ -16,7 +16,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         boxShadow: '0 0 12px var(--energy-glow)'
       } : {}}
     >
-      <span className="text-sm font-semibold text-foreground leading-none">
+      <span className="text-[15px] font-semibold text-foreground leading-none">
         {chapter}
       </span>
       
