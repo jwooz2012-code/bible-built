@@ -27,31 +27,20 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         borderColor: 'hsl(var(--border))'
       }}
     >
-      {timesRead === 0 && (
-        <span className="text-[15px] font-semibold text-foreground leading-none">
+      {timesRead >= 1 && (
+        <CheckCircle className="absolute top-1 right-1 w-3 h-3 text-accent-foreground/50" />
+      )}
+      
+      <div className="flex flex-col items-center justify-center gap-0.5">
+        <span className={`text-[15px] font-semibold leading-none ${timesRead > 0 ? 'text-accent-foreground' : 'text-foreground'}`}>
           {chapter}
         </span>
-      )}
-      
-      {timesRead === 1 && (
-        <div className="flex flex-col items-center justify-center gap-0.5">
-          <CheckCircle className="w-4 h-4 text-accent-foreground" />
-          <span className="text-[13px] font-semibold text-accent-foreground leading-none">
-            {chapter}
-          </span>
-        </div>
-      )}
-      
-      {timesRead >= 2 && (
-        <div className="flex flex-col items-center justify-center gap-0.5">
-          <span className="text-[15px] font-semibold text-accent-foreground leading-none">
-            {chapter}
-          </span>
+        {timesRead >= 2 && (
           <span className="text-[7px] font-medium text-muted-foreground/70 leading-none">
             x{timesRead}
           </span>
-        </div>
-      )}
+        )}
+      </div>
     </motion.button>
   );
 }
