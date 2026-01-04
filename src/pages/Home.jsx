@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,7 +21,6 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [showRecent, setShowRecent] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -91,13 +90,7 @@ export default function Home() {
     }
   };
 
-  const handleDeleteLog = async (logId) => {
-    await base44.entities.ReadingLog.delete(logId);
-  };
 
-  const last10Logs = allTimeLogs
-    .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
-    .slice(0, 10);
 
   if (isLoading) {
     return (
@@ -141,55 +134,7 @@ export default function Home() {
               })}
             </div>
 
-            {last10Logs.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="bg-card border border-border rounded-2xl p-5 shadow-sm"
-              >
-                <button
-                  onClick={() => setShowRecent(!showRecent)}
-                  className="w-full flex items-center justify-between mb-3"
-                >
-                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recent Activity</h3>
-                  {showRecent ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
-                </button>
-                <AnimatePresence>
-                  {showRecent && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      className="space-y-2 overflow-hidden"
-                    >
-                      {last10Logs.map(log => (
-                        <div
-                          key={log.id}
-                          className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
-                        >
-                          <div>
-                            <p className="font-medium text-foreground text-sm">
-                              {log.book} {log.chapter}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {new Date(log.timestamp).toLocaleDateString()}
-                            </p>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleDeleteLog(log.id)}
-                            className="h-8 w-8 p-0"
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.div>
-            )}
+
           </>
         ) : (
           <motion.div
