@@ -177,12 +177,14 @@ export default function Calendar() {
                     onClick={() => handleDayClick(day)}
                     className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary hover:opacity-80 border"
                     style={count > 0 ? {
-                      background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))',
+                      background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
                       borderWidth: '1.5px',
-                      borderColor: 'var(--energy-orange)'
+                      borderColor: 'var(--energy-orange)',
+                      boxShadow: '0 0 10px var(--energy-glow)'
                     } : isToday ? {
                       borderWidth: '1.5px',
-                      borderColor: 'var(--energy-orange)'
+                      borderColor: 'var(--energy-orange)',
+                      boxShadow: '0 0 8px var(--energy-glow)'
                     } : {
                       borderColor: 'transparent'
                     }}

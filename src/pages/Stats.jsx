@@ -117,7 +117,8 @@ export default function Stats() {
                     className="h-full rounded-full transition-all duration-500 ease-out"
                     style={{ 
                       width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%`,
-                      background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)'
+                      background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)',
+                      boxShadow: '0 0 12px var(--energy-glow)'
                     }}
                   />
                 </div>
@@ -157,11 +158,12 @@ export default function Stats() {
           ) : (
             <div className="space-y-6">
               <div className="text-center rounded-xl p-6" style={{ 
-                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(250, 204, 21, 0.1) 100%)'
+                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(250, 204, 21, 0.12) 100%)',
+                boxShadow: '0 0 16px var(--energy-glow)'
               }}>
                 <p className="text-sm text-muted-foreground mb-2">Times Through the Bible</p>
                 <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeStats.timesThroughBible}</p>
-                <p className="text-xs text-muted-foreground mt-3">
+                <p className="text-xs text-foreground/70 mt-3">
                   {lifetimeStats.percentToNext}% to next ({lifetimeStats.progressToNext}/{TOTAL_CHAPTERS})
                 </p>
               </div>
@@ -217,9 +219,12 @@ export default function Stats() {
                   transition={{ duration: 0.15 }}
                   className={`rounded-xl p-4 border transition-all ${
                     achievement.achieved
-                      ? 'bg-gradient-to-br from-[#F97316]/5 via-[#FACC15]/5 to-[#FB923C]/5 border-[#F97316]/20'
+                      ? 'bg-gradient-to-br from-[#F97316]/8 via-[#FACC15]/8 to-[#FB923C]/8 border-[#F97316]/30'
                       : 'bg-secondary border-border/50'
                   }`}
+                  style={achievement.achieved ? {
+                    boxShadow: '0 0 14px var(--energy-glow)'
+                  } : {}}
                 >
                   <div className="flex items-center gap-3">
                     <div 

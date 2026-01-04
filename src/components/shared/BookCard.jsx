@@ -8,14 +8,17 @@ export default function BookCard({ book, completions, onClick }) {
       onClick={onClick}
       className="bg-card border border-border rounded-xl p-2.5 text-left transition-all relative overflow-hidden shadow-sm hover:shadow-md group"
       style={{
-        transition: 'all 0.15s ease'
+        transition: 'all 0.15s ease',
+        boxShadow: completions > 0 ? '0 0 0 0 var(--energy-glow)' : undefined
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.boxShadow = '0 0 8px rgba(249, 115, 22, 0.1)';
+        if (completions > 0) {
+          e.currentTarget.style.boxShadow = '0 0 16px var(--energy-glow)';
+        }
         e.currentTarget.style.borderColor = 'var(--energy-orange)';
       }}
       onMouseLeave={(e) => {
-        e.currentTarget.style.boxShadow = '';
+        e.currentTarget.style.boxShadow = completions > 0 ? '0 0 0 0 var(--energy-glow)' : '';
         e.currentTarget.style.borderColor = 'hsl(var(--border))';
       }}
     >

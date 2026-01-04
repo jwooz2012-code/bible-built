@@ -42,18 +42,23 @@ export default function WeekView({ logs = [] }) {
           
           return (
             <motion.button
-              key={i}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => handleDayClick(date)}
-              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all py-3 border"
-              style={isToday ? {
-                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
-                borderColor: 'var(--energy-orange)',
-                borderWidth: '1.5px'
-              } : {
-                background: 'hsl(var(--secondary))',
-                borderColor: 'hsl(var(--border))'
-              }}
+            key={i}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => handleDayClick(date)}
+            className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all py-3 border"
+            style={isToday ? {
+              background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
+              borderColor: 'var(--energy-orange)',
+              borderWidth: '1.5px',
+              boxShadow: '0 0 12px var(--energy-glow)'
+            } : count > 0 ? {
+              background: 'rgba(249, 115, 22, 0.08)',
+              borderColor: 'var(--energy-orange)',
+              borderWidth: '1.5px'
+            } : {
+              background: 'hsl(var(--secondary))',
+              borderColor: 'hsl(var(--border))'
+            }}
             >
               <span 
                 className="text-[10px] font-medium"

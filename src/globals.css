@@ -35,27 +35,27 @@ css
   }
 
   .dark {
-    --background: 210 19% 6%;
-    --foreground: 210 20% 98%;
-    --card: 210 18% 9%;
-    --card-foreground: 210 20% 98%;
-    --popover: 210 18% 9%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 210 19% 6%;
-    --secondary: 210 18% 9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 210 18% 9%;
-    --muted-foreground: 220 9% 66%;
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    --card: 210 18% 11%;
+    --card-foreground: 0 0% 98%;
+    --popover: 210 18% 11%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 210 18% 8%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 210 18% 8%;
+    --muted-foreground: 220 9% 70%;
     --accent: 213 33% 28%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
-    --border: 210 24% 16%;
-    --input: 210 24% 16%;
+    --border: 210 24% 20%;
+    --input: 210 24% 20%;
     --ring: 213 33% 28%;
     
-    --energy-glow: rgba(249, 115, 22, 0.18);
+    --energy-glow: rgba(249, 115, 22, 0.24);
     --badge-text: #FFFFFF;
   }
 }

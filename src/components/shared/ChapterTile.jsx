@@ -10,9 +10,10 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       disabled={disabled}
       className={`relative aspect-square rounded-xl flex items-center justify-center transition-all border shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''} bg-card border-border`}
       style={timesRead > 0 ? {
-        background: 'rgba(249, 115, 22, 0.05)',
+        background: 'rgba(249, 115, 22, 0.08)',
         borderColor: 'var(--energy-orange)',
-        borderWidth: '1.5px'
+        borderWidth: '1.5px',
+        boxShadow: '0 0 12px var(--energy-glow)'
       } : {}}
     >
       <span className="text-sm font-semibold text-foreground leading-none">
