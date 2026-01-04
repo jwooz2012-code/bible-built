@@ -24,14 +24,16 @@ export default function BookCard({ book, completions, onClick }) {
           <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 flex-1">{book.name}</h3>
           {completions > 0 && (
             <div 
-              className="min-w-[20px] h-[16px] px-1.5 rounded-full flex items-center justify-center shrink-0 border transition-all"
+              className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0 transition-all relative"
               style={{
-                background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-                borderColor: 'var(--energy-orange)',
-                boxShadow: '0 0 10px rgba(249, 115, 22, 0.25)'
+                background: 'rgba(249, 115, 22, 0.1)',
+                border: '2px solid transparent',
+                backgroundImage: 'linear-gradient(rgba(249, 115, 22, 0.1), rgba(249, 115, 22, 0.1)), linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
+                backgroundOrigin: 'border-box',
+                backgroundClip: 'padding-box, border-box'
               }}
             >
-              <span className="text-[9px] font-bold text-primary">{completions}</span>
+              <span className="text-[10px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{completions}</span>
             </div>
           )}
         </div>
