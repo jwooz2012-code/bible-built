@@ -16,7 +16,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         background: 'rgba(249, 115, 22, 0.05)',
         borderColor: 'var(--energy-orange)',
         borderWidth: '1.5px',
-        boxShadow: '0 0 14px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.16)))'
+        boxShadow: '0 0 6px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.08)))'
       } : {}}
     >
       <span className="text-sm font-semibold text-foreground">
@@ -28,7 +28,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
           className="absolute top-1.5 right-1.5 min-w-[16px] h-[15px] px-1.5 rounded-full flex items-center justify-center"
           style={{
             background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-            boxShadow: '0 0 8px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.3)))'
+            boxShadow: '0 0 4px rgba(249, 115, 22, 0.2)'
           }}
         >
           <span className="text-[9px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{timesRead}</span>
