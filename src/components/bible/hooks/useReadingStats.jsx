@@ -1,11 +1,14 @@
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
 
 export function useReadingStats(logs = []) {
-  // Get unique chapters only
-  const uniqueChapterIds = new Set(logs.map(log => log.chapterId));
-  const uniqueLogs = Array.from(uniqueChapterIds).map(chapterId => 
-    logs.find(log => log.chapterId === chapterId)
-  );
+  // Get unique chapters only using Map to preserve all log properties
+  const uniqueLogsMap = new Map();
+  for (const log of logs) {
+    if (!uniqueLogsMap.has(log.chapterId)) {
+      uniqueLogsMap.set(log.chapterId, log);
+    }
+  }
+  const uniqueLogs = Array.from(uniqueLogsMap.values());
 
   const otCount = uniqueLogs.filter(log => log.testament === 'OT').length;
   const ntCount = uniqueLogs.filter(log => log.testament === 'NT').length;
