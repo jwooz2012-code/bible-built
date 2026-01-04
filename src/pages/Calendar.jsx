@@ -209,7 +209,7 @@ export default function Calendar() {
                     }}
                   >
                     <span className={count > 0 ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
-                    <span className={count > 0 ? "text-xs h-4 flex items-center justify-center font-bold text-accent-foreground" : "text-xs h-4 flex items-center justify-center font-bold text-foreground"}>
+                    <span className={count > 0 ? "text-xs h-4 flex items-center justify-center font-bold" : "text-xs h-4 flex items-center justify-center font-bold text-foreground"} style={count > 0 ? { color: '#F59E0B' } : {}}>
                       {count > 0 ? count : ''}
                     </span>
                   </button>
