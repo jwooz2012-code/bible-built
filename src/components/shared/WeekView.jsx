@@ -33,7 +33,7 @@ export default function WeekView({ logs = [] }) {
   };
 
   return (
-    <div className="bg-card border-0 rounded-xl p-5 mb-6">
+    <div className="bg-card border border-border rounded-2xl p-5 mb-8 shadow-sm">
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">This Week</h3>
       <div className="grid grid-cols-7 gap-2">
         {weekDays.map((date, i) => {
@@ -47,18 +47,19 @@ export default function WeekView({ logs = [] }) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
               className={`
-                aspect-square rounded-lg flex flex-col items-center justify-center gap-1 transition-all border-0
-                ${isToday ? 'bg-accent text-white' : count > 0 ? 'bg-accent/10' : 'bg-secondary'}
+                aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all
+                border
+                ${isToday ? 'bg-accent text-white border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
               `}
             >
               <span className={`text-[10px] font-medium ${isToday ? 'text-white/70' : 'text-muted-foreground'}`}>
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span className={`text-sm font-semibold ${isToday ? 'text-white' : 'text-foreground'}`}>
+              <span className={`text-sm font-semibold ${isToday ? 'text-white' : count > 0 ? 'text-accent' : 'text-foreground'}`}>
                 {date.getDate()}
               </span>
               {count > 0 && !isToday && (
-                <div className="w-1 h-1 rounded-full bg-accent" />
+                <div className="w-1 h-1 rounded-full bg-accent mt-0.5" />
               )}
             </motion.button>
           );

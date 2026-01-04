@@ -145,7 +145,7 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-card border-0 rounded-xl p-5"
+                className="bg-card border border-border rounded-2xl p-5 shadow-sm"
               >
                 <button
                   onClick={() => setShowRecent(!showRecent)}
@@ -196,7 +196,7 @@ export default function Home() {
             key={selectedBook.name}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-card border-0 rounded-xl p-6"
+            className="bg-card border border-border rounded-2xl p-6 shadow-sm"
           >
             <div className="flex items-center justify-between mb-6 gap-3">
               <h2 className="text-lg font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
