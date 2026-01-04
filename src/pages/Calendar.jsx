@@ -188,7 +188,7 @@ export default function Calendar() {
                 if (!day) return <div key={i} />;
                 const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const count = logsByDay[dateKey]?.length || 0;
-                const isToday = dateKey === new Date().toISOString().slice(0, 10);
+                const isToday = dateKey === todayKey;
 
                 return (
                   <button
