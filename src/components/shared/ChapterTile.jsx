@@ -34,8 +34,8 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
           <span 
             className="text-[9px] font-bold leading-none"
             style={{ 
-              color: 'var(--energy-orange)',
-              opacity: timesRead === 1 ? 0.5 : 1
+              color: '#F97316',
+              opacity: timesRead === 1 ? 0.6 : 1
             }}
           >
             {timesRead}
