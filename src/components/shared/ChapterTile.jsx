@@ -43,12 +43,12 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       )}
       
       {timesRead >= 2 && (
-        <div className="flex items-center justify-center gap-1">
+        <div className="flex flex-col items-center justify-center gap-0.5">
           <span className="text-[15px] font-semibold text-accent-foreground leading-none">
             {chapter}
           </span>
-          <span className="text-[11px] font-bold text-accent-foreground/80 leading-none">
-            ×{timesRead}
+          <span className="text-[10px] font-medium text-accent-foreground/60 leading-none">
+            x{timesRead}
           </span>
         </div>
       )}
