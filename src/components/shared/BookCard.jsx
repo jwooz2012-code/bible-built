@@ -21,12 +21,18 @@ export default function BookCard({ book, completions, onClick }) {
     >
       {completions > 0 && (
         <div 
-          className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-md border-[1.5px] border-white/30 dark:border-white/20 z-20"
+          className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-md z-20"
           style={{
-            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))'
+            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
+            border: '1.5px solid rgba(255, 255, 255, 0.25)'
           }}
         >
-          <span className="text-[10px] font-bold leading-none text-white">{completions}</span>
+          <span 
+            className="text-[10px] font-bold leading-none"
+            style={{ color: 'var(--badge-text)' }}
+          >
+            {completions}
+          </span>
         </div>
       )}
       <div className="relative z-10 flex items-center justify-center min-h-full py-2">
