@@ -5,7 +5,8 @@ import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
-import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
+import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
+import { Trophy } from 'lucide-react';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
@@ -29,6 +30,43 @@ export default function Stats() {
 
   const yearStats = useReadingStats(yearLogs);
   const lifetimeStats = useReadingStats(lifetimeLogs);
+
+  // Calculate additional stats for achievements
+  const totalChaptersRead = lifetimeStats.totalCount;
+  const bibleReadThroughCount = lifetimeStats.timesThroughBible;
+  
+  // Count distinct books completed (unique book names from lifetime logs)
+  const uniqueBooks = new Set(lifetimeLogs.map(log => log.book));
+  const totalBooksCompletedDistinct = uniqueBooks.size;
+  
+  // Count distinct days with reading
+  const uniqueDays = new Set(lifetimeLogs.map(log => log.dateKey));
+  const daysWithReadingDistinct = uniqueDays.size;
+  
+  // NT read through count
+  const ntReadThroughCount = Math.floor(lifetimeStats.ntCount / NT_CHAPTERS);
+  
+  // Check if OT or NT completed at least once
+  const otOrNtCompletedFlag = lifetimeStats.otCount >= OT_CHAPTERS || lifetimeStats.ntCount >= NT_CHAPTERS;
+
+  // Define achievements with simple threshold checks
+  const achievements = [
+    { id: 1, title: 'First Rep', subtitle: 'Read your first chapter', achieved: totalChaptersRead >= 1 },
+    { id: 2, title: 'Locked In', subtitle: 'Completed a book', achieved: totalBooksCompletedDistinct >= 1 },
+    { id: 3, title: 'Habit Forming', subtitle: 'Read for 7 days', achieved: daysWithReadingDistinct >= 7 },
+    { id: 4, title: 'Fifty Down', subtitle: 'Read 50 chapters', achieved: totalChaptersRead >= 50 },
+    { id: 5, title: 'Triple Digits', subtitle: 'Read 100 chapters', achieved: totalChaptersRead >= 100 },
+    { id: 6, title: 'All In', subtitle: 'Read 250 chapters', achieved: totalChaptersRead >= 250 },
+    { id: 7, title: 'Built to Last', subtitle: 'Read 500 chapters', achieved: totalChaptersRead >= 500 },
+    { id: 8, title: 'Cover to Cover', subtitle: 'Completed 10 books', achieved: totalBooksCompletedDistinct >= 10 },
+    { id: 9, title: 'Testament Strong', subtitle: 'Finished OT or NT', achieved: otOrNtCompletedFlag },
+    { id: 10, title: 'The Whole Word', subtitle: 'Read the entire Bible', achieved: bibleReadThroughCount >= 1 },
+    { id: 11, title: 'Back for More', subtitle: 'Read the Bible twice', achieved: bibleReadThroughCount >= 2 },
+    { id: 12, title: 'Deep Roots', subtitle: 'Read NT 5 times', achieved: ntReadThroughCount >= 5 },
+    { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250 },
+    { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30 },
+    { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000 },
+  ];
 
   if (isLoading) {
     return (
@@ -57,7 +95,7 @@ export default function Stats() {
             <h2 className="text-xl font-semibold text-foreground mb-2">
               This Year ({currentYear})
             </h2>
-            <div className="w-16 h-[1px] bg-[#2F3E5C] opacity-70" />
+            <div className="w-16 h-[1px] bg-border" />
           </div>
 
           {yearLoading ? (
@@ -73,10 +111,13 @@ export default function Stats() {
                     {yearStats.totalCount} <span className="text-sm text-muted-foreground">/ {TOTAL_CHAPTERS}</span>
                   </span>
                 </div>
-                <div className="relative w-full h-3 bg-secondary rounded-full overflow-hidden">
+                <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-accent transition-all duration-500 ease-out rounded-full"
-                    style={{ width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%` }}
+                    className="h-full rounded-full transition-all duration-500 ease-out"
+                    style={{ 
+                      width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%`,
+                      background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)'
+                    }}
                   />
                 </div>
               </div>
@@ -101,11 +142,11 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-card border border-border rounded-2xl p-6"
+          className="bg-card border border-border rounded-2xl p-6 mb-4"
         >
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">Lifetime</h2>
-            <div className="w-16 h-[1px] bg-[#2F3E5C] opacity-70" />
+            <div className="w-16 h-[1px] bg-border" />
           </div>
 
           {lifetimeLoading ? (
@@ -114,9 +155,11 @@ export default function Stats() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="text-center bg-accent/10 rounded-xl p-6">
+              <div className="text-center rounded-xl p-6" style={{ 
+                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1) 0%, rgba(250, 204, 21, 0.1) 100%)'
+              }}>
                 <p className="text-sm text-muted-foreground mb-2">Times Through the Bible</p>
-                <p className="text-5xl font-bold text-accent">{lifetimeStats.timesThroughBible}</p>
+                <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeStats.timesThroughBible}</p>
                 <p className="text-xs text-muted-foreground mt-3">
                   {lifetimeStats.percentToNext}% to next ({lifetimeStats.progressToNext}/{TOTAL_CHAPTERS})
                 </p>
@@ -137,6 +180,79 @@ export default function Stats() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="bg-card border border-border rounded-2xl p-6"
+        >
+          <div className="mb-6 flex items-center gap-3">
+            <Trophy className="w-6 h-6" style={{ color: '#FACC15' }} />
+            <div>
+              <h2 className="text-xl font-semibold text-foreground">Achievements</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {achievements.filter(a => a.achieved).length} / {achievements.length} unlocked
+              </p>
+            </div>
+          </div>
+
+          {lifetimeLoading ? (
+            <div className="space-y-3">
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+              <Skeleton className="h-16 w-full" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-3">
+              {achievements.map((achievement) => (
+                <motion.div
+                  key={achievement.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.02 * achievement.id }}
+                  className={`rounded-xl p-4 border transition-all duration-200 ${
+                    achievement.achieved
+                      ? 'bg-gradient-to-br from-[#F97316]/5 via-[#FACC15]/5 to-[#FB923C]/5 border-[#F97316]/20'
+                      : 'bg-secondary border-border/50'
+                  }`}
+                  style={achievement.achieved ? {
+                    boxShadow: '0 0 20px rgba(249, 115, 22, 0.15)'
+                  } : {}}
+                >
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        achievement.achieved 
+                          ? 'bg-gradient-to-br from-[#F97316] to-[#FACC15]' 
+                          : 'bg-muted border-2 border-border'
+                      }`}
+                    >
+                      <Trophy 
+                        className="w-5 h-5" 
+                        style={{ color: achievement.achieved ? '#FFFFFF' : '#6B7280' }}
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className={`font-semibold ${
+                        achievement.achieved ? 'text-foreground' : 'text-muted-foreground'
+                      }`}>
+                        {achievement.title}
+                      </h3>
+                      <p className="text-xs text-muted-foreground mt-0.5">{achievement.subtitle}</p>
+                    </div>
+                    {achievement.achieved && (
+                      <div 
+                        className="w-2 h-2 rounded-full flex-shrink-0"
+                        style={{ background: 'linear-gradient(135deg, #F97316, #FACC15)' }}
+                      />
+                    )}
+                  </div>
+                </motion.div>
+              ))}
             </div>
           )}
         </motion.div>
