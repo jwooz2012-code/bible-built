@@ -58,4 +58,13 @@ export default function Layout({ children }) {
       </div>
     </ThemeProvider>
   );
+}import { Toaster } from 'sonner';
+
+export default function Layout({ children }) {
+  return (
+    <div className="min-h-screen bg-background">
+      {children}
+      <Toaster />
+    </div>
+  );
 }
