@@ -6,7 +6,7 @@ export default function BookCard({ book, completions, onClick }) {
     <motion.button
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="bg-card border border-border rounded-xl p-3 text-left transition-all relative overflow-hidden shadow-sm hover:shadow-md group"
+      className="bg-card border border-border rounded-xl p-3.5 text-left transition-all relative overflow-hidden shadow-sm hover:shadow-md group"
       style={{
         transition: 'all 0.3s ease'
       }}
@@ -21,7 +21,7 @@ export default function BookCard({ book, completions, onClick }) {
     >
       <div className="relative z-10 flex flex-col gap-1.5">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="font-semibold text-foreground text-sm leading-tight line-clamp-2 flex-1">{book.name}</h3>
+          <h3 className="font-semibold text-foreground text-[15px] leading-tight line-clamp-2 flex-1">{book.name}</h3>
           {completions > 0 && (
             <div 
               className="w-[22px] h-[22px] rounded-full flex items-center justify-center shrink-0 transition-all relative"

@@ -120,7 +120,7 @@ export default function Home() {
 
         {!selectedBook ? (
           <>
-            <div className="grid grid-cols-2 gap-2 mb-8">
+            <div className="grid grid-cols-2 gap-3 mb-8">
               {BIBLE_BOOKS.map(book => {
                 const stats = getBookStats(book);
                 return (
@@ -141,7 +141,7 @@ export default function Home() {
             key={selectedBook.name}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-card border border-border rounded-2xl p-6 shadow-sm"
+            className="bg-card border border-border rounded-2xl p-5 shadow-sm"
           >
             <div className="flex items-center justify-between mb-6 gap-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
@@ -171,7 +171,7 @@ export default function Home() {
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
                 const chapterStats = getChapterStats(selectedBook.index, chapter);
