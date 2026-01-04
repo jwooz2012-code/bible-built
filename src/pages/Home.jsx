@@ -17,11 +17,13 @@ import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRang
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
+import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 
 export default function Home() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('ALL');
 
   useEffect(() => {
     if (selectedBook) {
@@ -75,6 +77,15 @@ export default function Home() {
   
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
   const { markAllRead, isMarkingAll } = useMarkAllRead();
+  
+  const recentBooks = useMostRecentBooks(allTimeLogs);
+  
+  const filteredBooks = BIBLE_BOOKS.filter(book => {
+    if (selectedTestamentFilter === 'ALL') return true;
+    if (selectedTestamentFilter === 'OT') return book.testament === 'OT';
+    if (selectedTestamentFilter === 'NT') return book.testament === 'NT';
+    return true;
+  });
 
   const getBookStats = (book) => {
     const chapterCounts = {};
@@ -161,14 +172,71 @@ export default function Home() {
         
         {!selectedBook && (
           <>
-            <WeekView logs={allTimeLogs} />
+            <p className="text-sm text-muted-foreground mb-6 opacity-70">
+              {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
+            </p>
+
+            {recentBooks.length > 0 ? (
+              <div className="mb-8">
+                <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {recentBooks.map(book => {
+                    const stats = getBookStats(book);
+                    return (
+                      <BookCard
+                        key={book.index}
+                        book={book}
+                        completions={stats.completions}
+                        onClick={() => setSelectedBook(book)}
+                      />
+                    );
+                  })}
+                </div>
+              </div>
+            ) : (
+              <div className="mb-8">
+                <Button 
+                  onClick={() => setSelectedTestamentFilter('ALL')}
+                  className="w-full h-14 text-base font-medium"
+                >
+                  Start Reading
+                </Button>
+              </div>
+            )}
+
+            <div className="flex gap-2 mb-6">
+              <Button
+                variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTestamentFilter('ALL')}
+                className="flex-1 h-9 text-xs font-medium"
+              >
+                Whole Bible
+              </Button>
+              <Button
+                variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTestamentFilter('OT')}
+                className="flex-1 h-9 text-xs font-medium"
+              >
+                Old Testament
+              </Button>
+              <Button
+                variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTestamentFilter('NT')}
+                className="flex-1 h-9 text-xs font-medium"
+              >
+                New Testament
+              </Button>
+            </div>
           </>
         )}
 
         {!selectedBook ? (
           <>
             <div className="grid grid-cols-2 gap-2.5 mb-8">
-              {BIBLE_BOOKS.map(book => {
+              {filteredBooks.map(book => {
                 const stats = getBookStats(book);
                 return (
                   <BookCard
@@ -180,8 +248,6 @@ export default function Home() {
                 );
               })}
             </div>
-
-
           </>
         ) : (
           <motion.div
