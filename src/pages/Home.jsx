@@ -16,6 +16,7 @@ import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterR
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -45,6 +46,15 @@ export default function Home() {
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+
+  const currentYear = new Date().getFullYear();
+  const yearStart = `${currentYear}-01-01`;
+  const yearEnd = `${currentYear}-12-31`;
+  const yearLogs = allTimeLogs.filter(log => log.dateKey >= yearStart && log.dateKey <= yearEnd);
+  
+  const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
+  const readingDays = new Set(allTimeLogs.map(log => log.dateKey)).size;
+  const avgChaptersPerReadingDay = readingDays > 0 ? (yearChaptersRead / readingDays).toFixed(1) : 0;
   
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
   const { markAllRead, isMarkingAll } = useMarkAllRead();
@@ -119,7 +129,18 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <PageHeader title="Bible Built" subtitle={formattedDate} />
+        <PageHeader 
+          title={
+            readingDays < 7 ? "You showed up today." :
+            readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
+            `${yearChaptersRead} chapters read in ${currentYear}`
+          } 
+          subtitle={
+            readingDays < 7 ? `${yearChaptersRead} chapters read this year` :
+            readingDays >= 7 && readingDays <= 14 ? `${yearChaptersRead} chapters read • ${readingDays} reading days` :
+            `${avgChaptersPerReadingDay} chapters per reading day`
+          } 
+        />
         
         {!selectedBook && (
           <>
