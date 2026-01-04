@@ -18,8 +18,8 @@ export default function BookCard({ book, completions, onClick }) {
       <div className="relative z-10 flex items-center justify-between gap-3">
         <h3 className="font-semibold text-foreground text-sm">{book.name}</h3>
         {completions > 0 && (
-          <div className="min-w-[20px] h-[20px] px-1.5 bg-accent rounded-full flex items-center justify-center shrink-0">
-            <span className="text-[10px] font-bold text-white">{completions}</span>
+          <div className="min-w-[24px] h-[18px] px-2 rounded-full flex items-center justify-center shrink-0 bg-[#E8ECF2] dark:bg-[#1F2A44]">
+            <span className="text-[10px] font-bold text-[#2F3E5C] dark:text-[#DCE3F1]">{completions}</span>
           </div>
         )}
       </div>

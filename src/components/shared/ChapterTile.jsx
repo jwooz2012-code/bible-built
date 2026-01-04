@@ -19,8 +19,8 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       </span>
       
       {timesRead > 0 && (
-        <div className="absolute top-1.5 right-1.5 min-w-[16px] h-[16px] px-1 bg-accent rounded-full flex items-center justify-center">
-          <span className="text-[9px] font-bold text-white">{timesRead}</span>
+        <div className="absolute top-1.5 right-1.5 min-w-[16px] h-[15px] px-1.5 rounded-full flex items-center justify-center bg-[#EEF1F5] dark:bg-[#1C2433]">
+          <span className="text-[9px] font-semibold text-[#4B5563] dark:text-[#9CA3AF]">{timesRead}</span>
         </div>
       )}
     </motion.button>

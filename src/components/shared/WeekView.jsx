@@ -49,17 +49,20 @@ export default function WeekView({ logs = [] }) {
               className={`
                 aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all
                 border
-                ${isToday ? 'bg-accent text-white border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
+                ${isToday ? 'bg-accent/12 border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
               `}
             >
-              <span className={`text-[10px] font-medium ${isToday ? 'text-white/70' : 'text-muted-foreground'}`}>
+              <span className={`text-[10px] font-medium ${isToday ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span className={`text-sm font-semibold ${isToday ? 'text-white' : count > 0 ? 'text-accent' : 'text-foreground'}`}>
+              <span className={`text-sm font-semibold ${isToday ? 'text-accent' : 'text-foreground'}`}>
                 {date.getDate()}
               </span>
               {count > 0 && !isToday && (
-                <div className="w-1 h-1 rounded-full bg-accent mt-0.5" />
+                <div className="w-1.5 h-1.5 rounded-full bg-accent mt-0.5" />
+              )}
+              {count === 0 && !isToday && (
+                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] dark:bg-[#374151] mt-0.5 opacity-40" />
               )}
             </motion.button>
           );
