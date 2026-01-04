@@ -93,36 +93,39 @@ export default function Settings() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setTheme('system')}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
-                    theme === 'system' 
-                      ? 'border-accent bg-accent/10' 
-                      : 'border-border bg-secondary hover:bg-accent/5'
-                  }`}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
+                  style={theme === 'system' ? {
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
+                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                  } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Monitor className="w-5 h-5" />
-                  <span className="text-xs font-medium">System</span>
+                  <Monitor className="w-5 h-5" style={theme === 'system' ? { color: 'var(--energy-orange)' } : {}} />
+                  <span className="text-xs font-medium" style={theme === 'system' ? { color: 'var(--energy-orange)' } : {}}>System</span>
                 </button>
                 <button
                   onClick={() => setTheme('light')}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
-                    theme === 'light' 
-                      ? 'border-accent bg-accent/10' 
-                      : 'border-border bg-secondary hover:bg-accent/5'
-                  }`}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
+                  style={theme === 'light' ? {
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
+                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                  } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Sun className="w-5 h-5" />
-                  <span className="text-xs font-medium">Light</span>
+                  <Sun className="w-5 h-5" style={theme === 'light' ? { color: 'var(--energy-orange)' } : {}} />
+                  <span className="text-xs font-medium" style={theme === 'light' ? { color: 'var(--energy-orange)' } : {}}>Light</span>
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-colors ${
-                    theme === 'dark' 
-                      ? 'border-accent bg-accent/10' 
-                      : 'border-border bg-secondary hover:bg-accent/5'
-                  }`}
+                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
+                  style={theme === 'dark' ? {
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
+                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                  } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Moon className="w-5 h-5" />
-                  <span className="text-xs font-medium">Dark</span>
+                  <Moon className="w-5 h-5" style={theme === 'dark' ? { color: 'var(--energy-orange)' } : {}} />
+                  <span className="text-xs font-medium" style={theme === 'dark' ? { color: 'var(--energy-orange)' } : {}}>Dark</span>
                 </button>
               </div>
             </CardContent>

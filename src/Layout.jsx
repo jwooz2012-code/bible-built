@@ -35,18 +35,24 @@ export default function Layout({ children }) {
                   <Link
                     key={item.name}
                     to={createPageUrl(item.name)}
-                    className={`
-                      flex flex-col items-center justify-center gap-1 transition-all
-                      ${isActive 
-                        ? 'text-accent' 
-                        : 'text-muted-foreground'
-                      }
-                    `}
+                    className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
-                    <item.icon className={`w-6 h-6 ${isActive ? 'stroke-[2]' : 'stroke-[1.5]'}`} />
-                    <span className={`text-[10px] ${isActive ? 'font-semibold' : 'font-medium'}`}>
+                    <item.icon 
+                      className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2]' : 'stroke-[1.5]'}`}
+                      style={{ color: isActive ? 'var(--energy-orange)' : undefined }}
+                    />
+                    <span 
+                      className={`text-[10px] ${isActive ? 'font-semibold' : 'font-medium'}`}
+                      style={{ color: isActive ? 'var(--energy-orange)' : undefined }}
+                    >
                       {item.name}
                     </span>
+                    {isActive && (
+                      <div 
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full"
+                        style={{ background: 'var(--energy-gradient)' }}
+                      />
+                    )}
                   </Link>
                 );
               })}

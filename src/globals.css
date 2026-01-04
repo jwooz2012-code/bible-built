@@ -25,6 +25,12 @@ css
     --input: 220 13% 91%;
     --ring: 213 33% 28%;
     --radius: 0.75rem;
+    
+    --energy-orange: #F97316;
+    --energy-gold: #FACC15;
+    --energy-amber: #FB923C;
+    --energy-gradient: linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%);
+    --energy-glow-light: rgba(249, 115, 22, 0.15);
   }
 
   .dark {
@@ -47,6 +53,8 @@ css
     --border: 210 24% 16%;
     --input: 210 24% 16%;
     --ring: 213 33% 28%;
+    
+    --energy-glow-dark: rgba(249, 115, 22, 0.22);
   }
 }
 
