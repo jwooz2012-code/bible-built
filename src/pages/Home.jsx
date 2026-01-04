@@ -9,6 +9,7 @@ import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import BookCard from '@/components/shared/BookCard';
 import ChapterTile from '@/components/shared/ChapterTile';
+import WeekView from '@/components/shared/WeekView';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
@@ -121,6 +122,8 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-6xl mx-auto px-4 py-6">
         <PageHeader title="Bible Built" subtitle={formattedDate} />
+        
+        <WeekView logs={allTimeLogs} />
 
         {!selectedBook ? (
           <>
