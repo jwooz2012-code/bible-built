@@ -51,21 +51,21 @@ export default function Stats() {
 
   // Define achievements with simple threshold checks
   const achievements = [
-    { id: 1, title: 'First Rep', subtitle: 'Read your first chapter', achieved: totalChaptersRead >= 1 },
-    { id: 2, title: 'Locked In', subtitle: 'Completed a book', achieved: totalBooksCompletedDistinct >= 1 },
-    { id: 3, title: 'Habit Forming', subtitle: 'Read for 7 days', achieved: daysWithReadingDistinct >= 7 },
-    { id: 4, title: 'Fifty Down', subtitle: 'Read 50 chapters', achieved: totalChaptersRead >= 50 },
-    { id: 5, title: 'Triple Digits', subtitle: 'Read 100 chapters', achieved: totalChaptersRead >= 100 },
-    { id: 6, title: 'All In', subtitle: 'Read 250 chapters', achieved: totalChaptersRead >= 250 },
-    { id: 7, title: 'Built to Last', subtitle: 'Read 500 chapters', achieved: totalChaptersRead >= 500 },
-    { id: 8, title: 'Cover to Cover', subtitle: 'Completed 10 books', achieved: totalBooksCompletedDistinct >= 10 },
-    { id: 9, title: 'Testament Strong', subtitle: 'Finished OT or NT', achieved: otOrNtCompletedFlag },
-    { id: 10, title: 'The Whole Word', subtitle: 'Read the entire Bible', achieved: bibleReadThroughCount >= 1 },
-    { id: 11, title: 'Back for More', subtitle: 'Read the Bible twice', achieved: bibleReadThroughCount >= 2 },
-    { id: 12, title: 'Deep Roots', subtitle: 'Read NT 5 times', achieved: ntReadThroughCount >= 5 },
-    { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250 },
-    { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30 },
-    { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000 },
+    { id: 1, title: 'First Rep', subtitle: 'Read your first chapter', achieved: totalChaptersRead >= 1, current: totalChaptersRead, target: 1 },
+    { id: 2, title: 'Locked In', subtitle: 'Completed a book', achieved: totalBooksCompletedDistinct >= 1, current: totalBooksCompletedDistinct, target: 1 },
+    { id: 3, title: 'Habit Forming', subtitle: 'Read for 7 days', achieved: daysWithReadingDistinct >= 7, current: daysWithReadingDistinct, target: 7 },
+    { id: 4, title: 'Fifty Down', subtitle: 'Read 50 chapters', achieved: totalChaptersRead >= 50, current: totalChaptersRead, target: 50 },
+    { id: 5, title: 'Triple Digits', subtitle: 'Read 100 chapters', achieved: totalChaptersRead >= 100, current: totalChaptersRead, target: 100 },
+    { id: 6, title: 'All In', subtitle: 'Read 250 chapters', achieved: totalChaptersRead >= 250, current: totalChaptersRead, target: 250 },
+    { id: 7, title: 'Built to Last', subtitle: 'Read 500 chapters', achieved: totalChaptersRead >= 500, current: totalChaptersRead, target: 500 },
+    { id: 8, title: 'Cover to Cover', subtitle: 'Completed 10 books', achieved: totalBooksCompletedDistinct >= 10, current: totalBooksCompletedDistinct, target: 10 },
+    { id: 9, title: 'Testament Strong', subtitle: 'Finished OT or NT', achieved: otOrNtCompletedFlag, current: Math.max(lifetimeStats.otCount, lifetimeStats.ntCount), target: Math.min(OT_CHAPTERS, NT_CHAPTERS) },
+    { id: 10, title: 'The Whole Word', subtitle: 'Read the entire Bible', achieved: bibleReadThroughCount >= 1, current: lifetimeStats.totalCount, target: TOTAL_CHAPTERS },
+    { id: 11, title: 'Back for More', subtitle: 'Read the Bible twice', achieved: bibleReadThroughCount >= 2, current: bibleReadThroughCount, target: 2 },
+    { id: 12, title: 'Deep Roots', subtitle: 'Read NT 5 times', achieved: ntReadThroughCount >= 5, current: ntReadThroughCount, target: 5 },
+    { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250, current: daysWithReadingDistinct, target: 250 },
+    { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30, current: totalBooksCompletedDistinct, target: 30 },
+    { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000, current: totalChaptersRead, target: 1000 },
   ];
 
   if (isLoading) {
@@ -232,12 +232,9 @@ export default function Stats() {
                   transition={{ duration: 0.15 }}
                   className={`rounded-xl p-4 border transition-all ${
                     achievement.achieved
-                      ? 'bg-gradient-to-br from-[#F97316]/8 via-[#FACC15]/8 to-[#FB923C]/8 border-[#F97316]/30'
+                      ? 'bg-card border-[#F97316]'
                       : 'bg-secondary border-border/50'
                   }`}
-                  style={achievement.achieved ? {
-                    boxShadow: '0 0 14px var(--energy-glow)'
-                  } : {}}
                 >
                   <div className="flex items-center gap-3">
                     <div 
@@ -259,6 +256,11 @@ export default function Stats() {
                         {achievement.title}
                       </h3>
                       <p className="text-xs text-muted-foreground mt-1">{achievement.subtitle}</p>
+                      {!achievement.achieved && (
+                        <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+                          {achievement.current} / {achievement.target}
+                        </p>
+                      )}
                     </div>
                     {achievement.achieved && (
                       <div 
