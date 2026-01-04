@@ -18,7 +18,6 @@ export default function Calendar() {
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
-  const [selectedDayLogs, setSelectedDayLogs] = useState([]);
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
@@ -46,6 +45,8 @@ export default function Calendar() {
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
   const logsByDay = groupLogsByDay(logs);
 
+  const selectedDayLogs = selectedDay ? (logsByDay[selectedDay] || []) : [];
+
   const firstDayOfMonth = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const days = [];
@@ -61,14 +62,12 @@ export default function Calendar() {
     if (!day) return;
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     setSelectedDay(dateKey);
-    setSelectedDayLogs(logsByDay[dateKey] || []);
   };
 
   const handleDeleteLog = async (logId) => {
     setIsDeleting(true);
     try {
       await base44.entities.ReadingLog.delete(logId);
-      setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
       await queryClient.invalidateQueries();
       toast.success('Chapter removed from this day');
     } catch (error) {
@@ -93,7 +92,7 @@ export default function Calendar() {
       
       const timestamp = new Date(selectedDay + 'T12:00:00').toISOString();
       
-      const newLog = await base44.entities.ReadingLog.create({
+      await base44.entities.ReadingLog.create({
         userId,
         timestamp,
         dateKey: selectedDay,
@@ -104,7 +103,6 @@ export default function Calendar() {
         testament: book.testament,
       });
 
-      setSelectedDayLogs(prev => [...prev, newLog]);
       await queryClient.invalidateQueries();
       setShowAddForm(false);
       setSelectedBook('');
