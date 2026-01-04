@@ -195,12 +195,12 @@ export default function Calendar() {
                     key={i}
                     onClick={() => handleDayClick(day)}
                     className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium hover:opacity-80 border"
-                    style={count > 0 ? {
+                    style={isToday ? {
                       background: 'hsl(var(--accent))',
                       borderColor: 'hsl(var(--accent))',
                       borderWidth: '1.5px'
-                    } : isToday ? {
-                      background: 'hsl(var(--secondary))',
+                    } : count > 0 ? {
+                      background: 'hsl(var(--card))',
                       borderWidth: '1.5px',
                       borderColor: 'hsl(var(--border))'
                     } : {
@@ -208,9 +208,9 @@ export default function Calendar() {
                       borderColor: 'transparent'
                     }}
                   >
-                    <span className={count > 0 ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
-                    <span className={count > 0 ? "text-xs h-4 flex items-center justify-center font-bold" : "text-xs h-4 flex items-center justify-center font-bold text-foreground"} style={count > 0 ? { color: '#F59E0B' } : {}}>
-                      {count > 0 ? count : ''}
+                    <span className={isToday ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
+                    <span className="text-xs h-4 flex items-center justify-center font-bold" style={count > 0 ? { color: '#F59E0B' } : { color: 'transparent' }}>
+                      {count > 0 ? count : '•'}
                     </span>
                   </button>
                 );
