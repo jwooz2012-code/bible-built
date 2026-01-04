@@ -136,6 +136,19 @@ export default function Stats() {
                   <p className="text-xs text-muted-foreground">{yearStats.ntPercent}%</p>
                 </div>
               </div>
+
+              {(() => {
+                const uniqueReadingDays = new Set(yearLogs.map(log => log.dateKey)).size;
+                if (uniqueReadingDays === 0) return null;
+                const avgChaptersPerDay = yearStats.totalCount / uniqueReadingDays;
+                const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
+                const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
+                return (
+                  <p className="text-sm text-muted-foreground mt-4">
+                    At this pace, you'll complete the Bible in approximately {estimatedDays} days.
+                  </p>
+                );
+              })()}
             </div>
           )}
         </motion.div>
