@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ChevronDown, ChevronUp } from 'lucide-react';
+import { X, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -123,7 +123,7 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 py-8">
         <PageHeader title="Bible Built" subtitle={formattedDate} />
         
-        <WeekView logs={allTimeLogs} />
+        {!selectedBook && <WeekView logs={allTimeLogs} />}
 
         {!selectedBook ? (
           <>
@@ -199,25 +199,32 @@ export default function Home() {
             className="bg-card border border-border rounded-2xl p-6 shadow-sm"
           >
             <div className="flex items-center justify-between mb-6 gap-3">
-              <h2 className="text-lg font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
-              <div className="flex gap-2 shrink-0">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
                 <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={async () => {
-                    try {
-                      await markAllRead({ userId, book: selectedBook });
-                    } catch (error) {
-                      console.error('Mark all read failed:', error);
-                    }
-                  }}
-                  disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="text-xs px-3 h-8"
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-8 w-8 p-0 shrink-0" 
+                  onClick={() => setSelectedBook(null)}
                 >
-                  {isMarkingAll ? '...' : 'Mark All'}
+                  <ArrowLeft className="w-4 h-4" />
                 </Button>
-                <Button variant="ghost" size="sm" className="h-8 px-3" onClick={() => setSelectedBook(null)}>Back</Button>
+                <h2 className="text-lg font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               </div>
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  try {
+                    await markAllRead({ userId, book: selectedBook });
+                  } catch (error) {
+                    console.error('Mark all read failed:', error);
+                  }
+                }}
+                disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+                className="text-xs px-3 h-8 shrink-0"
+              >
+                {isMarkingAll ? '...' : 'Mark All'}
+              </Button>
             </div>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
