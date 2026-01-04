@@ -47,7 +47,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
           <span className="text-[15px] font-semibold text-accent-foreground leading-none">
             {chapter}
           </span>
-          <span className="text-[10px] font-medium text-accent-foreground/60 leading-none">
+          <span className="text-[7px] font-medium text-muted-foreground/70 leading-none">
             x{timesRead}
           </span>
         </div>
