@@ -176,7 +176,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <div className="-mb-4">
+        <div className="-mb-5">
           <PageHeader 
             title={
               readingDays < 7 ? "You showed up today." :
@@ -185,7 +185,7 @@ export default function Home() {
             } 
           />
         </div>
-        <p className="text-sm text-muted-foreground mb-6 opacity-80">
+        <p className="text-[13px] text-muted-foreground mb-8 opacity-70">
           {getWeeklyQuote()}
         </p>
         
