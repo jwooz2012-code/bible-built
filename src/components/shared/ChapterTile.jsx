@@ -31,7 +31,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
             boxShadow: '0 0 8px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.3)))'
           }}
         >
-          <span className="text-[9px] font-semibold" style={{ color: '#FFFFFF' }}>{timesRead}</span>
+          <span className="text-[9px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{timesRead}</span>
         </div>
       )}
     </motion.button>
