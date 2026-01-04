@@ -29,7 +29,6 @@ export default function WeekView({ logs = [] }) {
 
   const handleDayClick = (date) => {
     navigate(createPageUrl('Calendar'));
-    // Note: Calendar page would need to accept URL params to pre-select a date
   };
 
   return (
@@ -46,21 +45,29 @@ export default function WeekView({ logs = [] }) {
               key={i}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
-              className={`
-                aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3
-                border
-                ${isToday ? 'bg-accent/12 border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
-              `}
+              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3 border bg-secondary border-border"
+              style={isToday ? {
+                boxShadow: '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.2)))'
+              } : {}}
             >
-              <span className={`text-[10px] font-medium ${isToday ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
+              <span 
+                className="text-[10px] font-medium"
+                style={{ color: isToday || count > 0 ? 'var(--energy-orange)' : undefined }}
+              >
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span className={`text-sm font-semibold ${isToday ? 'text-foreground' : 'text-foreground'}`}>
+              <span 
+                className="text-sm font-semibold"
+                style={{ color: isToday ? 'var(--energy-orange)' : undefined }}
+              >
                 {date.getDate()}
               </span>
-              <div className={`min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center ${count > 0 ? 'bg-[#EEF1F5] dark:bg-[#1C2433]' : ''}`}>
+              <div className="h-[14px] flex items-center justify-center">
                 {count > 0 && (
-                  <span className="text-[9px] font-semibold text-[#4B5563] dark:text-[#9CA3AF]">{count}</span>
+                  <div 
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ background: 'var(--energy-gradient)' }}
+                  />
                 )}
               </div>
             </motion.button>
