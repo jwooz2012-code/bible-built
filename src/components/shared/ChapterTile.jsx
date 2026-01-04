@@ -15,7 +15,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         borderWidth: '1.5px'
       } : {}}
     >
-      <span className="text-sm font-semibold text-foreground">
+      <span className="text-sm font-semibold text-foreground leading-none">
         {chapter}
       </span>
       
