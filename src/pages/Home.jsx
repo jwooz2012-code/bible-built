@@ -127,7 +127,7 @@ export default function Home() {
 
         {!selectedBook ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
+            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 mb-8">
               {BIBLE_BOOKS.map(book => {
                 const stats = getBookStats(book);
                 return (
