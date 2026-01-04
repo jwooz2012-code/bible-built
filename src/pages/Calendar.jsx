@@ -23,6 +23,7 @@ export default function Calendar() {
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   
   const queryClient = useQueryClient();
 
@@ -64,19 +65,17 @@ export default function Calendar() {
   };
 
   const handleDeleteLog = async (logId) => {
+    setIsDeleting(true);
     try {
       await base44.entities.ReadingLog.delete(logId);
       setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      toast.success('Reading removed');
+      toast.success('Chapter removed from this day');
     } catch (error) {
       console.error('Delete error:', error);
-      if (error.message?.includes('not found')) {
-        setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
-        queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      } else {
-        toast.error('Failed to delete reading');
-      }
+      toast.error('Failed to remove chapter');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -110,7 +109,7 @@ export default function Calendar() {
       setShowAddForm(false);
       setSelectedBook('');
       setSelectedChapter('');
-      toast.success('Reading added');
+      toast.success(`${book.name} ${chapter} added to this day`);
     } catch (error) {
       console.error('Add reading error:', error);
       toast.error('Failed to add reading');
@@ -273,7 +272,7 @@ export default function Calendar() {
                     className="flex-1"
                     size="sm"
                   >
-                    {isAdding ? 'Adding...' : 'Add'}
+                    {isAdding ? 'Adding...' : 'Add Chapter'}
                   </Button>
                   <Button 
                     onClick={() => {
@@ -306,6 +305,7 @@ export default function Calendar() {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteLog(log.id)}
+                      disabled={isDeleting}
                     >
                       <X className="w-4 h-4" />
                     </Button>
