@@ -29,7 +29,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
     >
       {timesRead >= 1 && (
         <div 
-          className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-secondary flex items-center justify-center"
+          className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-secondary flex items-center justify-center border border-background"
         >
           <span 
             className="text-[9px] font-bold leading-none"
