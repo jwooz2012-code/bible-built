@@ -6,19 +6,16 @@ export default function BookCard({ book, completions, onClick }) {
     <motion.button
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className="bg-card border border-border rounded-2xl p-4 text-left hover:bg-accent/5 transition-colors relative overflow-hidden"
+      className={`
+        bg-card border-0 rounded-xl p-4 text-left transition-all relative overflow-hidden
+        ${completions > 0 ? 'bg-accent/10' : 'hover:bg-card/80'}
+      `}
     >
-      {completions > 0 && (
-        <div 
-          className="absolute inset-0 bg-accent/5 transition-all duration-500"
-          style={{ opacity: 0.3 }}
-        />
-      )}
-      <div className="relative z-10 flex items-center justify-between">
-        <h3 className="font-semibold text-foreground">{book.name}</h3>
+      <div className="relative z-10 flex items-center justify-between gap-3">
+        <h3 className="font-medium text-foreground text-sm">{book.name}</h3>
         {completions > 0 && (
-          <div className="min-w-[24px] h-[24px] px-1.5 bg-accent rounded-full flex items-center justify-center shrink-0 ml-2">
-            <span className="text-xs font-bold text-white">{completions}</span>
+          <div className="min-w-[20px] h-[20px] px-1.5 bg-accent rounded-full flex items-center justify-center shrink-0">
+            <span className="text-[10px] font-bold text-white">{completions}</span>
           </div>
         )}
       </div>

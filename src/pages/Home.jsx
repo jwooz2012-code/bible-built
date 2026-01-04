@@ -119,15 +119,15 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-6xl mx-auto px-4 py-6">
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-6xl mx-auto px-5 py-8">
         <PageHeader title="Bible Built" subtitle={formattedDate} />
         
         <WeekView logs={allTimeLogs} />
 
         {!selectedBook ? (
           <>
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 mb-8">
               {BIBLE_BOOKS.map(book => {
                 const stats = getBookStats(book);
                 return (
@@ -145,14 +145,14 @@ export default function Home() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="bg-card border border-border rounded-2xl p-4"
+                className="bg-card border-0 rounded-xl p-5"
               >
                 <button
                   onClick={() => setShowRecent(!showRecent)}
-                  className="w-full flex items-center justify-between mb-2"
+                  className="w-full flex items-center justify-between mb-3"
                 >
-                  <h3 className="font-semibold text-foreground">Recent Activity</h3>
-                  {showRecent ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Recent Activity</h3>
+                  {showRecent ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
                 </button>
                 <AnimatePresence>
                   {showRecent && (
@@ -165,13 +165,13 @@ export default function Home() {
                       {last10Logs.map(log => (
                         <div
                           key={log.id}
-                          className="flex items-center justify-between p-3 bg-secondary rounded-xl"
+                          className="flex items-center justify-between p-3 bg-secondary/50 rounded-lg"
                         >
                           <div>
                             <p className="font-medium text-foreground text-sm">
                               {log.book} {log.chapter}
                             </p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground mt-0.5">
                               {new Date(log.timestamp).toLocaleDateString()}
                             </p>
                           </div>
@@ -179,6 +179,7 @@ export default function Home() {
                             variant="ghost"
                             size="sm"
                             onClick={() => handleDeleteLog(log.id)}
+                            className="h-8 w-8 p-0"
                           >
                             <X className="w-4 h-4" />
                           </Button>
@@ -195,10 +196,10 @@ export default function Home() {
             key={selectedBook.name}
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
-            className="bg-card border border-border rounded-2xl p-6"
+            className="bg-card border-0 rounded-xl p-6"
           >
             <div className="flex items-center justify-between mb-6 gap-3">
-              <h2 className="text-lg md:text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
+              <h2 className="text-lg font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               <div className="flex gap-2 shrink-0">
                 <Button 
                   variant="outline"
@@ -211,14 +212,14 @@ export default function Home() {
                     }
                   }}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="text-xs px-2 h-8"
+                  className="text-xs px-3 h-8"
                 >
                   {isMarkingAll ? '...' : 'Mark All'}
                 </Button>
-                <Button variant="ghost" size="sm" className="h-8" onClick={() => setSelectedBook(null)}>Back</Button>
+                <Button variant="ghost" size="sm" className="h-8 px-3" onClick={() => setSelectedBook(null)}>Back</Button>
               </div>
             </div>
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2">
+            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-2.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
                 const chapterStats = getChapterStats(selectedBook.index, chapter);
