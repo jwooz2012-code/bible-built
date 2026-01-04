@@ -3,6 +3,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import { Toaster } from 'sonner';
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -56,15 +57,7 @@ export default function Layout({ children }) {
             </div>
           </nav>
       </div>
-    </ThemeProvider>
-  );
-}import { Toaster } from 'sonner';
-
-export default function Layout({ children }) {
-  return (
-    <div className="min-h-screen bg-background">
-      {children}
       <Toaster />
-    </div>
+    </ThemeProvider>
   );
 }
