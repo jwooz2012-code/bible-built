@@ -35,7 +35,7 @@ export default function WeekView({ logs = [] }) {
   return (
     <div className="bg-card border border-border rounded-2xl p-5 mb-8 shadow-sm">
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">This Week</h3>
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-7 gap-3">
         {weekDays.map((date, i) => {
           const dateKey = getDateKey(date);
           const count = logsGrouped[dateKey] || 0;
@@ -47,7 +47,7 @@ export default function WeekView({ logs = [] }) {
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
               className={`
-                aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all
+                aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3
                 border
                 ${isToday ? 'bg-accent/12 border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
               `}
@@ -58,7 +58,7 @@ export default function WeekView({ logs = [] }) {
               <span className={`text-sm font-semibold ${isToday ? 'text-foreground' : 'text-foreground'}`}>
                 {date.getDate()}
               </span>
-              <div className={`min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center mt-0.5 ${count > 0 ? 'bg-[#EEF1F5] dark:bg-[#1C2433]' : ''}`}>
+              <div className={`min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center ${count > 0 ? 'bg-[#EEF1F5] dark:bg-[#1C2433]' : ''}`}>
                 {count > 0 && (
                   <span className="text-[9px] font-semibold text-[#4B5563] dark:text-[#9CA3AF]">{count}</span>
                 )}
