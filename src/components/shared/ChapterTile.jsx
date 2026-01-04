@@ -21,14 +21,13 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       
       {timesRead > 0 && (
         <div 
-          className="absolute top-1 right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center"
+          className="absolute top-1 right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center border shadow-sm"
           style={{
             background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-            border: '1.5px solid rgba(0, 0, 0, 0.15)',
-            boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)'
+            borderColor: 'hsl(var(--border))'
           }}
         >
-          <span className="text-[10px] font-bold leading-none" style={{ color: '#1a1a1a' }}>{timesRead}</span>
+          <span className="text-[10px] font-bold leading-none text-foreground">{timesRead}</span>
         </div>
       )}
     </motion.button>
