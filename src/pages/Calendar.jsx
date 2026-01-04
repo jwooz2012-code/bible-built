@@ -71,7 +71,6 @@ export default function Calendar() {
       await queryClient.invalidateQueries();
       toast.success('Chapter removed from this day');
     } catch (error) {
-      console.error('Delete error:', error);
       toast.error('Failed to remove chapter');
     } finally {
       setIsDeleting(false);
@@ -109,7 +108,6 @@ export default function Calendar() {
       setSelectedChapter('');
       toast.success(`${book.name} ${chapter} added to this day`);
     } catch (error) {
-      console.error('Add reading error:', error);
       toast.error('Failed to add reading');
     } finally {
       setIsAdding(false);

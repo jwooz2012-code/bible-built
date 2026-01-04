@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -91,7 +91,6 @@ export default function Home() {
         testament: book.testament,
       });
     } catch (error) {
-      console.error('Chapter click error:', error);
       toast.error(error?.message || 'Action failed. Please try again.');
     }
   };
@@ -169,11 +168,7 @@ export default function Home() {
                 variant="outline"
                 size="sm"
                 onClick={async () => {
-                  try {
-                    await markAllRead({ userId, book: selectedBook });
-                  } catch (error) {
-                    console.error('Mark all read failed:', error);
-                  }
+                  await markAllRead({ userId, book: selectedBook });
                 }}
                 disabled={isMarkingAll || isMarkingRead || isUndoingRead}
                 className="text-xs px-3 h-8 shrink-0"
