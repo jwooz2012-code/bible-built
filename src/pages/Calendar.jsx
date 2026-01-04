@@ -45,6 +45,17 @@ export default function Calendar() {
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
   const logsByDay = groupLogsByDay(logs);
 
+  // Calculate last 7 days reading frequency
+  const today = new Date();
+  const sevenDaysAgo = new Date(today);
+  sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+  const last7DaysStart = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(sevenDaysAgo.getDate()).padStart(2, '0')}`;
+  const todayKey = today.toISOString().slice(0, 10);
+  
+  const { data: last7DaysLogs = [] } = useReadingLogsRange(userId, last7DaysStart, todayKey);
+  const last7DaysUniqueDates = new Set(last7DaysLogs.map(log => log.dateKey));
+  const daysReadInLast7 = last7DaysUniqueDates.size;
+
   const selectedDayLogs = selectedDay ? (logsByDay[selectedDay] || []) : [];
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();
@@ -132,6 +143,16 @@ export default function Calendar() {
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
+        {daysReadInLast7 > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center text-sm text-muted-foreground mb-4"
+          >
+            You read on {daysReadInLast7} of the last 7 days.
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -173,22 +194,22 @@ export default function Calendar() {
                   <button
                     key={i}
                     onClick={() => handleDayClick(day)}
-                    className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium bg-secondary hover:opacity-80 border"
+                    className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium hover:opacity-80 border"
                     style={count > 0 ? {
-                      background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
-                      borderWidth: '1.5px',
-                      borderColor: 'var(--energy-orange)',
-                      boxShadow: '0 0 10px var(--energy-glow)'
+                      background: 'hsl(var(--accent))',
+                      borderColor: 'hsl(var(--accent))',
+                      borderWidth: '1.5px'
                     } : isToday ? {
+                      background: 'hsl(var(--secondary))',
                       borderWidth: '1.5px',
-                      borderColor: 'var(--energy-orange)',
-                      boxShadow: '0 0 8px var(--energy-glow)'
+                      borderColor: 'hsl(var(--border))'
                     } : {
+                      background: 'hsl(var(--secondary))',
                       borderColor: 'transparent'
                     }}
                   >
-                    <span className="text-foreground font-semibold text-[15px]">{day}</span>
-                    <span className="text-xs h-4 flex items-center justify-center font-bold text-foreground">
+                    <span className={count > 0 ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
+                    <span className={count > 0 ? "text-xs h-4 flex items-center justify-center font-bold text-accent-foreground" : "text-xs h-4 flex items-center justify-center font-bold text-foreground"}>
                       {count > 0 ? count : ''}
                     </span>
                   </button>
