@@ -154,6 +154,25 @@ export default function Home() {
     day: 'numeric' 
   });
 
+  const weeklyQuotes = [
+    "Faithfulness is built one chapter at a time.",
+    "Show up. Let the Word do the work.",
+    "You don't master the Word. You return to it.",
+    "Consistency shapes understanding.",
+    "A quiet habit can carry a lifetime.",
+    "Read again. There is more here.",
+    "Depth comes from staying.",
+    "The Word rewards the patient reader.",
+    "This is how Scripture becomes familiar.",
+    "Built slowly. Held forever."
+  ];
+
+  const getWeeklyQuote = () => {
+    const startOfYear = new Date(currentYear, 0, 1);
+    const weeksSinceStartOfYear = Math.floor((now - startOfYear) / (7 * 24 * 60 * 60 * 1000));
+    return weeklyQuotes[weeksSinceStartOfYear % weeklyQuotes.length];
+  };
+
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
@@ -163,15 +182,14 @@ export default function Home() {
             readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
             `${yearChaptersRead} chapters read in ${currentYear}`
           } 
-          subtitle={
-            readingDays < 7 ? `${weekChaptersRead} chapters read this week` :
-            readingDays >= 7 && readingDays <= 14 ? `${monthChaptersRead} chapters read this month` :
-            `${avgChaptersPerReadingDay} chapters per reading day`
-          } 
         />
         
         {!selectedBook && (
           <>
+            <p className="text-sm text-muted-foreground mb-4 opacity-80">
+              {getWeeklyQuote()}
+            </p>
+
             {weekChaptersRead > 0 && (
               <p className="text-sm text-muted-foreground mb-6 opacity-70">
                 {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
