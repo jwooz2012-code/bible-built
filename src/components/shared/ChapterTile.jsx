@@ -28,19 +28,24 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       }}
     >
       {timesRead >= 1 && (
-        <CheckCircle className="absolute top-1 right-1 w-3 h-3 text-accent-foreground/50" />
+        <div 
+          className="absolute top-1.5 right-1.5 w-4 h-4 rounded-full bg-secondary flex items-center justify-center"
+        >
+          <span 
+            className="text-[9px] font-bold leading-none"
+            style={{ 
+              color: 'var(--energy-orange)',
+              opacity: timesRead === 1 ? 0.5 : 1
+            }}
+          >
+            {timesRead}
+          </span>
+        </div>
       )}
       
-      <div className="flex flex-col items-center justify-center gap-0.5">
-        <span className={`text-[15px] font-semibold leading-none ${timesRead > 0 ? 'text-accent-foreground' : 'text-foreground'}`}>
-          {chapter}
-        </span>
-        {timesRead >= 2 && (
-          <span className="text-[7px] font-medium text-muted-foreground/70 leading-none">
-            x{timesRead}
-          </span>
-        )}
-      </div>
+      <span className="text-[15px] font-semibold leading-none text-foreground">
+        {chapter}
+      </span>
     </motion.button>
   );
 }
