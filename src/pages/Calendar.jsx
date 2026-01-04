@@ -23,7 +23,6 @@ export default function Calendar() {
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
-  const [isClearing, setIsClearing] = useState(false);
   
   const queryClient = useQueryClient();
 
@@ -78,25 +77,6 @@ export default function Calendar() {
       } else {
         toast.error('Failed to delete reading');
       }
-    }
-  };
-
-  const handleClearDay = async () => {
-    if (!selectedDay || selectedDayLogs.length === 0) return;
-    
-    setIsClearing(true);
-    try {
-      for (const log of selectedDayLogs) {
-        await base44.entities.ReadingLog.delete(log.id);
-      }
-      setSelectedDayLogs([]);
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      toast.success('Day cleared');
-    } catch (error) {
-      console.error('Clear day error:', error);
-      toast.error('Failed to clear day');
-    } finally {
-      setIsClearing(false);
     }
   };
 
@@ -238,25 +218,15 @@ export default function Calendar() {
           </SheetHeader>
           
           <div className="mt-6 space-y-4">
-            <div className="flex gap-2">
-              <Button 
-                onClick={() => setShowAddForm(!showAddForm)}
-                variant="outline" 
-                className="flex-1"
-                size="sm"
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Reading
-              </Button>
-              <Button 
-                onClick={handleClearDay}
-                variant="destructive"
-                size="sm"
-                disabled={isClearing || selectedDayLogs.length === 0}
-              >
-                {isClearing ? 'Clearing...' : 'Clear Day'}
-              </Button>
-            </div>
+            <Button 
+              onClick={() => setShowAddForm(!showAddForm)}
+              variant="outline" 
+              className="w-full"
+              size="sm"
+            >
+              <Plus className="w-4 h-4 mr-2" />
+              Add Reading
+            </Button>
 
             {showAddForm && (
               <motion.div
