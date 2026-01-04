@@ -119,9 +119,6 @@ export default function Home() {
         {!selectedBook && (
           <>
             <WeekView logs={allTimeLogs} />
-            <p className="text-xs text-muted-foreground text-center mb-6 px-4">
-              Tap a chapter to mark it read and build your progress
-            </p>
           </>
         )}
 
@@ -178,6 +175,9 @@ export default function Home() {
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
+            <p className="text-xs text-muted-foreground text-center mb-4">
+              Tap a chapter to mark it read.
+            </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
                 const chapterId = generateChapterId(selectedBook.index, chapter);
