@@ -100,8 +100,8 @@ export default function Settings() {
                     boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Monitor className="w-5 h-5" style={theme === 'system' ? { color: 'var(--energy-orange)' } : {}} />
-                  <span className="text-xs font-medium" style={theme === 'system' ? { color: 'var(--energy-orange)' } : {}}>System</span>
+                  <Monitor className="w-5 h-5 text-foreground" />
+                  <span className="text-xs font-medium text-foreground">System</span>
                 </button>
                 <button
                   onClick={() => setTheme('light')}
@@ -112,8 +112,8 @@ export default function Settings() {
                     boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Sun className="w-5 h-5" style={theme === 'light' ? { color: 'var(--energy-orange)' } : {}} />
-                  <span className="text-xs font-medium" style={theme === 'light' ? { color: 'var(--energy-orange)' } : {}}>Light</span>
+                  <Sun className="w-5 h-5 text-foreground" />
+                  <span className="text-xs font-medium text-foreground">Light</span>
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
@@ -124,8 +124,8 @@ export default function Settings() {
                     boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
-                  <Moon className="w-5 h-5" style={theme === 'dark' ? { color: 'var(--energy-orange)' } : {}} />
-                  <span className="text-xs font-medium" style={theme === 'dark' ? { color: 'var(--energy-orange)' } : {}}>Dark</span>
+                  <Moon className="w-5 h-5 text-foreground" />
+                  <span className="text-xs font-medium text-foreground">Dark</span>
                 </button>
               </div>
             </CardContent>

@@ -18,12 +18,12 @@ export default function BookCard({ book, completions, onClick }) {
             <div 
               className="min-w-[24px] h-[18px] px-2 rounded-full flex items-center justify-center shrink-0 border-2 transition-all"
               style={{
-                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))',
+                background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
                 borderColor: 'var(--energy-orange)',
                 boxShadow: '0 0 10px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.2)))'
               }}
             >
-              <span className="text-[10px] font-bold" style={{ color: 'var(--energy-orange)' }}>{completions}</span>
+              <span className="text-[10px] font-bold text-white">{completions}</span>
             </div>
           )}
         </div>

@@ -178,14 +178,12 @@ export default function Calendar() {
                   <button
                     key={i}
                     onClick={() => handleDayClick(day)}
-                    className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary text-secondary-foreground hover:opacity-80"
+                    className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary hover:opacity-80"
                     style={count > 0 ? {
                       background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
                       borderWidth: '2px',
                       borderStyle: 'solid',
                       borderColor: 'var(--energy-orange)',
-                      color: 'var(--energy-orange)',
-                      fontWeight: '600',
                       boxShadow: isToday ? '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.25)))' : '0 0 10px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
                     } : isToday ? {
                       borderWidth: '2px',
@@ -194,8 +192,8 @@ export default function Calendar() {
                       boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.18)))'
                     } : {}}
                   >
-                    <span>{day}</span>
-                    <span className="text-xs h-[14px] flex items-center justify-center">
+                    <span className="text-foreground">{day}</span>
+                    <span className="text-xs h-[14px] flex items-center justify-center text-foreground">
                       {count > 0 ? count : ''}
                     </span>
                   </button>

@@ -50,16 +50,10 @@ export default function WeekView({ logs = [] }) {
                 boxShadow: '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.2)))'
               } : {}}
             >
-              <span 
-                className="text-[10px] font-medium"
-                style={{ color: isToday || count > 0 ? 'var(--energy-orange)' : undefined }}
-              >
+              <span className="text-[10px] font-medium text-muted-foreground">
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span 
-                className="text-sm font-semibold"
-                style={{ color: isToday ? 'var(--energy-orange)' : undefined }}
-              >
+              <span className="text-sm font-semibold text-foreground">
                 {date.getDate()}
               </span>
               <div className="h-[14px] flex items-center justify-center">
