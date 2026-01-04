@@ -29,7 +29,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
             borderColor: 'rgba(0, 0, 0, 0.2)'
           }}
         >
-          <span className="text-[10px] font-bold leading-none text-foreground">{timesRead}</span>
+          <span className="text-[10px] font-bold leading-none text-white">{timesRead}</span>
         </div>
       )}
     </motion.button>
