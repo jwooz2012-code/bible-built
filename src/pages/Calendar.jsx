@@ -84,7 +84,9 @@ export default function Calendar() {
     if (!selectedDay || selectedDayLogs.length === 0) return;
     
     try {
-      await Promise.all(selectedDayLogs.map(log => base44.entities.ReadingLog.delete(log.id)));
+      for (const log of selectedDayLogs) {
+        await base44.entities.ReadingLog.delete(log.id);
+      }
       setSelectedDayLogs([]);
       queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
       toast.success('Day cleared');
