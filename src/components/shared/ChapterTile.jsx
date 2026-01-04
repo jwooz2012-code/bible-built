@@ -13,7 +13,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         background: 'rgba(249, 115, 22, 0.08)',
         borderColor: 'var(--energy-orange)',
         borderWidth: '1.5px',
-        boxShadow: '0 0 12px var(--energy-glow)'
+        boxShadow: '0 0 6px rgba(249, 115, 22, 0.08)'
       } : {}}
     >
       <span className="text-[15px] font-semibold text-foreground leading-none">
