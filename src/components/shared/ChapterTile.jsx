@@ -28,7 +28,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
             boxShadow: '0 1px 3px rgba(0, 0, 0, 0.15)'
           }}
         >
-          <span className="text-[10px] font-bold" style={{ color: '#1a1a1a' }}>{timesRead}</span>
+          <span className="text-[10px] font-bold leading-none" style={{ color: '#1a1a1a' }}>{timesRead}</span>
         </div>
       )}
     </motion.button>
