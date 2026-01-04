@@ -8,7 +8,7 @@ import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
-import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
+import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { Trophy, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -46,9 +46,25 @@ export default function Stats() {
   const totalChaptersRead = lifetimeStats.totalCount;
   const bibleReadThroughCount = lifetimeTotal;
   
-  // Count distinct books completed (unique book names from lifetime logs)
-  const uniqueBooks = new Set(lifetimeLogs.map(log => log.book));
-  const totalBooksCompletedDistinct = uniqueBooks.size;
+  // Count distinct books completed (books where ALL chapters have been read)
+  const totalBooksCompletedDistinct = (() => {
+    const bookChaptersRead = {};
+    lifetimeLogs.forEach(log => {
+      if (!bookChaptersRead[log.book]) {
+        bookChaptersRead[log.book] = new Set();
+      }
+      bookChaptersRead[log.book].add(log.chapter);
+    });
+    
+    let completedCount = 0;
+    Object.keys(bookChaptersRead).forEach(bookName => {
+      const bookData = BIBLE_BOOKS.find(b => b.name === bookName);
+      if (bookData && bookChaptersRead[bookName].size >= bookData.chapters) {
+        completedCount++;
+      }
+    });
+    return completedCount;
+  })();
   
   // Count distinct days with reading
   const uniqueDays = new Set(lifetimeLogs.map(log => log.dateKey));
