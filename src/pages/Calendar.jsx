@@ -47,10 +47,10 @@ export default function Calendar() {
 
   // Calculate last 7 days reading frequency
   const today = new Date();
+  const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
   const sevenDaysAgo = new Date(today);
   sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
   const last7DaysStart = `${sevenDaysAgo.getFullYear()}-${String(sevenDaysAgo.getMonth() + 1).padStart(2, '0')}-${String(sevenDaysAgo.getDate()).padStart(2, '0')}`;
-  const todayKey = today.toISOString().slice(0, 10);
   
   const { data: last7DaysLogs = [] } = useReadingLogsRange(userId, last7DaysStart, todayKey);
   const last7DaysUniqueDates = new Set(last7DaysLogs.map(log => log.dateKey));
