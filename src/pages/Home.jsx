@@ -54,7 +54,8 @@ export default function Home() {
   
   const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
   const readingDays = new Set(allTimeLogs.map(log => log.dateKey)).size;
-  const avgChaptersPerReadingDay = readingDays > 0 ? (yearChaptersRead / readingDays).toFixed(1) : 0;
+  const yearReadingDays = new Set(yearLogs.map(log => log.dateKey)).size;
+  const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
   
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
   const { markAllRead, isMarkingAll } = useMarkAllRead();
