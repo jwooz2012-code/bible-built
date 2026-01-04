@@ -200,12 +200,12 @@ export default function Calendar() {
                       borderColor: 'hsl(var(--accent))',
                       borderWidth: '1.5px'
                     } : count > 0 ? {
-                      background: 'hsl(var(--card))',
+                      background: 'hsl(var(--accent))',
                       borderWidth: '1.5px',
-                      borderColor: 'hsl(var(--border))'
+                      borderColor: 'hsl(var(--accent))'
                     } : {
-                      background: 'hsl(var(--secondary))',
-                      borderColor: 'transparent'
+                      background: 'hsl(var(--card))',
+                      borderColor: 'hsl(var(--border))'
                     }}
                   >
                     <span className={isToday ? "text-accent-foreground font-bold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
