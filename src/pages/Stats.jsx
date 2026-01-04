@@ -73,20 +73,11 @@ export default function Stats() {
                     {yearStats.totalCount} <span className="text-sm text-muted-foreground">/ {TOTAL_CHAPTERS}</span>
                   </span>
                 </div>
-                <div className="flex gap-0.5 h-2">
-                  {Array.from({ length: 50 }).map((_, i) => {
-                    const segmentPercent = (i + 1) * 2;
-                    return (
-                      <div
-                        key={i}
-                        className={`flex-1 rounded-sm transition-all duration-300 ${
-                          yearStats.totalPercent >= segmentPercent 
-                            ? 'bg-accent' 
-                            : 'bg-secondary'
-                        }`}
-                      />
-                    );
-                  })}
+                <div className="relative w-full h-3 bg-secondary rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-accent transition-all duration-500 ease-out rounded-full"
+                    style={{ width: `${yearStats.totalPercent}%` }}
+                  />
                 </div>
               </div>
 
