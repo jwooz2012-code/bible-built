@@ -21,12 +21,9 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       
       {timesRead > 0 && (
         <div 
-          className="absolute top-1 right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-md"
+          className="absolute top-1 right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center shadow-md border-[1.5px] border-white/30 dark:border-white/20"
           style={{
-            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-            borderWidth: '1.5px',
-            borderStyle: 'solid',
-            borderColor: 'rgba(0, 0, 0, 0.2)'
+            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))'
           }}
         >
           <span className="text-[10px] font-bold leading-none text-white">{timesRead}</span>
