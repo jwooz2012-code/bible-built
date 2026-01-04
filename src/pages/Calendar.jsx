@@ -69,8 +69,7 @@ export default function Calendar() {
     try {
       await base44.entities.ReadingLog.delete(logId);
       setSelectedDayLogs(prev => prev.filter(log => log.id !== logId));
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries();
       toast.success('Chapter removed from this day');
     } catch (error) {
       console.error('Delete error:', error);
@@ -106,8 +105,7 @@ export default function Calendar() {
       });
 
       setSelectedDayLogs(prev => [...prev, newLog]);
-      await queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      await queryClient.refetchQueries({ queryKey: ['readingLogs'] });
+      await queryClient.invalidateQueries();
       setShowAddForm(false);
       setSelectedBook('');
       setSelectedChapter('');
