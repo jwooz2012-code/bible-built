@@ -58,11 +58,10 @@ export default function WeekView({ logs = [] }) {
               <span className={`text-sm font-semibold ${isToday ? 'text-accent' : 'text-foreground'}`}>
                 {date.getDate()}
               </span>
-              {count > 0 && !isToday && (
-                <div className="w-1.5 h-1.5 rounded-full bg-accent mt-0.5" />
-              )}
-              {count === 0 && !isToday && (
-                <div className="w-1.5 h-1.5 rounded-full bg-[#D1D5DB] dark:bg-[#374151] mt-0.5 opacity-40" />
+              {count > 0 && (
+                <div className="min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center bg-[#EEF1F5] dark:bg-[#1C2433] mt-0.5">
+                  <span className="text-[9px] font-semibold text-[#4B5563] dark:text-[#9CA3AF]">{count}</span>
+                </div>
               )}
             </motion.button>
           );
