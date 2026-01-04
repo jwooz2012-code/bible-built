@@ -53,9 +53,12 @@ export default function Stats() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-border rounded-2xl p-6 mb-4"
         >
-          <h2 className="text-xl font-semibold text-foreground mb-6">
-            This Year ({currentYear})
-          </h2>
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              This Year ({currentYear})
+            </h2>
+            <div className="w-16 h-[1px] bg-[#2F3E5C] opacity-70" />
+          </div>
 
           {yearLoading ? (
             <div className="space-y-4">
@@ -70,11 +73,20 @@ export default function Stats() {
                     {yearStats.totalCount} <span className="text-sm text-muted-foreground">/ {TOTAL_CHAPTERS}</span>
                   </span>
                 </div>
-                <div className="h-2 bg-secondary rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-accent transition-all duration-500"
-                    style={{ width: `${yearStats.totalPercent}%` }}
-                  />
+                <div className="flex gap-0.5 h-2">
+                  {Array.from({ length: 50 }).map((_, i) => {
+                    const segmentPercent = (i + 1) * 2;
+                    return (
+                      <div
+                        key={i}
+                        className={`flex-1 rounded-sm transition-all duration-300 ${
+                          yearStats.totalPercent >= segmentPercent 
+                            ? 'bg-accent' 
+                            : 'bg-secondary'
+                        }`}
+                      />
+                    );
+                  })}
                 </div>
               </div>
 
@@ -100,7 +112,10 @@ export default function Stats() {
           transition={{ delay: 0.1 }}
           className="bg-card border border-border rounded-2xl p-6"
         >
-          <h2 className="text-xl font-semibold text-foreground mb-6">Lifetime</h2>
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-foreground mb-2">Lifetime</h2>
+            <div className="w-16 h-[1px] bg-[#2F3E5C] opacity-70" />
+          </div>
 
           {lifetimeLoading ? (
             <div className="space-y-4">

@@ -5,6 +5,14 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
   return (
     <motion.button
       whileTap={{ scale: disabled ? 1 : 0.95 }}
+      animate={timesRead > 0 ? { 
+        boxShadow: [
+          '0 0 0px rgba(47,62,92,0)',
+          '0 0 12px rgba(47,62,92,0.2)',
+          '0 0 0px rgba(47,62,92,0)'
+        ]
+      } : {}}
+      transition={{ duration: 0.15 }}
       onClick={onClick}
       disabled={disabled}
       className={`
