@@ -8,10 +8,10 @@ export default function WeekView({ logs = [] }) {
   const navigate = useNavigate();
   const today = new Date();
   
-  // Get start of week (Monday)
+  // Get start of week (Sunday)
   const startOfWeek = new Date(today);
   const day = startOfWeek.getDay();
-  const diff = startOfWeek.getDate() - day + (day === 0 ? -6 : 1);
+  const diff = startOfWeek.getDate() - day;
   startOfWeek.setDate(diff);
   startOfWeek.setHours(0, 0, 0, 0);
 
@@ -52,17 +52,17 @@ export default function WeekView({ logs = [] }) {
                 ${isToday ? 'bg-accent/12 border-accent' : count > 0 ? 'bg-accent/8 border-accent/20' : 'bg-secondary border-border'}
               `}
             >
-              <span className={`text-[10px] font-medium ${isToday ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+              <span className={`text-[10px] font-medium ${isToday ? 'text-accent-foreground' : 'text-muted-foreground'}`}>
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span className={`text-sm font-semibold ${isToday ? 'text-accent' : 'text-foreground'}`}>
+              <span className={`text-sm font-semibold ${isToday ? 'text-foreground' : 'text-foreground'}`}>
                 {date.getDate()}
               </span>
-              {count > 0 && (
-                <div className="min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center bg-[#EEF1F5] dark:bg-[#1C2433] mt-0.5">
+              <div className={`min-w-[18px] h-[14px] px-1.5 rounded-full flex items-center justify-center mt-0.5 ${count > 0 ? 'bg-[#EEF1F5] dark:bg-[#1C2433]' : ''}`}>
+                {count > 0 && (
                   <span className="text-[9px] font-semibold text-[#4B5563] dark:text-[#9CA3AF]">{count}</span>
-                </div>
-              )}
+                )}
+              </div>
             </motion.button>
           );
         })}
