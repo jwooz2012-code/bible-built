@@ -1,16 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
-import { Trophy } from 'lucide-react';
+import { Trophy, Pencil } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showBaselineDialog, setShowBaselineDialog] = useState(false);
+  const [baselineInput, setBaselineInput] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -31,9 +38,13 @@ export default function Stats() {
   const yearStats = useReadingStats(yearLogs);
   const lifetimeStats = useReadingStats(lifetimeLogs);
 
+  const baselineCompletions = user?.baselineCompletions || 0;
+  const trackedCompletions = lifetimeStats.timesThroughBible;
+  const lifetimeTotal = baselineCompletions + trackedCompletions;
+
   // Calculate additional stats for achievements
   const totalChaptersRead = lifetimeStats.totalCount;
-  const bibleReadThroughCount = lifetimeStats.timesThroughBible;
+  const bibleReadThroughCount = lifetimeTotal;
   
   // Count distinct books completed (unique book names from lifetime logs)
   const uniqueBooks = new Set(lifetimeLogs.map(log => log.book));
@@ -80,6 +91,31 @@ export default function Stats() {
     base44.auth.redirectToLogin();
     return null;
   }
+
+  const handleEditBaseline = () => {
+    setBaselineInput(String(baselineCompletions));
+    setShowBaselineDialog(true);
+  };
+
+  const handleSaveBaseline = async () => {
+    const value = parseInt(baselineInput, 10);
+    if (isNaN(value) || value < 0 || value > 99) {
+      toast.error('Please enter a number between 0 and 99');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await base44.auth.updateMe({ baselineCompletions: value });
+      setUser({ ...user, baselineCompletions: value });
+      setShowBaselineDialog(false);
+      toast.success('Updated starting count.');
+    } catch (error) {
+      toast.error('Failed to save. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-20">
@@ -170,12 +206,21 @@ export default function Stats() {
             </div>
           ) : (
             <div className="space-y-6">
-              <div className="text-center rounded-xl p-6" style={{ 
+              <div className="text-center rounded-xl p-6 relative" style={{ 
                 background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(250, 204, 21, 0.12) 100%)',
                 boxShadow: '0 0 16px var(--energy-glow)'
               }}>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleEditBaseline}
+                  className="absolute top-2 right-2 h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
+                >
+                  <Pencil className="w-3.5 h-3.5 mr-1" />
+                  Edit
+                </Button>
                 <p className="text-sm text-muted-foreground mb-2">Times Through the Bible</p>
-                <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeStats.timesThroughBible}</p>
+                <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
                 <p className="text-xs text-foreground/70 mt-3">
                   {lifetimeStats.percentToNext}% to next ({lifetimeStats.progressToNext}/{TOTAL_CHAPTERS})
                 </p>
@@ -275,6 +320,43 @@ export default function Stats() {
           )}
         </motion.div>
       </div>
+
+      <Dialog open={showBaselineDialog} onOpenChange={setShowBaselineDialog}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Starting Count</DialogTitle>
+            <DialogDescription>
+              Completions before using Bible Built. Does not change reading logs.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <Input
+              type="number"
+              min="0"
+              max="99"
+              value={baselineInput}
+              onChange={(e) => setBaselineInput(e.target.value)}
+              placeholder="0"
+              className="text-center text-lg"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowBaselineDialog(false)}
+              disabled={isSaving}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSaveBaseline}
+              disabled={isSaving}
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
