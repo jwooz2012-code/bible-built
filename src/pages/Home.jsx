@@ -176,6 +176,8 @@ export default function Home() {
               {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
             </p>
 
+            <WeekView logs={allTimeLogs} />
+
             {recentBooks.length > 0 ? (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
