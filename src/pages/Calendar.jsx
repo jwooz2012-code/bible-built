@@ -139,11 +139,11 @@ export default function Calendar() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-border rounded-2xl p-6"
         >
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-5">
             <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
-            <h2 className="text-xl font-semibold text-foreground">
+            <h2 className="text-lg font-semibold text-foreground">
               {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
             </h2>
             <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month + 1, 1))}>
@@ -175,22 +175,20 @@ export default function Calendar() {
                   <button
                     key={i}
                     onClick={() => handleDayClick(day)}
-                    className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary hover:opacity-80"
+                    className="aspect-square rounded-xl p-2 flex flex-col items-center justify-center gap-0.5 transition-all text-sm font-medium bg-secondary hover:opacity-80 border"
                     style={count > 0 ? {
-                      background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
-                      borderWidth: '2px',
-                      borderStyle: 'solid',
-                      borderColor: 'var(--energy-orange)',
-                      boxShadow: isToday ? '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.25)))' : '0 0 10px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                      background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))',
+                      borderWidth: '1.5px',
+                      borderColor: 'var(--energy-orange)'
                     } : isToday ? {
-                      borderWidth: '2px',
-                      borderStyle: 'solid',
-                      borderColor: 'var(--energy-orange)',
-                      boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.18)))'
-                    } : {}}
+                      borderWidth: '1.5px',
+                      borderColor: 'var(--energy-orange)'
+                    } : {
+                      borderColor: 'transparent'
+                    }}
                   >
-                    <span className="text-foreground">{day}</span>
-                    <span className="text-xs h-[14px] flex items-center justify-center text-foreground">
+                    <span className="text-foreground font-semibold">{day}</span>
+                    <span className="text-xs h-[14px] flex items-center justify-center font-bold text-foreground">
                       {count > 0 ? count : ''}
                     </span>
                   </button>

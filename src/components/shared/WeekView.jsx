@@ -32,9 +32,9 @@ export default function WeekView({ logs = [] }) {
   };
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-5 mb-8 shadow-sm">
+    <div className="bg-card border border-border rounded-2xl p-5 mb-6 shadow-sm">
       <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-4">This Week</h3>
-      <div className="grid grid-cols-7 gap-3">
+      <div className="grid grid-cols-7 gap-2.5">
         {weekDays.map((date, i) => {
           const dateKey = getDateKey(date);
           const count = logsGrouped[dateKey] || 0;
@@ -45,11 +45,11 @@ export default function WeekView({ logs = [] }) {
               key={i}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
-              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1.5 transition-all py-3 border"
+              className="aspect-square rounded-xl flex flex-col items-center justify-center gap-1 transition-all py-3 border"
               style={isToday ? {
-                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
+                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12), rgba(250, 204, 21, 0.12))',
                 borderColor: 'var(--energy-orange)',
-                boxShadow: '0 0 16px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.2)))'
+                borderWidth: '1.5px'
               } : {
                 background: 'hsl(var(--secondary))',
                 borderColor: 'hsl(var(--border))'
@@ -62,16 +62,14 @@ export default function WeekView({ logs = [] }) {
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
               <span 
-                className="text-sm font-semibold"
-                style={{ color: 'hsl(var(--foreground))' }}
+                className="text-base font-semibold text-foreground"
               >
                 {date.getDate()}
               </span>
               <div className="h-[14px] flex items-center justify-center">
                 {count > 0 && (
                   <span 
-                    className="text-[10px] font-bold"
-                    style={{ color: 'hsl(var(--foreground))' }}
+                    className="text-[11px] font-bold text-foreground"
                   >
                     {count}
                   </span>

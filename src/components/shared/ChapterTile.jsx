@@ -5,9 +5,6 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
   return (
     <motion.button
       whileTap={{ scale: disabled ? 1 : 0.95 }}
-      animate={timesRead > 0 ? { 
-        scale: [1, 1.05, 1]
-      } : {}}
       transition={{ duration: 0.15 }}
       onClick={onClick}
       disabled={disabled}
@@ -15,8 +12,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       style={timesRead > 0 ? {
         background: 'rgba(249, 115, 22, 0.05)',
         borderColor: 'var(--energy-orange)',
-        borderWidth: '1.5px',
-        boxShadow: '0 0 6px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.08)))'
+        borderWidth: '1.5px'
       } : {}}
     >
       <span className="text-sm font-semibold text-foreground">
@@ -25,13 +21,13 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       
       {timesRead > 0 && (
         <div 
-          className="absolute top-1.5 right-1.5 min-w-[16px] h-[15px] px-1.5 rounded-full flex items-center justify-center"
+          className="absolute top-1 right-1 w-[18px] h-[18px] rounded-full flex items-center justify-center"
           style={{
             background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-            boxShadow: '0 0 4px rgba(249, 115, 22, 0.2)'
+            border: '1px solid rgba(255, 255, 255, 0.2)'
           }}
         >
-          <span className="text-[9px] font-semibold" style={{ color: 'hsl(var(--foreground))' }}>{timesRead}</span>
+          <span className="text-[10px] font-bold text-white">{timesRead}</span>
         </div>
       )}
     </motion.button>

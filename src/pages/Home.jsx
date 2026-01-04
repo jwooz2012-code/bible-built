@@ -116,11 +116,18 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 py-8">
         <PageHeader title="Bible Built" subtitle={formattedDate} />
         
-        {!selectedBook && <WeekView logs={allTimeLogs} />}
+        {!selectedBook && (
+          <>
+            <WeekView logs={allTimeLogs} />
+            <p className="text-xs text-muted-foreground text-center mb-6 px-4">
+              Tap a chapter to mark it read and build your progress
+            </p>
+          </>
+        )}
 
         {!selectedBook ? (
           <>
-            <div className="grid grid-cols-2 gap-3 mb-8">
+            <div className="grid grid-cols-2 gap-2.5 mb-8">
               {BIBLE_BOOKS.map(book => {
                 const stats = getBookStats(book);
                 return (
