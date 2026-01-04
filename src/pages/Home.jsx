@@ -23,6 +23,12 @@ export default function Home() {
   const [selectedBook, setSelectedBook] = useState(null);
 
   useEffect(() => {
+    if (selectedBook) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [selectedBook]);
+
+  useEffect(() => {
     let mounted = true;
     base44.auth.me()
       .then(u => { 
