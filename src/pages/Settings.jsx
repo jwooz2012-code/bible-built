@@ -52,13 +52,14 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-5 py-8">
         <PageHeader title="Settings" subtitle="Manage your account" />
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
+          transition={{ duration: 0.15 }}
+          className="space-y-5"
         >
           <Card>
             <CardHeader>
@@ -96,8 +97,7 @@ export default function Settings() {
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'system' ? {
                     borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
-                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Monitor className="w-5 h-5 text-foreground" />
@@ -108,8 +108,7 @@ export default function Settings() {
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'light' ? {
                     borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
-                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Sun className="w-5 h-5 text-foreground" />
@@ -120,8 +119,7 @@ export default function Settings() {
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'dark' ? {
                     borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.08), rgba(250, 204, 21, 0.08))',
-                    boxShadow: '0 0 12px var(--energy-glow-light, var(--energy-glow-dark, rgba(249, 115, 22, 0.15)))'
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Moon className="w-5 h-5 text-foreground" />

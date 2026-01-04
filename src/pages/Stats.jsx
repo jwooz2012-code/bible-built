@@ -83,13 +83,14 @@ export default function Stats() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-5 py-8">
         <PageHeader title="Statistics" subtitle="Your reading progress" />
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-6 mb-4"
+          transition={{ duration: 0.15 }}
+          className="bg-card border border-border rounded-2xl p-5 mb-5"
         >
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">
@@ -141,8 +142,8 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="bg-card border border-border rounded-2xl p-6 mb-4"
+          transition={{ duration: 0.15, delay: 0.05 }}
+          className="bg-card border border-border rounded-2xl p-5 mb-5"
         >
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">Lifetime</h2>
@@ -187,8 +188,8 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-card border border-border rounded-2xl p-6"
+          transition={{ duration: 0.15, delay: 0.1 }}
+          className="bg-card border border-border rounded-2xl p-5"
         >
           <div className="mb-6 flex items-center gap-3">
             <Trophy className="w-6 h-6" style={{ color: '#FACC15' }} />
@@ -213,15 +214,12 @@ export default function Stats() {
                   key={achievement.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.02 * achievement.id }}
-                  className={`rounded-xl p-4 border transition-all duration-200 ${
+                  transition={{ duration: 0.15 }}
+                  className={`rounded-xl p-4 border transition-all ${
                     achievement.achieved
                       ? 'bg-gradient-to-br from-[#F97316]/5 via-[#FACC15]/5 to-[#FB923C]/5 border-[#F97316]/20'
                       : 'bg-secondary border-border/50'
                   }`}
-                  style={achievement.achieved ? {
-                    boxShadow: '0 0 20px rgba(249, 115, 22, 0.15)'
-                  } : {}}
                 >
                   <div className="flex items-center gap-3">
                     <div 
