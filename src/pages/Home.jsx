@@ -48,11 +48,27 @@ export default function Home() {
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
 
   const currentYear = new Date().getFullYear();
+  const now = new Date();
+  
+  // Year calculations
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
   const yearLogs = allTimeLogs.filter(log => log.dateKey >= yearStart && log.dateKey <= yearEnd);
-  
   const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
+  
+  // Week calculations (last 7 days)
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekStart = getDateKey(weekAgo);
+  const weekLogs = allTimeLogs.filter(log => log.dateKey >= weekStart);
+  const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
+  
+  // Month calculations (current month)
+  const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+  const monthLogs = allTimeLogs.filter(log => log.dateKey >= monthStart && log.dateKey <= yearEnd);
+  const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
+  
+  // Phase calculations
   const readingDays = new Set(allTimeLogs.map(log => log.dateKey)).size;
   const yearReadingDays = new Set(yearLogs.map(log => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
@@ -137,8 +153,8 @@ export default function Home() {
             `${yearChaptersRead} chapters read in ${currentYear}`
           } 
           subtitle={
-            readingDays < 7 ? `${yearChaptersRead} chapters read this year` :
-            readingDays >= 7 && readingDays <= 14 ? `${yearChaptersRead} chapters read • ${readingDays} reading days` :
+            readingDays < 7 ? `${weekChaptersRead} chapters read this week` :
+            readingDays >= 7 && readingDays <= 14 ? `${monthChaptersRead} chapters read this month` :
             `${avgChaptersPerReadingDay} chapters per reading day`
           } 
         />
