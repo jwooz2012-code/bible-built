@@ -185,7 +185,7 @@ export default function Home() {
             } 
           />
         </div>
-        <p className="text-sm text-muted-foreground mb-8 opacity-70">
+        <p className="text-sm text-muted-foreground mb-5 opacity-85">
           {getWeeklyQuote()}
         </p>
         
@@ -193,7 +193,7 @@ export default function Home() {
           <>
 
             {weekChaptersRead > 0 && (
-              <p className="text-sm text-muted-foreground mb-6 opacity-70">
+              <p className="text-xs text-muted-foreground mb-3 opacity-60">
                 {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
               </p>
             )}
