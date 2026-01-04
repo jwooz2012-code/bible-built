@@ -172,13 +172,15 @@ export default function Home() {
         
         {!selectedBook && (
           <>
-            <p className="text-sm text-muted-foreground mb-6 opacity-70">
-              {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
-            </p>
+            {weekChaptersRead > 0 && (
+              <p className="text-sm text-muted-foreground mb-6 opacity-70">
+                {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
+              </p>
+            )}
 
             <WeekView logs={allTimeLogs} />
 
-            {recentBooks.length > 0 ? (
+            {recentBooks.length > 0 && (
               <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2.5">
@@ -194,15 +196,6 @@ export default function Home() {
                     );
                   })}
                 </div>
-              </div>
-            ) : (
-              <div className="mb-8">
-                <Button 
-                  onClick={() => setSelectedTestamentFilter('ALL')}
-                  className="w-full h-14 text-base font-medium"
-                >
-                  Start Reading
-                </Button>
               </div>
             )}
 
