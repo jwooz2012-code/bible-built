@@ -74,13 +74,13 @@ export default function Stats() {
                   </span>
                 </div>
                 <div className="flex gap-0.5 h-2">
-                  {Array.from({ length: TOTAL_CHAPTERS }).map((_, i) => {
-                    const chapterNumber = i + 1;
+                  {Array.from({ length: 50 }).map((_, i) => {
+                    const segmentPercent = (i + 1) * 2;
                     return (
                       <div
                         key={i}
                         className={`flex-1 rounded-sm transition-all duration-300 ${
-                          yearStats.totalCount >= chapterNumber 
+                          yearStats.totalPercent >= segmentPercent 
                             ? 'bg-accent' 
                             : 'bg-secondary'
                         }`}
