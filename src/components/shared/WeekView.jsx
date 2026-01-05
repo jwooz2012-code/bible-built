@@ -44,7 +44,7 @@ export default function WeekView({ logs = [] }) {
             <motion.button
               key={i}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleDayClick(date)} className="bg-slate-800 py-3 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
+              onClick={() => handleDayClick(date)} className="bg-slate-800 py-3 opacity-100 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
 
               style={isToday ? {
                 background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
