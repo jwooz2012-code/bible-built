@@ -1,4 +1,3 @@
-css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -58,6 +57,13 @@ css
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
   }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
 
 /* Energy Mode: Complete Override (same look regardless of Light/Dark) */
@@ -94,8 +100,7 @@ html.energy {
     hsl(215 95% 62%),
     hsl(160 84% 44%)
   );
-  --energy-glow: 215 95% 62% / 0.40;
-  --badge-text: #ffffff;
+  --energy-glow: 215 95% 62% / 0.4;
   --energy-motion: 1;
 }
 
@@ -114,15 +119,6 @@ html.energy body::before {
 #root {
   position: relative;
   z-index: 1;
-}
-
-@layer base {
-  * {
-    @apply border-border;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
 }
 
 @layer utilities {
