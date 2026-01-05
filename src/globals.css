@@ -189,10 +189,10 @@ html.energy .energy-shimmer::after {
     @apply shadow-md translate-y-[-2px];
   }
   .bb-glow {
-    box-shadow: 0 0 24px hsl(var(--primary) / 0.2);
+    box-shadow: 0 0 24px hsl(var(--chart-1) / 0.2);
   }
   .dark .bb-glow {
-    box-shadow: 0 0 24px hsl(var(--primary) / 0.3);
+    box-shadow: 0 0 24px hsl(var(--chart-1) / 0.3);
   }
   .bb-progress-gradient {
     background: linear-gradient(to right, hsl(var(--chart-1)), hsl(var(--chart-2)), hsl(var(--chart-3)));
@@ -203,7 +203,7 @@ html.energy .energy-shimmer::after {
     left: 50%;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.1), hsl(var(--brand-b) / 0.05), transparent 70%);
+    background: radial-gradient(circle at center, hsl(var(--chart-1) / 0.1), hsl(var(--chart-2) / 0.05), transparent 70%);
     filter: blur(100px);
     transform: translate(-50%, -50%);
     pointer-events: none;
@@ -211,7 +211,66 @@ html.energy .energy-shimmer::after {
     opacity: 0.7;
   }
   .dark .bb-ambient {
-    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.2), hsl(var(--brand-b) / 0.1), transparent 70%);
+    background: radial-gradient(circle at center, hsl(var(--chart-1) / 0.2), hsl(var(--chart-2) / 0.1), transparent 70%);
     opacity: 0.5;
+  }
+
+  /* Energy Mode Visual Effects */
+  html.energy .energy-border {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  html.energy .energy-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: var(--energy-gradient);
+    z-index: -1;
+    opacity: 0.8;
+  }
+  
+  html.energy .energy-card {
+    box-shadow: 
+      0 0 20px hsl(var(--energy-glow)),
+      0 0 40px hsl(var(--energy-glow)),
+      0 4px 6px -1px rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  html.energy .energy-card:hover {
+    box-shadow: 
+      0 0 30px hsl(var(--energy-glow)),
+      0 0 60px hsl(var(--energy-glow)),
+      0 10px 15px -3px rgb(0 0 0 / 0.1);
+  }
+  
+  html.energy .energy-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  html.energy .energy-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: energy-shimmer 2s infinite;
+  }
+  
+  @keyframes energy-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html.energy .energy-shimmer::after {
+      animation: none;
+    }
   }
 }
