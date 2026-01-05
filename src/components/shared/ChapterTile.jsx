@@ -33,7 +33,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       }}>
 
       {timesRead >= 1 &&
-      <div className="bg-white rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center border border-[#1a1a1a] times-read-badge">
+      <div className="bg-white opacity-100 rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center border border-[#1a1a1a] times-read-badge">
 
 
           <span
