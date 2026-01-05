@@ -1,11 +1,11 @@
 const STYLE_ID = 'bb-energy-style';
 
 const PALETTES = {
-  ember: {
-    ea: '18 42% 58%',
-    eb: '32 46% 62%',
-    ec: '142 28% 46%',
-    ed: '350 36% 66%'
+  petal: {
+    ea: '340 68% 82%',
+    eb: '28 72% 86%',
+    ec: '280 52% 88%',
+    ed: '42 58% 90%'
   },
   surge: {
     ea: '140 100% 48%',
@@ -78,13 +78,74 @@ html.energy *:focus-visible {
   outline-offset: 2px;
 }
 
-html.energy[data-energy-palette="ember"] {
-  --muted-foreground: 220 10% 85%;
+html.energy[data-energy-palette="petal"] {
+  --background: 340 25% 96%;
+  --foreground: 340 18% 18%;
+  --card: 0 0% 100%;
+  --card-foreground: 340 18% 18%;
+  --muted: 340 15% 92%;
+  --muted-foreground: 340 12% 42%;
+  --border: 340 20% 88%;
+  --primary: 340 68% 72%;
+  --ring: 340 68% 72%;
 }
 
-html.energy[data-energy-palette="ember"] .bb-readable,
-html.energy[data-energy-palette="ember"] .bb-text-boost {
-  color: hsl(0 0% 98%);
+html.energy[data-energy-palette="petal"] body::before {
+  background: linear-gradient(135deg,
+    hsl(340 68% 82%),
+    hsl(28 72% 86%),
+    hsl(280 52% 88%),
+    hsl(42 58% 90%)
+  );
+  filter: blur(60px);
+  opacity: 0.12;
+}
+
+html.energy[data-energy-palette="petal"] body::after {
+  background:
+    radial-gradient(circle at 20% 18%, hsla(340,68%,82%,0.08) 0%, transparent 45%),
+    radial-gradient(circle at 84% 70%, hsla(280,52%,88%,0.08) 0%, transparent 55%);
+  opacity: 0.15;
+}
+
+html.energy[data-energy-palette="petal"] .bb-energy-card,
+html.energy[data-energy-palette="petal"] [class*="card"],
+html.energy[data-energy-palette="petal"] [class*="rounded"] {
+  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,252,255,0.98));
+  border: 1px solid hsl(340 30% 90%);
+  backdrop-filter: blur(8px);
+  box-shadow:
+    0 0 0 1px hsl(340 40% 92%),
+    0 12px 40px rgba(255,220,235,0.18),
+    0 0 20px rgba(255,235,250,0.12);
+}
+
+html.energy[data-energy-palette="petal"] .bb-shimmer {
+  background: linear-gradient(135deg,
+    hsl(340 68% 82%),
+    hsl(28 72% 86%),
+    hsl(280 52% 88%),
+    hsl(42 58% 90%)
+  );
+  background-size: 200% 200%;
+  animation: bbPetalShift 6s ease infinite;
+}
+
+@keyframes bbPetalShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+html.energy[data-energy-palette="petal"] .bb-readable,
+html.energy[data-energy-palette="petal"] .bb-text-boost {
+  color: hsl(340 18% 20%);
+  text-shadow: 0 0.5px 1px rgba(255,255,255,0.6);
+}
+
+html.energy[data-energy-palette="petal"] [class*="ComboPill"],
+html.energy[data-energy-palette="petal"] [class*="combo"] {
+  display: none;
 }
 
 html.energy[data-energy-palette="royal"] {

@@ -155,19 +155,19 @@ export default function Settings() {
                     <p className="text-xs font-medium text-muted-foreground">Energy Palette</p>
                     <div className="grid grid-cols-3 gap-2">
                       <button
-                        onClick={() => setEnergyPalette('ember')}
+                        onClick={() => setEnergyPalette('petal')}
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                          energyPalette === 'ember'
+                          energyPalette === 'petal'
                             ? 'border-primary bg-primary/10'
                             : 'border-border bg-card'
                         }`}
                       >
                         <div className="w-full h-2 rounded-full overflow-hidden">
                           <div className="h-full" style={{ 
-                            background: 'linear-gradient(90deg, hsl(18 42% 58%), hsl(32 46% 62%), hsl(142 28% 46%), hsl(350 36% 66%))' 
+                            background: 'linear-gradient(90deg, hsl(340 68% 82%), hsl(28 72% 86%), hsl(280 52% 88%), hsl(42 58% 90%))' 
                           }} />
                         </div>
-                        <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Ember</span>
+                        <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Petal</span>
                       </button>
 
                       <button
