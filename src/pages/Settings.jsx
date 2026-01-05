@@ -94,7 +94,7 @@ export default function Settings() {
               <CardDescription>Choose your theme</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setTheme('system')}
                   className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
@@ -127,17 +127,6 @@ export default function Settings() {
                 >
                   <Moon className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Dark</span>
-                </button>
-                <button
-                  onClick={() => setTheme('energy')}
-                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
-                    theme === 'energy' 
-                      ? 'border-primary bg-primary/10' 
-                      : 'border-border bg-secondary'
-                  }`}
-                >
-                  <Palette className="w-5 h-5 text-foreground" />
-                  <span className="text-xs font-medium text-foreground">Energy</span>
                 </button>
               </div>
             </CardContent>

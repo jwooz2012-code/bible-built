@@ -64,34 +64,6 @@ css
     --chart-4: 38 95% 60%;
     --chart-5: 340 82% 66%;
   }
-
-  .energy {
-    --background: 222 28% 8%;
-    --foreground: 0 0% 98%;
-    --card: 222 24% 10%;
-    --card-foreground: 0 0% 98%;
-    --popover: 222 24% 10%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 215 95% 62%;
-    --primary-foreground: 0 0% 100%;
-    --secondary: 222 16% 14%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 222 16% 14%;
-    --muted-foreground: 220 12% 74%;
-    --accent: 160 84% 44%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 100%;
-    --border: 222 14% 20%;
-    --input: 222 14% 20%;
-    --ring: 215 95% 62%;
-
-    --chart-1: 215 95% 62%;
-    --chart-2: 285 92% 66%;
-    --chart-3: 160 84% 44%;
-    --chart-4: 42 98% 62%;
-    --chart-5: 335 92% 68%;
-  }
 }
 
 @layer base {
