@@ -337,7 +337,7 @@ export default function Home() {
               size="sm"
               onClick={() => setSelectedTestamentFilter('ALL')} 
               className="bg-[#ffffff] px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
-              style={energyMode && energyPalette === 'surge' ? { color: '#FFFFFF' } : { color: 'rgb(30 41 59)' }}>
+              style={energyMode && (energyPalette === 'surge' || energyPalette === 'royal') ? { color: '#FFFFFF' } : { color: 'rgb(30 41 59)' }}>
 
 
                 Whole Bible
