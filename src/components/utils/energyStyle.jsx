@@ -270,8 +270,10 @@ html.energy[data-energy-palette="petal"] [class*="counter"] {
 
 html.energy[data-energy-palette="petal"] .times-read-badge,
 html.energy[data-energy-palette="petal"] [style*="color: #F97316"],
-html.energy[data-energy-palette="petal"] [style*="color:#F97316"] {
-  color: hsl(345 58% 42%) !important;
+html.energy[data-energy-palette="petal"] [style*="color:#F97316"],
+html.energy[data-energy-palette="petal"] [style*="color: #F59E0B"],
+html.energy[data-energy-palette="petal"] [style*="color:#F59E0B"] {
+  color: hsl(222 22% 18%) !important;
 }
 
 html.energy[data-energy-palette="royal"] {
