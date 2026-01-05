@@ -335,7 +335,7 @@ export default function Home() {
               <Button
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setSelectedTestamentFilter('ALL')} className="bg-secondary text-slate-800 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-secondary/80 flex-1 h-9">
+              onClick={() => setSelectedTestamentFilter('ALL')} className="bg-secondary text-white px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-secondary/80 flex-1 h-9">
 
 
                 Whole Bible
