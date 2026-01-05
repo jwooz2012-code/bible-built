@@ -6,7 +6,7 @@ import { useTheme } from '@/components/ThemeProvider';
 
 export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
   const { energyMode, energyPalette } = useTheme();
-  
+
   const isRoyalRead = energyMode && energyPalette === 'royal' && timesRead > 0;
 
   const handleClick = () => {
@@ -30,27 +30,27 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       } : {
         background: 'hsl(var(--card))',
         borderColor: 'hsl(var(--border))'
-      }}
-    >
-      {timesRead >= 1 && (
-        <div 
-          className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-secondary flex items-center justify-center border dark:border-white border-[#1a1a1a] times-read-badge"
-        >
-          <span 
-            className="text-[9px] font-bold leading-none"
-            style={{ color: energyMode && energyPalette === 'petal' ? 'hsl(222 22% 18%)' : '#F97316' }}
-          >
+      }}>
+
+      {timesRead >= 1 &&
+      <div className="bg-slate-800 text-slate-800 rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center border dark:border-white border-[#1a1a1a] times-read-badge">
+
+
+          <span
+          className="text-[9px] font-bold leading-none"
+          style={{ color: energyMode && energyPalette === 'petal' ? 'hsl(222 22% 18%)' : '#F97316' }}>
+
             {timesRead}
           </span>
         </div>
-      )}
+      }
       
-      <span 
+      <span
         className="text-[15px] font-semibold leading-none"
-        style={isRoyalRead ? { color: 'hsl(220 25% 12%)' } : { color: 'hsl(var(--foreground))' }}
-      >
+        style={isRoyalRead ? { color: 'hsl(220 25% 12%)' } : { color: 'hsl(var(--foreground))' }}>
+
         {chapter}
       </span>
-    </motion.button>
-  );
+    </motion.button>);
+
 }
