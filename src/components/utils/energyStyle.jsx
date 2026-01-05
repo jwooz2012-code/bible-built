@@ -27,6 +27,88 @@ html.energy {
   --chart-4: 42 100% 60%;
   --chart-5: 335 100% 70%;
 }
+
+html.energy body::before {
+  content: "";
+  position: fixed;
+  inset: -140px;
+  background: linear-gradient(135deg,
+    hsl(42 100% 60%),
+    hsl(285 100% 70%),
+    hsl(210 100% 64%),
+    hsl(160 100% 45%)
+  );
+  filter: blur(110px);
+  opacity: 0.38;
+  pointer-events: none;
+  z-index: 0;
+}
+
+html.energy body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 18%, hsla(210,100%,64%,0.24) 0%, transparent 45%),
+    radial-gradient(circle at 84% 70%, hsla(285,100%,70%,0.20) 0%, transparent 55%),
+    radial-gradient(circle at 55% 12%, hsla(160,100%,45%,0.14) 0%, transparent 40%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+html.energy .bb-energy-card,
+html.energy [class*="card"],
+html.energy [class*="rounded"] {
+  background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03));
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(12px);
+  box-shadow:
+    0 0 0 1px rgba(80,160,255,0.10),
+    0 22px 75px rgba(80,160,255,0.18),
+    0 0 40px rgba(180,90,255,0.12);
+}
+
+html.energy .bb-shimmer {
+  background: linear-gradient(135deg,
+    hsl(42 100% 60%),
+    hsl(285 100% 70%),
+    hsl(210 100% 64%),
+    hsl(160 100% 45%)
+  );
+  background-size: 220% 220%;
+  animation: bbEnergyShift 4.2s ease infinite;
+}
+
+@keyframes bbEnergyShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+html.energy button,
+html.energy a {
+  transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;
+}
+
+html.energy button:active,
+html.energy a:active {
+  transform: scale(0.98);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.energy .bb-shimmer {
+    animation: none;
+  }
+  html.energy button,
+  html.energy a {
+    transition: none;
+  }
+}
 `;
 
 export function ensureEnergyStyleInjected() {

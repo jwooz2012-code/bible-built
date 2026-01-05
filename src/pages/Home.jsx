@@ -23,8 +23,13 @@ import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary } from '@/components/trackers/deriveStats';
+import XPBar from '@/components/energy/XPBar';
+import ComboPill from '@/components/energy/ComboPill';
+import LevelBadge from '@/components/energy/LevelBadge';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function Home() {
+  const { energyMode } = useTheme();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -250,6 +255,18 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 className="bb-card bb-glow p-6"
               >
+                {energyMode && (
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    <ComboPill todayCount={todayLogs.length} />
+                    <motion.span
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide"
+                    >
+                      ⚡ Energy Mode
+                    </motion.span>
+                  </div>
+                )}
                 <MomentumRings 
                   otPercent={trackerStats.otPercent}
                   ntPercent={trackerStats.ntPercent}
@@ -273,7 +290,13 @@ export default function Home() {
             </div>
 
             <div className="space-y-3 mb-8">
-              <TodayProgressBar chaptersToday={todayLogs.length} goal={3} />
+              {energyMode && (
+                <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
+                  <XPBar todayCount={todayLogs.length} />
+                  <LevelBadge weeklyCount={trackerStats.thisWeekChapters} />
+                </div>
+              )}
+              <TodayProgressBar chaptersToday={todayLogs.length} goal={3} energyMode={energyMode} />
               <div className="grid grid-cols-2 gap-3">
                 <StreakCard 
                   currentStreak={trackerStats.currentStreak}
