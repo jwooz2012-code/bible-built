@@ -5,7 +5,6 @@ import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { EnergyProvider } from '@/components/EnergyProvider';
 import { Toaster } from 'sonner';
-import '@/components/energy/energy.css';
 
 export default function Layout({ children }) {
   const location = useLocation();
