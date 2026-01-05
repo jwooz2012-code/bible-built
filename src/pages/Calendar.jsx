@@ -237,7 +237,7 @@ export default function Calendar() {
                       borderColor: 'hsl(var(--border))'
                     }}
                   >
-                    <span className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} style={(isToday || count > 0) ? { color: resolvedTheme === 'dark' ? '#FFFFFF' : 'hsl(222 22% 18%)' } : {}}>{day}</span>
+                    <span className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} style={(isToday || count > 0) ? { color: energyMode && energyPalette === 'royal' && count > 0 ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : 'hsl(222 22% 18%)' } : {}}>{day}</span>
                     <span className="text-sm h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: resolvedTheme === 'dark' ? '#FFFFFF' : '#1a1a1a' } : { color: 'transparent' }}>
                       {count > 0 ? count : '•'}
                     </span>
