@@ -5,84 +5,78 @@ css
 
 @layer base {
   :root {
-    --background: 220 35% 98%;
+    --background: 220 30% 98%;
     --foreground: 224 40% 12%;
     --card: 0 0% 100%;
     --card-foreground: 224 40% 12%;
     --popover: 0 0% 100%;
     --popover-foreground: 224 40% 12%;
-    --primary: 215 95% 56%;
+    --primary: 222 89% 56%;
     --primary-foreground: 0 0% 100%;
     --secondary: 220 25% 94%;
     --secondary-foreground: 224 40% 12%;
-    --muted: 220 18% 94%;
+    --muted: 220 20% 94%;
     --muted-foreground: 224 12% 45%;
-    --accent: 160 84% 39%;
+    --accent: 167 72% 45%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
     --border: 220 18% 88%;
     --input: 220 18% 88%;
-    --ring: 215 95% 56%;
+    --ring: 222 89% 56%;
     --radius: 0.75rem;
 
-    --chart-1: 215 95% 56%;
-    --chart-2: 285 92% 62%;
-    --chart-3: 160 84% 39%;
-    --chart-4: 42 98% 58%;
-    --chart-5: 335 92% 64%;
+    --chart-1: 222 89% 56%;
+    --chart-2: 280 80% 60%;
+    --chart-3: 167 72% 45%;
+    --chart-4: 38 95% 56%;
+    --chart-5: 340 82% 62%;
 
-    --brand-a: 215 95% 56%;
-    --brand-b: 285 92% 62%;
-    --brand-c: 160 84% 39%;
+    --brand-a: 222 89% 56%;
+    --brand-b: 280 80% 60%;
+    --brand-c: 167 72% 45%;
+
+    /* Energy Mode Variables - Calm Defaults (OFF) */
+    --energy-glow: transparent;
+    --energy-orange: hsl(var(--chart-4));
+    --energy-gold: hsl(var(--chart-5));
+    --energy-gradient: linear-gradient(135deg, hsl(var(--chart-1)), hsl(var(--chart-2)));
+    --badge-text: white;
   }
 
   .dark {
-    --background: 222 28% 8%;
+    --background: 222 25% 8%;
     --foreground: 0 0% 98%;
-    --card: 222 24% 10%;
+    --card: 222 22% 10%;
     --card-foreground: 0 0% 98%;
-    --popover: 222 24% 10%;
+    --popover: 222 22% 10%;
     --popover-foreground: 0 0% 98%;
-    --primary: 215 95% 62%;
+    --primary: 222 89% 60%;
     --primary-foreground: 0 0% 100%;
     --secondary: 222 18% 14%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 222 16% 14%;
+    --muted: 222 18% 14%;
     --muted-foreground: 220 12% 70%;
-    --accent: 160 84% 44%;
+    --accent: 167 72% 45%;
     --accent-foreground: 0 0% 100%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 100%;
     --border: 222 14% 18%;
     --input: 222 14% 18%;
-    --ring: 215 95% 62%;
+    --ring: 222 89% 60%;
 
-    --chart-1: 215 95% 62%;
-    --chart-2: 285 92% 66%;
-    --chart-3: 160 84% 44%;
-    --chart-4: 42 98% 62%;
-    --chart-5: 335 92% 68%;
-  }
+    --chart-1: 222 89% 60%;
+    --chart-2: 280 80% 64%;
+    --chart-3: 167 72% 48%;
+    --chart-4: 38 95% 60%;
+    --chart-5: 340 82% 66%;
 
-  /* Energy Mode Overrides */
-  html.energy {
-    --ot-a: 42 98% 58%;
-    --ot-b: 18 95% 60%;
-    --nt-a: 215 95% 56%;
-    --nt-b: 285 92% 62%;
-    --goal-a: 160 84% 39%;
-    --goal-b: 215 95% 56%;
-    --energy-motion: 1;
-  }
-
-  html.energy.dark {
-    --ot-a: 42 98% 62%;
-    --ot-b: 18 95% 66%;
-    --nt-a: 215 95% 62%;
-    --nt-b: 285 92% 66%;
-    --goal-a: 160 84% 44%;
-    --goal-b: 215 95% 62%;
+    /* Energy Mode Variables - Calm Defaults (OFF) */
+    --energy-glow: transparent;
+    --energy-orange: hsl(var(--chart-4));
+    --energy-gold: hsl(var(--chart-5));
+    --energy-gradient: linear-gradient(135deg, hsl(var(--chart-1)), hsl(var(--chart-2)));
+    --badge-text: white;
   }
 }
 
@@ -117,26 +111,14 @@ css
   .bb-card:hover {
     @apply shadow-md translate-y-[-2px];
   }
-  .bb-hero {
-    @apply bb-card relative overflow-hidden;
-  }
   .bb-glow {
-    box-shadow: 0 0 24px hsl(var(--primary) / 0.15);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.2);
   }
   .dark .bb-glow {
-    box-shadow: 0 0 24px hsl(var(--primary) / 0.25);
-  }
-  html.energy .bb-glow {
-    box-shadow: 0 0 32px hsl(var(--primary) / 0.3);
-  }
-  html.energy.dark .bb-glow {
-    box-shadow: 0 0 32px hsl(var(--primary) / 0.4);
+    box-shadow: 0 0 24px hsl(var(--primary) / 0.3);
   }
   .bb-progress-gradient {
     background: linear-gradient(to right, hsl(var(--chart-1)), hsl(var(--chart-2)), hsl(var(--chart-3)));
-  }
-  html.energy .bb-progress-gradient {
-    background: linear-gradient(to right, hsl(var(--goal-a)), hsl(var(--goal-b)));
   }
   .bb-ambient {
     position: absolute;
@@ -144,41 +126,25 @@ css
     left: 50%;
     width: 300px;
     height: 300px;
-    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.08), hsl(var(--brand-b) / 0.04), transparent 70%);
+    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.1), hsl(var(--brand-b) / 0.05), transparent 70%);
     filter: blur(100px);
     transform: translate(-50%, -50%);
     pointer-events: none;
     z-index: -1;
-    opacity: 0;
-    transition: opacity 0.5s ease;
+    opacity: 0.7;
   }
-  html.energy .bb-ambient {
-    opacity: 0.6;
-  }
-  html.energy.dark .bb-ambient {
-    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.15), hsl(var(--brand-b) / 0.08), transparent 70%);
-    opacity: 0.4;
-  }
-  .bb-glow-ot {
-    box-shadow: 0 0 20px hsl(var(--ot-a) / 0.3);
-  }
-  .bb-glow-nt {
-    box-shadow: 0 0 20px hsl(var(--nt-a) / 0.3);
+  .dark .bb-ambient {
+    background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.2), hsl(var(--brand-b) / 0.1), transparent 70%);
+    opacity: 0.5;
   }
   .bb-bar-fill {
     background: hsl(var(--primary));
     transition: width 0.5s ease;
   }
-  html.energy .bb-bar-fill {
-    background: linear-gradient(to right, hsl(var(--goal-a)), hsl(var(--goal-b)));
-  }
   .bb-pill {
     @apply text-xs px-2 py-0.5 rounded-full font-medium;
     background: hsl(var(--primary) / 0.1);
     color: hsl(var(--primary));
-  }
-  html.energy .bb-pill {
-    background: linear-gradient(135deg, hsl(var(--goal-a) / 0.15), hsl(var(--goal-b) / 0.15));
   }
   
   @media (prefers-reduced-motion: reduce) {
@@ -189,4 +155,41 @@ css
       transform: none;
     }
   }
+}
+
+/* Energy Mode Overrides */
+html.energy {
+  --energy-glow: hsla(215, 95%, 56%, 0.35);
+  --energy-orange: hsl(42 98% 58%);
+  --energy-gold: hsl(18 95% 60%);
+  --energy-gradient: linear-gradient(135deg,
+    hsl(42 98% 58%),
+    hsl(285 92% 62%),
+    hsl(215 95% 56%)
+  );
+  --badge-text: white;
+}
+
+html.energy.dark {
+  --energy-glow: hsla(215, 95%, 62%, 0.38);
+  --energy-orange: hsl(42 98% 62%);
+  --energy-gold: hsl(18 95% 66%);
+  --energy-gradient: linear-gradient(135deg,
+    hsl(42 98% 62%),
+    hsl(285 92% 66%),
+    hsl(215 95% 62%)
+  );
+  --badge-text: white;
+}
+
+/* Energy Mode Visual Effects */
+html.energy .bb-hero {
+  box-shadow:
+    0 0 0 1px var(--energy-glow),
+    0 14px 40px var(--energy-glow);
+}
+
+html.energy .bb-ambient {
+  filter: blur(40px);
+  opacity: 0.35;
 }
