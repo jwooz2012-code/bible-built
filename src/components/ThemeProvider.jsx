@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { ensureEnergyStyleInjected, removeEnergyStyle } from '@/lib/energyStyle';
+import { ensureEnergyStyleInjected, removeEnergyStyle } from '@/components/utils/energyStyle';
 
 const ThemeContext = createContext({ 
   theme: 'system', 
