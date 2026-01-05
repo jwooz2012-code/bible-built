@@ -233,7 +233,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <div className="-mb-4">
+        <div className="-mb-5">
           <PageHeader
             title={
             readingDays < 7 ? "You showed up today." :
@@ -242,18 +242,18 @@ export default function Home() {
             } />
 
         </div>
-        <p className="text-sm text-muted-foreground mb-4 opacity-85">
+        <p className="text-sm text-muted-foreground mb-5 opacity-85">
           {getWeeklyQuote()}
         </p>
 
         {!selectedBook &&
         <>
             {/* Hero Dashboard */}
-            <div className="relative mb-6">
+            <div className="relative mb-8">
               <motion.div
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bb-card bb-glow p-6">
+              animate={{ opacity: 1, y: 0 }} className="px-6 py-1 bb-card bb-glow">
+
 
                 {energyMode &&
               <div className="flex items-center justify-center gap-2 mb-4">
@@ -275,21 +275,21 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.otUniqueChapters}</div>
-                    <div className="text-muted-foreground">O.T.</div>
+                    <div className="text-muted-foreground">Old Test.</div>
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.ntUniqueChapters}</div>
-                    <div className="text-muted-foreground">N.T.</div>
+                    <div className="text-muted-foreground">New Test.</div>
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">{yearChaptersRead}</div>
-                    <div className="text-muted-foreground">Total</div>
+                    <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
+                    <div className="text-muted-foreground">Streak</div>
                   </div>
                 </div>
               </motion.div>
             </div>
 
-            <div className="space-y-2.5 mb-6">
+            <div className="space-y-3 mb-8">
               {energyMode &&
             <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
                   <XPBar todayCount={todayLogs.length} />
@@ -313,7 +313,7 @@ export default function Home() {
             <WeekView logs={allTimeLogs} />
 
             {recentBooks.length > 0 &&
-            <div className="mb-6">
+          <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2.5">
                   {recentBooks.map((book) => {
@@ -329,15 +329,15 @@ export default function Home() {
               })}
                 </div>
               </div>
-              }
+          }
 
-              <div className="flex gap-2 mb-5">
+            <div className="flex gap-2 mb-6">
               <Button
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setSelectedTestamentFilter('ALL')} 
-              className="px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9 dark:bg-background dark:text-white"
-              style={energyMode && (energyPalette === 'surge' || energyPalette === 'royal') ? { color: '#FFFFFF' } : {}}>
+              onClick={() => setSelectedTestamentFilter('ALL')}
+              className="bg-[#ffffff] px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
+              style={energyMode && (energyPalette === 'surge' || energyPalette === 'royal') ? { color: '#FFFFFF' } : { color: 'rgb(30 41 59)' }}>
 
 
                 Whole Bible
@@ -364,7 +364,7 @@ export default function Home() {
 
         {!selectedBook ?
         <>
-            <div className="grid grid-cols-2 gap-2.5 mb-6">
+            <div className="grid grid-cols-2 gap-2.5 mb-8">
               {filteredBooks.map((book) => {
               const stats = getBookStats(book);
               return (
