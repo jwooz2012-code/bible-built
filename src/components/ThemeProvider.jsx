@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { ensureEnergyStyleInjected, removeEnergyStyle } from '@/lib/energyStyle';
 
 const ThemeContext = createContext({ 
   theme: 'system', 
@@ -52,8 +53,10 @@ export function ThemeProvider({ children }) {
     const root = window.document.documentElement;
     if (energyMode) {
       root.classList.add('energy');
+      ensureEnergyStyleInjected();
     } else {
       root.classList.remove('energy');
+      removeEnergyStyle();
     }
   }, [energyMode]);
 
