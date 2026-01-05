@@ -43,15 +43,15 @@ export default function Home() {
 
   useEffect(() => {
     let mounted = true;
-    base44.auth.me()
-      .then(u => { 
-        if (mounted) { 
-          setUser(u); 
-          setIsLoading(false); 
-        } 
-      })
-      .catch(() => { if (mounted) setIsLoading(false); });
-    return () => { mounted = false; };
+    base44.auth.me().
+    then((u) => {
+      if (mounted) {
+        setUser(u);
+        setIsLoading(false);
+      }
+    }).
+    catch(() => {if (mounted) setIsLoading(false);});
+    return () => {mounted = false;};
   }, []);
 
   const userId = user?.id;
@@ -78,17 +78,17 @@ export default function Home() {
 
     const currentYear = new Date().getFullYear();
     const yearStart = `${currentYear}-01-01`;
-    const yearLogs = allTimeLogs.filter(log => log.dateKey >= yearStart);
+    const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart);
 
     const lifetimeUnique = dedupeChapterIds(allTimeLogs);
     const yearUnique = dedupeChapterIds(yearLogs);
-    
+
     // OT/NT progress for current year
-    const yearOtLogs = yearLogs.filter(log => log.testament === 'OT');
-    const yearNtLogs = yearLogs.filter(log => log.testament === 'NT');
+    const yearOtLogs = yearLogs.filter((log) => log.testament === 'OT');
+    const yearNtLogs = yearLogs.filter((log) => log.testament === 'NT');
     const otUnique = dedupeChapterIds(yearOtLogs);
     const ntUnique = dedupeChapterIds(yearNtLogs);
-    
+
     const dateCountMap = groupByDateKey(allTimeLogs);
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
     const { currentStreak, longestStreak } = computeStreaks(sortedDates, today);
@@ -99,8 +99,8 @@ export default function Home() {
       yearUniqueChapters: yearUnique.size,
       otUniqueChapters: otUnique.size,
       ntUniqueChapters: ntUnique.size,
-      otPercent: Math.round((otUnique.size / 929) * 100),
-      ntPercent: Math.round((ntUnique.size / 260) * 100),
+      otPercent: Math.round(otUnique.size / 929 * 100),
+      ntPercent: Math.round(ntUnique.size / 260 * 100),
       currentStreak,
       longestStreak,
       thisWeekChapters,
@@ -111,36 +111,36 @@ export default function Home() {
 
   const currentYear = new Date().getFullYear();
   const now = new Date();
-  
+
   // Year calculations
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
-  const yearLogs = allTimeLogs.filter(log => log.dateKey >= yearStart && log.dateKey <= yearEnd);
+  const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
   const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
-  
+
   // Week calculations (last 7 days)
   const weekAgo = new Date(now);
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStart = getDateKey(weekAgo);
-  const weekLogs = allTimeLogs.filter(log => log.dateKey >= weekStart);
+  const weekLogs = allTimeLogs.filter((log) => log.dateKey >= weekStart);
   const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
-  
+
   // Month calculations (current month)
   const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-  const monthLogs = allTimeLogs.filter(log => log.dateKey >= monthStart && log.dateKey <= yearEnd);
+  const monthLogs = allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd);
   const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
-  
+
   // Phase calculations
-  const readingDays = new Set(allTimeLogs.map(log => log.dateKey)).size;
-  const yearReadingDays = new Set(yearLogs.map(log => log.dateKey)).size;
+  const readingDays = new Set(allTimeLogs.map((log) => log.dateKey)).size;
+  const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
-  
+
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
   const { markAllRead, isMarkingAll } = useMarkAllRead();
-  
+
   const recentBooks = useMostRecentBooks(allTimeLogs);
-  
-  const filteredBooks = BIBLE_BOOKS.filter(book => {
+
+  const filteredBooks = BIBLE_BOOKS.filter((book) => {
     if (selectedTestamentFilter === 'ALL') return true;
     if (selectedTestamentFilter === 'OT') return book.testament === 'OT';
     if (selectedTestamentFilter === 'NT') return book.testament === 'NT';
@@ -152,21 +152,21 @@ export default function Home() {
     for (let i = 1; i <= book.chapters; i++) {
       chapterCounts[i] = 0;
     }
-    
-    const bookLogs = allTimeLogs.filter(log => log.bookIndex === book.index);
-    bookLogs.forEach(log => {
+
+    const bookLogs = allTimeLogs.filter((log) => log.bookIndex === book.index);
+    bookLogs.forEach((log) => {
       if (chapterCounts[log.chapter] !== undefined) {
         chapterCounts[log.chapter]++;
       }
     });
-    
+
     const minCount = Math.min(...Object.values(chapterCounts));
     return { completions: minCount };
   };
 
   const getChapterStats = (bookIndex, chapter) => {
     const chapterId = generateChapterId(bookIndex, chapter);
-    const chapterLogs = allTimeLogs.filter(log => log.chapterId === chapterId);
+    const chapterLogs = allTimeLogs.filter((log) => log.chapterId === chapterId);
     return { timesRead: chapterLogs.length };
   };
 
@@ -175,7 +175,7 @@ export default function Home() {
       toast.error('Please log in again');
       return;
     }
-    
+
     try {
       const now = new Date();
       await markRead({
@@ -186,7 +186,7 @@ export default function Home() {
         bookIndex: book.index,
         chapter,
         chapterId,
-        testament: book.testament,
+        testament: book.testament
       });
     } catch (error) {
       toast.error(error?.message || 'Action failed. Please try again.');
@@ -199,30 +199,30 @@ export default function Home() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!user || !userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
-      </div>
-    );
+      </div>);
+
   }
 
   const weeklyQuotes = [
-    "Faithfulness is built one chapter at a time.",
-    "Show up. Let the Word do the work.",
-    "You don't master the Word. You return to it.",
-    "Consistency shapes understanding.",
-    "A quiet habit can carry a lifetime.",
-    "Read again. There is more here.",
-    "Depth comes from staying.",
-    "The Word rewards the patient reader.",
-    "This is how Scripture becomes familiar.",
-    "Built slowly. Held forever."
-  ];
+  "Faithfulness is built one chapter at a time.",
+  "Show up. Let the Word do the work.",
+  "You don't master the Word. You return to it.",
+  "Consistency shapes understanding.",
+  "A quiet habit can carry a lifetime.",
+  "Read again. There is more here.",
+  "Depth comes from staying.",
+  "The Word rewards the patient reader.",
+  "This is how Scripture becomes familiar.",
+  "Built slowly. Held forever."];
+
 
   const getWeeklyQuote = () => {
     const startOfYear = new Date(currentYear, 0, 1);
@@ -234,44 +234,44 @@ export default function Home() {
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
         <div className="-mb-5">
-          <PageHeader 
+          <PageHeader
             title={
-              readingDays < 7 ? "You showed up today." :
-              readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
-              `${yearChaptersRead} chapters read in ${currentYear}`
-            } 
-          />
+            readingDays < 7 ? "You showed up today." :
+            readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
+            `${yearChaptersRead} chapters read in ${currentYear}`
+            } />
+
         </div>
         <p className="text-sm text-muted-foreground mb-5 opacity-85">
           {getWeeklyQuote()}
         </p>
 
-        {!selectedBook && (
-          <>
+        {!selectedBook &&
+        <>
             {/* Hero Dashboard */}
             <div className="relative mb-8">
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="bb-card bb-glow p-6"
-              >
-                {energyMode && (
-                  <div className="flex items-center justify-center gap-2 mb-4">
+              <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bb-card bb-glow p-6">
+
+                {energyMode &&
+              <div className="flex items-center justify-center gap-2 mb-4">
                     <ComboPill todayCount={todayLogs.length} />
                     <motion.span
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide"
-                    >
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide">
+
                       ⚡ Energy Mode
                     </motion.span>
                   </div>
-                )}
-                <MomentumRings 
-                  otPercent={trackerStats.otPercent}
-                  ntPercent={trackerStats.ntPercent}
-                  currentStreak={trackerStats.currentStreak}
-                />
+              }
+                <MomentumRings
+                otPercent={trackerStats.otPercent}
+                ntPercent={trackerStats.ntPercent}
+                currentStreak={trackerStats.currentStreak} />
+
                 <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.otUniqueChapters}</div>
@@ -290,120 +290,120 @@ export default function Home() {
             </div>
 
             <div className="space-y-3 mb-8">
-              {energyMode && (
-                <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
+              {energyMode &&
+            <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
                   <XPBar todayCount={todayLogs.length} />
                   <LevelBadge weeklyCount={trackerStats.thisWeekChapters} />
                 </div>
-              )}
+            }
               <TodayProgressBar chaptersToday={todayLogs.length} goal={3} energyMode={energyMode} />
               <div className="grid grid-cols-2 gap-3">
-                <StreakCard 
-                  currentStreak={trackerStats.currentStreak}
-                  longestStreak={trackerStats.longestStreak}
-                />
-                <WeeklySummaryCard 
-                  thisWeekChapters={trackerStats.thisWeekChapters}
-                  thisWeekActiveDays={trackerStats.thisWeekActiveDays}
-                  deltaVsLastWeek={trackerStats.deltaVsLastWeek}
-                />
+                <StreakCard
+                currentStreak={trackerStats.currentStreak}
+                longestStreak={trackerStats.longestStreak} />
+
+                <WeeklySummaryCard
+                thisWeekChapters={trackerStats.thisWeekChapters}
+                thisWeekActiveDays={trackerStats.thisWeekActiveDays}
+                deltaVsLastWeek={trackerStats.deltaVsLastWeek} />
+
               </div>
             </div>
 
             <WeekView logs={allTimeLogs} />
 
-            {recentBooks.length > 0 && (
-              <div className="mb-8">
+            {recentBooks.length > 0 &&
+          <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2.5">
-                  {recentBooks.map(book => {
-                    const stats = getBookStats(book);
-                    return (
-                      <BookCard
-                        key={book.index}
-                        book={book}
-                        completions={stats.completions}
-                        onClick={() => setSelectedBook(book)}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            <div className="flex gap-2 mb-6">
-              <Button
-                variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedTestamentFilter('ALL')}
-                className="flex-1 h-9 text-xs font-medium"
-              >
-                Whole Bible
-              </Button>
-              <Button
-                variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedTestamentFilter('OT')}
-                className="flex-1 h-9 text-xs font-medium"
-              >
-                Old Testament
-              </Button>
-              <Button
-                variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
-                size="sm"
-                onClick={() => setSelectedTestamentFilter('NT')}
-                className="flex-1 h-9 text-xs font-medium"
-              >
-                New Testament
-              </Button>
-            </div>
-          </>
-        )}
-
-        {!selectedBook ? (
-          <>
-            <div className="grid grid-cols-2 gap-2.5 mb-8">
-              {filteredBooks.map(book => {
+                  {recentBooks.map((book) => {
                 const stats = getBookStats(book);
                 return (
                   <BookCard
                     key={book.index}
                     book={book}
                     completions={stats.completions}
-                    onClick={() => setSelectedBook(book)}
-                  />
-                );
+                    onClick={() => setSelectedBook(book)} />);
+
+
               })}
+                </div>
+              </div>
+          }
+
+            <div className="flex gap-2 mb-6">
+              <Button
+              variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setSelectedTestamentFilter('ALL')} className="bg-secondary text-slate-800 px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow-sm hover:bg-secondary/80 flex-1 h-9">
+
+
+                Whole Bible
+              </Button>
+              <Button
+              variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setSelectedTestamentFilter('OT')}
+              className="flex-1 h-9 text-xs font-medium">
+
+                Old Testament
+              </Button>
+              <Button
+              variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => setSelectedTestamentFilter('NT')}
+              className="flex-1 h-9 text-xs font-medium">
+
+                New Testament
+              </Button>
             </div>
           </>
-        ) : (
-          <motion.div
-            key={selectedBook.name}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="bg-card border border-border rounded-2xl p-5 shadow-sm"
-          >
+        }
+
+        {!selectedBook ?
+        <>
+            <div className="grid grid-cols-2 gap-2.5 mb-8">
+              {filteredBooks.map((book) => {
+              const stats = getBookStats(book);
+              return (
+                <BookCard
+                  key={book.index}
+                  book={book}
+                  completions={stats.completions}
+                  onClick={() => setSelectedBook(book)} />);
+
+
+            })}
+            </div>
+          </> :
+
+        <motion.div
+          key={selectedBook.name}
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          className="bg-card border border-border rounded-2xl p-5 shadow-sm">
+
             <div className="flex items-center justify-between mb-6 gap-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="h-9 w-9 p-0 shrink-0" 
-                  onClick={() => setSelectedBook(null)}
-                >
+                <Button
+                variant="ghost"
+                size="sm"
+                className="h-9 w-9 p-0 shrink-0"
+                onClick={() => setSelectedBook(null)}>
+
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <h2 className="text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               </div>
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  await markAllRead({ userId, book: selectedBook });
-                }}
-                disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                className="text-xs px-3 h-8 shrink-0"
-              >
+              <Button
+              variant="outline"
+              size="sm"
+              onClick={async () => {
+                await markAllRead({ userId, book: selectedBook });
+              }}
+              disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+              className="text-xs px-3 h-8 shrink-0">
+
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
@@ -411,23 +411,23 @@ export default function Home() {
               Tap a chapter to mark it read.
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
-              {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map(chapter => {
-                const chapterId = generateChapterId(selectedBook.index, chapter);
-                const chapterStats = getChapterStats(selectedBook.index, chapter);
-                return (
-                  <ChapterTile
-                    key={chapter}
-                    chapter={chapter}
-                    timesRead={chapterStats.timesRead}
-                    onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
-                    disabled={isMarkingRead || isUndoingRead}
-                  />
-                );
-              })}
+              {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chapter) => {
+              const chapterId = generateChapterId(selectedBook.index, chapter);
+              const chapterStats = getChapterStats(selectedBook.index, chapter);
+              return (
+                <ChapterTile
+                  key={chapter}
+                  chapter={chapter}
+                  timesRead={chapterStats.timesRead}
+                  onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
+                  disabled={isMarkingRead || isUndoingRead} />);
+
+
+            })}
             </div>
           </motion.div>
-        )}
+        }
       </div>
-    </div>
-  );
+    </div>);
+
 }
