@@ -92,6 +92,7 @@ html.energy[data-energy-palette="petal"] {
   --accent: var(--ec);
   --accent-foreground: 222 22% 18%;
   --ring: var(--ea);
+  --energy-orange: hsl(345 58% 60%);
 }
 
 html.energy[data-energy-palette="petal"] body::before {
@@ -222,6 +223,37 @@ html.energy[data-energy-palette="petal"] [class*="border-orange"],
 html.energy[data-energy-palette="petal"] [class*="border-yellow"],
 html.energy[data-energy-palette="petal"] [class*="border-black"] {
   border-color: rgba(20,20,40,0.08) !important;
+}
+
+html.energy[data-energy-palette="petal"] .bg-black,
+html.energy[data-energy-palette="petal"] .bg-neutral-900,
+html.energy[data-energy-palette="petal"] .bg-neutral-800,
+html.energy[data-energy-palette="petal"] .bg-zinc-900,
+html.energy[data-energy-palette="petal"] .bg-zinc-800,
+html.energy[data-energy-palette="petal"] .bg-slate-950,
+html.energy[data-energy-palette="petal"] .bg-slate-900,
+html.energy[data-energy-palette="petal"] .bg-slate-800,
+html.energy[data-energy-palette="petal"] [style*="background: rgb(0"],
+html.energy[data-energy-palette="petal"] [style*="background-color: rgb(0"],
+html.energy[data-energy-palette="petal"] [style*="background-color:#000"],
+html.energy[data-energy-palette="petal"] [style*="background:#000"] {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.92),
+    rgba(255,255,255,0.82)
+  ) !important;
+  border: 1px solid rgba(20,20,40,0.08) !important;
+  box-shadow: 0 10px 22px rgba(20,20,40,0.06) !important;
+}
+
+html.energy[data-energy-palette="petal"] .text-orange-500,
+html.energy[data-energy-palette="petal"] .text-orange-600,
+html.energy[data-energy-palette="petal"] .text-orange-700,
+html.energy[data-energy-palette="petal"] .text-amber-500,
+html.energy[data-energy-palette="petal"] .text-amber-600,
+html.energy[data-energy-palette="petal"] .text-amber-700,
+html.energy[data-energy-palette="petal"] [style*="color: orange"],
+html.energy[data-energy-palette="petal"] [style*="color: rgb(255,"] {
+  color: hsl(345 58% 42%) !important;
 }
 
 html.energy[data-energy-palette="royal"] {
