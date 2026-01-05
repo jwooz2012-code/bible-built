@@ -87,15 +87,14 @@ html.energy[data-energy-palette="petal"] {
   --muted-foreground: 222 14% 38%;
   --border: 220 18% 88%;
   --input: 220 18% 88%;
-  --primary: var(--ea);
+  --primary: 0 0% 18% !important;
   --primary-foreground: 0 0% 100%;
   --accent: var(--ec);
   --accent-foreground: 222 22% 18%;
   --ring: var(--ea);
-  --energy-orange: 345 58% 52% !important;
-  --warning: 345 58% 52% !important;
-  --destructive: 345 58% 52% !important;
-  --chart-4: 345 58% 68% !important;
+  --energy-orange: 0 0% 18% !important;
+  --warning: 0 0% 18% !important;
+  --destructive: 0 0% 18% !important;
 }
 
 html.energy[data-energy-palette="petal"] body::before {
@@ -262,9 +261,11 @@ html.energy[data-energy-palette="petal"] [style*="color: rgb(255,"] {
 html.energy[data-energy-palette="petal"] .chapter-count,
 html.energy[data-energy-palette="petal"] .chapter-counter,
 html.energy[data-energy-palette="petal"] [data-counter],
+html.energy[data-energy-palette="petal"] [data-counter="true"],
+html.energy[data-energy-palette="petal"] [data-chapter-counter="true"],
 html.energy[data-energy-palette="petal"] [class*="count"],
 html.energy[data-energy-palette="petal"] [class*="counter"] {
-  color: hsl(345 58% 42%) !important;
+  color: hsl(0 0% 18%) !important;
 }
 
 html.energy[data-energy-palette="royal"] {
