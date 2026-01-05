@@ -233,7 +233,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <div className="-mb-5">
+        <div className="-mb-4">
           <PageHeader
             title={
             readingDays < 7 ? "You showed up today." :
@@ -242,14 +242,14 @@ export default function Home() {
             } />
 
         </div>
-        <p className="text-sm text-muted-foreground mb-5 opacity-85">
+        <p className="text-sm text-muted-foreground mb-4 opacity-85">
           {getWeeklyQuote()}
         </p>
 
         {!selectedBook &&
         <>
             {/* Hero Dashboard */}
-            <div className="relative mb-8">
+            <div className="relative mb-6">
               <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -289,7 +289,7 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-2.5 mb-6">
               {energyMode &&
             <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
                   <XPBar todayCount={todayLogs.length} />
@@ -313,7 +313,7 @@ export default function Home() {
             <WeekView logs={allTimeLogs} />
 
             {recentBooks.length > 0 &&
-          <div className="mb-8">
+            <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2.5">
                   {recentBooks.map((book) => {
@@ -329,9 +329,9 @@ export default function Home() {
               })}
                 </div>
               </div>
-          }
+              }
 
-            <div className="flex gap-2 mb-6">
+              <div className="flex gap-2 mb-5">
               <Button
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
@@ -364,7 +364,7 @@ export default function Home() {
 
         {!selectedBook ?
         <>
-            <div className="grid grid-cols-2 gap-2.5 mb-8">
+            <div className="grid grid-cols-2 gap-2.5 mb-6">
               {filteredBooks.map((book) => {
               const stats = getBookStats(book);
               return (
