@@ -3,12 +3,12 @@ import { motion } from 'framer-motion';
 
 export default function MomentumRings({ otPercent, ntPercent, currentStreak }) {
   const rings = [
-    { percent: otPercent, color: 'hsl(var(--chart-1))', label: 'Old Testament', size: 180 },
-    { percent: ntPercent, color: 'hsl(var(--chart-2))', label: 'New Testament', size: 130 },
+    { percent: otPercent, color: 'hsl(var(--chart-1))', label: 'Old Testament', size: 220 },
+    { percent: ntPercent, color: 'hsl(var(--chart-2))', label: 'New Testament', size: 160 },
   ];
 
   return (
-    <div className="relative flex items-center justify-center h-56">
+    <div className="relative flex items-center justify-center h-64">
       <div className="bb-ambient" />
       {rings.map((ring, i) => {
         const radius = ring.size / 2;
