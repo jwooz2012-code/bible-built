@@ -6,13 +6,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, energyMode, setEnergyMode } = useTheme();
 
   useEffect(() => {
     let mounted = true;
@@ -93,7 +94,7 @@ export default function Settings() {
               </CardTitle>
               <CardDescription>Choose your theme</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="space-y-6">
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setTheme('system')}
@@ -128,6 +129,21 @@ export default function Settings() {
                   <Moon className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Dark</span>
                 </button>
+              </div>
+
+              <div className="border-t border-border pt-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Zap className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Energy Mode</p>
+                      <p className="text-xs text-muted-foreground">Arcade-style visuals</p>
+                    </div>
+                  </div>
+                  <Switch checked={energyMode} onCheckedChange={setEnergyMode} />
+                </div>
               </div>
             </CardContent>
           </Card>
