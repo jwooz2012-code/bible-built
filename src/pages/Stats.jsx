@@ -173,7 +173,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-5"
+          className="bg-card border border-border rounded-2xl p-5 mb-5 energy-card energy-border"
         >
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">
@@ -240,7 +240,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.05 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-5"
+          className="bg-card border border-border rounded-2xl p-5 mb-5 energy-card energy-border"
         >
           <div className="mb-6">
             <h2 className="text-xl font-semibold text-foreground mb-2">Lifetime</h2>
@@ -330,7 +330,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.25 }}
-          className="bg-card border border-border rounded-2xl p-5"
+          className="bg-card border border-border rounded-2xl p-5 energy-card energy-border"
         >
           <div className="mb-6 flex items-center gap-3">
             <Trophy className="w-6 h-6" style={{ color: '#FACC15' }} />

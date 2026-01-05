@@ -6,7 +6,7 @@ export default function VelocityMeter({ avg7, trend }) {
   const trendColor = trend === 'up' ? 'hsl(var(--chart-3))' : trend === 'down' ? 'hsl(var(--chart-5))' : 'hsl(var(--muted-foreground))';
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5">
+    <div className="bg-card border border-border rounded-xl p-5 energy-card energy-border">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Reading Velocity</h3>
         <TrendIcon className="w-5 h-5" style={{ color: trendColor }} />
