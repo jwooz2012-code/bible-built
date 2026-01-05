@@ -30,13 +30,6 @@ css
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    
-    /* Energy Mode CALM defaults (OFF) */
-    --energy-orange: hsl(var(--border));
-    --energy-glow: 0 0% 0% / 0;
-    --energy-gradient: linear-gradient(135deg, hsl(var(--chart-1)), hsl(var(--chart-2)));
-    --badge-text: hsl(var(--foreground));
-    --energy-motion: 0;
   }
 
   .dark {
@@ -64,39 +57,63 @@ css
     --chart-3: 30 80% 55%;
     --chart-4: 280 65% 60%;
     --chart-5: 340 75% 55%;
-    
-    /* Energy Mode CALM defaults for dark (OFF) */
-    --energy-orange: hsl(var(--border));
-    --energy-glow: 0 0% 0% / 0;
-    --badge-text: hsl(var(--foreground));
-    --energy-motion: 0;
   }
 }
 
-/* Energy Mode ON overrides */
+/* Energy Mode: Complete Override (same look regardless of Light/Dark) */
 html.energy {
-  --energy-orange: hsl(42 98% 58%);
-  --energy-glow: 215 95% 56% / 0.35;
-  --energy-gradient: linear-gradient(135deg,
-    hsl(42 98% 58%),
-    hsl(285 92% 62%),
-    hsl(215 95% 56%),
-    hsl(160 84% 39%)
-  );
-  --badge-text: #ffffff;
-  --energy-motion: 1;
-}
+  --background: 222 28% 8%;
+  --foreground: 0 0% 98%;
+  --card: 222 24% 10%;
+  --card-foreground: 0 0% 98%;
+  --popover: 222 24% 10%;
+  --popover-foreground: 0 0% 98%;
+  --primary: 215 95% 62%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 16% 14%;
+  --secondary-foreground: 0 0% 98%;
+  --muted: 222 16% 14%;
+  --muted-foreground: 220 12% 74%;
+  --accent: 160 84% 44%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 222 14% 20%;
+  --input: 222 14% 20%;
+  --ring: 215 95% 62%;
 
-html.energy.dark {
-  --energy-orange: hsl(42 98% 62%);
-  --energy-glow: 215 95% 62% / 0.38;
+  --chart-1: 215 95% 62%;
+  --chart-2: 285 92% 66%;
+  --chart-3: 160 84% 44%;
+  --chart-4: 42 98% 62%;
+  --chart-5: 335 92% 68%;
+
   --energy-gradient: linear-gradient(135deg,
     hsl(42 98% 62%),
     hsl(285 92% 66%),
     hsl(215 95% 62%),
     hsl(160 84% 44%)
   );
+  --energy-glow: 215 95% 62% / 0.40;
   --badge-text: #ffffff;
+  --energy-motion: 1;
+}
+
+/* Global Energy Glow Overlay */
+html.energy body::before {
+  content: "";
+  position: fixed;
+  inset: -80px;
+  background: var(--energy-gradient);
+  filter: blur(70px);
+  opacity: 0.20;
+  pointer-events: none;
+  z-index: 0;
+}
+
+#root {
+  position: relative;
+  z-index: 1;
 }
 
 @layer base {
@@ -105,65 +122,6 @@ html.energy.dark {
   }
   body {
     @apply bg-background text-foreground;
-  }
-}
-
-/* Energy Mode Visual Enhancements */
-html.energy .energy-border {
-  position: relative;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-html.energy .energy-border::before {
-  content: '';
-  position: absolute;
-  inset: -2px;
-  border-radius: inherit;
-  background: var(--energy-gradient);
-  z-index: -1;
-  opacity: 0.8;
-}
-
-html.energy .energy-card {
-  box-shadow: 
-    0 0 20px hsl(var(--energy-glow)),
-    0 0 40px hsl(var(--energy-glow)),
-    0 4px 6px -1px rgb(0 0 0 / 0.1);
-  transition: box-shadow 0.3s ease;
-}
-
-html.energy .energy-card:hover {
-  box-shadow: 
-    0 0 30px hsl(var(--energy-glow)),
-    0 0 60px hsl(var(--energy-glow)),
-    0 10px 15px -3px rgb(0 0 0 / 0.1);
-}
-
-html.energy .energy-shimmer {
-  position: relative;
-  overflow: hidden;
-}
-
-html.energy .energy-shimmer::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-  animation: energy-shimmer 2s infinite;
-}
-
-@keyframes energy-shimmer {
-  0% { left: -100%; }
-  100% { left: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html.energy .energy-shimmer::after {
-    animation: none;
   }
 }
 
@@ -215,62 +173,15 @@ html.energy .energy-shimmer::after {
     opacity: 0.5;
   }
 
-  /* Energy Mode Visual Effects */
-  html.energy .energy-border {
-    position: relative;
-    border: 2px solid transparent;
-    background-clip: padding-box;
-  }
-  
-  html.energy .energy-border::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: inherit;
-    background: var(--energy-gradient);
-    z-index: -1;
-    opacity: 0.8;
-  }
-  
+  /* Energy Mode Card Utilities */
   html.energy .energy-card {
-    box-shadow: 
-      0 0 20px hsl(var(--energy-glow)),
-      0 0 40px hsl(var(--energy-glow)),
-      0 4px 6px -1px rgb(0 0 0 / 0.1);
-    transition: box-shadow 0.3s ease;
+    box-shadow: 0 0 0 1px hsl(var(--energy-glow)), 0 18px 55px hsl(var(--energy-glow));
   }
-  
-  html.energy .energy-card:hover {
-    box-shadow: 
-      0 0 30px hsl(var(--energy-glow)),
-      0 0 60px hsl(var(--energy-glow)),
-      0 10px 15px -3px rgb(0 0 0 / 0.1);
-  }
-  
-  html.energy .energy-shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-  
-  html.energy .energy-shimmer::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    animation: energy-shimmer 2s infinite;
-  }
-  
-  @keyframes energy-shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    html.energy .energy-shimmer::after {
-      animation: none;
-    }
+
+  html.energy .energy-border {
+    border: 1px solid transparent;
+    background: 
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      var(--energy-gradient) border-box;
   }
 }
