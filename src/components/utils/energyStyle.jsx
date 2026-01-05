@@ -272,8 +272,21 @@ html.energy[data-energy-palette="petal"] .times-read-badge,
 html.energy[data-energy-palette="petal"] [style*="color: #F97316"],
 html.energy[data-energy-palette="petal"] [style*="color:#F97316"],
 html.energy[data-energy-palette="petal"] [style*="color: #F59E0B"],
-html.energy[data-energy-palette="petal"] [style*="color:#F59E0B"] {
+html.energy[data-energy-palette="petal"] [style*="color:#F59E0B"],
+html.energy[data-energy-palette="petal"] [style*="color: #FACC15"],
+html.energy[data-energy-palette="petal"] [style*="color:#FACC15"],
+html.energy[data-energy-palette="petal"] [style*="color: #FFFFFF"],
+html.energy[data-energy-palette="petal"] [style*="color:#FFFFFF"] {
   color: hsl(222 22% 18%) !important;
+}
+
+html.energy[data-energy-palette="petal"] [class*="text-white"] {
+  color: hsl(222 22% 18%) !important;
+}
+
+html.energy[data-energy-palette="royal"] [style*="color: #FACC15"],
+html.energy[data-energy-palette="royal"] [style*="color:#FACC15"] {
+  color: hsl(220 90% 56%) !important;
 }
 
 html.energy[data-energy-palette="royal"] {
