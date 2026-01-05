@@ -33,7 +33,7 @@ html.energy {
   --popover: 228 28% 10%;
   --popover-foreground: 0 0% 100%;
   --muted: 228 18% 14%;
-  --muted-foreground: 220 10% 78%;
+  --muted-foreground: 220 10% 82%;
   --border: 228 18% 22%;
   --input: 228 18% 22%;
   --primary: ${p.ea};
@@ -60,6 +60,41 @@ html.energy {
     hsl(var(--ed)),
     hsl(var(--ec))
   );
+}
+
+html.energy .bb-readable,
+html.energy .bb-text-boost {
+  color: hsl(var(--foreground));
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+html.energy .bb-text-boost {
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+html.energy *:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+html.energy[data-energy-palette="ember"] {
+  --muted-foreground: 220 10% 85%;
+}
+
+html.energy[data-energy-palette="ember"] .bb-readable,
+html.energy[data-energy-palette="ember"] .bb-text-boost {
+  color: hsl(0 0% 98%);
+}
+
+html.energy[data-energy-palette="royal"] {
+  --muted-foreground: 220 10% 88%;
+}
+
+html.energy[data-energy-palette="royal"] .bb-readable,
+html.energy[data-energy-palette="royal"] .bb-text-boost {
+  color: hsl(0 0% 100%);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 html.energy body::before {

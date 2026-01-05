@@ -60,9 +60,11 @@ export function ThemeProvider({ children }) {
     const root = window.document.documentElement;
     if (energyMode) {
       root.classList.add('energy');
+      root.dataset.energyPalette = energyPalette;
       ensureEnergyStyleInjected(energyPalette);
     } else {
       root.classList.remove('energy');
+      delete root.dataset.energyPalette;
       removeEnergyStyle();
     }
   }, [energyMode, energyPalette]);
