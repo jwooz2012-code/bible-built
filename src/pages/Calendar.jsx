@@ -229,9 +229,9 @@ export default function Calendar() {
                       borderColor: 'hsl(var(--accent))',
                       borderWidth: '1.5px'
                     } : count > 0 ? {
-                      background: 'hsl(42 55% 90%)',
+                      background: 'hsl(var(--accent))',
                       borderWidth: '1.5px',
-                      borderColor: 'hsl(42 55% 84%)'
+                      borderColor: 'hsl(var(--accent))'
                     } : {
                       background: 'hsl(var(--card))',
                       borderColor: 'hsl(var(--border))'
