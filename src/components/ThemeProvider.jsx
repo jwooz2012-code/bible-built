@@ -14,11 +14,11 @@ export function ThemeProvider({ children }) {
     base44.auth.me()
       .then(u => {
         setUser(u);
-        const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'light';
+        const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'system';
         setThemeState(savedTheme);
       })
       .catch(() => {
-        const savedTheme = localStorage.getItem('theme') || 'light';
+        const savedTheme = localStorage.getItem('theme') || 'system';
         setThemeState(savedTheme);
       });
   }, []);
@@ -35,14 +35,6 @@ export function ThemeProvider({ children }) {
 
     root.classList.add(effectiveTheme);
     setResolvedTheme(effectiveTheme);
-
-    // Apply Energy Mode on load
-    const energyMode = localStorage.getItem('bb_energy_mode') === '1';
-    if (energyMode) {
-      root.classList.add('energy');
-    } else {
-      root.classList.remove('energy');
-    }
   }, [theme]);
 
   const setTheme = async (newTheme) => {

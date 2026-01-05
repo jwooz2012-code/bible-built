@@ -3,29 +3,22 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Switch } from '@/components/ui/switch';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { theme, setTheme } = useTheme();
-  const [energyMode, setEnergyMode] = useState(false);
 
   useEffect(() => {
     let mounted = true;
     base44.auth.me()
       .then(u => { if (mounted) { setUser(u); setIsLoading(false); } })
       .catch(() => { if (mounted) setIsLoading(false); });
-    
-    // Load Energy Mode preference
-    const saved = localStorage.getItem('bb_energy_mode') === '1';
-    setEnergyMode(saved);
-    
     return () => { mounted = false; };
   }, []);
 
@@ -39,17 +32,6 @@ export default function Settings() {
       toast.success('Verification email sent');
     } catch (error) {
       toast.error(error?.message || 'Failed to resend');
-    }
-  };
-
-  const toggleEnergyMode = (checked) => {
-    setEnergyMode(checked);
-    localStorage.setItem('bb_energy_mode', checked ? '1' : '0');
-    const root = window.document.documentElement;
-    if (checked) {
-      root.classList.add('energy');
-    } else {
-      root.classList.remove('energy');
     }
   };
 
@@ -114,8 +96,8 @@ export default function Settings() {
                   onClick={() => setTheme('system')}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'system' ? {
-                    borderColor: 'hsl(var(--primary))',
-                    background: 'hsl(var(--primary) / 0.1)'
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Monitor className="w-5 h-5 text-foreground" />
@@ -125,8 +107,8 @@ export default function Settings() {
                   onClick={() => setTheme('light')}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'light' ? {
-                    borderColor: 'hsl(var(--primary))',
-                    background: 'hsl(var(--primary) / 0.1)'
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Sun className="w-5 h-5 text-foreground" />
@@ -136,29 +118,13 @@ export default function Settings() {
                   onClick={() => setTheme('dark')}
                   className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
                   style={theme === 'dark' ? {
-                    borderColor: 'hsl(var(--primary))',
-                    background: 'hsl(var(--primary) / 0.1)'
+                    borderColor: 'var(--energy-orange)',
+                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
                   } : { borderColor: 'hsl(var(--border))' }}
                 >
                   <Moon className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Dark</span>
                 </button>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Zap className="w-5 h-5" />
-                Energy Mode
-              </CardTitle>
-              <CardDescription>Vibrant colors and motion for a more dynamic experience</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-foreground">Enable Energy Mode</span>
-                <Switch checked={energyMode} onCheckedChange={toggleEnergyMode} />
               </div>
             </CardContent>
           </Card>

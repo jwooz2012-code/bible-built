@@ -35,13 +35,6 @@ css
     --brand-a: 222 89% 56%;
     --brand-b: 280 80% 60%;
     --brand-c: 167 72% 45%;
-
-    /* Energy Mode Variables - Calm Defaults (OFF) */
-    --energy-glow: transparent;
-    --energy-orange: hsl(var(--border));
-    --energy-gold: hsl(var(--border));
-    --energy-gradient: hsl(var(--border));
-    --badge-text: hsl(var(--foreground));
   }
 
   .dark {
@@ -70,13 +63,6 @@ css
     --chart-3: 167 72% 48%;
     --chart-4: 38 95% 60%;
     --chart-5: 340 82% 66%;
-
-    /* Energy Mode Variables - Calm Defaults (OFF) */
-    --energy-glow: transparent;
-    --energy-orange: hsl(var(--border));
-    --energy-gold: hsl(var(--border));
-    --energy-gradient: hsl(var(--border));
-    --badge-text: hsl(var(--foreground));
   }
 }
 
@@ -137,47 +123,4 @@ css
     background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.2), hsl(var(--brand-b) / 0.1), transparent 70%);
     opacity: 0.5;
   }
-}
-
-/* Energy Mode Overrides */
-html.energy {
-  --energy-glow: hsla(215, 95%, 56%, 0.35);
-  --energy-orange: hsl(42 98% 58%);
-  --energy-gold: hsl(18 95% 60%);
-  --energy-gradient: linear-gradient(135deg,
-    hsl(42 98% 58%),
-    hsl(285 92% 62%),
-    hsl(215 95% 56%)
-  );
-  --badge-text: #ffffff;
-}
-
-html.energy.dark {
-  --energy-glow: hsla(215, 95%, 62%, 0.38);
-  --energy-orange: hsl(42 98% 62%);
-  --energy-gold: hsl(18 95% 66%);
-  --energy-gradient: linear-gradient(135deg,
-    hsl(42 98% 62%),
-    hsl(285 92% 66%),
-    hsl(215 95% 62%)
-  );
-  --badge-text: #ffffff;
-}
-
-/* Energy Mode Visual Effects */
-html.energy .bb-hero {
-  box-shadow:
-    0 0 0 1px var(--energy-glow),
-    0 14px 40px var(--energy-glow);
-}
-
-html.energy .bb-ambient {
-  filter: blur(40px);
-  opacity: 0.35;
-}
-
-/* TEMPORARY: Verification outline (remove after confirming it works) */
-html.energy body {
-  outline: 4px solid hsl(var(--chart-4));
-  outline-offset: -4px;
 }
