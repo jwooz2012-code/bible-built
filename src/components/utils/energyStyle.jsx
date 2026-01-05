@@ -1,28 +1,28 @@
 const STYLE_ID = 'bb-energy-style';
 
 const PALETTES = {
-  arcade: {
-    ea: '210 100% 64%',
-    eb: '285 100% 70%',
-    ec: '160 100% 45%',
-    ed: '42 100% 60%'
+  ember: {
+    ea: '18 42% 58%',
+    eb: '32 46% 62%',
+    ec: '142 28% 46%',
+    ed: '350 36% 66%'
   },
-  sunset: {
-    ea: '18 100% 62%',
-    eb: '335 100% 70%',
-    ec: '42 100% 60%',
+  surge: {
+    ea: '140 100% 48%',
+    eb: '210 100% 60%',
+    ec: '24 100% 58%',
     ed: '285 100% 70%'
   },
-  cyber: {
-    ea: '190 100% 60%',
-    eb: '260 100% 72%',
-    ec: '150 100% 46%',
-    ed: '320 100% 70%'
+  royal: {
+    ea: '220 90% 56%',
+    eb: '220 80% 42%',
+    ec: '0 0% 100%',
+    ed: '220 25% 12%'
   }
 };
 
-function generateEnergyCSS(palette = 'arcade') {
-  const p = PALETTES[palette] || PALETTES.arcade;
+function generateEnergyCSS(palette = 'surge') {
+  const p = PALETTES[palette] || PALETTES.surge;
   
   return `
 html.energy {
@@ -36,20 +36,19 @@ html.energy {
   --muted-foreground: 220 10% 78%;
   --border: 228 18% 22%;
   --input: 228 18% 22%;
-  --primary: 210 100% 64%;
+  --primary: ${p.ea};
   --primary-foreground: 0 0% 100%;
   --secondary: 228 20% 16%;
   --secondary-foreground: 0 0% 100%;
-  --accent: 160 100% 45%;
+  --accent: ${p.ec};
   --accent-foreground: 0 0% 100%;
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 100%;
-  --ring: 210 100% 64%;
-  --chart-1: 210 100% 64%;
-  --chart-2: 285 100% 70%;
-  --chart-3: 160 100% 45%;
-  --chart-4: 42 100% 60%;
-  --chart-5: 335 100% 70%;
+  --ring: ${p.ea};
+  --chart-1: ${p.ea};
+  --chart-2: ${p.eb};
+  --chart-3: ${p.ec};
+  --chart-4: ${p.ed};
   
   --ea: ${p.ea};
   --eb: ${p.eb};
@@ -137,9 +136,9 @@ html.energy a:active {
 `;
 }
 
-const ENERGY_CSS = generateEnergyCSS('arcade');
+const ENERGY_CSS = generateEnergyCSS('surge');
 
-export function ensureEnergyStyleInjected(palette = 'arcade') {
+export function ensureEnergyStyleInjected(palette = 'surge') {
   const existing = document.getElementById(STYLE_ID);
   const css = generateEnergyCSS(palette);
   

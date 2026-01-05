@@ -155,51 +155,51 @@ export default function Settings() {
                     <p className="text-xs font-medium text-muted-foreground">Energy Palette</p>
                     <div className="grid grid-cols-3 gap-2">
                       <button
-                        onClick={() => setEnergyPalette('arcade')}
+                        onClick={() => setEnergyPalette('ember')}
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                          energyPalette === 'arcade'
+                          energyPalette === 'ember'
                             ? 'border-primary bg-primary/10'
                             : 'border-border bg-card'
                         }`}
                       >
                         <div className="w-full h-2 rounded-full overflow-hidden">
                           <div className="h-full" style={{ 
-                            background: 'linear-gradient(90deg, hsl(210 100% 64%), hsl(285 100% 70%), hsl(160 100% 45%))' 
+                            background: 'linear-gradient(90deg, hsl(18 42% 58%), hsl(32 46% 62%), hsl(142 28% 46%), hsl(350 36% 66%))' 
                           }} />
                         </div>
-                        <span className="text-[10px] font-medium text-foreground">Neon Arcade</span>
+                        <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Ember</span>
                       </button>
 
                       <button
-                        onClick={() => setEnergyPalette('sunset')}
+                        onClick={() => setEnergyPalette('surge')}
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                          energyPalette === 'sunset'
+                          energyPalette === 'surge'
                             ? 'border-primary bg-primary/10'
                             : 'border-border bg-card'
                         }`}
                       >
                         <div className="w-full h-2 rounded-full overflow-hidden">
                           <div className="h-full" style={{ 
-                            background: 'linear-gradient(90deg, hsl(18 100% 62%), hsl(335 100% 70%), hsl(42 100% 60%))' 
+                            background: 'linear-gradient(90deg, hsl(140 100% 48%), hsl(210 100% 60%), hsl(24 100% 58%), hsl(285 100% 70%))' 
                           }} />
                         </div>
-                        <span className="text-[10px] font-medium text-foreground">Sunset Heat</span>
+                        <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Surge</span>
                       </button>
 
                       <button
-                        onClick={() => setEnergyPalette('cyber')}
+                        onClick={() => setEnergyPalette('royal')}
                         className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
-                          energyPalette === 'cyber'
+                          energyPalette === 'royal'
                             ? 'border-primary bg-primary/10'
                             : 'border-border bg-card'
                         }`}
                       >
                         <div className="w-full h-2 rounded-full overflow-hidden">
                           <div className="h-full" style={{ 
-                            background: 'linear-gradient(90deg, hsl(190 100% 60%), hsl(260 100% 72%), hsl(150 100% 46%))' 
+                            background: 'linear-gradient(90deg, hsl(220 90% 56%), hsl(220 80% 42%), hsl(0 0% 100%), hsl(220 25% 12%))' 
                           }} />
                         </div>
-                        <span className="text-[10px] font-medium text-foreground">Cyber Ice</span>
+                        <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Royal</span>
                       </button>
                     </div>
                   </motion.div>

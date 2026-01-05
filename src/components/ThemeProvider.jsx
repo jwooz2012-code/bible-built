@@ -18,7 +18,7 @@ export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState('system');
   const [resolvedTheme, setResolvedTheme] = useState('light');
   const [energyMode, setEnergyModeState] = useState(false);
-  const [energyPalette, setEnergyPaletteState] = useState('arcade');
+  const [energyPalette, setEnergyPaletteState] = useState('surge');
   const [user, setUser] = useState(null);
 
   useEffect(() => {
