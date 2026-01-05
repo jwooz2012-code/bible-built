@@ -263,11 +263,10 @@ export default function Stats() {
                 <Button
                 variant="ghost"
                 size="sm"
-                onClick={handleEditBaseline} className="text-muted-foreground pr-1 text-xs font-medium opacity-100 rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent absolute top-2 right-2 h-8 hover:text-foreground">
+                onClick={handleEditBaseline} className="text-muted-foreground text-xs font-medium opacity-100 rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent absolute top-2 right-2 h-8 w-8 p-0 hover:text-foreground">
 
 
-                  <Pencil className="w-3.5 h-3.5 mr-1" />
-                  Edit
+                  <Pencil className="w-3.5 h-3.5" />
                 </Button>
                 <p className="text-sm text-muted-foreground mb-2">Times Through the Bible</p>
                 <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
