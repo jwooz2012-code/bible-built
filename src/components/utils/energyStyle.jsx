@@ -278,6 +278,16 @@ html.energy[data-energy-palette="royal"] .bb-text-boost {
   text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
+html.energy[data-energy-palette="royal"] .chapter-count,
+html.energy[data-energy-palette="royal"] .chapter-counter,
+html.energy[data-energy-palette="royal"] [data-counter],
+html.energy[data-energy-palette="royal"] [data-counter="true"],
+html.energy[data-energy-palette="royal"] [data-chapter-counter="true"],
+html.energy[data-energy-palette="royal"] [class*="count"],
+html.energy[data-energy-palette="royal"] [class*="counter"] {
+  color: hsl(220 25% 12%) !important;
+}
+
 html.energy body::before {
   content: "";
   position: fixed;
