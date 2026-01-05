@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useLayoutEffect } from 'react';
 
 const EnergyContext = createContext({ 
   energyEnabled: false, 
@@ -6,6 +6,18 @@ const EnergyContext = createContext({
 });
 
 export const useEnergy = () => useContext(EnergyContext);
+
+// Apply energy class before React mounts (prevents flash)
+if (typeof window !== 'undefined') {
+  try {
+    const energy = localStorage.getItem('bb_energy_mode');
+    if (energy === '1') {
+      document.documentElement.classList.add('energy');
+    } else {
+      document.documentElement.classList.remove('energy');
+    }
+  } catch {}
+}
 
 export function EnergyProvider({ children }) {
   const [energyEnabled, setEnergyEnabledState] = useState(() => {
@@ -16,7 +28,8 @@ export function EnergyProvider({ children }) {
     }
   });
 
-  useEffect(() => {
+  // Use useLayoutEffect for synchronous DOM updates
+  useLayoutEffect(() => {
     const root = document.documentElement;
     if (energyEnabled) {
       root.classList.add('energy');
