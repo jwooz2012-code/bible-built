@@ -280,7 +280,23 @@ html.energy[data-energy-palette="petal"] [style*="color:#FFFFFF"] {
   color: hsl(222 22% 18%) !important;
 }
 
-html.energy[data-energy-palette="petal"] [class*="text-white"] {
+html.energy[data-energy-palette="petal"] [class*="text-white"],
+html.energy[data-energy-palette="petal"] .text-white {
+  color: hsl(222 22% 18%) !important;
+}
+
+html.energy[data-energy-palette="petal"] h1,
+html.energy[data-energy-palette="petal"] h2,
+html.energy[data-energy-palette="petal"] h3,
+html.energy[data-energy-palette="petal"] h4,
+html.energy[data-energy-palette="petal"] p,
+html.energy[data-energy-palette="petal"] span,
+html.energy[data-energy-palette="petal"] div {
+  color: hsl(222 22% 18%);
+}
+
+html.energy[data-energy-palette="petal"] .text-foreground,
+html.energy[data-energy-palette="petal"] .text-muted-foreground {
   color: hsl(222 22% 18%) !important;
 }
 
