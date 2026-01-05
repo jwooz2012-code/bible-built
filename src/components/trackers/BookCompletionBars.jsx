@@ -17,7 +17,7 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
             variant={mode === 'year' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setMode('year')}
-            className="h-8 text-xs dark:bg-background dark:text-white"
+            className="h-8 text-xs dark:bg-background dark:text-white dark:border dark:border-border"
           >
             This Year
           </Button>
