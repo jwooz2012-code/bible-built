@@ -6,13 +6,16 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon } from 'lucide-react';
+import { useEnergy } from '@/components/EnergyProvider';
+import { Switch } from '@/components/ui/switch';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const { theme, setTheme } = useTheme();
+  const { energyEnabled, setEnergyEnabled } = useEnergy();
 
   useEffect(() => {
     let mounted = true;
@@ -125,6 +128,32 @@ export default function Settings() {
                   <Moon className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Dark</span>
                 </button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className={energyEnabled ? 'energy-card energy-border' : ''}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Zap className={`w-5 h-5 ${energyEnabled ? 'text-yellow-500' : ''}`} />
+                Energy Mode
+              </CardTitle>
+              <CardDescription>Turns on game-like colors, effects, and animated trackers</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div className="space-y-0.5">
+                  <p className="text-sm font-medium text-foreground">
+                    {energyEnabled ? 'Enabled' : 'Disabled'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Add vibrant visuals and glow effects
+                  </p>
+                </div>
+                <Switch
+                  checked={energyEnabled}
+                  onCheckedChange={setEnergyEnabled}
+                />
               </div>
             </CardContent>
           </Card>
