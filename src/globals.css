@@ -99,12 +99,6 @@ html.energy.dark {
   --badge-text: #ffffff;
 }
 
-/* TEMPORARY DEBUG RULE */
-html.energy body {
-  outline: 4px solid magenta;
-  outline-offset: -4px;
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -219,5 +213,64 @@ html.energy .energy-shimmer::after {
   .dark .bb-ambient {
     background: radial-gradient(circle at center, hsl(var(--chart-1) / 0.2), hsl(var(--chart-2) / 0.1), transparent 70%);
     opacity: 0.5;
+  }
+
+  /* Energy Mode Visual Effects */
+  html.energy .energy-border {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  
+  html.energy .energy-border::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: inherit;
+    background: var(--energy-gradient);
+    z-index: -1;
+    opacity: 0.8;
+  }
+  
+  html.energy .energy-card {
+    box-shadow: 
+      0 0 20px hsl(var(--energy-glow)),
+      0 0 40px hsl(var(--energy-glow)),
+      0 4px 6px -1px rgb(0 0 0 / 0.1);
+    transition: box-shadow 0.3s ease;
+  }
+  
+  html.energy .energy-card:hover {
+    box-shadow: 
+      0 0 30px hsl(var(--energy-glow)),
+      0 0 60px hsl(var(--energy-glow)),
+      0 10px 15px -3px rgb(0 0 0 / 0.1);
+  }
+  
+  html.energy .energy-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  html.energy .energy-shimmer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    animation: energy-shimmer 2s infinite;
+  }
+  
+  @keyframes energy-shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+  
+  @media (prefers-reduced-motion: reduce) {
+    html.energy .energy-shimmer::after {
+      animation: none;
+    }
   }
 }
