@@ -16,7 +16,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function Calendar() {
-  const { energyMode, energyPalette } = useTheme();
+  const { energyMode, energyPalette, resolvedTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
