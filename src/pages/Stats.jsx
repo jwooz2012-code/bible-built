@@ -231,7 +231,7 @@ export default function Stats() {
               const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
               return (
                 <p className="text-sm text-muted-foreground mt-4">
-                    At this pace, you'll complete the Bible in approximately {estimatedDays} days.
+                    At this pace, you'll complete the Bible in about {estimatedDays} days.
                   </p>);
 
             })()}
