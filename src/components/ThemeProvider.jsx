@@ -14,11 +14,11 @@ export function ThemeProvider({ children }) {
     base44.auth.me()
       .then(u => {
         setUser(u);
-        const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'system';
+        const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'light';
         setThemeState(savedTheme);
       })
       .catch(() => {
-        const savedTheme = localStorage.getItem('theme') || 'system';
+        const savedTheme = localStorage.getItem('theme') || 'light';
         setThemeState(savedTheme);
       });
   }, []);
