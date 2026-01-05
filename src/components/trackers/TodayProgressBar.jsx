@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
+export default function TodayProgressBar({ chaptersToday, goal = 3, energyMode = false }) {
   const percent = Math.min(100, (chaptersToday / goal) * 100);
   const goalHit = chaptersToday >= goal;
 
@@ -22,7 +22,7 @@ export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
       </div>
       <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
         <motion.div
-          className="h-full bb-progress-gradient"
+          className={`h-full ${energyMode ? 'bb-shimmer' : 'bb-progress-gradient'}`}
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
