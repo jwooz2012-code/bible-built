@@ -275,7 +275,7 @@ export default function Home() {
                 <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.otUniqueChapters}</div>
-                    <div className="text-muted-foreground">O.T. Chapters</div>
+                    <div className="text-muted-foreground">O.T.</div>
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.ntUniqueChapters}</div>
