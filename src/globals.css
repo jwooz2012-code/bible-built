@@ -38,10 +38,10 @@ css
 
     /* Energy Mode Variables - Calm Defaults (OFF) */
     --energy-glow: transparent;
-    --energy-orange: hsl(var(--chart-4));
-    --energy-gold: hsl(var(--chart-5));
-    --energy-gradient: linear-gradient(135deg, hsl(var(--chart-1)), hsl(var(--chart-2)));
-    --badge-text: white;
+    --energy-orange: hsl(var(--border));
+    --energy-gold: hsl(var(--border));
+    --energy-gradient: hsl(var(--border));
+    --badge-text: hsl(var(--foreground));
   }
 
   .dark {
@@ -73,10 +73,10 @@ css
 
     /* Energy Mode Variables - Calm Defaults (OFF) */
     --energy-glow: transparent;
-    --energy-orange: hsl(var(--chart-4));
-    --energy-gold: hsl(var(--chart-5));
-    --energy-gradient: linear-gradient(135deg, hsl(var(--chart-1)), hsl(var(--chart-2)));
-    --badge-text: white;
+    --energy-orange: hsl(var(--border));
+    --energy-gold: hsl(var(--border));
+    --energy-gradient: hsl(var(--border));
+    --badge-text: hsl(var(--foreground));
   }
 }
 
@@ -137,24 +137,6 @@ css
     background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.2), hsl(var(--brand-b) / 0.1), transparent 70%);
     opacity: 0.5;
   }
-  .bb-bar-fill {
-    background: hsl(var(--primary));
-    transition: width 0.5s ease;
-  }
-  .bb-pill {
-    @apply text-xs px-2 py-0.5 rounded-full font-medium;
-    background: hsl(var(--primary) / 0.1);
-    color: hsl(var(--primary));
-  }
-  
-  @media (prefers-reduced-motion: reduce) {
-    .bb-ambient {
-      display: none;
-    }
-    .bb-card:hover {
-      transform: none;
-    }
-  }
 }
 
 /* Energy Mode Overrides */
@@ -167,7 +149,7 @@ html.energy {
     hsl(285 92% 62%),
     hsl(215 95% 56%)
   );
-  --badge-text: white;
+  --badge-text: #ffffff;
 }
 
 html.energy.dark {
@@ -179,7 +161,7 @@ html.energy.dark {
     hsl(285 92% 66%),
     hsl(215 95% 62%)
   );
-  --badge-text: white;
+  --badge-text: #ffffff;
 }
 
 /* Energy Mode Visual Effects */
@@ -192,4 +174,10 @@ html.energy .bb-hero {
 html.energy .bb-ambient {
   filter: blur(40px);
   opacity: 0.35;
+}
+
+/* TEMPORARY: Verification outline (remove after confirming it works) */
+html.energy body {
+  outline: 4px solid hsl(var(--chart-4));
+  outline-offset: -4px;
 }
