@@ -58,9 +58,11 @@ export default function Home() {
     if (!allTimeLogs.length) {
       return {
         lifetimeUniqueChapters: 0,
-        lifetimePercent: 0,
         yearUniqueChapters: 0,
-        yearPercent: 0,
+        otUniqueChapters: 0,
+        ntUniqueChapters: 0,
+        otPercent: 0,
+        ntPercent: 0,
         currentStreak: 0,
         longestStreak: 0,
         thisWeekChapters: 0,
@@ -75,6 +77,13 @@ export default function Home() {
 
     const lifetimeUnique = dedupeChapterIds(allTimeLogs);
     const yearUnique = dedupeChapterIds(yearLogs);
+    
+    // Compute OT/NT progress for current year
+    const yearOTLogs = yearLogs.filter(log => log.testament === 'OT');
+    const yearNTLogs = yearLogs.filter(log => log.testament === 'NT');
+    const otUnique = dedupeChapterIds(yearOTLogs);
+    const ntUnique = dedupeChapterIds(yearNTLogs);
+    
     const dateCountMap = groupByDateKey(allTimeLogs);
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
     const { currentStreak, longestStreak } = computeStreaks(sortedDates, today);
@@ -82,9 +91,11 @@ export default function Home() {
 
     return {
       lifetimeUniqueChapters: lifetimeUnique.size,
-      lifetimePercent: Math.round((lifetimeUnique.size / TOTAL_CHAPTERS) * 100),
       yearUniqueChapters: yearUnique.size,
-      yearPercent: Math.round((yearUnique.size / TOTAL_CHAPTERS) * 100),
+      otUniqueChapters: otUnique.size,
+      ntUniqueChapters: ntUnique.size,
+      otPercent: Math.round((otUnique.size / 929) * 100),
+      ntPercent: Math.round((ntUnique.size / 260) * 100),
       currentStreak,
       longestStreak,
       thisWeekChapters,
@@ -237,18 +248,18 @@ export default function Home() {
                 className="bb-card bb-glow p-6"
               >
                 <MomentumRings 
-                  lifetimePercent={trackerStats.lifetimePercent}
-                  yearPercent={trackerStats.yearPercent}
+                  otPercent={trackerStats.otPercent}
+                  ntPercent={trackerStats.ntPercent}
                   currentStreak={trackerStats.currentStreak}
                 />
                 <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
                   <div>
-                    <div className="font-semibold text-foreground">{trackerStats.lifetimeUniqueChapters}</div>
-                    <div className="text-muted-foreground">Lifetime</div>
+                    <div className="font-semibold text-foreground">{trackerStats.otUniqueChapters}</div>
+                    <div className="text-muted-foreground">Old Testament</div>
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">{trackerStats.yearUniqueChapters}</div>
-                    <div className="text-muted-foreground">This Year</div>
+                    <div className="font-semibold text-foreground">{trackerStats.ntUniqueChapters}</div>
+                    <div className="text-muted-foreground">New Testament</div>
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
