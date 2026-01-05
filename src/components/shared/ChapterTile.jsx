@@ -33,12 +33,17 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       }}>
 
       {timesRead >= 1 &&
-      <div className="bg-white opacity-100 rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center border border-[#1a1a1a] times-read-badge">
-
-
+      <div 
+        className="rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center times-read-badge"
+        style={{ 
+          backgroundColor: '#FFFFFF',
+          border: '1.5px solid #1a1a1a',
+          opacity: 1
+        }}
+      >
           <span
           className="text-[9px] font-bold leading-none"
-          style={{ color: energyMode && energyPalette === 'petal' ? 'hsl(222 22% 18%)' : '#F97316' }}>
+          style={{ color: '#1a1a1a' }}>
 
             {timesRead}
           </span>
