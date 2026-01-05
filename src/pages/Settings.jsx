@@ -47,7 +47,6 @@ export default function Settings() {
   }
 
   if (!user) {
-    base44.auth.redirectToLogin();
     return null;
   }
 
