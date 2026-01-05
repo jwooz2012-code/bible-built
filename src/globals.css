@@ -74,6 +74,18 @@ css
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
+
+  /* Energy Mode Overlay Fix */
+  html.energy body::before,
+  html.energy body::after {
+    pointer-events: none !important;
+    z-index: 0 !important;
+  }
+
+  #root {
+    position: relative;
+    z-index: 1;
+  }
 }
 
 @layer utilities {
@@ -115,8 +127,8 @@ css
     background: radial-gradient(circle at center, hsl(var(--brand-a) / 0.1), hsl(var(--brand-b) / 0.05), transparent 70%);
     filter: blur(100px);
     transform: translate(-50%, -50%);
-    pointer-events: none;
-    z-index: -1;
+    pointer-events: none !important;
+    z-index: 0;
     opacity: 0.7;
   }
   .dark .bb-ambient {
