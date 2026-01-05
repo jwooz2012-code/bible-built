@@ -238,7 +238,7 @@ export default function Calendar() {
                     }}
                   >
                     <span className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} style={(isToday || count > 0) ? { color: 'hsl(222 22% 18%)' } : {}}>{day}</span>
-                    <span className="text-sm h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: '#4169E1' } : { color: 'transparent' }}>
+                    <span className="text-sm h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: '#FFFFFF' } : { color: 'transparent' }}>
                       {count > 0 ? count : '•'}
                     </span>
                   </button>
