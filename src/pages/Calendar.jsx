@@ -237,7 +237,7 @@ export default function Calendar() {
                       borderColor: 'hsl(var(--border))'
                     }}
                   >
-                    <span className={(isToday || count > 0) ? "text-accent-foreground font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"}>{day}</span>
+                    <span className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} style={(isToday || count > 0) ? { color: 'hsl(222 22% 18%)' } : {}}>{day}</span>
                     <span className="text-xs h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: energyMode && energyPalette === 'petal' ? 'hsl(222 22% 18%)' : '#F59E0B' } : { color: 'transparent' }}>
                       {count > 0 ? count : '•'}
                     </span>
