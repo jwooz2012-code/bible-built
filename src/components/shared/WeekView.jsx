@@ -7,7 +7,7 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 export default function WeekView({ logs = [] }) {
   const navigate = useNavigate();
   const today = new Date();
-  
+
   // Get start of week (Sunday)
   const startOfWeek = new Date(today);
   const day = startOfWeek.getDay();
@@ -39,51 +39,51 @@ export default function WeekView({ logs = [] }) {
           const dateKey = getDateKey(date);
           const count = logsGrouped[dateKey] || 0;
           const isToday = getDateKey(today) === dateKey;
-          
+
           return (
             <motion.button
-            key={i}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => handleDayClick(date)}
-            className="aspect-square rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all py-3 border"
-            style={isToday ? {
-              background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
-              borderColor: 'var(--energy-orange)',
-              borderWidth: '1.5px',
-              boxShadow: '0 0 12px var(--energy-glow)'
-            } : count > 0 ? {
-              background: 'rgba(249, 115, 22, 0.08)',
-              borderColor: 'var(--energy-orange)',
-              borderWidth: '1.5px'
-            } : {
-              background: 'hsl(var(--secondary))',
-              borderColor: 'hsl(var(--border))'
-            }}
-            >
-              <span 
+              key={i}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => handleDayClick(date)} className="bg-slate-800 py-3 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
+
+              style={isToday ? {
+                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
+                borderColor: 'var(--energy-orange)',
+                borderWidth: '1.5px',
+                boxShadow: '0 0 12px var(--energy-glow)'
+              } : count > 0 ? {
+                background: 'rgba(249, 115, 22, 0.08)',
+                borderColor: 'var(--energy-orange)',
+                borderWidth: '1.5px'
+              } : {
+                background: 'hsl(var(--secondary))',
+                borderColor: 'hsl(var(--border))'
+              }}>
+
+              <span
                 className="text-[11px] font-medium tracking-wide"
-                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}
-              >
+                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
-              <span 
-                className="text-lg font-semibold text-foreground my-0.5"
-              >
+              <span
+                className="text-lg font-semibold text-foreground my-0.5">
+
                 {date.getDate()}
               </span>
               <div className="h-4 flex items-center justify-center">
-                {count > 0 && (
-                  <span 
-                    className="text-xs font-bold text-foreground"
-                  >
+                {count > 0 &&
+                <span
+                  className="text-xs font-bold text-foreground">
+
                     {count}
                   </span>
-                )}
+                }
               </div>
-            </motion.button>
-          );
+            </motion.button>);
+
         })}
       </div>
-    </div>
-  );
+    </div>);
+
 }
