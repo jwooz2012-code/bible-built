@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,7 +10,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import BookCard from '@/components/shared/BookCard';
 import ChapterTile from '@/components/shared/ChapterTile';
 import WeekView from '@/components/shared/WeekView';
-import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
+import { BIBLE_BOOKS, generateChapterId, TOTAL_CHAPTERS } from '@/components/bible/bibleData';
 import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
@@ -18,6 +18,11 @@ import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
+import MomentumRings from '@/components/trackers/MomentumRings';
+import TodayProgressBar from '@/components/trackers/TodayProgressBar';
+import StreakCard from '@/components/trackers/StreakCard';
+import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
+import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary } from '@/components/trackers/deriveStats';
 
 export default function Home() {
   const [user, setUser] = useState(null);
@@ -48,6 +53,45 @@ export default function Home() {
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+
+  const trackerStats = useMemo(() => {
+    if (!allTimeLogs.length) {
+      return {
+        lifetimeUniqueChapters: 0,
+        lifetimePercent: 0,
+        yearUniqueChapters: 0,
+        yearPercent: 0,
+        currentStreak: 0,
+        longestStreak: 0,
+        thisWeekChapters: 0,
+        thisWeekActiveDays: 0,
+        deltaVsLastWeek: 0
+      };
+    }
+
+    const currentYear = new Date().getFullYear();
+    const yearStart = `${currentYear}-01-01`;
+    const yearLogs = allTimeLogs.filter(log => log.dateKey >= yearStart);
+
+    const lifetimeUnique = dedupeChapterIds(allTimeLogs);
+    const yearUnique = dedupeChapterIds(yearLogs);
+    const dateCountMap = groupByDateKey(allTimeLogs);
+    const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
+    const { currentStreak, longestStreak } = computeStreaks(sortedDates, today);
+    const { thisWeekChapters, thisWeekActiveDays, deltaVsLastWeek } = computeWeeklySummary(dateCountMap, today);
+
+    return {
+      lifetimeUniqueChapters: lifetimeUnique.size,
+      lifetimePercent: Math.round((lifetimeUnique.size / TOTAL_CHAPTERS) * 100),
+      yearUniqueChapters: yearUnique.size,
+      yearPercent: Math.round((yearUnique.size / TOTAL_CHAPTERS) * 100),
+      currentStreak,
+      longestStreak,
+      thisWeekChapters,
+      thisWeekActiveDays,
+      deltaVsLastWeek
+    };
+  }, [allTimeLogs, today]);
 
   const currentYear = new Date().getFullYear();
   const now = new Date();
@@ -148,12 +192,6 @@ export default function Home() {
     return null;
   }
 
-  const formattedDate = new Date().toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    month: 'long', 
-    day: 'numeric' 
-  });
-
   const weeklyQuotes = [
     "Faithfulness is built one chapter at a time.",
     "Show up. Let the Word do the work.",
@@ -188,15 +226,52 @@ export default function Home() {
         <p className="text-sm text-muted-foreground mb-5 opacity-85">
           {getWeeklyQuote()}
         </p>
-        
+
         {!selectedBook && (
           <>
+            {/* Hero Dashboard */}
+            <div className="relative mb-8">
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bb-card bb-glow p-6"
+              >
+                <MomentumRings 
+                  lifetimePercent={trackerStats.lifetimePercent}
+                  yearPercent={trackerStats.yearPercent}
+                  currentStreak={trackerStats.currentStreak}
+                />
+                <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
+                  <div>
+                    <div className="font-semibold text-foreground">{trackerStats.lifetimeUniqueChapters}</div>
+                    <div className="text-muted-foreground">Lifetime</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground">{trackerStats.yearUniqueChapters}</div>
+                    <div className="text-muted-foreground">This Year</div>
+                  </div>
+                  <div>
+                    <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
+                    <div className="text-muted-foreground">Streak</div>
+                  </div>
+                </div>
+              </motion.div>
+            </div>
 
-            {weekChaptersRead > 0 && (
-              <p className="text-xs text-muted-foreground mb-3 opacity-60">
-                {weekChaptersRead} {weekChaptersRead === 1 ? 'chapter' : 'chapters'} read this week
-              </p>
-            )}
+            <div className="space-y-3 mb-8">
+              <TodayProgressBar chaptersToday={todayLogs.length} goal={3} />
+              <div className="grid grid-cols-2 gap-3">
+                <StreakCard 
+                  currentStreak={trackerStats.currentStreak}
+                  longestStreak={trackerStats.longestStreak}
+                />
+                <WeeklySummaryCard 
+                  thisWeekChapters={trackerStats.thisWeekChapters}
+                  thisWeekActiveDays={trackerStats.thisWeekActiveDays}
+                  deltaVsLastWeek={trackerStats.deltaVsLastWeek}
+                />
+              </div>
+            </div>
 
             <WeekView logs={allTimeLogs} />
 

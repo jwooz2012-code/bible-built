@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,13 @@ import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { Trophy, Pencil } from 'lucide-react';
 import { toast } from 'sonner';
+import VelocityMeter from '@/components/trackers/VelocityMeter';
+import CoverageRadar from '@/components/trackers/CoverageRadar';
+import BookCompletionBars from '@/components/trackers/BookCompletionBars';
+import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
+import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
+import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleSections';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
@@ -37,6 +44,30 @@ export default function Stats() {
 
   const yearStats = useReadingStats(yearLogs);
   const lifetimeStats = useReadingStats(lifetimeLogs);
+
+  const today = getDateKey();
+
+  const trackerStats = useMemo(() => {
+    if (!lifetimeLogs.length) {
+      return {
+        velocity: { avg7: 0, trend: 'flat' },
+        sectionCoverage: [],
+        bookProgressYear: [],
+        bookProgressLifetime: [],
+        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 } }
+      };
+    }
+
+    const dateCountMap = groupByDateKey(lifetimeLogs);
+    const velocity = computeVelocity(dateCountMap, today);
+    const sectionTotals = computeSectionTotals(BIBLE_BOOKS, BOOK_TO_SECTION);
+    const sectionCoverage = computeSectionCoverage(lifetimeLogs, BOOK_TO_SECTION, sectionTotals);
+    const bookProgressYear = computeBookProgress(yearLogs, BIBLE_BOOKS, 'year');
+    const bookProgressLifetime = computeBookProgress(lifetimeLogs, BIBLE_BOOKS, 'lifetime');
+    const records = computeRecords(dateCountMap, lifetimeLogs);
+
+    return { velocity, sectionCoverage, bookProgressYear, bookProgressLifetime, records };
+  }, [lifetimeLogs, yearLogs, today]);
 
   const baselineCompletions = user?.baselineCompletions || 0;
   const trackedCompletions = lifetimeStats.timesThroughBible;
@@ -261,10 +292,44 @@ export default function Stats() {
           )}
         </motion.div>
 
+        {/* Dashboard Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.1 }}
+          className="space-y-5 mb-5"
+        >
+          <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
+          <CoverageRadar sectionData={trackerStats.sectionCoverage} />
+        </motion.div>
+
+        {/* Books Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.15 }}
+          className="mb-5"
+        >
+          <BookCompletionBars 
+            bookProgressYear={trackerStats.bookProgressYear}
+            bookProgressLifetime={trackerStats.bookProgressLifetime}
+          />
+        </motion.div>
+
+        {/* Records Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.2 }}
+          className="mb-5"
+        >
+          <PersonalRecordsCard records={trackerStats.records} />
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.25 }}
           className="bg-card border border-border rounded-2xl p-5"
         >
           <div className="mb-6 flex items-center gap-3">
