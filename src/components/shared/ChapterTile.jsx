@@ -38,7 +38,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         >
           <span 
             className="text-[9px] font-bold leading-none"
-            style={{ color: '#F97316' }}
+            style={{ color: energyMode && energyPalette === 'petal' ? 'hsl(222 22% 18%)' : '#F97316' }}
           >
             {timesRead}
           </span>
