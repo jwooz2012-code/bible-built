@@ -282,8 +282,8 @@ export default function Home() {
                     <div className="text-muted-foreground">N.T.</div>
                   </div>
                   <div>
-                    <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
-                    <div className="text-muted-foreground">Streak</div>
+                    <div className="font-semibold text-foreground">{yearChaptersRead}</div>
+                    <div className="text-muted-foreground">This Year</div>
                   </div>
                 </div>
               </motion.div>
