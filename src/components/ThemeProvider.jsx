@@ -7,7 +7,9 @@ const ThemeContext = createContext({
   setTheme: () => {}, 
   resolvedTheme: 'light',
   energyMode: false,
-  setEnergyMode: () => {}
+  setEnergyMode: () => {},
+  energyPalette: 'arcade',
+  setEnergyPalette: () => {}
 });
 
 export const useTheme = () => useContext(ThemeContext);
@@ -16,6 +18,7 @@ export function ThemeProvider({ children }) {
   const [theme, setThemeState] = useState('system');
   const [resolvedTheme, setResolvedTheme] = useState('light');
   const [energyMode, setEnergyModeState] = useState(false);
+  const [energyPalette, setEnergyPaletteState] = useState('arcade');
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -24,14 +27,18 @@ export function ThemeProvider({ children }) {
         setUser(u);
         const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'system';
         const savedEnergy = localStorage.getItem('energy_mode') === 'true';
+        const savedPalette = localStorage.getItem('bb_energy_palette') || 'arcade';
         setThemeState(savedTheme);
         setEnergyModeState(savedEnergy);
+        setEnergyPaletteState(savedPalette);
       })
       .catch(() => {
         const savedTheme = localStorage.getItem('theme') || 'system';
         const savedEnergy = localStorage.getItem('energy_mode') === 'true';
+        const savedPalette = localStorage.getItem('bb_energy_palette') || 'arcade';
         setThemeState(savedTheme);
         setEnergyModeState(savedEnergy);
+        setEnergyPaletteState(savedPalette);
       });
   }, []);
 
@@ -53,12 +60,12 @@ export function ThemeProvider({ children }) {
     const root = window.document.documentElement;
     if (energyMode) {
       root.classList.add('energy');
-      ensureEnergyStyleInjected();
+      ensureEnergyStyleInjected(energyPalette);
     } else {
       root.classList.remove('energy');
       removeEnergyStyle();
     }
-  }, [energyMode]);
+  }, [energyMode, energyPalette]);
 
   const setTheme = async (newTheme) => {
     setThemeState(newTheme);
@@ -78,8 +85,13 @@ export function ThemeProvider({ children }) {
     localStorage.setItem('energy_mode', String(enabled));
   };
 
+  const setEnergyPalette = (palette) => {
+    setEnergyPaletteState(palette);
+    localStorage.setItem('bb_energy_palette', palette);
+  };
+
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme, energyMode, setEnergyMode }}>
+    <ThemeContext.Provider value={{ theme, setTheme, resolvedTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette }}>
       {children}
     </ThemeContext.Provider>
   );

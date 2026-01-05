@@ -1,6 +1,30 @@
 const STYLE_ID = 'bb-energy-style';
 
-const ENERGY_CSS = `
+const PALETTES = {
+  arcade: {
+    ea: '210 100% 64%',
+    eb: '285 100% 70%',
+    ec: '160 100% 45%',
+    ed: '42 100% 60%'
+  },
+  sunset: {
+    ea: '18 100% 62%',
+    eb: '335 100% 70%',
+    ec: '42 100% 60%',
+    ed: '285 100% 70%'
+  },
+  cyber: {
+    ea: '190 100% 60%',
+    eb: '260 100% 72%',
+    ec: '150 100% 46%',
+    ed: '320 100% 70%'
+  }
+};
+
+function generateEnergyCSS(palette = 'arcade') {
+  const p = PALETTES[palette] || PALETTES.arcade;
+  
+  return `
 html.energy {
   --background: 228 35% 6%;
   --foreground: 0 0% 100%;
@@ -26,20 +50,26 @@ html.energy {
   --chart-3: 160 100% 45%;
   --chart-4: 42 100% 60%;
   --chart-5: 335 100% 70%;
+  
+  --ea: ${p.ea};
+  --eb: ${p.eb};
+  --ec: ${p.ec};
+  --ed: ${p.ed};
+  --energy-gradient: linear-gradient(135deg,
+    hsl(var(--ea)),
+    hsl(var(--eb)),
+    hsl(var(--ed)),
+    hsl(var(--ec))
+  );
 }
 
 html.energy body::before {
   content: "";
   position: fixed;
-  inset: -140px;
-  background: linear-gradient(135deg,
-    hsl(42 100% 60%),
-    hsl(285 100% 70%),
-    hsl(210 100% 64%),
-    hsl(160 100% 45%)
-  );
-  filter: blur(110px);
-  opacity: 0.38;
+  inset: -120px;
+  background: var(--energy-gradient);
+  filter: blur(80px);
+  opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
@@ -49,9 +79,9 @@ html.energy body::after {
   position: fixed;
   inset: 0;
   background:
-    radial-gradient(circle at 20% 18%, hsla(210,100%,64%,0.24) 0%, transparent 45%),
-    radial-gradient(circle at 84% 70%, hsla(285,100%,70%,0.20) 0%, transparent 55%),
-    radial-gradient(circle at 55% 12%, hsla(160,100%,45%,0.14) 0%, transparent 40%);
+    radial-gradient(circle at 20% 18%, hsla(210,100%,64%,0.14) 0%, transparent 45%),
+    radial-gradient(circle at 84% 70%, hsla(285,100%,70%,0.12) 0%, transparent 55%);
+  opacity: 0.22;
   pointer-events: none;
   z-index: 0;
 }
@@ -74,12 +104,7 @@ html.energy [class*="rounded"] {
 }
 
 html.energy .bb-shimmer {
-  background: linear-gradient(135deg,
-    hsl(42 100% 60%),
-    hsl(285 100% 70%),
-    hsl(210 100% 64%),
-    hsl(160 100% 45%)
-  );
+  background: var(--energy-gradient);
   background-size: 220% 220%;
   animation: bbEnergyShift 4.2s ease infinite;
 }
@@ -110,15 +135,22 @@ html.energy a:active {
   }
 }
 `;
+}
 
-export function ensureEnergyStyleInjected() {
-  if (document.getElementById(STYLE_ID)) {
+const ENERGY_CSS = generateEnergyCSS('arcade');
+
+export function ensureEnergyStyleInjected(palette = 'arcade') {
+  const existing = document.getElementById(STYLE_ID);
+  const css = generateEnergyCSS(palette);
+  
+  if (existing) {
+    existing.textContent = css;
     return;
   }
   
   const style = document.createElement('style');
   style.id = STYLE_ID;
-  style.textContent = ENERGY_CSS;
+  style.textContent = css;
   document.head.appendChild(style);
 }
 
