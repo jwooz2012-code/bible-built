@@ -1,10 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function MomentumRings({ lifetimePercent, yearPercent, currentStreak }) {
+export default function MomentumRings({ otPercent, ntPercent, currentStreak }) {
   const rings = [
-    { percent: lifetimePercent, color: 'hsl(var(--chart-1))', label: 'Lifetime', size: 140 },
-    { percent: yearPercent, color: 'hsl(var(--chart-2))', label: 'This Year', size: 100 },
+    { percent: otPercent, color: 'hsl(var(--chart-1))', label: 'Old Testament', size: 140 },
+    { percent: ntPercent, color: 'hsl(var(--chart-2))', label: 'New Testament', size: 100 },
   ];
 
   return (
