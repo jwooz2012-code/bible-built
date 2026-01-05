@@ -2,8 +2,13 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
+  const { energyMode, energyPalette } = useTheme();
+  
+  const isRoyalRead = energyMode && energyPalette === 'royal' && timesRead > 0;
+
   const handleClick = () => {
     if (!disabled) {
       triggerHaptic();
@@ -40,7 +45,10 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         </div>
       )}
       
-      <span className="text-[15px] font-semibold leading-none text-foreground">
+      <span 
+        className="text-[15px] font-semibold leading-none"
+        style={isRoyalRead ? { color: 'hsl(220 25% 12%)' } : { color: 'hsl(var(--foreground))' }}
+      >
         {chapter}
       </span>
     </motion.button>
