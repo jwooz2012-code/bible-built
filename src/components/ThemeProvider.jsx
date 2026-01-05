@@ -35,6 +35,14 @@ export function ThemeProvider({ children }) {
 
     root.classList.add(effectiveTheme);
     setResolvedTheme(effectiveTheme);
+
+    // Apply Energy Mode on load
+    const energyMode = localStorage.getItem('bb_energy_mode') === '1';
+    if (energyMode) {
+      root.classList.add('energy');
+    } else {
+      root.classList.remove('energy');
+    }
   }, [theme]);
 
   const setTheme = async (newTheme) => {

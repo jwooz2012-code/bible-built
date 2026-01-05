@@ -11,22 +11,21 @@ export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
         <span className="text-sm font-medium text-foreground">Today</span>
         <div className="flex items-center gap-2">
           {goalHit && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+            <span className="bb-pill">
               Goal Hit
             </span>
           )}
-          <span className="text-sm text-muted-foreground">
-            {chaptersToday} / {goal}
+          <span className="text-sm font-semibold text-foreground">
+            {chaptersToday} <span className="text-muted-foreground">/ {goal}</span>
           </span>
         </div>
       </div>
       <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
         <motion.div
-          className="h-full bb-progress-gradient"
+          className="h-full bb-bar-fill"
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          style={goalHit ? { boxShadow: '0 0 12px hsl(var(--primary) / 0.4)' } : {}}
         />
       </div>
     </div>
