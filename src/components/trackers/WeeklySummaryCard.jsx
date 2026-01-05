@@ -6,7 +6,7 @@ export default function WeeklySummaryCard({ thisWeekChapters, thisWeekActiveDays
   const trendColor = deltaVsLastWeek > 0 ? 'hsl(var(--chart-3))' : deltaVsLastWeek < 0 ? 'hsl(var(--chart-5))' : 'hsl(var(--muted-foreground))';
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4">
+    <div className="bg-card border border-border rounded-xl p-4 energy-card energy-border">
       <div className="flex items-center justify-between mb-3">
         <span className="text-sm font-medium text-foreground">This Week</span>
         <div className="flex items-center gap-1">
