@@ -44,8 +44,11 @@ export default function Settings() {
   }
 
   if (!user) {
-    base44.auth.redirectToLogin();
-    return null;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Skeleton className="h-20 w-64" />
+      </div>
+    );
   }
 
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;

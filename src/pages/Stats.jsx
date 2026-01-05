@@ -135,8 +135,11 @@ export default function Stats() {
   }
 
   if (!user || !userId) {
-    base44.auth.redirectToLogin();
-    return null;
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Skeleton className="h-20 w-64" />
+      </div>
+    );
   }
 
   const handleEditBaseline = () => {
