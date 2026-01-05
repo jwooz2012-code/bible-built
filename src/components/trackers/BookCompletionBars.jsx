@@ -17,7 +17,7 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
             variant={mode === 'year' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setMode('year')}
-            className="h-8 text-xs bg-[#ffffff] dark:bg-background dark:text-white"
+            className="h-8 text-xs dark:bg-background dark:text-white"
           >
             This Year
           </Button>
@@ -25,7 +25,7 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
             variant={mode === 'lifetime' ? 'default' : 'outline'}
             size="sm"
             onClick={() => setMode('lifetime')}
-            className="h-8 text-xs bg-[#ffffff] dark:bg-background dark:text-white"
+            className="h-8 text-xs dark:bg-background dark:text-white"
           >
             Lifetime
           </Button>
