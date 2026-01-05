@@ -174,6 +174,56 @@ html.energy[data-energy-palette="petal"] [class*="combo"] {
   display: none;
 }
 
+html.energy[data-energy-palette="petal"] .this-week-bar,
+html.energy[data-energy-palette="petal"] [data-week-bar="true"],
+html.energy[data-energy-palette="petal"] .week-pill,
+html.energy[data-energy-palette="petal"] .weekly-bar,
+html.energy[data-energy-palette="petal"] [class*="week"] [class*="bar"] {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.92),
+    rgba(255,255,255,0.82)
+  ) !important;
+  border: 1px solid rgba(20,20,40,0.08) !important;
+  box-shadow: 0 10px 22px rgba(20,20,40,0.06) !important;
+}
+
+html.energy[data-energy-palette="petal"] .this-week-bar.is-active,
+html.energy[data-energy-palette="petal"] [data-week-bar="true"][data-active="true"],
+html.energy[data-energy-palette="petal"] [class*="week"] [class*="active"] {
+  background: linear-gradient(180deg,
+    hsl(345 58% 92%),
+    hsl(345 58% 84%)
+  ) !important;
+  border-color: rgba(180,60,110,0.18) !important;
+}
+
+html.energy[data-energy-palette="petal"] [class*="text-orange"],
+html.energy[data-energy-palette="petal"] [class*="text-yellow"],
+html.energy[data-energy-palette="petal"] [class*="text-amber"],
+html.energy[data-energy-palette="petal"] .text-orange-500,
+html.energy[data-energy-palette="petal"] .text-orange-600,
+html.energy[data-energy-palette="petal"] .text-yellow-500 {
+  color: hsl(345 58% 68%) !important;
+}
+
+html.energy[data-energy-palette="petal"] [class*="bg-orange"],
+html.energy[data-energy-palette="petal"] [class*="bg-yellow"],
+html.energy[data-energy-palette="petal"] [class*="bg-amber"],
+html.energy[data-energy-palette="petal"] [class*="bg-black"],
+html.energy[data-energy-palette="petal"] [class*="bg-slate-9"] {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.92),
+    rgba(255,255,255,0.82)
+  ) !important;
+  border: 1px solid rgba(20,20,40,0.08) !important;
+}
+
+html.energy[data-energy-palette="petal"] [class*="border-orange"],
+html.energy[data-energy-palette="petal"] [class*="border-yellow"],
+html.energy[data-energy-palette="petal"] [class*="border-black"] {
+  border-color: rgba(20,20,40,0.08) !important;
+}
+
 html.energy[data-energy-palette="royal"] {
   --muted-foreground: 220 10% 88%;
 }
