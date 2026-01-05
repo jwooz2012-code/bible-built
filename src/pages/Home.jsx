@@ -283,7 +283,7 @@ export default function Home() {
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{yearChaptersRead}</div>
-                    <div className="text-muted-foreground">This Year</div>
+                    <div className="text-muted-foreground">Total</div>
                   </div>
                 </div>
               </motion.div>
