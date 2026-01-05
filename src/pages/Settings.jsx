@@ -13,7 +13,7 @@ import { toast } from 'sonner';
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const { theme, setTheme, energyMode, setEnergyMode } = useTheme();
+  const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
   useEffect(() => {
     let mounted = true;
@@ -131,7 +131,7 @@ export default function Settings() {
                 </button>
               </div>
 
-              <div className="border-t border-border pt-4">
+              <div className="border-t border-border pt-4 space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-primary/10">
@@ -144,6 +144,66 @@ export default function Settings() {
                   </div>
                   <Switch checked={energyMode} onCheckedChange={setEnergyMode} />
                 </div>
+
+                {energyMode && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="space-y-2"
+                  >
+                    <p className="text-xs font-medium text-muted-foreground">Energy Palette</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => setEnergyPalette('arcade')}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                          energyPalette === 'arcade'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border bg-card'
+                        }`}
+                      >
+                        <div className="w-full h-2 rounded-full overflow-hidden">
+                          <div className="h-full" style={{ 
+                            background: 'linear-gradient(90deg, hsl(210 100% 64%), hsl(285 100% 70%), hsl(160 100% 45%))' 
+                          }} />
+                        </div>
+                        <span className="text-[10px] font-medium text-foreground">Neon Arcade</span>
+                      </button>
+
+                      <button
+                        onClick={() => setEnergyPalette('sunset')}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                          energyPalette === 'sunset'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border bg-card'
+                        }`}
+                      >
+                        <div className="w-full h-2 rounded-full overflow-hidden">
+                          <div className="h-full" style={{ 
+                            background: 'linear-gradient(90deg, hsl(18 100% 62%), hsl(335 100% 70%), hsl(42 100% 60%))' 
+                          }} />
+                        </div>
+                        <span className="text-[10px] font-medium text-foreground">Sunset Heat</span>
+                      </button>
+
+                      <button
+                        onClick={() => setEnergyPalette('cyber')}
+                        className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-all ${
+                          energyPalette === 'cyber'
+                            ? 'border-primary bg-primary/10'
+                            : 'border-border bg-card'
+                        }`}
+                      >
+                        <div className="w-full h-2 rounded-full overflow-hidden">
+                          <div className="h-full" style={{ 
+                            background: 'linear-gradient(90deg, hsl(190 100% 60%), hsl(260 100% 72%), hsl(150 100% 46%))' 
+                          }} />
+                        </div>
+                        <span className="text-[10px] font-medium text-foreground">Cyber Ice</span>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             </CardContent>
           </Card>
