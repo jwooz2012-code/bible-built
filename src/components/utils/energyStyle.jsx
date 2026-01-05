@@ -291,12 +291,10 @@ html.energy[data-energy-palette="petal"] h3,
 html.energy[data-energy-palette="petal"] h4,
 html.energy[data-energy-palette="petal"] p,
 html.energy[data-energy-palette="petal"] span,
-html.energy[data-energy-palette="petal"] div {
-  color: hsl(222 22% 18%);
-}
-
+html.energy[data-energy-palette="petal"] div,
 html.energy[data-energy-palette="petal"] .text-foreground,
-html.energy[data-energy-palette="petal"] .text-muted-foreground {
+html.energy[data-energy-palette="petal"] .text-muted-foreground,
+html.energy[data-energy-palette="petal"] [class*="text-"] {
   color: hsl(222 22% 18%) !important;
 }
 
