@@ -45,7 +45,7 @@ export function ThemeProvider({ children }) {
       try {
         await base44.auth.updateMe({ theme_preference: newTheme });
       } catch (error) {
-        console.error('Failed to save theme preference', error);
+        // Silent fail
       }
     }
   };

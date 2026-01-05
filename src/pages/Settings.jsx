@@ -97,33 +97,33 @@ export default function Settings() {
               <div className="grid grid-cols-3 gap-3">
                 <button
                   onClick={() => setTheme('system')}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
-                  style={theme === 'system' ? {
-                    borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
-                  } : { borderColor: 'hsl(var(--border))' }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    theme === 'system' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border bg-secondary'
+                  }`}
                 >
                   <Monitor className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">System</span>
                 </button>
                 <button
                   onClick={() => setTheme('light')}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
-                  style={theme === 'light' ? {
-                    borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
-                  } : { borderColor: 'hsl(var(--border))' }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    theme === 'light' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border bg-secondary'
+                  }`}
                 >
                   <Sun className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Light</span>
                 </button>
                 <button
                   onClick={() => setTheme('dark')}
-                  className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all bg-secondary"
-                  style={theme === 'dark' ? {
-                    borderColor: 'var(--energy-orange)',
-                    background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.1), rgba(250, 204, 21, 0.1))'
-                  } : { borderColor: 'hsl(var(--border))' }}
+                  className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                    theme === 'dark' 
+                      ? 'border-primary bg-primary/10' 
+                      : 'border-border bg-secondary'
+                  }`}
                 >
                   <Moon className="w-5 h-5 text-foreground" />
                   <span className="text-xs font-medium text-foreground">Dark</span>

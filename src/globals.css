@@ -75,13 +75,6 @@ css
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
-  /* Energy Mode Overlay Fix */
-  html.energy body::before,
-  html.energy body::after {
-    pointer-events: none !important;
-    z-index: 0 !important;
-  }
-
   #root {
     position: relative;
     z-index: 1;
