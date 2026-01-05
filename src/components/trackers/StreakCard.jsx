@@ -3,7 +3,7 @@ import { Flame } from 'lucide-react';
 
 export default function StreakCard({ currentStreak, longestStreak }) {
   return (
-    <div className="bg-card border border-border rounded-xl p-4 energy-card energy-border">
+    <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center gap-2 mb-3">
         <Flame className="w-4 h-4" style={{ color: 'hsl(var(--chart-4))' }} />
         <span className="text-sm font-medium text-foreground">Streak</span>

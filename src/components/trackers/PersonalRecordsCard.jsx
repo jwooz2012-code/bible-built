@@ -10,7 +10,7 @@ export default function PersonalRecordsCard({ records }) {
   ];
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 energy-card energy-border">
+    <div className="bg-card border border-border rounded-xl p-5">
       <h3 className="text-base font-semibold text-foreground mb-4">Personal Records</h3>
       <div className="grid grid-cols-2 gap-3">
         {items.map((item, i) => (

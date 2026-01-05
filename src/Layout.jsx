@@ -3,7 +3,6 @@ import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { EnergyProvider } from '@/components/EnergyProvider';
 import { Toaster } from 'sonner';
 
 export default function Layout({ children }) {
@@ -25,9 +24,8 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <EnergyProvider>
-        <div className="min-h-screen bg-background">
-          {children}
+      <div className="min-h-screen bg-background">
+        {children}
 
         <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-50">
             <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
@@ -58,8 +56,7 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-        </div>
-      </EnergyProvider>
+      </div>
       <Toaster />
     </ThemeProvider>
   );

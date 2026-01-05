@@ -9,7 +9,7 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
   const filteredData = data.filter(b => b.completedDistinct > 0);
 
   return (
-    <div className="bg-card border border-border rounded-xl p-5 energy-card energy-border">
+    <div className="bg-card border border-border rounded-xl p-5">
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-base font-semibold text-foreground">Book Progress</h3>
         <div className="flex gap-2">

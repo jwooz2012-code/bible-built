@@ -6,7 +6,7 @@ export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
   const goalHit = chaptersToday >= goal;
 
   return (
-    <div className="bg-card border border-border rounded-xl p-4 energy-card energy-border">
+    <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-foreground">Today</span>
         <div className="flex items-center gap-2">
