@@ -25,7 +25,7 @@ export function ThemeProvider({ children }) {
 
   useEffect(() => {
     const root = window.document.documentElement;
-    root.classList.remove('light', 'dark');
+    root.classList.remove('light', 'dark', 'energy');
 
     let effectiveTheme = theme;
     if (theme === 'system') {
