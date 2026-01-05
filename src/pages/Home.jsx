@@ -279,7 +279,7 @@ export default function Home() {
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.ntUniqueChapters}</div>
-                    <div className="text-muted-foreground">New Test.</div>
+                    <div className="text-muted-foreground">N.T. Chapters</div>
                   </div>
                   <div>
                     <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
