@@ -29,7 +29,7 @@ import LevelBadge from '@/components/energy/LevelBadge';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function Home() {
-  const { energyMode } = useTheme();
+  const { energyMode, energyPalette } = useTheme();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -335,7 +335,9 @@ export default function Home() {
               <Button
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
-              onClick={() => setSelectedTestamentFilter('ALL')} className="bg-[#ffffff] text-slate-800 px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9">
+              onClick={() => setSelectedTestamentFilter('ALL')} 
+              className="bg-[#ffffff] px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
+              style={energyMode && energyPalette === 'surge' ? { color: '#FFFFFF' } : { color: 'rgb(30 41 59)' }}>
 
 
                 Whole Bible
