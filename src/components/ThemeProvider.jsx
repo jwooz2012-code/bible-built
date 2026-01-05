@@ -22,7 +22,7 @@ export function ThemeProvider({ children }) {
       .then(u => {
         setUser(u);
         const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'system';
-        const savedEnergy = u?.energy_mode ?? (localStorage.getItem('energy_mode') === 'true');
+        const savedEnergy = localStorage.getItem('energy_mode') === 'true';
         setThemeState(savedTheme);
         setEnergyModeState(savedEnergy);
       })
@@ -70,17 +70,9 @@ export function ThemeProvider({ children }) {
     }
   };
 
-  const setEnergyMode = async (enabled) => {
+  const setEnergyMode = (enabled) => {
     setEnergyModeState(enabled);
     localStorage.setItem('energy_mode', String(enabled));
-    
-    if (user) {
-      try {
-        await base44.auth.updateMe({ energy_mode: enabled });
-      } catch (error) {
-        // Silent fail
-      }
-    }
   };
 
   return (
