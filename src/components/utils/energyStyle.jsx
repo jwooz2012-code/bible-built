@@ -2,10 +2,10 @@ const STYLE_ID = 'bb-energy-style';
 
 const PALETTES = {
   petal: {
-    ea: '340 68% 82%',
-    eb: '28 72% 86%',
-    ec: '280 52% 88%',
-    ed: '42 58% 90%'
+    ea: '345 58% 68%',
+    eb: '18 55% 78%',
+    ec: '275 45% 82%',
+    ed: '42 55% 84%'
   },
   surge: {
     ea: '140 100% 48%',
@@ -79,67 +79,93 @@ html.energy *:focus-visible {
 }
 
 html.energy[data-energy-palette="petal"] {
-  --background: 340 25% 96%;
-  --foreground: 340 18% 18%;
+  --background: 0 0% 97%;
+  --foreground: 222 22% 18%;
   --card: 0 0% 100%;
-  --card-foreground: 340 18% 18%;
-  --muted: 340 15% 92%;
-  --muted-foreground: 340 12% 42%;
-  --border: 340 20% 88%;
-  --primary: 340 68% 72%;
-  --ring: 340 68% 72%;
+  --card-foreground: 222 22% 18%;
+  --muted: 0 0% 95%;
+  --muted-foreground: 222 14% 38%;
+  --border: 220 18% 88%;
+  --input: 220 18% 88%;
+  --primary: var(--ea);
+  --primary-foreground: 0 0% 100%;
+  --accent: var(--ec);
+  --accent-foreground: 222 22% 18%;
+  --ring: var(--ea);
 }
 
 html.energy[data-energy-palette="petal"] body::before {
   background: linear-gradient(135deg,
-    hsl(340 68% 82%),
-    hsl(28 72% 86%),
-    hsl(280 52% 88%),
-    hsl(42 58% 90%)
+    hsl(345 58% 68% / 0.28),
+    hsl(18 55% 78% / 0.24),
+    hsl(275 45% 82% / 0.26)
   );
-  filter: blur(60px);
-  opacity: 0.12;
+  filter: blur(70px);
+  opacity: 0.30;
 }
 
 html.energy[data-energy-palette="petal"] body::after {
   background:
-    radial-gradient(circle at 20% 18%, hsla(340,68%,82%,0.08) 0%, transparent 45%),
-    radial-gradient(circle at 84% 70%, hsla(280,52%,88%,0.08) 0%, transparent 55%);
+    radial-gradient(circle at 20% 18%, hsla(345,58%,68%,0.08) 0%, transparent 45%),
+    radial-gradient(circle at 84% 70%, hsla(275,45%,82%,0.08) 0%, transparent 55%);
   opacity: 0.15;
 }
 
-html.energy[data-energy-palette="petal"] .bb-energy-card,
+html.energy[data-energy-palette="petal"] .bb-energy-card {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.96),
+    rgba(255,255,255,0.90)
+  );
+  border: 1px solid rgba(20,20,40,0.06);
+  box-shadow:
+    0 14px 34px rgba(20,20,40,0.08),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+}
+
 html.energy[data-energy-palette="petal"] [class*="card"],
 html.energy[data-energy-palette="petal"] [class*="rounded"] {
-  background: linear-gradient(180deg, rgba(255,255,255,1), rgba(255,252,255,0.98));
-  border: 1px solid hsl(340 30% 90%);
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.96),
+    rgba(255,255,255,0.90)
+  );
+  border: 1px solid rgba(20,20,40,0.06);
   backdrop-filter: blur(8px);
   box-shadow:
-    0 0 0 1px hsl(340 40% 92%),
-    0 12px 40px rgba(255,220,235,0.18),
-    0 0 20px rgba(255,235,250,0.12);
+    0 14px 34px rgba(20,20,40,0.08),
+    0 1px 0 rgba(255,255,255,0.9) inset;
+}
+
+html.energy[data-energy-palette="petal"] button {
+  border-color: rgba(20,20,40,0.08);
+}
+
+html.energy[data-energy-palette="petal"] .chapter-tile,
+html.energy[data-energy-palette="petal"] [data-chapter-tile="true"] {
+  background: linear-gradient(180deg,
+    rgba(255,255,255,0.92),
+    rgba(255,255,255,0.86)
+  );
+  border: 1px solid rgba(20,20,40,0.07);
 }
 
 html.energy[data-energy-palette="petal"] .bb-shimmer {
-  background: linear-gradient(135deg,
-    hsl(340 68% 82%),
-    hsl(28 72% 86%),
-    hsl(280 52% 88%),
-    hsl(42 58% 90%)
+  background: linear-gradient(90deg,
+    hsl(345 58% 68%),
+    hsl(18 55% 78%),
+    hsl(275 45% 82%)
   );
-  background-size: 200% 200%;
-  animation: bbPetalShift 6s ease infinite;
+  background-size: 180% 100%;
+  animation: petalFlow 6s ease infinite;
 }
 
-@keyframes bbPetalShift {
+@keyframes petalFlow {
   0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+  100% { background-position: 100% 50%; }
 }
 
 html.energy[data-energy-palette="petal"] .bb-readable,
 html.energy[data-energy-palette="petal"] .bb-text-boost {
-  color: hsl(340 18% 20%);
+  color: hsl(222 22% 18%);
   text-shadow: 0 0.5px 1px rgba(255,255,255,0.6);
 }
 

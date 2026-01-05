@@ -164,7 +164,7 @@ export default function Settings() {
                       >
                         <div className="w-full h-2 rounded-full overflow-hidden">
                           <div className="h-full" style={{ 
-                            background: 'linear-gradient(90deg, hsl(340 68% 82%), hsl(28 72% 86%), hsl(280 52% 88%), hsl(42 58% 90%))' 
+                            background: 'linear-gradient(90deg, hsl(345 58% 68%), hsl(18 55% 78%), hsl(275 45% 82%), hsl(42 55% 84%))' 
                           }} />
                         </div>
                         <span className="text-[10px] font-bold text-foreground uppercase tracking-wide">Petal</span>
