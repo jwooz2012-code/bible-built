@@ -26,8 +26,6 @@ import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import AchievementsPreview from '@/components/home/AchievementsPreview';
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
 import XPBar from '@/components/energy/XPBar';
-import ComboPill from '@/components/energy/ComboPill';
-import LevelBadge from '@/components/energy/LevelBadge';
 import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
@@ -327,8 +325,7 @@ export default function Home() {
               <h2 className="text-lg font-semibold text-foreground mb-3">Your Progress</h2>
               
               {energyMode &&
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  <ComboPill todayCount={todayLogs.length} />
+                <div className="flex items-center justify-center mb-4">
                   <motion.span
                     initial={{ opacity: 0, scale: 0.9 }}
                     animate={{ opacity: 1, scale: 1 }}
@@ -343,10 +340,9 @@ export default function Home() {
             </motion.div>
 
             {energyMode &&
-            <div className="grid grid-cols-[1fr_auto] gap-3 mb-6">
-                  <XPBar todayCount={todayLogs.length} />
-                  <LevelBadge weeklyCount={trackerStats.thisWeekChapters} />
-                </div>
+              <div className="mb-6">
+                <XPBar todayCount={todayLogs.length} />
+              </div>
             }
 
             <WeekView logs={allTimeLogs} />
