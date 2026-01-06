@@ -111,15 +111,9 @@ export default function TodayAssignmentCard({
         animate={{ opacity: 1, y: 0 }}
         className="mb-6 bb-card bb-glow px-6 py-5">
 
-        <div className="flex items-center gap-2 mb-2">
-          <Calendar className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">Start a Reading Plan</h3>
-        </div>
-        <p className="text-sm text-muted-foreground mb-4">
-          Choose a plan to get daily guidance.
-        </p>
+        <h3 className="text-base font-semibold text-foreground mb-4">Reading Plan</h3>
         <Button onClick={onOpenPlanModal} className="w-full">
-          Start Plan
+          Start Reading Plan
         </Button>
       </motion.div>);
 
