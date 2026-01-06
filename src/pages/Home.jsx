@@ -37,7 +37,7 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
-  const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('ALL');
+  const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
 
   useEffect(() => {
@@ -202,7 +202,6 @@ export default function Home() {
   };
 
   const filteredBooks = BIBLE_BOOKS.filter((book) => {
-    if (selectedTestamentFilter === 'ALL') return true;
     if (selectedTestamentFilter === 'OT') return book.testament === 'OT';
     if (selectedTestamentFilter === 'NT') return book.testament === 'NT';
     return true;
@@ -373,14 +372,6 @@ export default function Home() {
           }
 
             <div className="flex gap-2 mb-6">
-              <Button
-              variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setSelectedTestamentFilter('ALL')}
-              className="flex-1 h-9 text-xs font-medium">
-
-                Whole Bible
-              </Button>
               <Button
               variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
               size="sm"
