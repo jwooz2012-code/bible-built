@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { computeTodayAssignment } from '@/components/bible/plans/planUtils';
+import { getAssignmentForDate } from '@/components/bible/plans/planUtils';
 
 export function useCompleteTodaysAssignment() {
   const queryClient = useQueryClient();
@@ -12,19 +12,18 @@ export function useCompleteTodaysAssignment() {
         throw new Error('No active plan');
       }
 
-      // Compute today's assignment
-      const assignment = computeTodayAssignment({ plan, logs: allTimeLogs, todayKey });
+      // Get today's assigned chapters
+      const assignedToday = getAssignmentForDate({ plan, dateKey: todayKey });
       
-      if (!assignment || assignment.today.length === 0) {
+      if (!assignedToday.length) {
         return { added: 0, createdLogs: [] };
       }
 
-      // Find which chapters are already logged for today
-      const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
-      const completedIds = new Set(todayLogs.map(log => log.chapterId));
+      // Find which chapters are already logged (from any date)
+      const completedIds = new Set(allTimeLogs.map(log => log.chapterId));
 
       // Filter to only missing chapters
-      const missingChapters = assignment.today.filter(ch => !completedIds.has(ch.chapterId));
+      const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
 
       if (missingChapters.length === 0) {
         return { added: 0, createdLogs: [] };

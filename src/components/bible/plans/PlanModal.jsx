@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { computeTodayAssignment } from '@/components/bible/plans/planUtils';
+import { computeTodayAssignment, buildScopeChapters } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import { useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 
@@ -58,6 +58,14 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       return;
     }
 
+    // Calculate chaptersPerDay
+    const scopeChapters = buildScopeChapters(scope);
+    const totalChaptersInScope = scopeChapters.length;
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const totalDaysInPlan = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+    const chaptersPerDay = Math.ceil(totalChaptersInScope / totalDaysInPlan);
+
     upsertPlan(
       {
         existingPlan,
@@ -66,6 +74,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
           scope,
           startDate,
           endDate,
+          chaptersPerDay,
         },
       },
       {

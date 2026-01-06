@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Calendar, CheckCircle2 } from 'lucide-react';
-import { computeTodayAssignment } from '@/components/bible/plans/planUtils';
+import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 
 export default function TodayAssignmentCard({
@@ -26,18 +26,23 @@ export default function TodayAssignmentCard({
     }
   }, [hasPlan, plan, allTimeLogs, todayKey]);
 
+  const assignedToday = useMemo(() => {
+    if (!hasPlan) return [];
+    return getAssignmentForDate({ plan, dateKey: todayKey });
+  }, [hasPlan, plan, todayKey]);
+
   const { summary, doneCount, totalCount, isComplete } = useMemo(() => {
-    if (!assignment || !assignment.today.length) {
+    if (!assignedToday.length) {
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true };
     }
 
-    const todayLogs = allTimeLogs.filter((log) => log.dateKey === todayKey);
-    const completedIds = new Set(todayLogs.map((log) => log.chapterId));
-    const done = assignment.today.filter((ch) => completedIds.has(ch.chapterId)).length;
-    const total = assignment.today.length;
+    // Check progress across all logs (not just today's)
+    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
+    const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
+    const total = assignedToday.length;
 
     // Build summary string
-    const grouped = assignment.today.reduce((acc, ch) => {
+    const grouped = assignedToday.reduce((acc, ch) => {
       if (!acc[ch.book]) acc[ch.book] = [];
       acc[ch.book].push(ch.chapter);
       return acc;
@@ -55,7 +60,7 @@ export default function TodayAssignmentCard({
       totalCount: total,
       isComplete: done === total
     };
-  }, [assignment, allTimeLogs, todayKey]);
+  }, [assignedToday, allTimeLogs]);
 
   const handleComplete = () => {
     completeToday({ userId, plan, allTimeLogs, todayKey });
