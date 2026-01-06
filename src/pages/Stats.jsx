@@ -9,7 +9,7 @@ import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
-import { Trophy, Pencil } from 'lucide-react';
+import { Trophy, Pencil, Brain, BookMarked, Flame, Box, Flag, Circle } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
 import CoverageRadar from '@/components/trackers/CoverageRadar';
@@ -106,6 +106,41 @@ export default function Stats() {
 
   // Check if OT or NT completed at least once
   const otOrNtCompletedFlag = lifetimeStats.otCount >= OT_CHAPTERS || lifetimeStats.ntCount >= NT_CHAPTERS;
+
+  // Get icon for achievement
+  const getAchievementIcon = (id, achieved) => {
+    const iconProps = { className: "w-5 h-5", strokeWidth: 2 };
+    const color = achieved ? '#FFFFFF' : '#6B7280';
+    
+    switch(id) {
+      case 1: // First Rep
+        return <Brain {...iconProps} style={{ color }} />;
+      case 2: // Locked In
+        return <BookMarked {...iconProps} style={{ color }} />;
+      case 3: // Habit Forming
+        return <Flame {...iconProps} style={{ color }} />;
+      case 4: // Fifty Down
+        return <Box {...iconProps} style={{ color }} />;
+      case 5: // Triple Digits
+        return <Flag {...iconProps} style={{ color }} />;
+      default:
+        return achieved ? 
+          <Trophy {...iconProps} style={{ color }} /> :
+          <Circle {...iconProps} style={{ color }} />;
+    }
+  };
+
+  // Get color for achievement
+  const getAchievementColor = (id) => {
+    switch(id) {
+      case 1: return 'from-[#60A5FA] to-[#3B82F6]'; // Soft electric blue
+      case 2: return 'from-[#10B981] to-[#059669]'; // Deep forest green
+      case 3: return 'from-[#F59E0B] to-[#D97706]'; // Warm amber
+      case 4: return 'from-[#A78BFA] to-[#8B5CF6]'; // Muted clay / sandstone
+      case 5: return 'from-[#FBBF24] to-[#F59E0B]'; // Gold / soft yellow
+      default: return 'from-[#F97316] to-[#FACC15]'; // Default gradient
+    }
+  };
 
   // Define achievements with simple threshold checks
   const achievements = [
@@ -368,14 +403,11 @@ export default function Stats() {
                     <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                   achievement.achieved ?
-                  'bg-gradient-to-br from-[#F97316] to-[#FACC15]' :
-                  'bg-muted border-2 border-border'}`
+                  `bg-gradient-to-br ${getAchievementColor(achievement.id)}` :
+                  'bg-muted border-2 border-border opacity-50'}`
                   }>
 
-                      <Trophy
-                    className="w-5 h-5"
-                    style={{ color: achievement.achieved ? '#FFFFFF' : '#6B7280' }} />
-
+                      {getAchievementIcon(achievement.id, achievement.achieved)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={`font-semibold text-[15px] ${
