@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { getDateKey, formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
+import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import { useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
@@ -179,7 +179,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 <h3 className="text-sm font-semibold text-foreground mb-2">Current Plan</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div>{planDetails.scopeName}</div>
-                  <div>{existingPlan.startDate} → {existingPlan.endDate}</div>
+                  <div>{formatDateRange(existingPlan.startDate, existingPlan.endDate)}</div>
                   <div>{planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left • {planDetails.remaining} remaining</div>
                 </div>
               </div>
