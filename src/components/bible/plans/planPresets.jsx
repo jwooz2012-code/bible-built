@@ -103,4 +103,16 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 13), // 14 days
     }),
   },
+  {
+    id: 'heart_of_god',
+    name: 'Heart of God',
+    subtitle: 'Discover God\'s character.',
+    description: 'A deep Scripture plan focused on knowing God\'s character, holiness, love, justice, and mercy.',
+    scope: 'HEART_OF_GOD',
+    chaptersPerDay: 2,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 20), // 21 days
+    }),
+  },
 ];

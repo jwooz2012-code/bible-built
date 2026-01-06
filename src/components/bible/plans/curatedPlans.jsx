@@ -298,4 +298,69 @@ export const CURATED_PLANS = {
     { bookName: 'Acts', chapter: 13 },
     { bookName: 'Psalms', chapter: 16 },
   ],
+  HEART_OF_GOD: [
+    // Day 1: Exodus 34, Psalm 103
+    { bookName: 'Exodus', chapter: 34 },
+    { bookName: 'Psalms', chapter: 103 },
+    // Day 2: Psalm 145, Psalm 146
+    { bookName: 'Psalms', chapter: 145 },
+    { bookName: 'Psalms', chapter: 146 },
+    // Day 3: Isaiah 6, Isaiah 55
+    { bookName: 'Isaiah', chapter: 6 },
+    { bookName: 'Isaiah', chapter: 55 },
+    // Day 4: Micah 6, Psalm 15
+    { bookName: 'Micah', chapter: 6 },
+    { bookName: 'Psalms', chapter: 15 },
+    // Day 5: Matthew 5, Matthew 6
+    { bookName: 'Matthew', chapter: 5 },
+    { bookName: 'Matthew', chapter: 6 },
+    // Day 6: Matthew 11, Matthew 22
+    { bookName: 'Matthew', chapter: 11 },
+    { bookName: 'Matthew', chapter: 22 },
+    // Day 7: Luke 15, Luke 19
+    { bookName: 'Luke', chapter: 15 },
+    { bookName: 'Luke', chapter: 19 },
+    // Day 8: John 1, John 3
+    { bookName: 'John', chapter: 1 },
+    { bookName: 'John', chapter: 3 },
+    // Day 9: John 13, John 17
+    { bookName: 'John', chapter: 13 },
+    { bookName: 'John', chapter: 17 },
+    // Day 10: Romans 5, Romans 8
+    { bookName: 'Romans', chapter: 5 },
+    { bookName: 'Romans', chapter: 8 },
+    // Day 11: Ephesians 1, Ephesians 2
+    { bookName: 'Ephesians', chapter: 1 },
+    { bookName: 'Ephesians', chapter: 2 },
+    // Day 12: Colossians 1, Colossians 3
+    { bookName: 'Colossians', chapter: 1 },
+    { bookName: 'Colossians', chapter: 3 },
+    // Day 13: Hebrews 4, Hebrews 12
+    { bookName: 'Hebrews', chapter: 4 },
+    { bookName: 'Hebrews', chapter: 12 },
+    // Day 14: 1 John 1, 1 John 4
+    { bookName: '1 John', chapter: 1 },
+    { bookName: '1 John', chapter: 4 },
+    // Day 15: Psalm 51, Psalm 139
+    { bookName: 'Psalms', chapter: 51 },
+    { bookName: 'Psalms', chapter: 139 },
+    // Day 16: Ezekiel 18, Ezekiel 36
+    { bookName: 'Ezekiel', chapter: 18 },
+    { bookName: 'Ezekiel', chapter: 36 },
+    // Day 17: Jeremiah 9, Jeremiah 31
+    { bookName: 'Jeremiah', chapter: 9 },
+    { bookName: 'Jeremiah', chapter: 31 },
+    // Day 18: Revelation 4, Revelation 5
+    { bookName: 'Revelation', chapter: 4 },
+    { bookName: 'Revelation', chapter: 5 },
+    // Day 19: Revelation 19, Revelation 21
+    { bookName: 'Revelation', chapter: 19 },
+    { bookName: 'Revelation', chapter: 21 },
+    // Day 20: Psalm 73, Psalm 84
+    { bookName: 'Psalms', chapter: 73 },
+    { bookName: 'Psalms', chapter: 84 },
+    // Day 21: Psalm 115, Psalm 118
+    { bookName: 'Psalms', chapter: 115 },
+    { bookName: 'Psalms', chapter: 118 },
+  ],
 };
