@@ -129,9 +129,10 @@ export default function TodayAssignmentCard({
       animate={{ opacity: 1, y: 0 }}
       className="mb-6 bb-card bb-glow px-6 py-5"
       style={isComplete ? {
-        background: 'color-mix(in srgb, var(--primary) 4%, transparent)',
-        borderLeftWidth: '3px',
-        borderLeftColor: 'hsl(var(--primary))'
+        background: 'hsl(var(--card))',
+        border: '1px solid hsl(var(--border))',
+        borderLeft: '3px solid color-mix(in srgb, hsl(var(--primary)) 45%, transparent)',
+        boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : undefined}>
 
       <div 
@@ -173,7 +174,8 @@ export default function TodayAssignmentCard({
           className="w-full"
           style={isComplete ? {
             background: 'hsl(var(--primary))',
-            color: 'white'
+            color: 'hsl(var(--primary-foreground))',
+            opacity: 1
           } : undefined}>
           {isCompleting ? 
             'Saving...' : 
