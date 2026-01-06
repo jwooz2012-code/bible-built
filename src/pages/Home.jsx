@@ -175,6 +175,12 @@ export default function Home() {
   const otOrNtCompletedFlag = trackerStats.otUniqueChapters >= OT_CHAPTERS || trackerStats.ntUniqueChapters >= NT_CHAPTERS;
   
   const achievements = [
+    { 
+      id: 0, 
+      title: 'Battle', 
+      achieved: true,
+      description: 'You showed up knowing the Christian life is a fight. The Word of God is your weapon — and this is where faithfulness begins.'
+    },
     { id: 1, title: 'First Rep', achieved: lifetimeTotalCount >= 1 },
     { id: 2, title: 'Locked In', achieved: totalBooksCompletedDistinct >= 1 },
     { id: 3, title: 'Habit Forming', achieved: daysWithReadingDistinct >= 7 },

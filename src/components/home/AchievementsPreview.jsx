@@ -17,13 +17,15 @@ import {
   Crown, 
   RefreshCw, 
   TreePine, 
-  Hammer 
+  Hammer,
+  Sword
 } from 'lucide-react';
 
 const getAchievementIcon = (title) => {
   const iconProps = { className: "w-4 h-4", strokeWidth: 2 };
   
   switch(title) {
+    case 'Battle': return <Sword {...iconProps} />;
     case 'First Rep': return <Zap {...iconProps} />;
     case 'Locked In': return <BookMarked {...iconProps} />;
     case 'Habit Forming': return <CalendarCheck {...iconProps} />;
@@ -45,6 +47,7 @@ const getAchievementIcon = (title) => {
 
 const getAchievementColor = (title) => {
   switch(title) {
+    case 'Battle': return 'BLACK_WHITE';
     case 'First Rep': return 'from-[#60A5FA] to-[#3B82F6]';
     case 'Locked In': return 'from-[#10B981] to-[#059669]';
     case 'Habit Forming': return 'from-[#10B981] to-[#059669]';
@@ -78,19 +81,28 @@ export default function AchievementsPreview({ unlockedAchievements }) {
           Badges
         </p>
         <div className="flex items-center justify-center gap-2">
-          {earned.slice(0, totalSlots).map((achievement, idx) => (
-            <motion.div
-              key={achievement.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: idx * 0.05 }}
-              className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${getAchievementColor(achievement.title)} shadow-sm`}
-              title={achievement.title}>
-              <div className="text-white">
-                {getAchievementIcon(achievement.title)}
-              </div>
-            </motion.div>
-          ))}
+          {earned.slice(0, totalSlots).map((achievement, idx) => {
+            const color = getAchievementColor(achievement.title);
+            const isBW = color === 'BLACK_WHITE';
+            
+            return (
+              <motion.div
+                key={achievement.id}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: idx * 0.05 }}
+                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+                  isBW 
+                    ? 'bg-foreground' 
+                    : `bg-gradient-to-br ${color}`
+                }`}
+                title={achievement.title}>
+                <div className={isBW ? 'text-background' : 'text-white'}>
+                  {getAchievementIcon(achievement.title)}
+                </div>
+              </motion.div>
+            );
+          })}
           {Array.from({ length: placeholderCount }).map((_, idx) => (
             <div
               key={`placeholder-${idx}`}
