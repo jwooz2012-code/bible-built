@@ -65,15 +65,20 @@ const getAchievementColor = (title) => {
 };
 
 export default function AchievementsPreview({ unlockedAchievements }) {
-  if (!unlockedAchievements || unlockedAchievements.length === 0) {
-    return null;
-  }
+  const totalSlots = 5;
+  const earned = unlockedAchievements || [];
+  const placeholderCount = Math.max(0, totalSlots - earned.length);
 
   return (
-    <div className="mt-3 mb-1">
-      <div className="flex items-center gap-3">
-        <div className="flex gap-2">
-          {unlockedAchievements.slice(0, 5).map((achievement, idx) => (
+    <Link 
+      to={createPageUrl('Stats')} 
+      className="block mt-3 mb-1">
+      <div className="text-center">
+        <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">
+          Badges
+        </p>
+        <div className="flex items-center justify-center gap-2">
+          {earned.slice(0, totalSlots).map((achievement, idx) => (
             <motion.div
               key={achievement.id}
               initial={{ opacity: 0, scale: 0.9 }}
@@ -86,13 +91,14 @@ export default function AchievementsPreview({ unlockedAchievements }) {
               </div>
             </motion.div>
           ))}
+          {Array.from({ length: placeholderCount }).map((_, idx) => (
+            <div
+              key={`placeholder-${idx}`}
+              className="w-9 h-9 rounded-full flex-shrink-0 border border-border/40 bg-muted/20"
+            />
+          ))}
         </div>
-        <Link 
-          to={createPageUrl('Stats')} 
-          className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors ml-auto">
-          View all
-        </Link>
       </div>
-    </div>
+    </Link>
   );
 }
