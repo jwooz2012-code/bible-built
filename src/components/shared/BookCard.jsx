@@ -6,7 +6,8 @@ export default function BookCard({ book, completions, onClick, compact = false }
     <motion.button
       whileTap={{ scale: 0.97 }}
       onClick={onClick}
-      className={`bg-card border border-border rounded-xl text-left transition-all relative overflow-hidden shadow-sm hover:shadow-md group ${compact ? 'p-2' : 'p-2.5'}`}
+      className={`bg-card border border-border rounded-xl text-left transition-all relative overflow-hidden shadow-sm hover:shadow-md group ${compact ? 'p-2 h-12' : 'p-2.5 h-14'}`}
+      style={{ minHeight: compact ? '48px' : '56px', maxHeight: compact ? '48px' : '56px' }}
       style={{
         transition: 'all 0.15s ease',
         boxShadow: completions > 0 ? '0 0 0 0 var(--energy-glow)' : undefined
@@ -38,9 +39,9 @@ export default function BookCard({ book, completions, onClick, compact = false }
           </span>
         </div>
       )}
-      <div className="relative z-10">
-        <div className={`flex flex-col w-full pr-2 ${compact ? 'gap-1 py-1.5' : 'gap-1.5 py-2'}`}>
-          <h3 className={`font-semibold text-foreground leading-[1.2] line-clamp-2 ${compact ? 'text-sm' : 'text-base'}`}>{book.name}</h3>
+      <div className="relative z-10 flex items-center h-full">
+        <div className={`flex flex-col w-full pr-2 ${compact ? 'gap-1' : 'gap-1.5'}`}>
+          <h3 className={`font-semibold text-foreground leading-tight whitespace-nowrap overflow-hidden text-ellipsis ${compact ? 'text-sm' : 'text-base'}`}>{book.name}</h3>
           {completions > 0 && (
             <div 
               className="w-8 h-0.5 rounded-full"
