@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { Shield, BookOpen } from 'lucide-react';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -112,8 +113,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         OT: 'Old Testament',
         NT: 'New Testament',
         PSALMS: 'Psalms',
-        LEADERSHIP_30: 'Leadership (30 chapters)',
-        WISDOM_7: 'Wisdom (7 chapters)'
+        LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+        WISDOM_PLUNGE: 'Wisdom Plunge'
       }[existingPlan.scope] || existingPlan.scope
     };
   }, [existingPlan, logs, todayKey]);
@@ -275,16 +276,64 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
                 <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
               </button>
-              {PLAN_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  onClick={() => handlePresetClick(preset)}
-                  className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
-                >
-                  <div className="font-medium text-sm text-foreground">{preset.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{preset.description}</div>
-                </button>
-              ))}
+              {PLAN_PRESETS.map((preset) => {
+                const isLeadership = preset.id === 'leadership_intensive';
+                const isWisdom = preset.id === 'wisdom_plunge';
+                const isCustomPlan = isLeadership || isWisdom;
+                
+                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : null;
+                const accentColor = isLeadership 
+                  ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
+                  : isWisdom 
+                  ? 'rgba(139, 92, 246, 0.08)' // purple tint for wisdom
+                  : null;
+                
+                return (
+                  <button
+                    key={preset.id}
+                    onClick={() => handlePresetClick(preset)}
+                    className="text-left p-3.5 rounded-lg border border-border bg-card hover:bg-accent transition-all group"
+                    style={accentColor ? { backgroundColor: accentColor } : undefined}
+                  >
+                    {isCustomPlan ? (
+                      <div className="flex gap-3">
+                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
+                          isLeadership 
+                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                            : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                        }`}>
+                          <Icon className="w-5 h-5" strokeWidth={2.5} />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="font-semibold text-sm text-foreground">{preset.name}</div>
+                            <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
+                              isLeadership
+                                ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
+                                : 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                            }`}>
+                              {preset.chaptersPerDay} ch/day
+                            </div>
+                          </div>
+                          {preset.subtitle && (
+                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">
+                              {preset.subtitle}
+                            </div>
+                          )}
+                          <div className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
+                            {preset.description}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="font-medium text-sm text-foreground">{preset.name}</div>
+                        <div className="text-xs text-muted-foreground mt-0.5">{preset.description}</div>
+                      </>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -303,8 +352,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     <SelectItem value="OT">Old Testament</SelectItem>
                     <SelectItem value="NT">New Testament</SelectItem>
                     <SelectItem value="PSALMS">Psalms</SelectItem>
-                    <SelectItem value="LEADERSHIP_30">Leadership (30 chapters)</SelectItem>
-                    <SelectItem value="WISDOM_7">Wisdom (7 chapters)</SelectItem>
+                    <SelectItem value="LEADERSHIP_INTENSIVE">Leadership Intensive</SelectItem>
+                    <SelectItem value="WISDOM_PLUNGE">Wisdom Plunge</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
