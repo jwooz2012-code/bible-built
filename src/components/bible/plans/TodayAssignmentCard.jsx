@@ -132,23 +132,29 @@ export default function TodayAssignmentCard({
       <div 
         className="cursor-pointer" 
         onClick={onOpenPlanModal}>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-5 h-5 text-muted-foreground" />
-            <div>
-              <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
-              <p className="text-xs text-muted-foreground">{formatDateKey(todayKey)}</p>
-            </div>
-          </div>
-        </div>
+        
+        {/* Date line */}
+        <p className="text-xs text-muted-foreground mb-2">
+          Today · {formatDateKey(todayKey)}
+        </p>
 
+        {/* Reading reference - large and bold */}
         {summary && (
-          <div className="mb-3">
-            <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
-            <div className="text-xs text-muted-foreground">
-              {plan.chaptersPerDay || 1}/day • {assignment.daysLeft} days left
-            </div>
-          </div>
+          <>
+            <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+              {summary}
+            </h3>
+            
+            {/* Context line */}
+            <p className="text-sm text-muted-foreground mb-4">
+              {plan.scope === 'LEADERSHIP_30' ? 'Leadership Intensive' : 
+               plan.scope === 'WISDOM_7' ? 'Wisdom Plunge' :
+               plan.scope === 'BIBLE' ? 'Whole Bible' :
+               plan.scope === 'OT' ? 'Old Testament' :
+               plan.scope === 'NT' ? 'New Testament' :
+               plan.scope === 'PSALMS' ? 'Psalms' : 'Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
+            </p>
+          </>
         )}
       </div>
 
