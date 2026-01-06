@@ -11,7 +11,7 @@ export default function CoverageRadar({ sectionData }) {
     <div className="bg-card border border-border rounded-xl p-5">
       <h3 className="text-base font-semibold text-foreground mb-4">Bible Coverage</h3>
       <ResponsiveContainer width="100%" height={300}>
-        <RadarChart data={chartData}>
+        <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="65%">
           <PolarGrid stroke="hsl(var(--border))" />
           <PolarAngleAxis 
             dataKey="section" 
