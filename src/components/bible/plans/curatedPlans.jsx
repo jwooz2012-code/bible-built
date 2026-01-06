@@ -254,4 +254,48 @@ export const CURATED_PLANS = {
     { bookName: 'Joshua', chapter: 1 },
     { bookName: 'Psalms', chapter: 1 },
   ],
+  KNOW_KING_DAVID: [
+    // Day 1: 1 Samuel 16, Psalm 78
+    { bookName: '1 Samuel', chapter: 16 },
+    { bookName: 'Psalms', chapter: 78 },
+    // Day 2: 1 Samuel 17, Psalm 144
+    { bookName: '1 Samuel', chapter: 17 },
+    { bookName: 'Psalms', chapter: 144 },
+    // Day 3: 1 Samuel 18, 1 Samuel 19
+    { bookName: '1 Samuel', chapter: 18 },
+    { bookName: '1 Samuel', chapter: 19 },
+    // Day 4: 1 Samuel 24, 1 Samuel 26
+    { bookName: '1 Samuel', chapter: 24 },
+    { bookName: '1 Samuel', chapter: 26 },
+    // Day 5: Psalm 57, Psalm 59
+    { bookName: 'Psalms', chapter: 57 },
+    { bookName: 'Psalms', chapter: 59 },
+    // Day 6: 2 Samuel 5, Psalm 2
+    { bookName: '2 Samuel', chapter: 5 },
+    { bookName: 'Psalms', chapter: 2 },
+    // Day 7: 2 Samuel 6, Psalm 132
+    { bookName: '2 Samuel', chapter: 6 },
+    { bookName: 'Psalms', chapter: 132 },
+    // Day 8: 2 Samuel 7, Psalm 89
+    { bookName: '2 Samuel', chapter: 7 },
+    { bookName: 'Psalms', chapter: 89 },
+    // Day 9: 2 Samuel 11, Psalm 51
+    { bookName: '2 Samuel', chapter: 11 },
+    { bookName: 'Psalms', chapter: 51 },
+    // Day 10: 2 Samuel 12, Psalm 32
+    { bookName: '2 Samuel', chapter: 12 },
+    { bookName: 'Psalms', chapter: 32 },
+    // Day 11: Psalm 23, Psalm 63
+    { bookName: 'Psalms', chapter: 23 },
+    { bookName: 'Psalms', chapter: 63 },
+    // Day 12: 2 Samuel 15, Psalm 3
+    { bookName: '2 Samuel', chapter: 15 },
+    { bookName: 'Psalms', chapter: 3 },
+    // Day 13: 1 Kings 2, Psalm 72
+    { bookName: '1 Kings', chapter: 2 },
+    { bookName: 'Psalms', chapter: 72 },
+    // Day 14: Acts 13, Psalm 16
+    { bookName: 'Acts', chapter: 13 },
+    { bookName: 'Psalms', chapter: 16 },
+  ],
 };

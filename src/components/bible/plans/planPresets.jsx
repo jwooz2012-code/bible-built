@@ -91,4 +91,16 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 9), // 10 days
     }),
   },
+  {
+    id: 'know_king_david',
+    name: 'Know King David',
+    subtitle: 'Walk through the life of David.',
+    description: 'A Scripture journey through the life, heart, failures, repentance, and worship of King David.',
+    scope: 'KNOW_KING_DAVID',
+    chaptersPerDay: 2,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 13), // 14 days
+    }),
+  },
 ];
