@@ -222,4 +222,36 @@ export const CURATED_PLANS = {
     { bookName: '2 Timothy', chapter: 2 },
     { bookName: 'Psalms', chapter: 37 },
   ],
+  LIVE_WITH_PURPOSE: [
+    // Day 1: Romans 12, Proverbs 16
+    { bookName: 'Romans', chapter: 12 },
+    { bookName: 'Proverbs', chapter: 16 },
+    // Day 2: Psalm 37, Psalm 90
+    { bookName: 'Psalms', chapter: 37 },
+    { bookName: 'Psalms', chapter: 90 },
+    // Day 3: Matthew 6, Matthew 7
+    { bookName: 'Matthew', chapter: 6 },
+    { bookName: 'Matthew', chapter: 7 },
+    // Day 4: Ecclesiastes 3, Ecclesiastes 12
+    { bookName: 'Ecclesiastes', chapter: 3 },
+    { bookName: 'Ecclesiastes', chapter: 12 },
+    // Day 5: Colossians 1, Colossians 3
+    { bookName: 'Colossians', chapter: 1 },
+    { bookName: 'Colossians', chapter: 3 },
+    // Day 6: Ephesians 2, Ephesians 4
+    { bookName: 'Ephesians', chapter: 2 },
+    { bookName: 'Ephesians', chapter: 4 },
+    // Day 7: Philippians 1, Philippians 3
+    { bookName: 'Philippians', chapter: 1 },
+    { bookName: 'Philippians', chapter: 3 },
+    // Day 8: 2 Timothy 2, Proverbs 4
+    { bookName: '2 Timothy', chapter: 2 },
+    { bookName: 'Proverbs', chapter: 4 },
+    // Day 9: Hebrews 12, Hebrews 13
+    { bookName: 'Hebrews', chapter: 12 },
+    { bookName: 'Hebrews', chapter: 13 },
+    // Day 10: Joshua 1, Psalm 1
+    { bookName: 'Joshua', chapter: 1 },
+    { bookName: 'Psalms', chapter: 1 },
+  ],
 };

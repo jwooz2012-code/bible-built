@@ -79,4 +79,16 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 9), // 10 days
     }),
   },
+  {
+    id: 'live_with_purpose',
+    name: 'Live With Purpose',
+    subtitle: 'Align your daily life with God\'s will.',
+    description: 'A focused Scripture plan designed to align daily life with God\'s will through obedience and direction.',
+    scope: 'LIVE_WITH_PURPOSE',
+    chaptersPerDay: 2,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 9), // 10 days
+    }),
+  },
 ];

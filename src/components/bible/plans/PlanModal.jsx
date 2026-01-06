@@ -116,7 +116,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         LEADERSHIP_INTENSIVE: 'Leadership Intensive',
         WISDOM_PLUNGE: 'Wisdom Plunge',
         INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
-        GODLY_MAN: 'The Godly Man'
+        GODLY_MAN: 'The Godly Man',
+        LIVE_WITH_PURPOSE: 'Live With Purpose'
       }[existingPlan.scope] || existingPlan.scope
     };
   }, [existingPlan, logs, todayKey]);
@@ -290,9 +291,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const isWisdom = preset.id === 'wisdom_plunge';
                 const isMotherhood = preset.id === 'intentional_motherhood';
                 const isGodlyMan = preset.id === 'godly_man';
-                const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan;
+                const isPurpose = preset.id === 'live_with_purpose';
+                const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose;
                 
-                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : null;
+                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : null;
                 const accentColor = isLeadership 
                   ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
                   : isWisdom 
@@ -301,6 +303,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                   ? 'rgba(236, 72, 153, 0.08)' // pink tint for motherhood
                   : isGodlyMan
                   ? 'rgba(34, 197, 94, 0.08)' // green tint for godly man
+                  : isPurpose
+                  ? 'rgba(249, 115, 22, 0.08)' // orange tint for purpose
                   : null;
                 
                 return (
@@ -319,7 +323,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                             ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
                             : isMotherhood
                             ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
-                            : 'bg-green-500/10 text-green-600 dark:text-green-400'
+                            : isGodlyMan
+                            ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+                            : 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
                         }`}>
                           <Icon className="w-5 h-5" strokeWidth={2.5} />
                         </div>
@@ -333,7 +339,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                                 ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
                                 : isMotherhood
                                 ? 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
-                                : 'bg-green-500/15 text-green-700 dark:text-green-300'
+                                : isGodlyMan
+                                ? 'bg-green-500/15 text-green-700 dark:text-green-300'
+                                : 'bg-orange-500/15 text-orange-700 dark:text-orange-300'
                             }`}>
                               {preset.chaptersPerDay} ch/day
                             </div>
@@ -379,6 +387,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     <SelectItem value="WISDOM_PLUNGE">Wisdom Plunge</SelectItem>
                     <SelectItem value="INTENTIONAL_MOTHERHOOD">The Intentional Mom</SelectItem>
                     <SelectItem value="GODLY_MAN">The Godly Man</SelectItem>
+                    <SelectItem value="LIVE_WITH_PURPOSE">Live With Purpose</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
