@@ -131,8 +131,9 @@ export function computeTodayAssignment({ plan, logs, todayKey }) {
   const endDate = new Date(plan.endDate);
   const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
 
-  // Calculate per day
-  const perDay = daysLeft > 0 ? Math.ceil(remaining / daysLeft) : remaining;
+  // ALWAYS use plan.chaptersPerDay if available (for fixed-pace plans)
+  // Never compute for plans with preset chaptersPerDay
+  const perDay = plan.chaptersPerDay || (daysLeft > 0 ? Math.ceil(remaining / daysLeft) : remaining);
 
   // Build today's assignment (first N unread chapters)
   const todayAssignment = [];

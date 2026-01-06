@@ -164,13 +164,20 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       return;
     }
 
-    // Calculate chaptersPerDay
-    const scopeChapters = buildScopeChapters(scope);
-    const totalChaptersInScope = scopeChapters.length;
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const totalDaysInPlan = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
-    const chaptersPerDay = Math.ceil(totalChaptersInScope / totalDaysInPlan);
+    // Use preset chaptersPerDay if available, otherwise calculate
+    const matchingPreset = PLAN_PRESETS.find(p => p.scope === scope);
+    let chaptersPerDay;
+    
+    if (matchingPreset && matchingPreset.chaptersPerDay) {
+      chaptersPerDay = matchingPreset.chaptersPerDay;
+    } else {
+      const scopeChapters = buildScopeChapters(scope);
+      const totalChaptersInScope = scopeChapters.length;
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const totalDaysInPlan = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+      chaptersPerDay = Math.ceil(totalChaptersInScope / totalDaysInPlan);
+    }
 
     upsertPlan(
       {
