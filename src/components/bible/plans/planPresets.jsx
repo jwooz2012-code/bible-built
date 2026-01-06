@@ -1,4 +1,3 @@
-
 import { getDateKey, addDaysKey, addYearsKey } from '@/components/bible/utils/dateUtils';
 
 export const PLAN_PRESETS = [
@@ -54,6 +53,17 @@ export const PLAN_PRESETS = [
     getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 29), // ~30 days
+    }),
+  },
+  {
+    id: 'intentional_motherhood',
+    name: 'Intentional Motherhood',
+    description: 'A Scripture-focused plan centered on faithful, God-centered motherhood.',
+    scope: 'INTENTIONAL_MOTHERHOOD',
+    chaptersPerDay: 2,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 9), // 10 days
     }),
   },
 ];
