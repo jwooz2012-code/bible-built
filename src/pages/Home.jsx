@@ -18,6 +18,7 @@ import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
+import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import MomentumRings from '@/components/trackers/MomentumRings';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
@@ -27,6 +28,8 @@ import XPBar from '@/components/energy/XPBar';
 import ComboPill from '@/components/energy/ComboPill';
 import LevelBadge from '@/components/energy/LevelBadge';
 import { useTheme } from '@/components/ThemeProvider';
+import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
+import PlanModal from '@/components/bible/plans/PlanModal';
 
 export default function Home() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
@@ -34,6 +37,7 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('ALL');
+  const [planOpen, setPlanOpen] = useState(false);
 
   useEffect(() => {
     if (selectedBook) {
@@ -58,6 +62,7 @@ export default function Home() {
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+  const { data: plan } = useReadingPlan(userId);
 
   const trackerStats = useMemo(() => {
     if (!allTimeLogs.length) {
@@ -139,6 +144,14 @@ export default function Home() {
   const { markAllRead, isMarkingAll } = useMarkAllRead();
 
   const recentBooks = useMostRecentBooks(allTimeLogs);
+
+  const hasPlan = !!plan?.startDate && !!plan?.endDate;
+  const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
+
+  const handleDismissPrompt = () => {
+    localStorage.setItem('bb_plan_prompt_seen', 'true');
+    window.location.reload();
+  };
 
   const filteredBooks = BIBLE_BOOKS.filter((book) => {
     if (selectedTestamentFilter === 'ALL') return true;
@@ -248,6 +261,16 @@ export default function Home() {
 
         {!selectedBook &&
         <>
+            {/* Today's Assignment Card */}
+            <TodayAssignmentCard
+              plan={plan}
+              allTimeLogs={allTimeLogs}
+              todayKey={today}
+              onOpenPlanModal={() => setPlanOpen(true)}
+              onDismissPrompt={handleDismissPrompt}
+              showPrompt={showPrompt}
+            />
+
             {/* Hero Dashboard */}
             <div className="relative mb-8">
               <motion.div
@@ -429,7 +452,16 @@ export default function Home() {
             </div>
           </motion.div>
         }
-      </div>
-    </div>);
+        </div>
 
-}
+        {/* Plan Modal */}
+        <PlanModal
+        open={planOpen}
+        onClose={() => setPlanOpen(false)}
+        userId={userId}
+        existingPlan={plan}
+        logs={allTimeLogs}
+        />
+        </div>);
+
+        }

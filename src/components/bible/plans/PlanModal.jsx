@@ -70,6 +70,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       },
       {
         onSuccess: () => {
+          localStorage.setItem('bb_plan_prompt_seen', 'true');
           toast.success('Reading plan saved');
           onClose();
         },
