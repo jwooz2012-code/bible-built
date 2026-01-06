@@ -359,7 +359,7 @@ export default function Home() {
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setSelectedTestamentFilter('ALL')}
-              className="bg-[#ffffff] dark:bg-background dark:text-white px-3 text-xs font-medium rounded-md shadow-sm inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
+              className="bg-[#ffffff] dark:bg-background dark:text-white px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
               style={energyMode && (energyPalette === 'surge' || energyPalette === 'royal') ? { color: '#FFFFFF' } : { color: resolvedTheme === 'dark' ? '#FFFFFF' : 'rgb(30 41 59)' }}>
 
 
