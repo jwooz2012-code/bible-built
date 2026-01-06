@@ -72,7 +72,7 @@ export default function AchievementsPreview({ unlockedAchievements }) {
   return (
     <div className="mt-5">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-foreground">Achievements</h3>
+        <h3 className="text-sm font-semibold text-foreground">Badges</h3>
         <Link 
           to={createPageUrl('Stats')} 
           className="text-xs text-muted-foreground hover:text-foreground transition-colors">
