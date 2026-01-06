@@ -5,10 +5,10 @@ import { Calendar, CheckCircle2 } from 'lucide-react';
 import { computeTodayAssignment } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 
-export default function TodayAssignmentCard({ 
-  plan, 
-  allTimeLogs, 
-  todayKey, 
+export default function TodayAssignmentCard({
+  plan,
+  allTimeLogs,
+  todayKey,
   onOpenPlanModal,
   onDismissPrompt,
   showPrompt,
@@ -31,9 +31,9 @@ export default function TodayAssignmentCard({
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true };
     }
 
-    const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
-    const completedIds = new Set(todayLogs.map(log => log.chapterId));
-    const done = assignment.today.filter(ch => completedIds.has(ch.chapterId)).length;
+    const todayLogs = allTimeLogs.filter((log) => log.dateKey === todayKey);
+    const completedIds = new Set(todayLogs.map((log) => log.chapterId));
+    const done = assignment.today.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignment.today.length;
 
     // Build summary string
@@ -66,8 +66,8 @@ export default function TodayAssignmentCard({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 bb-card bb-glow px-6 py-5"
-      >
+        className="mb-6 bb-card bb-glow px-6 py-5">
+
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="w-5 h-5 text-muted-foreground" />
           <h3 className="text-lg font-semibold text-foreground">Today's Assignment</h3>
@@ -79,17 +79,17 @@ export default function TodayAssignmentCard({
           <Button onClick={onOpenPlanModal} className="flex-1">
             Choose a Plan
           </Button>
-          {showPrompt && onDismissPrompt && (
-            <button
-              onClick={onDismissPrompt}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
+          {showPrompt && onDismissPrompt &&
+          <button
+            onClick={onDismissPrompt}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+
               Not now
             </button>
-          )}
+          }
         </div>
-      </motion.div>
-    );
+      </motion.div>);
+
   }
 
   if (!assignment) return null;
@@ -98,17 +98,17 @@ export default function TodayAssignmentCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-6 bb-card bb-glow px-6 py-5"
-    >
+      className="mb-6 bb-card bb-glow px-6 py-5">
+
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">Today's Assignment</h3>
+          <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
         </div>
         <button
           onClick={onOpenPlanModal}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-        >
+          className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+
           Edit Plan
         </button>
       </div>
@@ -128,8 +128,8 @@ export default function TodayAssignmentCard({
         </div>
       </div>
 
-      {summary && (
-        <div className="border-t border-border pt-4 space-y-3">
+      {summary &&
+      <div className="border-t border-border pt-4 space-y-3">
           <div>
             <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
             <div className="text-xs text-muted-foreground">
@@ -137,23 +137,23 @@ export default function TodayAssignmentCard({
             </div>
           </div>
           <Button
-            onClick={handleComplete}
-            disabled={isComplete || isCompleting}
-            className="w-full"
-          >
-            {isCompleting ? (
-              'Saving...'
-            ) : isComplete ? (
-              <>
+          onClick={handleComplete}
+          disabled={isComplete || isCompleting}
+          className="w-full">
+
+            {isCompleting ?
+          'Saving...' :
+          isComplete ?
+          <>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 Today Completed
-              </>
-            ) : (
-              'Mark Today Complete'
-            )}
+              </> :
+
+          'Mark Today Complete'
+          }
           </Button>
         </div>
-      )}
-    </motion.div>
-  );
+      }
+    </motion.div>);
+
 }
