@@ -355,15 +355,16 @@ export default function Home() {
             {recentBooks.length > 0 &&
           <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
-                <div className="grid grid-cols-3 gap-2">
-                  {recentBooks.map((book) => {
+                <div className="grid grid-cols-2 gap-2">
+                  {recentBooks.slice(0, 2).map((book) => {
                 const stats = getBookStats(book);
                 return (
                   <BookCard
                     key={book.index}
                     book={book}
                     completions={stats.completions}
-                    onClick={() => setSelectedBook(book)} />);
+                    onClick={() => setSelectedBook(book)}
+                    compact={true} />);
 
 
               })}
@@ -376,9 +377,7 @@ export default function Home() {
               variant={selectedTestamentFilter === 'ALL' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setSelectedTestamentFilter('ALL')}
-              className="bg-[#ffffff] dark:bg-background dark:text-white px-3 text-xs font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-secondary/80 flex-1 h-9"
-              style={energyMode && (energyPalette === 'surge' || energyPalette === 'royal') ? { color: '#FFFFFF' } : { color: resolvedTheme === 'dark' ? '#FFFFFF' : 'rgb(30 41 59)' }}>
-
+              className="flex-1 h-9 text-xs font-medium">
 
                 Whole Bible
               </Button>
