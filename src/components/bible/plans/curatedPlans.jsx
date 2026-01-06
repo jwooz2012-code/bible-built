@@ -158,4 +158,36 @@ export const CURATED_PLANS = {
     { bookName: 'Psalms', chapter: 90 },
     { bookName: 'Psalms', chapter: 119 },
   ],
+  INTENTIONAL_MOTHERHOOD: [
+    // Day 1: Proverbs 31, Psalm 127
+    { bookName: 'Proverbs', chapter: 31 },
+    { bookName: 'Psalms', chapter: 127 },
+    // Day 2: Deuteronomy 6, Psalm 78
+    { bookName: 'Deuteronomy', chapter: 6 },
+    { bookName: 'Psalms', chapter: 78 },
+    // Day 3: 1 Samuel 1, 1 Samuel 2
+    { bookName: '1 Samuel', chapter: 1 },
+    { bookName: '1 Samuel', chapter: 2 },
+    // Day 4: Luke 1, Luke 2
+    { bookName: 'Luke', chapter: 1 },
+    { bookName: 'Luke', chapter: 2 },
+    // Day 5: Titus 2, Proverbs 14
+    { bookName: 'Titus', chapter: 2 },
+    { bookName: 'Proverbs', chapter: 14 },
+    // Day 6: Isaiah 40, Isaiah 49
+    { bookName: 'Isaiah', chapter: 40 },
+    { bookName: 'Isaiah', chapter: 49 },
+    // Day 7: 2 Timothy 1, 2 Timothy 3
+    { bookName: '2 Timothy', chapter: 1 },
+    { bookName: '2 Timothy', chapter: 3 },
+    // Day 8: Psalm 128, Psalm 139
+    { bookName: 'Psalms', chapter: 128 },
+    { bookName: 'Psalms', chapter: 139 },
+    // Day 9: Proverbs 22, Proverbs 23
+    { bookName: 'Proverbs', chapter: 22 },
+    { bookName: 'Proverbs', chapter: 23 },
+    // Day 10: Joshua 24, Psalm 127
+    { bookName: 'Joshua', chapter: 24 },
+    { bookName: 'Psalms', chapter: 127 },
+  ],
 };
