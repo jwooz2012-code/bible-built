@@ -288,7 +288,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
                 <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
               </button>
-              {PLAN_PRESETS.map((preset) => {
+              {PLAN_PRESETS.filter((preset) => {
+                return preset.id !== 'bible_year' && preset.id !== 'nt_30' && preset.id !== 'psalms_week';
+              }).map((preset) => {
                 const isLeadership = preset.id === 'leadership_intensive';
                 const isWisdom = preset.id === 'wisdom_plunge';
                 const isMotherhood = preset.id === 'intentional_motherhood';
