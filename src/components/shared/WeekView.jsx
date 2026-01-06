@@ -44,30 +44,30 @@ export default function WeekView({ logs = [] }) {
             <motion.button
               key={i}
               whileTap={{ scale: 0.95 }}
-              onClick={() => handleDayClick(date)} className="bg-slate-800 py-3 opacity-100 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
-
+              onClick={() => handleDayClick(date)}
+              className="py-3 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
               style={isToday ? {
-                background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(250, 204, 21, 0.15))',
-                borderColor: 'var(--energy-orange)',
-                borderWidth: '1.5px',
-                boxShadow: '0 0 12px var(--energy-glow)'
+                background: 'hsl(var(--primary))',
+                borderColor: 'hsl(var(--primary))',
+                borderWidth: '1.5px'
               } : count > 0 ? {
-                background: 'rgba(249, 115, 22, 0.08)',
-                borderColor: 'var(--energy-orange)',
+                background: 'color-mix(in srgb, hsl(var(--primary)) 8%, transparent)',
+                borderColor: 'color-mix(in srgb, hsl(var(--primary)) 35%, transparent)',
                 borderWidth: '1.5px'
               } : {
-                background: 'hsl(var(--secondary))',
+                background: 'hsl(var(--muted))',
                 borderColor: 'hsl(var(--border))'
               }}>
 
               <span
                 className="text-[11px] font-medium tracking-wide"
-                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
+                style={{ color: isToday ? 'white' : 'hsl(var(--muted-foreground))' }}>
 
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
               <span
-                className="text-lg font-semibold text-foreground my-0.5">
+                className="text-lg font-semibold my-0.5"
+                style={{ color: isToday ? 'white' : 'hsl(var(--foreground))' }}>
 
                 {date.getDate()}
               </span>
