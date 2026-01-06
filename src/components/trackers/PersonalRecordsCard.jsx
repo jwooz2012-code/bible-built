@@ -3,10 +3,10 @@ import { Trophy, TrendingUp, Calendar, BookOpen } from 'lucide-react';
 
 export default function PersonalRecordsCard({ records }) {
   const items = [
-    { icon: Trophy, label: 'Longest Streak', value: `${records.longestStreak} days` },
-    { icon: TrendingUp, label: 'Best Week', value: `${records.bestRolling7} chapters` },
-    { icon: Calendar, label: 'Best Month', value: `${records.bestMonth} chapters` },
-    { icon: BookOpen, label: 'Most Read', value: records.mostReadBook.name }
+    { icon: Trophy, label: 'Longest Streak', value: `${records.longestStreak} days`, color: '#FACC15' },
+    { icon: TrendingUp, label: 'Best Week', value: `${records.bestRolling7} chapters`, color: '#10B981' },
+    { icon: Calendar, label: 'Best Month', value: `${records.bestMonth} chapters`, color: '#3B82F6' },
+    { icon: BookOpen, label: 'Most Read', value: records.mostReadBook.name, color: '#A855F7' }
   ];
 
   return (
@@ -16,7 +16,7 @@ export default function PersonalRecordsCard({ records }) {
         {items.map((item, i) => (
           <div key={i} className="bg-secondary rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
-              <item.icon className="w-4 h-4 text-primary" />
+              <item.icon className="w-4 h-4" style={{ color: item.color }} />
               <span className="text-xs text-muted-foreground">{item.label}</span>
             </div>
             <div className="text-sm font-semibold text-foreground">{item.value}</div>
