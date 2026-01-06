@@ -1,0 +1,241 @@
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { ArrowLeft, Shield, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { base44 } from '@/api/base44Client';
+import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
+import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
+import { BIBLE_BOOKS } from '@/components/bible/bibleData';
+import { useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
+import { getDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
+import { toast } from 'sonner';
+
+export default function PlanDetail() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
+
+  const planId = new URLSearchParams(location.search).get('id');
+  const preset = PLAN_PRESETS.find((p) => p.id === planId);
+
+  useEffect(() => {
+    let mounted = true;
+    base44.auth.me()
+      .then((u) => {
+        if (mounted) {
+          setUser(u);
+          setIsLoading(false);
+        }
+      })
+      .catch(() => {
+        if (mounted) setIsLoading(false);
+      });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (isLoading || !user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Skeleton className="h-20 w-64" />
+      </div>
+    );
+  }
+
+  if (!preset) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Plan not found</p>
+      </div>
+    );
+  }
+
+  const isLeadership = preset.id === 'leadership_intensive';
+  const isWisdom = preset.id === 'wisdom_plunge';
+  const isMotherhood = preset.id === 'intentional_motherhood';
+  const isGodlyMan = preset.id === 'godly_man';
+  const isPurpose = preset.id === 'live_with_purpose';
+  const isDavid = preset.id === 'know_king_david';
+  const isHeartOfGod = preset.id === 'heart_of_god';
+  const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod;
+
+  const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : isDavid ? Shield : isHeartOfGod ? BookOpen : null;
+  
+  const accentColor = isLeadership 
+    ? 'rgba(59, 130, 246, 0.1)' 
+    : isWisdom 
+    ? 'rgba(139, 92, 246, 0.08)' 
+    : isMotherhood
+    ? 'rgba(236, 72, 153, 0.08)' 
+    : isGodlyMan
+    ? 'rgba(34, 197, 94, 0.08)' 
+    : isPurpose
+    ? 'rgba(249, 115, 22, 0.08)' 
+    : isDavid
+    ? 'rgba(14, 165, 233, 0.08)' 
+    : isHeartOfGod
+    ? 'rgba(244, 63, 94, 0.08)' 
+    : null;
+
+  const iconColor = isLeadership 
+    ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+    : isWisdom
+    ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+    : isMotherhood
+    ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
+    : isGodlyMan
+    ? 'bg-green-500/10 text-green-600 dark:text-green-400'
+    : isPurpose
+    ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
+    : isDavid
+    ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
+    : 'bg-rose-500/10 text-rose-600 dark:text-rose-400';
+
+  const badgeColor = isLeadership
+    ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
+    : isWisdom
+    ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+    : isMotherhood
+    ? 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
+    : isGodlyMan
+    ? 'bg-green-500/15 text-green-700 dark:text-green-300'
+    : isPurpose
+    ? 'bg-orange-500/15 text-orange-700 dark:text-orange-300'
+    : isDavid
+    ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300'
+    : 'bg-rose-500/15 text-rose-700 dark:text-rose-300';
+
+  const startDate = getDateKey();
+  const { endDate } = preset.getDates(startDate);
+  
+  const durationInDays = Math.floor((new Date(endDate) - new Date(startDate)) / (1000 * 60 * 60 * 24)) + 1;
+
+  // Get curated chapters if available
+  const curatedChapters = CURATED_PLANS[preset.scope] || [];
+
+  // Preview Day 1, 2, 3
+  const dayPreviews = [1, 2, 3].map((dayNum) => {
+    const chaptersForDay = [];
+    
+    if (curatedChapters.length > 0) {
+      const startIdx = (dayNum - 1) * preset.chaptersPerDay;
+      const endIdx = startIdx + preset.chaptersPerDay;
+      for (let i = startIdx; i < endIdx && i < curatedChapters.length; i++) {
+        const chap = curatedChapters[i];
+        chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
+      }
+    }
+
+    return { day: dayNum, chapters: chaptersForDay };
+  });
+
+  const handleStartPlan = async () => {
+    try {
+      const planData = {
+        userId: user.id,
+        scope: preset.scope,
+        startDate,
+        endDate,
+        chaptersPerDay: preset.chaptersPerDay,
+      };
+
+      await upsertPlan(planData);
+      toast.success('Plan started!');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to start plan');
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-2xl mx-auto px-5 py-8">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="mb-6"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          Back
+        </Button>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-card border border-border rounded-2xl p-6 mb-6"
+          style={{ background: accentColor ? `linear-gradient(135deg, ${accentColor}, transparent)` : undefined }}
+        >
+          <div className="flex items-start gap-4 mb-4">
+            {Icon && (
+              <div className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${iconColor}`}>
+                <Icon className="w-6 h-6" />
+              </div>
+            )}
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-foreground mb-2">{preset.name}</h1>
+              {preset.subtitle && (
+                <p className="text-sm text-muted-foreground">{preset.subtitle}</p>
+              )}
+            </div>
+          </div>
+
+          {isCustomPlan && (
+            <div className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium mb-4 ${badgeColor}`}>
+              {preset.chaptersPerDay}+ chapters/day
+            </div>
+          )}
+
+          <p className="text-sm text-foreground leading-relaxed mb-6">
+            {preset.description}
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">Duration</p>
+              <p className="text-lg font-semibold text-foreground">{durationInDays} days</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">Chapters/Day</p>
+              <p className="text-lg font-semibold text-foreground">{preset.chaptersPerDay}</p>
+            </div>
+          </div>
+
+          {dayPreviews[0].chapters.length > 0 && (
+            <div className="space-y-3">
+              <h3 className="text-sm font-semibold text-foreground">Reading Preview</h3>
+              {dayPreviews.map((preview) => (
+                <div key={preview.day} className="bg-secondary/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1.5">Day {preview.day}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {preview.chapters.map((chap, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs font-medium text-foreground bg-background/60 px-2 py-1 rounded"
+                      >
+                        {chap}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
+        <Button
+          onClick={handleStartPlan}
+          disabled={isSaving}
+          className="w-full h-12 text-base font-semibold"
+        >
+          {isSaving ? 'Starting...' : 'Start This Plan'}
+        </Button>
+      </div>
+    </div>
+  );
+}

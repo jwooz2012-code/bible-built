@@ -36,6 +36,7 @@ export const PLAN_PRESETS = [
     name: 'Leadership Intensive',
     subtitle: 'Train your heart for biblical leadership.',
     description: 'A high-commitment reading plan for those called to lead. This plan moves quickly through Scripture\'s most formative leadership passages—developing humility, courage, doctrine, and endurance. Expect challenge. Expect growth.',
+    shortHook: 'Train your heart for biblical leadership.',
     scope: 'LEADERSHIP_INTENSIVE',
     chaptersPerDay: 5,
     getDates: (startDate) => ({
@@ -48,6 +49,7 @@ export const PLAN_PRESETS = [
     name: 'Wisdom Plunge',
     subtitle: 'Learn what God calls wisdom.',
     description: 'A slower, reflective reading plan through Scripture\'s wisdom books. Designed to shape your thinking, speech, decisions, and fear of the Lord. Read carefully. Think deeply. Apply daily.',
+    shortHook: 'Slow down and grow deep in God\'s wisdom.',
     scope: 'WISDOM_PLUNGE',
     chaptersPerDay: 3,
     getDates: (startDate) => ({
@@ -60,6 +62,7 @@ export const PLAN_PRESETS = [
     name: 'The Intentional Mom',
     subtitle: 'Anchor your motherhood in Scripture.',
     description: 'A Scripture-focused plan centered on faithful, God-centered motherhood.',
+    shortHook: 'Build a faithful, God-centered life as a mother.',
     scope: 'INTENTIONAL_MOTHERHOOD',
     chaptersPerDay: 2,
     getDates: (startDate) => ({
@@ -72,6 +75,7 @@ export const PLAN_PRESETS = [
     name: 'The Godly Man',
     subtitle: 'Biblical manhood anchored in Scripture.',
     description: 'A disciplined Scripture plan focused on biblical manhood, leadership, and responsibility before God.',
+    shortHook: 'Strength, discipline, and responsibility before God.',
     scope: 'GODLY_MAN',
     chaptersPerDay: 2,
     getDates: (startDate) => ({
