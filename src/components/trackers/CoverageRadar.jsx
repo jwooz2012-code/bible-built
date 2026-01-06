@@ -7,6 +7,19 @@ export default function CoverageRadar({ sectionData }) {
     coverage: s.percent
   }));
 
+  const CustomTick = ({ payload, x, y, cx, cy }) => {
+    const words = payload.value.split(' ');
+    return (
+      <text x={x} y={y} textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize={10}>
+        {words.map((word, i) => (
+          <tspan key={i} x={x} dy={i === 0 ? 0 : 12}>
+            {word}
+          </tspan>
+        ))}
+      </text>
+    );
+  };
+
   return (
     <div className="bg-card border border-border rounded-xl p-5">
       <h3 className="text-base font-semibold text-foreground mb-4">Bible Coverage</h3>
@@ -15,7 +28,7 @@ export default function CoverageRadar({ sectionData }) {
           <PolarGrid stroke="hsl(var(--border))" />
           <PolarAngleAxis 
             dataKey="section" 
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
+            tick={<CustomTick />}
             tickLine={false}
           />
           <PolarRadiusAxis 
