@@ -127,7 +127,12 @@ export default function TodayAssignmentCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-6 bb-card bb-glow px-6 py-5">
+      className="mb-6 bb-card bb-glow px-6 py-5"
+      style={isComplete ? {
+        background: 'color-mix(in srgb, var(--primary) 4%, transparent)',
+        borderLeftWidth: '3px',
+        borderLeftColor: 'hsl(var(--primary))'
+      } : undefined}>
 
       <div 
         className="cursor-pointer" 
@@ -165,13 +170,17 @@ export default function TodayAssignmentCard({
             handleComplete();
           }}
           disabled={isComplete || isCompleting}
-          className="w-full">
+          className="w-full"
+          style={isComplete ? {
+            background: 'hsl(var(--primary))',
+            color: 'white'
+          } : undefined}>
           {isCompleting ? 
             'Saving...' : 
             isComplete ? 
               <>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
-                Today Completed
+                Completed Today
               </> : 
               'Mark Today Complete'
           }
