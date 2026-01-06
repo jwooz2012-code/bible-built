@@ -74,7 +74,8 @@ export default function WeekView({ logs = [] }) {
               <div className="h-4 flex items-center justify-center">
                 {count > 0 &&
                 <span
-                  className="text-xs font-bold text-foreground">
+                  className="text-xs font-bold"
+                  style={{ color: isToday ? 'white' : 'hsl(var(--foreground))' }}>
 
                     {count}
                   </span>
