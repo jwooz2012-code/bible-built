@@ -190,4 +190,36 @@ export const CURATED_PLANS = {
     { bookName: 'Joshua', chapter: 24 },
     { bookName: 'Psalms', chapter: 127 },
   ],
+  GODLY_MAN: [
+    // Day 1: Joshua 1, Psalm 1
+    { bookName: 'Joshua', chapter: 1 },
+    { bookName: 'Psalms', chapter: 1 },
+    // Day 2: Proverbs 4, Proverbs 20
+    { bookName: 'Proverbs', chapter: 4 },
+    { bookName: 'Proverbs', chapter: 20 },
+    // Day 3: Micah 6, Psalm 15
+    { bookName: 'Micah', chapter: 6 },
+    { bookName: 'Psalms', chapter: 15 },
+    // Day 4: 1 Kings 2, Proverbs 16
+    { bookName: '1 Kings', chapter: 2 },
+    { bookName: 'Proverbs', chapter: 16 },
+    // Day 5: Ephesians 5, Ephesians 6
+    { bookName: 'Ephesians', chapter: 5 },
+    { bookName: 'Ephesians', chapter: 6 },
+    // Day 6: 1 Corinthians 9, 1 Corinthians 16
+    { bookName: '1 Corinthians', chapter: 9 },
+    { bookName: '1 Corinthians', chapter: 16 },
+    // Day 7: 1 Timothy 6, Titus 1
+    { bookName: '1 Timothy', chapter: 6 },
+    { bookName: 'Titus', chapter: 1 },
+    // Day 8: James 1, James 2
+    { bookName: 'James', chapter: 1 },
+    { bookName: 'James', chapter: 2 },
+    // Day 9: Psalm 112, Psalm 128
+    { bookName: 'Psalms', chapter: 112 },
+    { bookName: 'Psalms', chapter: 128 },
+    // Day 10: 2 Timothy 2, Psalm 37
+    { bookName: '2 Timothy', chapter: 2 },
+    { bookName: 'Psalms', chapter: 37 },
+  ],
 };

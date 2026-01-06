@@ -67,4 +67,16 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 9), // 10 days
     }),
   },
+  {
+    id: 'godly_man',
+    name: 'The Godly Man',
+    subtitle: 'Biblical manhood anchored in Scripture.',
+    description: 'A disciplined Scripture plan focused on biblical manhood, leadership, and responsibility before God.',
+    scope: 'GODLY_MAN',
+    chaptersPerDay: 2,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 9), // 10 days
+    }),
+  },
 ];
