@@ -468,7 +468,9 @@ export default function Stats() {
                           isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
                         }`}
                         style={{
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
+                          border: '3px solid',
+                          borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
                         }}
                       >
                         <div 
@@ -515,13 +517,17 @@ export default function Stats() {
                             ? isBW
                               ? 'bg-foreground'
                               : `bg-gradient-to-br ${color}`
-                            : 'bg-muted border-2 border-border'
+                            : 'bg-muted'
                         }`}
                         style={{ 
                           opacity: achievement.achieved ? 1 : 0.5,
                           boxShadow: achievement.achieved 
-                            ? '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(0,0,0,0.08)'
-                            : 'none'
+                            ? '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)'
+                            : 'none',
+                          border: achievement.achieved ? '2.5px solid' : '2px solid',
+                          borderColor: achievement.achieved 
+                            ? 'color-mix(in srgb, var(--border) 60%, transparent)'
+                            : 'var(--border)'
                         }}>
                         <div 
                           style={{ 

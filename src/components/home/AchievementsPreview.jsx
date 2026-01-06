@@ -98,13 +98,15 @@ export default function AchievementsPreview({ unlockedAchievements }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.05 }}
-                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 relative ${
                   isBW 
                     ? 'bg-foreground' 
                     : `bg-gradient-to-br ${color}`
                 }`}
                 style={{
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(0,0,0,0.08)'
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)',
+                  border: '2.5px solid',
+                  borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
                 }}
                 title={achievement.title}>
                 <div 
