@@ -57,8 +57,8 @@ export function formatDateRange(startKey, endKey) {
   
   if (startYear === endYear && startMonth === endMonth) {
     // Same month/year: "Jan 6–12, 2026"
-    const monthYear = start.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
-    return `${start.getDate()}–${end.getDate()}, ${monthYear.split(' ')[1]}`;
+    const month = start.toLocaleDateString('en-US', { month: 'short' });
+    return `${month} ${start.getDate()}–${end.getDate()}, ${startYear}`;
   } else if (startYear === endYear) {
     // Different months same year: "Jan 28 – Feb 3, 2026"
     const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
