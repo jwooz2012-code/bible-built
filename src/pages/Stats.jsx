@@ -467,8 +467,16 @@ export default function Stats() {
                         className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
                           isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
                         }`}
+                        style={{
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.1), inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 0 1px rgba(0,0,0,0.1)'
+                        }}
                       >
-                        <div style={{ color: isBW ? 'hsl(var(--background))' : '#FFFFFF' }}>
+                        <div 
+                          style={{ 
+                            color: isBW ? 'hsl(var(--background))' : '#FFFFFF',
+                            filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.2))',
+                            opacity: 0.95
+                          }}>
                           {getAchievementIcon(achievement.title, true)}
                         </div>
                       </div>
@@ -509,8 +517,18 @@ export default function Stats() {
                               : `bg-gradient-to-br ${color}`
                             : 'bg-muted border-2 border-border'
                         }`}
-                        style={{ opacity: achievement.achieved ? 1 : 0.5 }}>
-                        <div style={{ color: achievement.achieved && isBW ? 'hsl(var(--background))' : undefined }}>
+                        style={{ 
+                          opacity: achievement.achieved ? 1 : 0.5,
+                          boxShadow: achievement.achieved 
+                            ? '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(0,0,0,0.08)'
+                            : 'none'
+                        }}>
+                        <div 
+                          style={{ 
+                            color: achievement.achieved && isBW ? 'hsl(var(--background))' : undefined,
+                            filter: achievement.achieved ? 'drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.15))' : 'none',
+                            opacity: achievement.achieved ? 0.95 : 1
+                          }}>
                           {getAchievementIcon(achievement.title, achievement.achieved)}
                         </div>
                       </div>

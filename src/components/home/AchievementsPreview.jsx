@@ -98,16 +98,24 @@ export default function AchievementsPreview({ unlockedAchievements }) {
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.05 }}
-                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm ${
+                className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 ${
                   isBW 
                     ? 'bg-foreground' 
                     : `bg-gradient-to-br ${color}`
                 }`}
+                style={{
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.08), inset 0 1px 0 rgba(255,255,255,0.06), inset 0 0 0 1px rgba(0,0,0,0.08)'
+                }}
                 title={achievement.title}>
-                <div className={isBW ? 'text-background' : 'text-white'}>
-                {getAchievementIcon(achievement.title, energyPalette, resolvedTheme)}
+                <div 
+                  className={isBW ? 'text-background' : 'text-white'}
+                  style={{ 
+                    filter: 'drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.15))',
+                    opacity: 0.95
+                  }}>
+                  {getAchievementIcon(achievement.title, energyPalette, resolvedTheme)}
                 </div>
-                </motion.div>
+              </motion.div>
             );
           })}
           {Array.from({ length: placeholderCount }).map((_, idx) => (
