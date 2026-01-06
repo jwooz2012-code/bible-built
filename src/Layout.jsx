@@ -57,7 +57,21 @@ export default function Layout({ children }) {
             </div>
           </nav>
       </div>
-      <Toaster />
-    </ThemeProvider>
-  );
-}
+      <Toaster 
+        position="bottom-center"
+        offset={96}
+        duration={1400}
+        visibleToasts={1}
+        toastOptions={{
+          style: {
+            pointerEvents: 'auto'
+          },
+          className: 'pointer-events-auto'
+        }}
+        style={{
+          pointerEvents: 'none'
+        }}
+      />
+      </ThemeProvider>
+      );
+      }
