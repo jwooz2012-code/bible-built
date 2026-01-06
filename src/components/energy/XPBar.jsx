@@ -11,12 +11,12 @@ export default function XPBar({ todayCount = 0 }) {
   const ticks = [20, 40, 60, 80];
 
   return (
-    <div className="bb-energy-card rounded-xl p-5">
-      <div className="text-center mb-3">
-        <span className="text-xs font-bold text-primary block mb-1">XP TODAY</span>
-        <span className="text-lg font-mono text-foreground">{currentXP} / {levelCap} XP</span>
+    <div className="bb-energy-card rounded-xl px-4 py-3">
+      <div className="text-center mb-2">
+        <span className="text-xs font-bold text-primary block mb-0.5">XP TODAY</span>
+        <span className="text-base font-mono text-foreground">{currentXP} / {levelCap} XP</span>
       </div>
-      <div className="relative h-4 bg-muted/40 rounded-full overflow-hidden">
+      <div className="relative h-3 bg-muted/40 rounded-full overflow-hidden">
         <motion.div
           className="h-full bb-shimmer rounded-full"
           initial={{ width: 0 }}
