@@ -9,16 +9,7 @@ export default function CoverageRadar({ sectionData }) {
 
   return (
     <div className="bg-card border border-border rounded-xl p-5">
-      <h3 className="text-base font-semibold text-foreground mb-2">Bible Coverage</h3>
-      <p className="text-xs text-muted-foreground mb-4">Lowest coverage first</p>
-      
-      {bottom3 && (
-        <div className="mb-5 p-3 bg-accent/10 rounded-lg border border-accent/20">
-          <p className="text-xs text-muted-foreground">
-            <span className="font-semibold text-foreground">Focus Next:</span> {bottom3}
-          </p>
-        </div>
-      )}
+      <h3 className="text-base font-semibold text-foreground mb-4">Bible Coverage</h3>
 
       <div className="space-y-3.5">
         {sortedData.map((section, idx) => {
