@@ -313,14 +313,13 @@ export default function Home() {
               </motion.div>
             </div>
 
-            <div className="space-y-3 mb-8">
+            <div className="space-y-3 mb-6">
               {energyMode &&
             <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
                   <XPBar todayCount={todayLogs.length} />
                   <LevelBadge weeklyCount={trackerStats.thisWeekChapters} />
                 </div>
             }
-              <TodayProgressBar chaptersToday={todayLogs.length} goal={3} energyMode={energyMode} />
               <div className="grid grid-cols-2 gap-3">
                 <StreakCard
                 currentStreak={trackerStats.currentStreak}
