@@ -123,6 +123,10 @@ export default function TodayAssignmentCard({
 
   if (!assignment) return null;
 
+  // Success color for completed state (theme-safe green)
+  const successBg = 'hsl(142 70% 35%)';
+  const successFg = 'hsl(0 0% 100%)';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -131,7 +135,7 @@ export default function TodayAssignmentCard({
       style={isComplete ? {
         background: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border))',
-        borderLeft: '3px solid color-mix(in srgb, hsl(var(--primary)) 45%, transparent)',
+        borderLeft: `3px solid color-mix(in srgb, ${successBg} 55%, transparent)`,
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : undefined}>
 
@@ -173,9 +177,10 @@ export default function TodayAssignmentCard({
           disabled={isComplete || isCompleting}
           className="w-full"
           style={isComplete ? {
-            background: 'hsl(var(--primary))',
-            color: 'hsl(var(--primary-foreground))',
-            opacity: 1
+            background: successBg,
+            color: successFg,
+            opacity: 1,
+            cursor: 'default'
           } : undefined}>
           {isCompleting ? 
             'Saving...' : 
