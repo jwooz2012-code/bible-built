@@ -4,8 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { computeTodayAssignment, buildScopeChapters } from '@/components/bible/plans/planUtils';
+import { getDateKey, formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
+import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import { useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 
@@ -39,6 +39,77 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       return { perDay: 0, daysLeft: 0, remaining: 0, today: [] };
     }
   }, [draftPlan, logs, todayKey]);
+
+  const planDetails = useMemo(() => {
+    if (!existingPlan?.startDate || !existingPlan?.endDate) return null;
+
+    // Today's assignment
+    const assignedToday = getAssignmentForDate({ plan: existingPlan, dateKey: todayKey });
+    const completedIds = new Set(logs.map(log => log.chapterId));
+    const doneToday = assignedToday.filter(ch => completedIds.has(ch.chapterId)).length;
+    const readTodayCount = logs.filter(log => log.dateKey === todayKey).length;
+
+    const todaySummary = assignedToday.reduce((acc, ch) => {
+      if (!acc[ch.book]) acc[ch.book] = [];
+      acc[ch.book].push(ch.chapter);
+      return acc;
+    }, {});
+    const todayParts = Object.entries(todaySummary).map(([book, chapters]) => {
+      if (chapters.length === 1) return `${book} ${chapters[0]}`;
+      const sorted = chapters.sort((a, b) => a - b);
+      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+    });
+
+    // Tomorrow's assignment
+    const nextKey = addDaysKey(todayKey, 1);
+    const assignedTomorrow = getAssignmentForDate({ plan: existingPlan, dateKey: nextKey });
+    const doneTomorrow = assignedTomorrow.filter(ch => completedIds.has(ch.chapterId)).length;
+
+    const tomorrowSummary = assignedTomorrow.reduce((acc, ch) => {
+      if (!acc[ch.book]) acc[ch.book] = [];
+      acc[ch.book].push(ch.chapter);
+      return acc;
+    }, {});
+    const tomorrowParts = Object.entries(tomorrowSummary).map(([book, chapters]) => {
+      if (chapters.length === 1) return `${book} ${chapters[0]}`;
+      const sorted = chapters.sort((a, b) => a - b);
+      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+    });
+
+    // Plan stats
+    const scopeChapters = buildScopeChapters(existingPlan.scope);
+    const totalChapters = scopeChapters.length;
+    const readChapterIds = new Set(logs.filter(log => 
+      scopeChapters.some(ch => ch.chapterId === log.chapterId)
+    ).map(log => log.chapterId));
+    const remaining = totalChapters - readChapterIds.size;
+
+    const today = new Date(todayKey);
+    const endDate = new Date(existingPlan.endDate);
+    const daysLeft = Math.max(0, Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)));
+
+    return {
+      todaySummary: todayParts.join(' • '),
+      doneToday,
+      totalToday: assignedToday.length,
+      readTodayCount,
+      tomorrowSummary: tomorrowParts.join(' • '),
+      doneTomorrow,
+      totalTomorrow: assignedTomorrow.length,
+      nextKey,
+      chaptersPerDay: existingPlan.chaptersPerDay || 0,
+      daysLeft,
+      remaining,
+      scopeName: {
+        BIBLE: 'Whole Bible',
+        OT: 'Old Testament',
+        NT: 'New Testament',
+        PSALMS: 'Psalms',
+        LEADERSHIP_30: 'Leadership (30 chapters)',
+        WISDOM_7: 'Wisdom (7 chapters)'
+      }[existingPlan.scope] || existingPlan.scope
+    };
+  }, [existingPlan, logs, todayKey]);
 
   const handlePresetClick = (preset) => {
     const dates = preset.getDates(todayKey);
@@ -101,6 +172,51 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         </SheetHeader>
 
         <div className="mt-6 space-y-6">
+          {/* Plan Details */}
+          {planDetails && existingPlan && (
+            <div className="bg-muted/50 rounded-lg p-4 border border-border space-y-4">
+              <div>
+                <h3 className="text-sm font-semibold text-foreground mb-2">Current Plan</h3>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <div>{planDetails.scopeName}</div>
+                  <div>{existingPlan.startDate} → {existingPlan.endDate}</div>
+                  <div>{planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left • {planDetails.remaining} remaining</div>
+                </div>
+              </div>
+
+              <div className="border-t border-border pt-3 space-y-3">
+                <div>
+                  <div className="text-xs font-medium text-muted-foreground mb-1">
+                    Today · {formatDateKey(todayKey)}
+                  </div>
+                  <div className="text-sm text-foreground">{planDetails.todaySummary}</div>
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {planDetails.doneToday}/{planDetails.totalToday} complete
+                  </div>
+                  <div className="text-xs text-muted-foreground/60 mt-0.5">
+                    Read today: {planDetails.readTodayCount} chapter{planDetails.readTodayCount !== 1 ? 's' : ''}
+                  </div>
+                </div>
+
+                {planDetails.tomorrowSummary && (
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">
+                      Next Up · {formatDateKey(planDetails.nextKey)}
+                    </div>
+                    <div className="text-sm text-foreground">{planDetails.tomorrowSummary}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {planDetails.doneTomorrow}/{planDetails.totalTomorrow} complete
+                    </div>
+                  </div>
+                )}
+
+                <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border">
+                  Reading ahead counts toward future days.
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Suggested Plans */}
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Suggested Plans</h3>
