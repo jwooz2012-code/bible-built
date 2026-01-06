@@ -355,7 +355,7 @@ export default function Home() {
             {recentBooks.length > 0 &&
           <div className="mb-8">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
-                <div className="grid grid-cols-2 gap-2.5">
+                <div className="grid grid-cols-2 gap-2">
                   {recentBooks.map((book) => {
                 const stats = getBookStats(book);
                 return (
@@ -404,7 +404,7 @@ export default function Home() {
 
         {!selectedBook ?
         <>
-            <div className="grid grid-cols-2 gap-2.5 mb-8">
+            <div className="grid grid-cols-2 gap-2 mb-8">
               {filteredBooks.map((book) => {
               const stats = getBookStats(book);
               return (
