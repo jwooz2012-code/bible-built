@@ -439,7 +439,7 @@ export default function Stats() {
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-5">
-            <div className="mb-6 flex items-center gap-3">
+            <div className="mb-4 flex items-center gap-3">
               <Award className="w-6 h-6" style={{ color: '#FACC15' }} />
               <div>
                 <p className="text-sm font-semibold text-foreground">
@@ -447,6 +447,22 @@ export default function Stats() {
                 </p>
               </div>
             </div>
+
+            {!lifetimeLoading && achievements.filter((a) => a.achieved).length > 0 && (
+              <div className="mb-6 pb-5 border-b border-border">
+                <p className="text-xs text-muted-foreground mb-3">Unlocked Badges</p>
+                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+                  {achievements.filter((a) => a.achieved).map((achievement) => (
+                    <div
+                      key={achievement.id}
+                      className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${getAchievementColor(achievement.title)}`}
+                    >
+                      {getAchievementIcon(achievement.title, true)}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
           {lifetimeLoading ?
           <div className="space-y-3">
