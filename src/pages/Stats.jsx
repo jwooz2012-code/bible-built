@@ -325,7 +325,7 @@ export default function Stats() {
           transition={{ duration: 0.15, delay: 0.05 }}
           className="bg-card border border-border rounded-2xl p-5 mb-8">
 
-          <div className="mb-6">
+          <div className="mb-4">
             <h2 className="text-xl font-semibold text-foreground mb-1">Lifetime</h2>
             <p className="text-sm text-muted-foreground">All-time reading history</p>
           </div>
@@ -335,8 +335,8 @@ export default function Stats() {
               <Skeleton className="h-24 w-full" />
             </div> :
 
-          <div className="space-y-6">
-              <div className="text-center rounded-xl p-6 relative" style={{
+          <div className="space-y-4">
+              <div className="text-center rounded-xl p-4 relative" style={{
               background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(250, 204, 21, 0.12) 100%)',
               boxShadow: '0 0 16px var(--energy-glow)'
             }}>
@@ -348,25 +348,38 @@ export default function Stats() {
 
                   <Pencil className="w-3.5 h-3.5" />
                 </Button>
-                <p className="text-sm text-muted-foreground mb-2">Times Through the Bible</p>
-                <p className="text-5xl font-bold" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
-                <p className="text-xs text-foreground/70 mt-3">
-                  {lifetimeStats.percentToNext}% to next ({lifetimeStats.progressToNext}/{TOTAL_CHAPTERS})
-                </p>
+                <p className="text-xs text-muted-foreground mb-1.5">Times Through the Bible</p>
+                <p className="text-5xl font-bold mb-2" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
+                <div className="space-y-1.5 mt-3">
+                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
+                    <span>{lifetimeStats.progressToNext} / {TOTAL_CHAPTERS}</span>
+                    <span>•</span>
+                    <span>{lifetimeStats.percentToNext}% to next</span>
+                  </div>
+                  <div className="relative w-full h-1 bg-background/50 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all duration-500"
+                      style={{
+                        width: `${lifetimeStats.percentToNext}%`,
+                        background: 'linear-gradient(90deg, #F97316 0%, #FACC15 100%)'
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
 
-              <div>
-                <p className="text-sm text-muted-foreground mb-3">Total Chapters Read</p>
-                <p className="text-4xl font-semibold text-foreground mb-5">{lifetimeStats.totalCount}</p>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">Total Chapters Read</p>
+                <p className="text-3xl font-semibold text-foreground mb-3">{lifetimeStats.totalCount}</p>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-secondary rounded-xl p-4">
-                    <p className="text-xs text-muted-foreground mb-2">Old Testament</p>
-                    <p className="text-2xl font-semibold text-foreground">{lifetimeStats.otCount}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-secondary rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1.5">Old Testament</p>
+                    <p className="text-xl font-semibold text-foreground">{lifetimeStats.otCount}</p>
                   </div>
-                  <div className="bg-secondary rounded-xl p-4">
-                    <p className="text-xs text-muted-foreground mb-2">New Testament</p>
-                    <p className="text-2xl font-semibold text-foreground">{lifetimeStats.ntCount}</p>
+                  <div className="bg-secondary rounded-lg p-3">
+                    <p className="text-xs text-muted-foreground mb-1.5">New Testament</p>
+                    <p className="text-xl font-semibold text-foreground">{lifetimeStats.ntCount}</p>
                   </div>
                 </div>
               </div>
