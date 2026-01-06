@@ -105,7 +105,7 @@ export default function AchievementsPreview({ unlockedAchievements }) {
                 }`}
                 style={{
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)',
-                  border: '2px solid',
+                  border: '1.5px solid',
                   borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
                 }}
                 title={achievement.title}>
