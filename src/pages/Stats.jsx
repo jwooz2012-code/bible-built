@@ -129,11 +129,12 @@ export default function Stats() {
   // Get icon for achievement by title
   const getAchievementIcon = (title, achieved) => {
     const iconProps = { className: "w-5 h-5", strokeWidth: 2 };
-    const color = achieved ? '#FFFFFF' : '#9CA3AF';
+    // Battle badge uses theme-aware color, no inline style
+    const color = title === 'Battle' ? undefined : (achieved ? '#FFFFFF' : '#9CA3AF');
     
     switch(title) {
       case 'Battle':
-        return <Sword {...iconProps} style={{ color }} />;
+        return <Sword {...iconProps} />;
       case 'First Rep':
         return <Zap {...iconProps} style={{ color }} />;
       case 'Locked In':
