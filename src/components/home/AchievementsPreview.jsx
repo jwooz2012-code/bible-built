@@ -70,29 +70,28 @@ export default function AchievementsPreview({ unlockedAchievements }) {
   }
 
   return (
-    <div className="mt-5">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-foreground">Badges</h3>
+    <div className="mt-3 mb-1">
+      <div className="flex items-center gap-3">
+        <div className="flex gap-2">
+          {unlockedAchievements.slice(0, 5).map((achievement, idx) => (
+            <motion.div
+              key={achievement.id}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: idx * 0.05 }}
+              className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${getAchievementColor(achievement.title)} shadow-sm`}
+              title={achievement.title}>
+              <div className="text-white">
+                {getAchievementIcon(achievement.title)}
+              </div>
+            </motion.div>
+          ))}
+        </div>
         <Link 
           to={createPageUrl('Stats')} 
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+          className="text-xs text-muted-foreground/70 hover:text-foreground transition-colors ml-auto">
           View all
         </Link>
-      </div>
-      <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-hide">
-        {unlockedAchievements.slice(0, 7).map((achievement, idx) => (
-          <motion.div
-            key={achievement.id}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: idx * 0.05 }}
-            className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${getAchievementColor(achievement.title)} opacity-80`}
-            title={achievement.title}>
-            <div className="text-white">
-              {getAchievementIcon(achievement.title)}
-            </div>
-          </motion.div>
-        ))}
       </div>
     </div>
   );
