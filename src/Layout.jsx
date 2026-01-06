@@ -58,18 +58,14 @@ export default function Layout({ children }) {
           </nav>
       </div>
       <Toaster 
-        position="bottom-center"
-        offset={96}
-        duration={1400}
-        visibleToasts={1}
+        position="top-center"
+        expand={false}
+        closeButton={false}
         toastOptions={{
+          duration: 1600,
           style: {
             pointerEvents: 'auto'
-          },
-          className: 'pointer-events-auto'
-        }}
-        style={{
-          pointerEvents: 'none'
+          }
         }}
       />
       </ThemeProvider>
