@@ -26,6 +26,7 @@ export function useCompleteTodaysAssignment() {
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
 
       if (missingChapters.length === 0) {
+        toast.success('Already complete for today');
         return { added: 0, createdLogs: [] };
       }
 
@@ -50,7 +51,6 @@ export function useCompleteTodaysAssignment() {
     },
     onSuccess: (data) => {
       if (data.added === 0 || !data.createdLogs?.length) {
-        toast.success('Already complete');
         return;
       }
 

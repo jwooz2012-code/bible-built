@@ -140,6 +140,9 @@ export default function TodayAssignmentCard({
             <div className="text-xs text-muted-foreground">
               {doneCount}/{totalCount} done today
             </div>
+            <div className="text-xs text-muted-foreground/70 mt-1">
+              Reading ahead counts toward future days.
+            </div>
           </div>
           <Button
           onClick={handleComplete}
