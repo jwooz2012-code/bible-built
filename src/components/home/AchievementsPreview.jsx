@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/components/ThemeProvider';
 import { 
   Zap, 
   BookMarked, 
