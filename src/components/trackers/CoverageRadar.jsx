@@ -1,61 +1,48 @@
 import React from 'react';
-import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
-
-const CustomTick = ({ payload, x, y }) => {
-  const words = payload.value.split(' ');
-  return (
-    <text x={x} y={y} textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize={11} fontWeight={500}>
-      {words.map((word, i) => (
-        <tspan key={i} x={x} dy={i === 0 ? 0 : 13}>
-          {word}
-        </tspan>
-      ))}
-    </text>
-  );
-};
 
 export default function CoverageRadar({ sectionData }) {
-  const abbreviateLabel = (label) => {
-    const abbrev = {
-      'General Epistles': 'Gen. Epistles',
-      'Pastoral Epistles': 'Pastoral',
-      'Major Prophets': 'Major Proph.',
-      'Minor Prophets': 'Minor Proph.'
-    };
-    return abbrev[label] || label;
-  };
-
-  const chartData = sectionData.map(s => ({
-    section: abbreviateLabel(s.section.split('/')[0]),
-    coverage: s.percent
-  }));
+  // Sort by coverage (lowest first)
+  const sortedData = [...sectionData].sort((a, b) => a.percent - b.percent);
+  
+  // Get bottom 3 sections for "Focus Next"
+  const bottom3 = sortedData.slice(0, 3).map(s => s.section.split('/')[0]).join(', ');
 
   return (
     <div className="bg-card border border-border rounded-xl p-5">
-      <h3 className="text-base font-semibold text-foreground mb-4">Bible Coverage</h3>
-      <div className="h-[360px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={chartData} cx="50%" cy="50%" outerRadius="75%" margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-          <PolarGrid stroke="hsl(var(--border))" />
-          <PolarAngleAxis 
-            dataKey="section" 
-            tick={<CustomTick />}
-            tickLine={false}
-          />
-          <PolarRadiusAxis 
-            angle={90} 
-            domain={[0, 100]}
-            tick={{ fill: 'hsl(var(--muted-foreground))', fontSize: 10 }}
-          />
-          <Radar 
-            name="Coverage" 
-            dataKey="coverage" 
-            stroke="hsl(var(--chart-1))" 
-            fill="hsl(var(--chart-1))" 
-            fillOpacity={0.6} 
-          />
-        </RadarChart>
-        </ResponsiveContainer>
+      <h3 className="text-base font-semibold text-foreground mb-2">Bible Coverage</h3>
+      <p className="text-xs text-muted-foreground mb-4">Lowest coverage first</p>
+      
+      {bottom3 && (
+        <div className="mb-5 p-3 bg-accent/10 rounded-lg border border-accent/20">
+          <p className="text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Focus Next:</span> {bottom3}
+          </p>
+        </div>
+      )}
+
+      <div className="space-y-3.5">
+        {sortedData.map((section, idx) => {
+          const sectionName = section.section.split('/')[0];
+          const percent = Math.round(section.percent);
+          
+          return (
+            <div key={idx} className="space-y-1.5">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-foreground font-medium">{sectionName}</span>
+                <span className="text-muted-foreground font-semibold text-xs">{percent}%</span>
+              </div>
+              <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all duration-500"
+                  style={{
+                    width: `${percent}%`,
+                    backgroundColor: 'hsl(var(--chart-1))'
+                  }}
+                />
+              </div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
