@@ -339,7 +339,7 @@ export default function Home() {
                 </div>
               }
 
-              <PersonalRecordsCard records={trackerStats.records} currentStreak={trackerStats.currentStreak} />
+              <PersonalRecordsCard records={trackerStats.records} currentStreak={trackerStats.currentStreak} showTitle={false} />
               <AchievementsPreview unlockedAchievements={unlockedAchievements} />
             </motion.div>
 
