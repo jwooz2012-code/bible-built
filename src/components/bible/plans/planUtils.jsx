@@ -8,7 +8,10 @@ import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 export function buildScopeChapters(scope) {
   const chapters = [];
 
-  if (scope === 'BIBLE') {
+  if (scope === 'NONE') {
+    // No plan selected - return empty array
+    return [];
+  } else if (scope === 'BIBLE') {
     // All books
     BIBLE_BOOKS.forEach((book) => {
       for (let ch = 1; ch <= book.chapters; ch++) {
