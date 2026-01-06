@@ -22,11 +22,11 @@ import {
   Sword
 } from 'lucide-react';
 
-const getAchievementIcon = (title, energyPalette) => {
+const getAchievementIcon = (title, energyPalette, resolvedTheme) => {
   const iconProps = { className: "w-4 h-4", strokeWidth: 2 };
   
-  // Battle badge: white in Surge/Royal energy modes
-  if (title === 'Battle' && (energyPalette === 'surge' || energyPalette === 'royal')) {
+  // Battle badge: white in Surge/Royal energy modes (but not in dark mode)
+  if (title === 'Battle' && (energyPalette === 'surge' || energyPalette === 'royal') && resolvedTheme !== 'dark') {
     return <Sword {...iconProps} style={{ color: '#FFFFFF' }} />;
   }
   
@@ -74,7 +74,7 @@ const getAchievementColor = (title) => {
 };
 
 export default function AchievementsPreview({ unlockedAchievements }) {
-  const { energyPalette } = useTheme();
+  const { energyPalette, resolvedTheme } = useTheme();
   const totalSlots = 7;
   const earned = unlockedAchievements || [];
   const placeholderCount = Math.max(0, totalSlots - earned.length);
@@ -105,7 +105,7 @@ export default function AchievementsPreview({ unlockedAchievements }) {
                 }`}
                 title={achievement.title}>
                 <div className={isBW ? 'text-background' : 'text-white'}>
-                {getAchievementIcon(achievement.title, energyPalette)}
+                {getAchievementIcon(achievement.title, energyPalette, resolvedTheme)}
                 </div>
                 </motion.div>
             );
