@@ -109,10 +109,16 @@ export default function TodayAssignmentCard({
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
-        className="mb-6 bb-card bb-glow px-6 py-5">
+        className="mb-6">
 
-        <h3 className="text-base font-semibold text-foreground mb-4">Reading Plan</h3>
-        <Button onClick={onOpenPlanModal} className="w-full">
+        <Button 
+          onClick={onOpenPlanModal} 
+          className="w-full h-14 text-base font-semibold rounded-xl"
+          style={{
+            background: 'linear-gradient(135deg, #F97316 0%, #FACC15 100%)',
+            color: '#FFFFFF'
+          }}>
+          <Calendar className="w-5 h-5 mr-2" />
           Start Reading Plan
         </Button>
       </motion.div>);
