@@ -41,7 +41,14 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
   }, [draftPlan, logs, todayKey]);
 
   const planDetails = useMemo(() => {
-    if (!existingPlan?.startDate || !existingPlan?.endDate) return null;
+    if (!existingPlan) return null;
+    if (existingPlan.scope === 'NONE') {
+      return {
+        isNoPlan: true,
+        scopeName: 'Manual Tracking'
+      };
+    }
+    if (!existingPlan.startDate || !existingPlan.endDate) return null;
 
     // Today's assignment
     const assignedToday = getAssignmentForDate({ plan: existingPlan, dateKey: todayKey });
@@ -124,6 +131,33 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       return;
     }
 
+    // Handle "No Plan" mode
+    if (scope === 'NONE') {
+      upsertPlan(
+        {
+          existingPlan,
+          planData: {
+            userId,
+            scope: 'NONE',
+            startDate: null,
+            endDate: null,
+            chaptersPerDay: null,
+          },
+        },
+        {
+          onSuccess: () => {
+            localStorage.setItem('bb_plan_prompt_seen', 'true');
+            toast.success('Manual tracking mode enabled');
+            onClose();
+          },
+          onError: (error) => {
+            toast.error(error?.message || 'Failed to save plan');
+          },
+        }
+      );
+      return;
+    }
+
     if (new Date(endDate) < new Date(startDate)) {
       toast.error('End date must be after start date');
       return;
@@ -179,41 +213,50 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 <h3 className="text-sm font-semibold text-foreground mb-2">Current Plan</h3>
                 <div className="space-y-1 text-xs text-muted-foreground">
                   <div>{planDetails.scopeName}</div>
-                  <div>{formatDateRange(existingPlan.startDate, existingPlan.endDate)}</div>
-                  <div>{planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left • {planDetails.remaining} remaining</div>
+                  {!planDetails.isNoPlan && (
+                    <>
+                      <div>{formatDateRange(existingPlan.startDate, existingPlan.endDate)}</div>
+                      <div>{planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left • {planDetails.remaining} remaining</div>
+                    </>
+                  )}
+                  {planDetails.isNoPlan && (
+                    <div>No plan selected</div>
+                  )}
                 </div>
               </div>
 
-              <div className="border-t border-border pt-3 space-y-3">
-                <div>
-                  <div className="text-xs font-medium text-muted-foreground mb-1">
-                    Today · {formatDateKey(todayKey)}
-                  </div>
-                  <div className="text-sm text-foreground">{planDetails.todaySummary}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {planDetails.doneToday}/{planDetails.totalToday} complete
-                  </div>
-                  <div className="text-xs text-muted-foreground/60 mt-0.5">
-                    Read today: {planDetails.readTodayCount} chapter{planDetails.readTodayCount !== 1 ? 's' : ''}
-                  </div>
-                </div>
-
-                {planDetails.tomorrowSummary && (
+              {!planDetails.isNoPlan && (
+                <div className="border-t border-border pt-3 space-y-3">
                   <div>
                     <div className="text-xs font-medium text-muted-foreground mb-1">
-                      Next Up · {formatDateKey(planDetails.nextKey)}
+                      Today · {formatDateKey(todayKey)}
                     </div>
-                    <div className="text-sm text-foreground">{planDetails.tomorrowSummary}</div>
+                    <div className="text-sm text-foreground">{planDetails.todaySummary}</div>
                     <div className="text-xs text-muted-foreground mt-0.5">
-                      {planDetails.doneTomorrow}/{planDetails.totalTomorrow} complete
+                      {planDetails.doneToday}/{planDetails.totalToday} complete
+                    </div>
+                    <div className="text-xs text-muted-foreground/60 mt-0.5">
+                      Read today: {planDetails.readTodayCount} chapter{planDetails.readTodayCount !== 1 ? 's' : ''}
                     </div>
                   </div>
-                )}
 
-                <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border">
-                  Reading ahead counts toward future days.
+                  {planDetails.tomorrowSummary && (
+                    <div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">
+                        Next Up · {formatDateKey(planDetails.nextKey)}
+                      </div>
+                      <div className="text-sm text-foreground">{planDetails.tomorrowSummary}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {planDetails.doneTomorrow}/{planDetails.totalTomorrow} complete
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border">
+                    Reading ahead counts toward future days.
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
 
@@ -221,6 +264,17 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Suggested Plans</h3>
             <div className="grid grid-cols-1 gap-2">
+              <button
+                onClick={() => {
+                  setScope('NONE');
+                  setStartDate(todayKey);
+                  setEndDate(todayKey);
+                }}
+                className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
+              >
+                <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
+              </button>
               {PLAN_PRESETS.map((preset) => (
                 <button
                   key={preset.id}
