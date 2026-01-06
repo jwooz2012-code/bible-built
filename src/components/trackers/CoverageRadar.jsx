@@ -1,24 +1,24 @@
 import React from 'react';
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, ResponsiveContainer } from 'recharts';
 
+const CustomTick = ({ payload, x, y }) => {
+  const words = payload.value.split(' ');
+  return (
+    <text x={x} y={y} textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize={10}>
+      {words.map((word, i) => (
+        <tspan key={i} x={x} dy={i === 0 ? 0 : 12}>
+          {word}
+        </tspan>
+      ))}
+    </text>
+  );
+};
+
 export default function CoverageRadar({ sectionData }) {
   const chartData = sectionData.map(s => ({
     section: s.section.split('/')[0], // Shorten labels
     coverage: s.percent
   }));
-
-  const CustomTick = ({ payload, x, y, cx, cy }) => {
-    const words = payload.value.split(' ');
-    return (
-      <text x={x} y={y} textAnchor="middle" fill="hsl(var(--muted-foreground))" fontSize={10}>
-        {words.map((word, i) => (
-          <tspan key={i} x={x} dy={i === 0 ? 0 : 12}>
-            {word}
-          </tspan>
-        ))}
-      </text>
-    );
-  };
 
   return (
     <div className="bg-card border border-border rounded-xl p-5">
