@@ -310,8 +310,8 @@ export default function Stats() {
               const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
               const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
               return (
-                <p className="text-xs text-muted-foreground/80 text-center">
-                    At this pace, you'll complete the Bible in about {estimatedDays} days.
+                <p className="text-xs text-muted-foreground/80 text-center pt-1">
+                    At this pace: ~{estimatedDays} days to finish
                   </p>);
 
             })()}
