@@ -114,7 +114,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         NT: 'New Testament',
         PSALMS: 'Psalms',
         LEADERSHIP_INTENSIVE: 'Leadership Intensive',
-        WISDOM_PLUNGE: 'Wisdom Plunge'
+        WISDOM_PLUNGE: 'Wisdom Plunge',
+        INTENTIONAL_MOTHERHOOD: 'The Intentional Mom'
       }[existingPlan.scope] || existingPlan.scope
     };
   }, [existingPlan, logs, todayKey]);
@@ -286,13 +287,16 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
               {PLAN_PRESETS.map((preset) => {
                 const isLeadership = preset.id === 'leadership_intensive';
                 const isWisdom = preset.id === 'wisdom_plunge';
-                const isCustomPlan = isLeadership || isWisdom;
+                const isMotherhood = preset.id === 'intentional_motherhood';
+                const isCustomPlan = isLeadership || isWisdom || isMotherhood;
                 
-                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : null;
+                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : null;
                 const accentColor = isLeadership 
                   ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
                   : isWisdom 
                   ? 'rgba(139, 92, 246, 0.08)' // purple tint for wisdom
+                  : isMotherhood
+                  ? 'rgba(236, 72, 153, 0.08)' // pink tint for motherhood
                   : null;
                 
                 return (
@@ -307,7 +311,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                         <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
                           isLeadership 
                             ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
-                            : 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                            : isWisdom
+                            ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                            : 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
                         }`}>
                           <Icon className="w-5 h-5" strokeWidth={2.5} />
                         </div>
@@ -317,7 +323,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                             <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
                               isLeadership
                                 ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
-                                : 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                : isWisdom
+                                ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                : 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
                             }`}>
                               {preset.chaptersPerDay} ch/day
                             </div>
@@ -361,6 +369,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     <SelectItem value="PSALMS">Psalms</SelectItem>
                     <SelectItem value="LEADERSHIP_INTENSIVE">Leadership Intensive</SelectItem>
                     <SelectItem value="WISDOM_PLUNGE">Wisdom Plunge</SelectItem>
+                    <SelectItem value="INTENTIONAL_MOTHERHOOD">The Intentional Mom</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
