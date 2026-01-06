@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function PageHeader({ title, subtitle }) {
+export default function PageHeader({ title }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -10 }}
@@ -9,7 +9,6 @@ export default function PageHeader({ title, subtitle }) {
       className="mb-6"
     >
       <h1 className="text-3xl font-semibold text-foreground">{title}</h1>
-      {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
     </motion.div>
   );
 }
