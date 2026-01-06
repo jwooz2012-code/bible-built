@@ -1,9 +1,9 @@
 import React from 'react';
 import { Trophy, TrendingUp, Calendar, BookOpen } from 'lucide-react';
 
-export default function PersonalRecordsCard({ records }) {
+export default function PersonalRecordsCard({ records, currentStreak }) {
   const items = [
-    { icon: Trophy, label: 'Longest Streak', value: `${records.longestStreak} days`, color: '#FACC15' },
+    { icon: Trophy, label: 'Current Streak', value: `${currentStreak || 0} days`, color: '#FACC15' },
     { icon: TrendingUp, label: 'Best Week', value: `${records.bestRolling7} chapters`, color: '#10B981' },
     { icon: Calendar, label: 'Best Month', value: `${records.bestMonth} chapters`, color: '#3B82F6' },
     { icon: BookOpen, label: 'Most Read', value: records.mostReadBook.name, color: '#A855F7' }

@@ -339,29 +339,16 @@ export default function Home() {
                 </div>
               }
 
-              <PersonalRecordsCard records={trackerStats.records} />
+              <PersonalRecordsCard records={trackerStats.records} currentStreak={trackerStats.currentStreak} />
               <AchievementsPreview unlockedAchievements={unlockedAchievements} />
             </motion.div>
 
-            <div className="space-y-3 mb-6">
-              {energyMode &&
-            <div className="grid grid-cols-[1fr_auto] gap-3 mb-3">
+            {energyMode &&
+            <div className="grid grid-cols-[1fr_auto] gap-3 mb-6">
                   <XPBar todayCount={todayLogs.length} />
                   <LevelBadge weeklyCount={trackerStats.thisWeekChapters} />
                 </div>
             }
-              <div className="grid grid-cols-2 gap-3">
-                <StreakCard
-                currentStreak={trackerStats.currentStreak}
-                longestStreak={trackerStats.longestStreak} />
-
-                <WeeklySummaryCard
-                thisWeekChapters={trackerStats.thisWeekChapters}
-                thisWeekActiveDays={trackerStats.thisWeekActiveDays}
-                deltaVsLastWeek={trackerStats.deltaVsLastWeek} />
-
-              </div>
-            </div>
 
             <WeekView logs={allTimeLogs} />
 
