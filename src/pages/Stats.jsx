@@ -26,7 +26,8 @@ import {
   RefreshCw, 
   TreePine, 
   Hammer,
-  Circle 
+  Circle,
+  Sword
 } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
@@ -131,6 +132,8 @@ export default function Stats() {
     const color = achieved ? '#FFFFFF' : '#9CA3AF';
     
     switch(title) {
+      case 'Battle':
+        return <Sword {...iconProps} style={{ color }} />;
       case 'First Rep':
         return <Zap {...iconProps} style={{ color }} />;
       case 'Locked In':
@@ -169,6 +172,7 @@ export default function Stats() {
   // Get color for achievement by title
   const getAchievementColor = (title) => {
     switch(title) {
+      case 'Battle': return 'BLACK_WHITE';
       case 'First Rep': return 'from-[#60A5FA] to-[#3B82F6]'; // Accent blue
       case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Forest green
       case 'Habit Forming': return 'from-[#10B981] to-[#059669]'; // Accent green
@@ -190,6 +194,7 @@ export default function Stats() {
 
   // Define achievements with simple threshold checks
   const achievements = [
+  { id: 0, title: 'Battle', subtitle: 'You showed up knowing the Christian life is a fight. The Word of God is your weapon — and this is where faithfulness begins.', achieved: true, current: 1, target: 1 },
   { id: 1, title: 'First Rep', subtitle: 'Read your first chapter', achieved: totalChaptersRead >= 1, current: totalChaptersRead, target: 1 },
   { id: 2, title: 'Locked In', subtitle: 'Completed a book', achieved: totalBooksCompletedDistinct >= 1, current: totalBooksCompletedDistinct, target: 1 },
   { id: 3, title: 'Habit Forming', subtitle: 'Read for 7 days', achieved: daysWithReadingDistinct >= 7, current: daysWithReadingDistinct, target: 7 },
@@ -452,14 +457,22 @@ export default function Stats() {
               <div className="mb-6 pb-5 border-b border-border">
                 <p className="text-xs text-muted-foreground mb-3">Unlocked Badges</p>
                 <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                  {achievements.filter((a) => a.achieved).map((achievement) => (
-                    <div
-                      key={achievement.id}
-                      className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 bg-gradient-to-br ${getAchievementColor(achievement.title)}`}
-                    >
-                      {getAchievementIcon(achievement.title, true)}
-                    </div>
-                  ))}
+                  {achievements.filter((a) => a.achieved).map((achievement) => {
+                    const color = getAchievementColor(achievement.title);
+                    const isBW = color === 'BLACK_WHITE';
+                    return (
+                      <div
+                        key={achievement.id}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
+                        }`}
+                      >
+                        <div style={{ color: isBW ? 'hsl(var(--background))' : '#FFFFFF' }}>
+                          {getAchievementIcon(achievement.title, true)}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -472,29 +485,34 @@ export default function Stats() {
             </div> :
 
           <div className="grid grid-cols-1 gap-3">
-              {achievements.map((achievement) =>
-            <motion.div
-              key={achievement.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.15 }}
-              className={`rounded-xl p-4 border transition-all ${
-              achievement.achieved ?
-              'bg-card border-[#F97316]' :
-              'bg-secondary border-border/50'}`
-              }>
-
-                  <div className="flex items-center gap-3">
-                    <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  achievement.achieved ?
-                  `bg-gradient-to-br ${getAchievementColor(achievement.title)}` :
-                  'bg-muted border-2 border-border'}`
-                  }
-                  style={{ opacity: achievement.achieved ? 1 : 0.5 }}>
-
-                      {getAchievementIcon(achievement.title, achievement.achieved)}
-                    </div>
+              {achievements.map((achievement) => {
+                const color = getAchievementColor(achievement.title);
+                const isBW = color === 'BLACK_WHITE';
+                return (
+                  <motion.div
+                    key={achievement.id}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.15 }}
+                    className={`rounded-xl p-4 border transition-all ${
+                      achievement.achieved ?
+                      'bg-card border-[#F97316]' :
+                      'bg-secondary border-border/50'
+                    }`}>
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                          achievement.achieved
+                            ? isBW
+                              ? 'bg-foreground'
+                              : `bg-gradient-to-br ${color}`
+                            : 'bg-muted border-2 border-border'
+                        }`}
+                        style={{ opacity: achievement.achieved ? 1 : 0.5 }}>
+                        <div style={{ color: achievement.achieved && isBW ? 'hsl(var(--background))' : undefined }}>
+                          {getAchievementIcon(achievement.title, achievement.achieved)}
+                        </div>
+                      </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={`font-semibold text-[15px] ${
                   achievement.achieved ? 'text-foreground' : 'text-muted-foreground'}`
@@ -513,10 +531,11 @@ export default function Stats() {
                   className="w-2 h-2 rounded-full flex-shrink-0"
                   style={{ background: 'linear-gradient(135deg, #F97316, #FACC15)' }} />
 
-                }
-                  </div>
-                </motion.div>
-            )}
+                    }
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
             }
             </div>
