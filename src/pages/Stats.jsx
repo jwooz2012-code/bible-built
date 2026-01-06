@@ -136,7 +136,7 @@ export default function Stats() {
       case 1: return 'from-[#60A5FA] to-[#3B82F6]'; // Soft electric blue
       case 2: return 'from-[#10B981] to-[#059669]'; // Deep forest green
       case 3: return 'from-[#F59E0B] to-[#D97706]'; // Warm amber
-      case 4: return 'from-[#A78BFA] to-[#8B5CF6]'; // Muted clay / sandstone
+      case 4: return 'from-[#D4A574] to-[#B8956A]'; // Muted clay / sandstone
       case 5: return 'from-[#FBBF24] to-[#F59E0B]'; // Gold / soft yellow
       default: return 'from-[#F97316] to-[#FACC15]'; // Default gradient
     }
@@ -404,8 +404,9 @@ export default function Stats() {
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                   achievement.achieved ?
                   `bg-gradient-to-br ${getAchievementColor(achievement.id)}` :
-                  'bg-muted border-2 border-border opacity-50'}`
-                  }>
+                  'bg-muted border-2 border-border'}`
+                  }
+                  style={{ opacity: achievement.achieved ? 1 : 0.5 }}>
 
                       {getAchievementIcon(achievement.id, achievement.achieved)}
                     </div>
