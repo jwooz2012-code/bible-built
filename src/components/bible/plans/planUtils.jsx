@@ -83,6 +83,7 @@ export function buildScopeChapters(scope) {
 
 /**
  * Get the assigned chapters for a specific date
+ * Returns an array of chapter objects
  */
 export function getAssignmentForDate({ plan, dateKey }) {
   if (!plan?.startDate || !plan?.endDate || !plan?.scope || !plan?.chaptersPerDay) {
