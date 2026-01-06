@@ -259,11 +259,10 @@ export default function Stats() {
           transition={{ duration: 0.15 }}
           className="bg-card border border-border rounded-2xl p-5 mb-8">
 
-          <div className="mb-5">
-            <h2 className="text-xl font-semibold text-foreground mb-1">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground">
               This Year ({currentYear})
             </h2>
-            <p className="text-sm text-muted-foreground">Your progress this year</p>
           </div>
 
           {yearLoading ?
