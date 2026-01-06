@@ -68,7 +68,7 @@ const getAchievementColor = (title) => {
 };
 
 export default function AchievementsPreview({ unlockedAchievements }) {
-  const totalSlots = 5;
+  const totalSlots = 7;
   const earned = unlockedAchievements || [];
   const placeholderCount = Math.max(0, totalSlots - earned.length);
 
