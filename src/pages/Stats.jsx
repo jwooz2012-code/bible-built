@@ -9,7 +9,25 @@ import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
-import { Trophy, Pencil, Brain, BookMarked, Flame, Box, Flag, Circle } from 'lucide-react';
+import { 
+  Pencil, 
+  Zap, 
+  BookMarked, 
+  CalendarCheck, 
+  Library, 
+  Award, 
+  Flame, 
+  Blocks, 
+  Columns, 
+  BookCopy, 
+  Ruler, 
+  ScrollText, 
+  Crown, 
+  RefreshCw, 
+  TreePine, 
+  Hammer,
+  Circle 
+} from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
 import CoverageRadar from '@/components/trackers/CoverageRadar';
@@ -107,38 +125,66 @@ export default function Stats() {
   // Check if OT or NT completed at least once
   const otOrNtCompletedFlag = lifetimeStats.otCount >= OT_CHAPTERS || lifetimeStats.ntCount >= NT_CHAPTERS;
 
-  // Get icon for achievement
-  const getAchievementIcon = (id, achieved) => {
+  // Get icon for achievement by title
+  const getAchievementIcon = (title, achieved) => {
     const iconProps = { className: "w-5 h-5", strokeWidth: 2 };
-    const color = achieved ? '#FFFFFF' : '#6B7280';
+    const color = achieved ? '#FFFFFF' : '#9CA3AF';
     
-    switch(id) {
-      case 1: // First Rep
-        return <Brain {...iconProps} style={{ color }} />;
-      case 2: // Locked In
+    switch(title) {
+      case 'First Rep':
+        return <Zap {...iconProps} style={{ color }} />;
+      case 'Locked In':
         return <BookMarked {...iconProps} style={{ color }} />;
-      case 3: // Habit Forming
+      case 'Habit Forming':
+        return <CalendarCheck {...iconProps} style={{ color }} />;
+      case 'Fifty Down':
+        return <Library {...iconProps} style={{ color }} />;
+      case 'Triple Digits':
+        return <Award {...iconProps} style={{ color }} />;
+      case 'All In':
         return <Flame {...iconProps} style={{ color }} />;
-      case 4: // Fifty Down
-        return <Box {...iconProps} style={{ color }} />;
-      case 5: // Triple Digits
-        return <Flag {...iconProps} style={{ color }} />;
+      case 'Built to Last':
+        return <Blocks {...iconProps} style={{ color }} />;
+      case 'Cover to Cover':
+        return <BookCopy {...iconProps} style={{ color }} />;
+      case 'Testament Strong':
+        return <ScrollText {...iconProps} style={{ color }} />;
+      case 'The Whole Word':
+        return <Crown {...iconProps} style={{ color }} />;
+      case 'Back for More':
+        return <RefreshCw {...iconProps} style={{ color }} />;
+      case 'Deep Roots':
+        return <TreePine {...iconProps} style={{ color }} />;
+      case 'Iron Discipline':
+        return <Hammer {...iconProps} style={{ color }} />;
+      case 'Master Builder':
+        return <Ruler {...iconProps} style={{ color }} />;
+      case 'Built for a Lifetime':
+        return <Columns {...iconProps} style={{ color }} />;
       default:
-        return achieved ? 
-          <Trophy {...iconProps} style={{ color }} /> :
-          <Circle {...iconProps} style={{ color }} />;
+        return <Circle {...iconProps} style={{ color }} />;
     }
   };
 
-  // Get color for achievement
-  const getAchievementColor = (id) => {
-    switch(id) {
-      case 1: return 'from-[#60A5FA] to-[#3B82F6]'; // Soft electric blue
-      case 2: return 'from-[#10B981] to-[#059669]'; // Deep forest green
-      case 3: return 'from-[#F59E0B] to-[#D97706]'; // Warm amber
-      case 4: return 'from-[#D4A574] to-[#B8956A]'; // Muted clay / sandstone
-      case 5: return 'from-[#FBBF24] to-[#F59E0B]'; // Gold / soft yellow
-      default: return 'from-[#F97316] to-[#FACC15]'; // Default gradient
+  // Get color for achievement by title
+  const getAchievementColor = (title) => {
+    switch(title) {
+      case 'First Rep': return 'from-[#60A5FA] to-[#3B82F6]'; // Accent blue
+      case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Forest green
+      case 'Habit Forming': return 'from-[#10B981] to-[#059669]'; // Accent green
+      case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]'; // Accent orange
+      case 'Triple Digits': return 'from-[#FBBF24] to-[#F59E0B]'; // Accent gold
+      case 'All In': return 'from-[#EF4444] to-[#DC2626]'; // Accent red-orange
+      case 'Built to Last': return 'from-[#D4A574] to-[#B8956A]'; // Accent clay
+      case 'Built for a Lifetime': return 'from-[#64748B] to-[#475569]'; // Accent slate
+      case 'Cover to Cover': return 'from-[#14B8A6] to-[#0D9488]'; // Accent teal
+      case 'Testament Strong': return 'from-[#A855F7] to-[#9333EA]'; // Accent purple
+      case 'The Whole Word': return 'from-[#FBBF24] to-[#F59E0B]'; // Accent gold
+      case 'Back for More': return 'from-[#0EA5E9] to-[#0284C7]'; // Accent sky
+      case 'Deep Roots': return 'from-[#84CC16] to-[#65A30D]'; // Accent brown/green
+      case 'Iron Discipline': return 'from-[#6B7280] to-[#4B5563]'; // Accent graphite
+      case 'Master Builder': return 'from-[#6366F1] to-[#4F46E5]'; // Accent indigo
+      default: return 'from-[#F97316] to-[#FACC15]';
     }
   };
 
@@ -370,7 +416,7 @@ export default function Stats() {
           className="bg-card border border-border rounded-2xl p-5">
 
           <div className="mb-6 flex items-center gap-3">
-            <Trophy className="w-6 h-6" style={{ color: '#FACC15' }} />
+            <Award className="w-6 h-6" style={{ color: '#FACC15' }} />
             <div>
               <h2 className="text-xl font-semibold text-foreground">Achievements</h2>
               <p className="text-xs text-muted-foreground mt-0.5">
@@ -403,12 +449,12 @@ export default function Stats() {
                     <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                   achievement.achieved ?
-                  `bg-gradient-to-br ${getAchievementColor(achievement.id)}` :
+                  `bg-gradient-to-br ${getAchievementColor(achievement.title)}` :
                   'bg-muted border-2 border-border'}`
                   }
                   style={{ opacity: achievement.achieved ? 1 : 0.5 }}>
 
-                      {getAchievementIcon(achievement.id, achievement.achieved)}
+                      {getAchievementIcon(achievement.title, achievement.achieved)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <h3 className={`font-semibold text-[15px] ${
