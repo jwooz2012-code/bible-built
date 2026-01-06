@@ -1,26 +1,30 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 
 export default function CoverageRadar({ sectionData }) {
-  // Sort by coverage (lowest first)
-  const sortedData = [...sectionData].sort((a, b) => a.percent - b.percent);
+  const [isExpanded, setIsExpanded] = useState(false);
   
-  // Get bottom 3 sections for "Focus Next"
-  const bottom3 = sortedData.slice(0, 3).map(s => s.section.split('/')[0]).join(', ');
+  // Sort by coverage descending (highest first)
+  const sortedData = [...sectionData].sort((a, b) => b.percent - a.percent);
+  
+  // Show top 3 by default, all when expanded
+  const displayData = isExpanded ? sortedData : sortedData.slice(0, 3);
 
   return (
     <div className="bg-card border border-border rounded-xl p-5">
       <h3 className="text-base font-semibold text-foreground mb-4">Bible Coverage</h3>
 
       <div className="space-y-3.5">
-        {sortedData.map((section, idx) => {
+        {displayData.map((section, idx) => {
           const sectionName = section.section.split('/')[0];
           const percent = Math.round(section.percent);
+          const displayPercent = percent === 0 ? '—' : `${percent}%`;
           
           return (
             <div key={idx} className="space-y-1.5">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-foreground font-medium">{sectionName}</span>
-                <span className="text-muted-foreground font-semibold text-xs">{percent}%</span>
+                <span className="text-muted-foreground font-semibold text-xs">{displayPercent}</span>
               </div>
               <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
                 <div
@@ -35,6 +39,16 @@ export default function CoverageRadar({ sectionData }) {
           );
         })}
       </div>
+
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full mt-4 pt-3 border-t border-border flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <span>{isExpanded ? 'Hide sections' : 'View all sections'}</span>
+        <ChevronDown 
+          className={`w-3.5 h-3.5 transition-transform ${isExpanded ? 'rotate-180' : ''}`} 
+        />
+      </button>
     </div>
   );
 }
