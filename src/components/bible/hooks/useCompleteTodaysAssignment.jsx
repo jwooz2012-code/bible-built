@@ -16,7 +16,7 @@ export function useCompleteTodaysAssignment() {
       const assignment = computeTodayAssignment({ plan, logs: allTimeLogs, todayKey });
       
       if (!assignment || assignment.today.length === 0) {
-        return { added: 0 };
+        return { added: 0, createdLogs: [] };
       }
 
       // Find which chapters are already logged for today
@@ -27,7 +27,7 @@ export function useCompleteTodaysAssignment() {
       const missingChapters = assignment.today.filter(ch => !completedIds.has(ch.chapterId));
 
       if (missingChapters.length === 0) {
-        return { added: 0 };
+        return { added: 0, createdLogs: [] };
       }
 
       // Create logs for missing chapters
@@ -45,19 +45,49 @@ export function useCompleteTodaysAssignment() {
         })
       );
 
-      await Promise.all(createPromises);
+      const createdLogs = await Promise.all(createPromises);
 
-      return { added: missingChapters.length };
+      return { added: missingChapters.length, createdLogs, userId, todayKey };
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['dayReadingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogsRange'] });
-      
-      if (data.added > 0) {
-        toast.success(`Marked ${data.added} chapter${data.added > 1 ? 's' : ''} complete`);
-      } else {
+      if (data.added === 0 || !data.createdLogs?.length) {
         toast.success('Already complete');
+        return;
       }
+
+      const { createdLogs, userId, todayKey } = data;
+
+      // A) Update today's cache
+      queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => {
+        const combined = [...createdLogs, ...old];
+        const seen = new Set();
+        return combined.filter(log => {
+          if (seen.has(log.chapterId)) return false;
+          seen.add(log.chapterId);
+          return true;
+        });
+      });
+
+      // B) Update all cached range logs
+      queryClient.setQueriesData(
+        { predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId },
+        (old = []) => {
+          const combined = [...createdLogs, ...old];
+          const seen = new Set();
+          return combined.filter(log => {
+            if (seen.has(log.chapterId)) return false;
+            seen.add(log.chapterId);
+            return true;
+          });
+        }
+      );
+
+      // Invalidate as backup
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+      queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+      queryClient.invalidateQueries({ predicate: q => q.queryKey?.some(k => typeof k === 'string' && k.includes('Logs') && q.queryKey?.includes(userId)) });
+
+      toast.success(`Marked ${data.added} chapter${data.added > 1 ? 's' : ''} complete`);
     },
     onError: (error) => {
       toast.error(error?.message || 'Failed to complete assignment');
