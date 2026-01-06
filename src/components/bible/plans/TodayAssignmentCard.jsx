@@ -1,8 +1,9 @@
 import React, { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar } from 'lucide-react';
+import { Calendar, CheckCircle2 } from 'lucide-react';
 import { computeTodayAssignment } from '@/components/bible/plans/planUtils';
+import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 
 export default function TodayAssignmentCard({ 
   plan, 
@@ -10,9 +11,11 @@ export default function TodayAssignmentCard({
   todayKey, 
   onOpenPlanModal,
   onDismissPrompt,
-  showPrompt 
+  showPrompt,
+  userId
 }) {
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
+  const { completeToday, isCompleting } = useCompleteTodaysAssignment();
 
   const assignment = useMemo(() => {
     if (!hasPlan) return null;
@@ -22,6 +25,41 @@ export default function TodayAssignmentCard({
       return null;
     }
   }, [hasPlan, plan, allTimeLogs, todayKey]);
+
+  const { summary, doneCount, totalCount, isComplete } = useMemo(() => {
+    if (!assignment || !assignment.today.length) {
+      return { summary: '', doneCount: 0, totalCount: 0, isComplete: true };
+    }
+
+    const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
+    const completedIds = new Set(todayLogs.map(log => log.chapterId));
+    const done = assignment.today.filter(ch => completedIds.has(ch.chapterId)).length;
+    const total = assignment.today.length;
+
+    // Build summary string
+    const grouped = assignment.today.reduce((acc, ch) => {
+      if (!acc[ch.book]) acc[ch.book] = [];
+      acc[ch.book].push(ch.chapter);
+      return acc;
+    }, {});
+
+    const parts = Object.entries(grouped).map(([book, chapters]) => {
+      if (chapters.length === 1) return `${book} ${chapters[0]}`;
+      const sorted = chapters.sort((a, b) => a - b);
+      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+    });
+
+    return {
+      summary: parts.join(' • '),
+      doneCount: done,
+      totalCount: total,
+      isComplete: done === total
+    };
+  }, [assignment, allTimeLogs, todayKey]);
+
+  const handleComplete = () => {
+    completeToday({ userId, plan, allTimeLogs, todayKey });
+  };
 
   if (!hasPlan) {
     return (
@@ -90,19 +128,30 @@ export default function TodayAssignmentCard({
         </div>
       </div>
 
-      {assignment.today.length > 0 && (
-        <div className="border-t border-border pt-3">
-          <div className="text-xs font-medium text-muted-foreground mb-2">Today's Chapters:</div>
-          <div className="flex flex-wrap gap-2">
-            {assignment.today.map((ch) => (
-              <div
-                key={ch.chapterId}
-                className="text-xs px-2 py-1 rounded bg-secondary text-secondary-foreground"
-              >
-                {ch.book} {ch.chapter}
-              </div>
-            ))}
+      {summary && (
+        <div className="border-t border-border pt-4 space-y-3">
+          <div>
+            <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
+            <div className="text-xs text-muted-foreground">
+              {doneCount}/{totalCount} done today
+            </div>
           </div>
+          <Button
+            onClick={handleComplete}
+            disabled={isComplete || isCompleting}
+            className="w-full"
+          >
+            {isCompleting ? (
+              'Saving...'
+            ) : isComplete ? (
+              <>
+                <CheckCircle2 className="w-4 h-4 mr-2" />
+                Today Completed
+              </>
+            ) : (
+              'Mark Today Complete'
+            )}
+          </Button>
         </div>
       )}
     </motion.div>

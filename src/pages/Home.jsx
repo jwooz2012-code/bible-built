@@ -266,6 +266,7 @@ export default function Home() {
               plan={plan}
               allTimeLogs={allTimeLogs}
               todayKey={today}
+              userId={userId}
               onOpenPlanModal={() => setPlanOpen(true)}
               onDismissPrompt={handleDismissPrompt}
               showPrompt={showPrompt}
