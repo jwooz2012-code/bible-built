@@ -82,6 +82,30 @@ export function buildScopeChapters(scope) {
 }
 
 /**
+ * Get the assigned chapters for a specific date
+ */
+export function getAssignmentForDate({ plan, dateKey }) {
+  if (!plan?.startDate || !plan?.endDate || !plan?.scope || !plan?.chaptersPerDay) {
+    return [];
+  }
+
+  if (dateKey < plan.startDate) {
+    return [];
+  }
+
+  const scopeChapters = buildScopeChapters(plan.scope);
+  
+  const startDate = new Date(plan.startDate);
+  const targetDate = new Date(dateKey);
+  const dayIndex = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+  
+  const start = dayIndex * plan.chaptersPerDay;
+  const end = start + plan.chaptersPerDay;
+  
+  return scopeChapters.slice(start, end);
+}
+
+/**
  * Compute today's assignment for a reading plan
  * Returns: { perDay, daysLeft, remaining, today: [] }
  */
