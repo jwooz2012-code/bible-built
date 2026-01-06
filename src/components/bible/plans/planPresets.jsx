@@ -57,7 +57,7 @@ export const PLAN_PRESETS = [
   },
   {
     id: 'intentional_motherhood',
-    name: 'Intentional Motherhood',
+    name: 'The Intentional Mom',
     subtitle: 'Anchor your motherhood in Scripture.',
     description: 'A Scripture-focused plan centered on faithful, God-centered motherhood.',
     scope: 'INTENTIONAL_MOTHERHOOD',
