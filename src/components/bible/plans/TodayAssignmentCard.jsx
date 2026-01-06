@@ -143,90 +143,48 @@ export default function TodayAssignmentCard({
       animate={{ opacity: 1, y: 0 }}
       className="mb-6 bb-card bb-glow px-6 py-5">
 
-      <div className="flex items-center justify-between mb-3">
-        <div className="flex items-center gap-2">
-          <Calendar className="w-5 h-5 text-muted-foreground" />
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
-            <p className="text-xs text-muted-foreground">{formatDateKey(todayKey)}</p>
-          </div>
-        </div>
-        <button
-          onClick={onOpenPlanModal}
-          className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-
-          Edit Plan
-        </button>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3 text-center mb-4">
-        <div>
-          <div className="text-2xl font-bold text-foreground">{assignment.perDay}</div>
-          <div className="text-xs text-muted-foreground">per day</div>
-        </div>
-        <div>
-          <div className="text-2xl font-bold text-foreground">{assignment.daysLeft}</div>
-          <div className="text-xs text-muted-foreground">days left</div>
-        </div>
-        <div>
-          <div className="text-2xl font-bold text-foreground">{assignment.remaining}</div>
-          <div className="text-xs text-muted-foreground">remaining</div>
-        </div>
-      </div>
-
-      {summary &&
-      <div className="border-t border-border pt-4 space-y-3">
-          <div className="space-y-2">
+      <div 
+        className="cursor-pointer" 
+        onClick={onOpenPlanModal}>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-5 h-5 text-muted-foreground" />
             <div>
-              <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
-              <div className="text-xs text-muted-foreground">
-                {doneCount}/{totalCount} complete
-              </div>
-              <div className="text-xs text-muted-foreground/60 mt-0.5">
-                Read today: {readTodayCount} chapter{readTodayCount !== 1 ? 's' : ''}
-              </div>
-              <div className="text-xs text-muted-foreground/70 mt-1">
-                Reading ahead counts toward future days.
-              </div>
+              <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
+              <p className="text-xs text-muted-foreground">{formatDateKey(todayKey)}</p>
             </div>
-            
-            <button
-              onClick={() => setShowTomorrow(!showTomorrow)}
-              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
-              {showTomorrow ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              Preview Tomorrow
-            </button>
-
-            {showTomorrow && tomorrowData && (
-              <div className="border-t border-border pt-2 space-y-1">
-                <div className="text-xs font-medium text-muted-foreground">
-                  Next Up · {formatDateKey(tomorrowData.dateKey)}
-                </div>
-                <div className="text-sm text-foreground/90">{tomorrowData.summary}</div>
-                <div className="text-xs text-muted-foreground">
-                  {tomorrowData.done}/{tomorrowData.total} complete
-                </div>
-              </div>
-            )}
           </div>
-          <Button
-          onClick={handleComplete}
+        </div>
+
+        {summary && (
+          <div className="mb-3">
+            <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
+            <div className="text-xs text-muted-foreground">
+              {assignment.perDay}/day • {assignment.daysLeft} days left
+            </div>
+          </div>
+        )}
+      </div>
+
+      {summary && (
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            handleComplete();
+          }}
           disabled={isComplete || isCompleting}
           className="w-full">
-
-            {isCompleting ?
-          'Saving...' :
-          isComplete ?
-          <>
+          {isCompleting ? 
+            'Saving...' : 
+            isComplete ? 
+              <>
                 <CheckCircle2 className="w-4 h-4 mr-2" />
                 Today Completed
-              </> :
-
-          'Mark Today Complete'
+              </> : 
+              'Mark Today Complete'
           }
-          </Button>
-        </div>
-      }
+        </Button>
+      )}
     </motion.div>);
 
 }
