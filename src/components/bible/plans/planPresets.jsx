@@ -84,6 +84,7 @@ export const PLAN_PRESETS = [
     name: 'Live With Purpose',
     subtitle: 'Align your daily life with God\'s will.',
     description: 'A focused Scripture plan designed to align daily life with God\'s will through obedience and direction.',
+    shortHook: 'Align your daily life with God\'s will.',
     scope: 'LIVE_WITH_PURPOSE',
     chaptersPerDay: 2,
     getDates: (startDate) => ({
@@ -96,6 +97,7 @@ export const PLAN_PRESETS = [
     name: 'Know King David',
     subtitle: 'Walk through the life of David.',
     description: 'A Scripture journey through the life, heart, failures, repentance, and worship of King David.',
+    shortHook: 'Walk through the life and heart of a man after God.',
     scope: 'KNOW_KING_DAVID',
     chaptersPerDay: 2,
     getDates: (startDate) => ({
@@ -108,6 +110,7 @@ export const PLAN_PRESETS = [
     name: 'Heart of God',
     subtitle: 'Discover God\'s character.',
     description: 'A deep Scripture plan focused on knowing God\'s character, holiness, love, justice, and mercy.',
+    shortHook: 'Know God deeply and be shaped by His character.',
     scope: 'HEART_OF_GOD',
     chaptersPerDay: 2,
     getDates: (startDate) => ({
