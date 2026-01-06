@@ -78,7 +78,8 @@ export default function Home() {
         longestStreak: 0,
         thisWeekChapters: 0,
         thisWeekActiveDays: 0,
-        deltaVsLastWeek: 0
+        deltaVsLastWeek: 0,
+        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 } }
       };
     }
 
