@@ -257,13 +257,13 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-5">
+          className="bg-card border border-border rounded-2xl p-5 mb-8">
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-1">
               This Year ({currentYear})
             </h2>
-            <div className="w-16 h-[1px] bg-border" />
+            <p className="text-sm text-muted-foreground">Your progress this year</p>
           </div>
 
           {yearLoading ?
@@ -324,11 +324,11 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.05 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-5">
+          className="bg-card border border-border rounded-2xl p-5 mb-8">
 
           <div className="mb-6">
-            <h2 className="text-xl font-semibold text-foreground mb-2">Lifetime</h2>
-            <div className="w-16 h-[1px] bg-border" />
+            <h2 className="text-xl font-semibold text-foreground mb-1">Lifetime</h2>
+            <p className="text-sm text-muted-foreground">All-time reading history</p>
           </div>
 
           {lifetimeLoading ?
@@ -375,14 +375,29 @@ export default function Stats() {
           }
         </motion.div>
 
-        {/* Dashboard Section */}
+        {/* Reading Velocity Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.1 }}
-          className="space-y-5 mb-5">
-
+          className="mb-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground mb-1">Reading Velocity</h2>
+            <p className="text-sm text-muted-foreground">Your current pace</p>
+          </div>
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
+        </motion.div>
+
+        {/* Bible Coverage Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.12 }}
+          className="mb-8">
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground mb-1">Bible Coverage</h2>
+            <p className="text-sm text-muted-foreground">Where you've spent time in Scripture</p>
+          </div>
           <CoverageRadar sectionData={trackerStats.sectionCoverage} />
         </motion.div>
 
@@ -390,40 +405,40 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.15 }}
-          className="mb-5">
-
+          transition={{ duration: 0.15, delay: 0.14 }}
+          className="mb-8">
           <BookCompletionBars
             bookProgressYear={trackerStats.bookProgressYear}
             bookProgressLifetime={trackerStats.bookProgressLifetime} />
-
         </motion.div>
 
         {/* Records Section */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.2 }}
-          className="mb-5">
-
+          transition={{ duration: 0.15, delay: 0.16 }}
+          className="mb-8">
           <PersonalRecordsCard records={trackerStats.records} />
         </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.25 }}
-          className="bg-card border border-border rounded-2xl p-5">
-
-          <div className="mb-6 flex items-center gap-3">
-            <Award className="w-6 h-6" style={{ color: '#FACC15' }} />
-            <div>
-              <h2 className="text-xl font-semibold text-foreground">Achievements</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
-              </p>
-            </div>
+          transition={{ duration: 0.15, delay: 0.18 }}>
+          <div className="mb-4">
+            <h2 className="text-xl font-semibold text-foreground mb-1">Achievements</h2>
+            <p className="text-sm text-muted-foreground">Milestones you've earned</p>
           </div>
+
+          <div className="bg-card border border-border rounded-2xl p-5">
+            <div className="mb-6 flex items-center gap-3">
+              <Award className="w-6 h-6" style={{ color: '#FACC15' }} />
+              <div>
+                <p className="text-sm font-semibold text-foreground">
+                  {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
+                </p>
+              </div>
+            </div>
 
           {lifetimeLoading ?
           <div className="space-y-3">
