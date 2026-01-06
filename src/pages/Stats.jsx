@@ -393,10 +393,6 @@ export default function Stats() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.1 }}
           className="mb-8">
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground mb-1">Reading Velocity</h2>
-            <p className="text-sm text-muted-foreground">Your current pace</p>
-          </div>
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
 
