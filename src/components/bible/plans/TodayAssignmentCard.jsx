@@ -15,7 +15,7 @@ export default function TodayAssignmentCard({
   showPrompt,
   userId
 }) {
-  const hasPlan = !!plan?.startDate && !!plan?.endDate;
+  const hasPlan = !!plan?.startDate && !!plan?.endDate && plan?.scope !== 'NONE';
   const { completeToday, isCompleting } = useCompleteTodaysAssignment();
   const [showTomorrow, setShowTomorrow] = useState(false);
 
@@ -113,24 +113,14 @@ export default function TodayAssignmentCard({
 
         <div className="flex items-center gap-2 mb-2">
           <Calendar className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">Today's Assignment</h3>
+          <h3 className="text-lg font-semibold text-foreground">Start a Reading Plan</h3>
         </div>
         <p className="text-sm text-muted-foreground mb-4">
-          Choose a plan and Bible Built will guide you every day.
+          Choose a plan to get daily guidance.
         </p>
-        <div className="flex items-center gap-3">
-          <Button onClick={onOpenPlanModal} className="flex-1">
-            Choose a Plan
-          </Button>
-          {showPrompt && onDismissPrompt &&
-          <button
-            onClick={onDismissPrompt}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-
-              Not now
-            </button>
-          }
-        </div>
+        <Button onClick={onOpenPlanModal} className="w-full">
+          Start Plan
+        </Button>
       </motion.div>);
 
   }
