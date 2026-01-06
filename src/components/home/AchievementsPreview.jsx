@@ -48,7 +48,7 @@ const getAchievementIcon = (title) => {
 const getAchievementColor = (title) => {
   switch(title) {
     case 'Battle': return 'BLACK_WHITE';
-    case 'First Rep': return 'from-[#60A5FA] to-[#3B82F6]';
+    case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]';
     case 'Locked In': return 'from-[#10B981] to-[#059669]';
     case 'Habit Forming': return 'from-[#10B981] to-[#059669]';
     case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]';

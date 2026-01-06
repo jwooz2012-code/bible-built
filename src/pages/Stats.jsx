@@ -173,7 +173,7 @@ export default function Stats() {
   const getAchievementColor = (title) => {
     switch(title) {
       case 'Battle': return 'BLACK_WHITE';
-      case 'First Rep': return 'from-[#60A5FA] to-[#3B82F6]'; // Accent blue
+      case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]'; // Silver
       case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Forest green
       case 'Habit Forming': return 'from-[#10B981] to-[#059669]'; // Accent green
       case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]'; // Accent orange
@@ -188,7 +188,7 @@ export default function Stats() {
       case 'Deep Roots': return 'from-[#84CC16] to-[#65A30D]'; // Accent brown/green
       case 'Iron Discipline': return 'from-[#6B7280] to-[#4B5563]'; // Accent graphite
       case 'Master Builder': return 'from-[#6366F1] to-[#4F46E5]'; // Accent indigo
-      default: return 'from-[#F97316] to-[#FACC15]';
+      case 'default': return 'from-[#F97316] to-[#FACC15]';
     }
   };
 
