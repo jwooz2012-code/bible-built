@@ -259,7 +259,7 @@ export default function Stats() {
           transition={{ duration: 0.15 }}
           className="bg-card border border-border rounded-2xl p-5 mb-8">
 
-          <div className="mb-6">
+          <div className="mb-5">
             <h2 className="text-xl font-semibold text-foreground mb-1">
               This Year ({currentYear})
             </h2>
@@ -271,36 +271,36 @@ export default function Stats() {
               <Skeleton className="h-24 w-full" />
             </div> :
 
-          <div className="space-y-6">
-              <div>
-                <div className="flex items-baseline justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">Total Progress</span>
-                  <span className="text-2xl font-semibold text-foreground">
-                    {yearStats.totalCount} <span className="text-sm text-muted-foreground font-normal">/ {TOTAL_CHAPTERS}</span>
-                  </span>
+          <div className="space-y-4">
+              <div className="text-center pb-4 border-b border-border">
+                <p className="text-sm text-muted-foreground mb-2">Chapters Read</p>
+                <p className="text-5xl font-bold text-foreground mb-3">{yearStats.totalCount}</p>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-xs text-muted-foreground font-medium">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
+                  <span className="text-xs text-muted-foreground">•</span>
+                  <span className="text-xs text-muted-foreground font-medium">{yearStats.totalPercent}%</span>
                 </div>
-                <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
                   <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{
                     width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%`,
                     background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)',
-                    boxShadow: '0 0 12px var(--energy-glow)'
+                    boxShadow: '0 0 8px var(--energy-glow)'
                   }} />
-
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-secondary rounded-xl p-4">
-                  <p className="text-xs text-muted-foreground mb-2">Old Testament</p>
-                  <p className="text-2xl font-semibold text-foreground mb-1">{yearStats.otCount}</p>
-                  <p className="text-xs text-muted-foreground">{yearStats.otPercent}%</p>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-secondary rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1.5">Old Testament</p>
+                  <p className="text-xl font-semibold text-foreground">{yearStats.otCount}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{yearStats.otPercent}%</p>
                 </div>
-                <div className="bg-secondary rounded-xl p-4">
-                  <p className="text-xs text-muted-foreground mb-2">New Testament</p>
-                  <p className="text-2xl font-semibold text-foreground mb-1">{yearStats.ntCount}</p>
-                  <p className="text-xs text-muted-foreground">{yearStats.ntPercent}%</p>
+                <div className="bg-secondary rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1.5">New Testament</p>
+                  <p className="text-xl font-semibold text-foreground">{yearStats.ntCount}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{yearStats.ntPercent}%</p>
                 </div>
               </div>
 
@@ -311,7 +311,7 @@ export default function Stats() {
               const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
               const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
               return (
-                <p className="text-sm text-muted-foreground mt-4">
+                <p className="text-xs text-muted-foreground/80 text-center">
                     At this pace, you'll complete the Bible in about {estimatedDays} days.
                   </p>);
 
