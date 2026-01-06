@@ -19,11 +19,13 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
-import MomentumRings from '@/components/trackers/MomentumRings';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
-import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary } from '@/components/trackers/deriveStats';
+import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
+import AchievementsPreview from '@/components/home/AchievementsPreview';
+import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
+import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS } from '@/components/bible/bibleData';
 import XPBar from '@/components/energy/XPBar';
 import ComboPill from '@/components/energy/ComboPill';
 import LevelBadge from '@/components/energy/LevelBadge';
@@ -98,6 +100,7 @@ export default function Home() {
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
     const { currentStreak, longestStreak } = computeStreaks(sortedDates, today);
     const { thisWeekChapters, thisWeekActiveDays, deltaVsLastWeek } = computeWeeklySummary(dateCountMap, today);
+    const records = computeRecords(dateCountMap, allTimeLogs);
 
     return {
       lifetimeUniqueChapters: lifetimeUnique.size,
@@ -110,7 +113,8 @@ export default function Home() {
       longestStreak,
       thisWeekChapters,
       thisWeekActiveDays,
-      deltaVsLastWeek
+      deltaVsLastWeek,
+      records
     };
   }, [allTimeLogs, today]);
 
@@ -147,6 +151,50 @@ export default function Home() {
 
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
+
+  // Calculate achievements
+  const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
+  const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
+  const daysWithReadingDistinct = uniqueDays.size;
+
+  const bookChaptersRead = {};
+  allTimeLogs.forEach((log) => {
+    if (!bookChaptersRead[log.book]) {
+      bookChaptersRead[log.book] = new Set();
+    }
+    bookChaptersRead[log.book].add(log.chapter);
+  });
+
+  let totalBooksCompletedDistinct = 0;
+  Object.keys(bookChaptersRead).forEach((bookName) => {
+    const bookData = BIBLE_BOOKS.find((b) => b.name === bookName);
+    if (bookData && bookChaptersRead[bookName].size >= bookData.chapters) {
+      totalBooksCompletedDistinct++;
+    }
+  });
+
+  const ntReadThroughCount = Math.floor(trackerStats.ntUniqueChapters / NT_CHAPTERS);
+  const otOrNtCompletedFlag = trackerStats.otUniqueChapters >= OT_CHAPTERS || trackerStats.ntUniqueChapters >= NT_CHAPTERS;
+  
+  const achievements = [
+    { id: 1, title: 'First Rep', achieved: lifetimeTotalCount >= 1 },
+    { id: 2, title: 'Locked In', achieved: totalBooksCompletedDistinct >= 1 },
+    { id: 3, title: 'Habit Forming', achieved: daysWithReadingDistinct >= 7 },
+    { id: 4, title: 'Fifty Down', achieved: lifetimeTotalCount >= 50 },
+    { id: 5, title: 'Triple Digits', achieved: lifetimeTotalCount >= 100 },
+    { id: 6, title: 'All In', achieved: lifetimeTotalCount >= 250 },
+    { id: 7, title: 'Built to Last', achieved: lifetimeTotalCount >= 500 },
+    { id: 8, title: 'Cover to Cover', achieved: totalBooksCompletedDistinct >= 10 },
+    { id: 9, title: 'Testament Strong', achieved: otOrNtCompletedFlag },
+    { id: 10, title: 'The Whole Word', achieved: trackerStats.lifetimeUniqueChapters >= TOTAL_CHAPTERS },
+    { id: 11, title: 'Back for More', achieved: lifetimeTotalCount >= TOTAL_CHAPTERS * 2 },
+    { id: 12, title: 'Deep Roots', achieved: ntReadThroughCount >= 5 },
+    { id: 13, title: 'Iron Discipline', achieved: daysWithReadingDistinct >= 250 },
+    { id: 14, title: 'Master Builder', achieved: totalBooksCompletedDistinct >= 30 },
+    { id: 15, title: 'Built for a Lifetime', achieved: lifetimeTotalCount >= 1000 }
+  ];
+
+  const unlockedAchievements = achievements.filter(a => a.achieved);
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
@@ -272,46 +320,28 @@ export default function Home() {
               showPrompt={showPrompt}
             />
 
-            {/* Hero Dashboard */}
-            <div className="relative mb-8">
-              <motion.div
+            {/* Your Progress Section */}
+            <motion.div
               initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }} className="px-6 py-1 bb-card bb-glow">
-
-
-                {energyMode &&
-              <div className="flex items-center justify-center gap-2 mb-4">
-                    <ComboPill todayCount={todayLogs.length} />
-                    <motion.span
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide">
-
-                      ⚡ Energy Mode
-                    </motion.span>
-                  </div>
-              }
-                <MomentumRings
-                otPercent={trackerStats.otPercent}
-                ntPercent={trackerStats.ntPercent}
-                currentStreak={trackerStats.currentStreak} />
-
-                <div className="grid grid-cols-3 gap-2 mt-4 text-center text-xs">
-                  <div>
-                    <div className="font-semibold text-foreground">{trackerStats.otUniqueChapters}</div>
-                    <div className="text-muted-foreground">Old Test.</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground">{trackerStats.ntUniqueChapters}</div>
-                    <div className="text-muted-foreground">New Test.</div>
-                  </div>
-                  <div>
-                    <div className="font-semibold text-foreground">{trackerStats.currentStreak}</div>
-                    <div className="text-muted-foreground">Streak</div>
-                  </div>
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6">
+              <h2 className="text-lg font-semibold text-foreground mb-3">Your Progress</h2>
+              
+              {energyMode &&
+                <div className="flex items-center justify-center gap-2 mb-4">
+                  <ComboPill todayCount={todayLogs.length} />
+                  <motion.span
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide">
+                    ⚡ Energy Mode
+                  </motion.span>
                 </div>
-              </motion.div>
-            </div>
+              }
+
+              <PersonalRecordsCard records={trackerStats.records} />
+              <AchievementsPreview unlockedAchievements={unlockedAchievements} />
+            </motion.div>
 
             <div className="space-y-3 mb-6">
               {energyMode &&
