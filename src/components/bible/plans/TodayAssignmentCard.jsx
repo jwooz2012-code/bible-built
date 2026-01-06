@@ -1,9 +1,10 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2 } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
+import { formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
 
 export default function TodayAssignmentCard({
   plan,
@@ -16,6 +17,7 @@ export default function TodayAssignmentCard({
 }) {
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const { completeToday, isCompleting } = useCompleteTodaysAssignment();
+  const [showTomorrow, setShowTomorrow] = useState(false);
 
   const assignment = useMemo(() => {
     if (!hasPlan) return null;
@@ -31,15 +33,18 @@ export default function TodayAssignmentCard({
     return getAssignmentForDate({ plan, dateKey: todayKey });
   }, [hasPlan, plan, todayKey]);
 
-  const { summary, doneCount, totalCount, isComplete } = useMemo(() => {
+  const { summary, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
     if (!assignedToday.length) {
-      return { summary: '', doneCount: 0, totalCount: 0, isComplete: true };
+      return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
 
     // Check progress across all logs (not just today's)
     const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
     const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignedToday.length;
+
+    // Count chapters actually read today
+    const readToday = allTimeLogs.filter((log) => log.dateKey === todayKey).length;
 
     // Build summary string
     const grouped = assignedToday.reduce((acc, ch) => {
@@ -58,9 +63,42 @@ export default function TodayAssignmentCard({
       summary: parts.join(' • '),
       doneCount: done,
       totalCount: total,
-      isComplete: done === total
+      isComplete: done === total,
+      readTodayCount: readToday
     };
-  }, [assignedToday, allTimeLogs]);
+  }, [assignedToday, allTimeLogs, todayKey]);
+
+  const tomorrowData = useMemo(() => {
+    if (!showTomorrow || !hasPlan) return null;
+    
+    const nextKey = addDaysKey(todayKey, 1);
+    const assignedTomorrow = getAssignmentForDate({ plan, dateKey: nextKey });
+    
+    if (!assignedTomorrow.length) return null;
+
+    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
+    const doneTomorrow = assignedTomorrow.filter((ch) => completedIds.has(ch.chapterId)).length;
+
+    // Build summary string
+    const grouped = assignedTomorrow.reduce((acc, ch) => {
+      if (!acc[ch.book]) acc[ch.book] = [];
+      acc[ch.book].push(ch.chapter);
+      return acc;
+    }, {});
+
+    const parts = Object.entries(grouped).map(([book, chapters]) => {
+      if (chapters.length === 1) return `${book} ${chapters[0]}`;
+      const sorted = chapters.sort((a, b) => a - b);
+      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+    });
+
+    return {
+      dateKey: nextKey,
+      summary: parts.join(' • '),
+      done: doneTomorrow,
+      total: assignedTomorrow.length
+    };
+  }, [showTomorrow, hasPlan, plan, todayKey, allTimeLogs]);
 
   const handleComplete = () => {
     completeToday({ userId, plan, allTimeLogs, todayKey });
@@ -108,7 +146,10 @@ export default function TodayAssignmentCard({
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <Calendar className="w-5 h-5 text-muted-foreground" />
-          <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground">Today's Reading</h3>
+            <p className="text-xs text-muted-foreground">{formatDateKey(todayKey)}</p>
+          </div>
         </div>
         <button
           onClick={onOpenPlanModal}
@@ -135,14 +176,38 @@ export default function TodayAssignmentCard({
 
       {summary &&
       <div className="border-t border-border pt-4 space-y-3">
-          <div>
-            <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
-            <div className="text-xs text-muted-foreground">
-              {doneCount}/{totalCount} done today
+          <div className="space-y-2">
+            <div>
+              <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
+              <div className="text-xs text-muted-foreground">
+                {doneCount}/{totalCount} complete
+              </div>
+              <div className="text-xs text-muted-foreground/60 mt-0.5">
+                Read today: {readTodayCount} chapter{readTodayCount !== 1 ? 's' : ''}
+              </div>
+              <div className="text-xs text-muted-foreground/70 mt-1">
+                Reading ahead counts toward future days.
+              </div>
             </div>
-            <div className="text-xs text-muted-foreground/70 mt-1">
-              Reading ahead counts toward future days.
-            </div>
+            
+            <button
+              onClick={() => setShowTomorrow(!showTomorrow)}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
+              {showTomorrow ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+              Preview Tomorrow
+            </button>
+
+            {showTomorrow && tomorrowData && (
+              <div className="border-t border-border pt-2 space-y-1">
+                <div className="text-xs font-medium text-muted-foreground">
+                  Next Up · {formatDateKey(tomorrowData.dateKey)}
+                </div>
+                <div className="text-sm text-foreground/90">{tomorrowData.summary}</div>
+                <div className="text-xs text-muted-foreground">
+                  {tomorrowData.done}/{tomorrowData.total} complete
+                </div>
+              </div>
+            )}
           </div>
           <Button
           onClick={handleComplete}
