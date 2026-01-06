@@ -38,7 +38,7 @@ export default function BookCard({ book, completions, onClick }) {
           </span>
         </div>
       )}
-      <div className="relative z-10 flex items-center justify-center min-h-full py-2">
+      <div className="relative z-10 py-2">
         <div className="flex flex-col gap-1.5 w-full pr-2">
           <h3 className="font-semibold text-foreground text-base leading-[1.2] line-clamp-2">{book.name}</h3>
           {completions > 0 && (
