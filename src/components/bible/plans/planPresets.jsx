@@ -1,3 +1,4 @@
+
 import { getDateKey, addDaysKey, addYearsKey } from '@/components/bible/utils/dateUtils';
 
 export const PLAN_PRESETS = [
@@ -32,23 +33,27 @@ export const PLAN_PRESETS = [
     }),
   },
   {
-    id: 'leadership_30',
-    name: '30-Day Spiritual Leadership',
-    description: 'Curated leadership passages for ministry',
-    scope: 'LEADERSHIP_30',
+    id: 'leadership_intensive',
+    name: 'Leadership Intensive',
+    subtitle: 'Train your heart for biblical leadership.',
+    description: 'A high-commitment reading plan for those called to lead. This plan moves quickly through Scripture\'s most formative leadership passages—developing humility, courage, doctrine, and endurance. Expect challenge. Expect growth.',
+    scope: 'LEADERSHIP_INTENSIVE',
+    chaptersPerDay: 5,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 29),
+      endDate: addDaysKey(startDate, 39), // ~40 days
     }),
   },
   {
-    id: 'wisdom_7',
-    name: '7-Day Wisdom Plunge',
-    description: 'Dive deep into biblical wisdom literature',
-    scope: 'WISDOM_7',
+    id: 'wisdom_plunge',
+    name: 'Wisdom Plunge',
+    subtitle: 'Learn what God calls wisdom.',
+    description: 'A slower, reflective reading plan through Scripture\'s wisdom books. Designed to shape your thinking, speech, decisions, and fear of the Lord. Read carefully. Think deeply. Apply daily.',
+    scope: 'WISDOM_PLUNGE',
+    chaptersPerDay: 3,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 6),
+      endDate: addDaysKey(startDate, 29), // ~30 days
     }),
   },
 ];

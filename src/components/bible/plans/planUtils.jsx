@@ -64,7 +64,7 @@ export function buildScopeChapters(scope) {
         });
       }
     }
-  } else if (scope === 'LEADERSHIP_30' || scope === 'WISDOM_7') {
+  } else if (scope === 'LEADERSHIP_INTENSIVE' || scope === 'WISDOM_PLUNGE') {
     // Curated plans
     const curatedList = CURATED_PLANS[scope] || [];
     curatedList.forEach((entry) => {
