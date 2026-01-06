@@ -99,4 +99,13 @@
     position: relative;
     z-index: 1;
   }
+
+  [data-sonner-toaster] {
+    pointer-events: none !important;
+    bottom: calc(env(safe-area-inset-bottom) + 96px) !important;
+  }
+
+  [data-sonner-toast] {
+    pointer-events: auto !important;
+  }
 }
