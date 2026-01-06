@@ -150,7 +150,7 @@ export default function TodayAssignmentCard({
           <div className="mb-3">
             <div className="text-sm font-medium text-foreground mb-1">{summary}</div>
             <div className="text-xs text-muted-foreground">
-              {assignment.perDay}/day • {assignment.daysLeft} days left
+              {plan.chaptersPerDay || 1}/day • {assignment.daysLeft} days left
             </div>
           </div>
         )}
