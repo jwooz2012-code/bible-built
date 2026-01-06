@@ -321,7 +321,7 @@ export default function Home() {
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mb-6">
+              className="mb-5">
               <h2 className="text-lg font-semibold text-foreground mb-3">Your Progress</h2>
               
               {energyMode &&
@@ -340,7 +340,7 @@ export default function Home() {
             </motion.div>
 
             {energyMode &&
-              <div className="mb-6">
+              <div className="mb-5">
                 <XPBar todayCount={todayLogs.length} />
               </div>
             }
@@ -348,7 +348,7 @@ export default function Home() {
             <WeekView logs={allTimeLogs} />
 
             {recentBooks.length > 0 &&
-          <div className="mb-8">
+          <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2">
                   {recentBooks.slice(0, 2).map((book) => {
@@ -367,7 +367,7 @@ export default function Home() {
               </div>
           }
 
-            <div className="flex gap-2 mb-6">
+            <div className="flex gap-2 mb-5">
               <Button
               variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
               size="sm"
@@ -390,7 +390,7 @@ export default function Home() {
 
         {!selectedBook ?
         <>
-            <div className="grid grid-cols-2 gap-2 mb-8">
+            <div className="grid grid-cols-2 gap-2 mb-6">
               {filteredBooks.map((book) => {
               const stats = getBookStats(book);
               return (
