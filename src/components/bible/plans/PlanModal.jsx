@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,8 +10,10 @@ import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/compon
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import { useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
+import { createPageUrl } from '@/utils';
 
 export default function PlanModal({ open, onClose, userId, existingPlan, logs }) {
+  const navigate = useNavigate();
   const todayKey = getDateKey();
   
   const [scope, setScope] = useState('BIBLE');
@@ -320,7 +323,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 return (
                   <button
                     key={preset.id}
-                    onClick={() => handlePresetClick(preset)}
+                    onClick={() => {
+                      onClose();
+                      navigate(createPageUrl('PlanDetail') + `?id=${preset.id}`);
+                    }}
                     className="text-left p-3.5 rounded-lg border border-border bg-card hover:bg-accent transition-all group"
                     style={accentColor ? { backgroundColor: accentColor } : undefined}
                   >
@@ -369,8 +375,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                               {preset.subtitle}
                             </div>
                           )}
-                          <div className="text-xs text-muted-foreground/80 line-clamp-2 leading-relaxed">
-                            {preset.description}
+                          <div className="text-xs text-muted-foreground/80">
+                            {preset.shortHook || preset.description}
                           </div>
                         </div>
                       </div>
