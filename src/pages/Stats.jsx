@@ -494,11 +494,12 @@ export default function Stats() {
                 </motion.div>
             )}
             </div>
-          }
-        </motion.div>
-      </div>
+            }
+            </div>
+            </motion.div>
+            </div>
 
-      <Dialog open={showBaselineDialog} onOpenChange={setShowBaselineDialog}>
+            <Dialog open={showBaselineDialog} onOpenChange={setShowBaselineDialog}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>Starting Count</DialogTitle>
