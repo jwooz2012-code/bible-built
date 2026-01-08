@@ -175,7 +175,8 @@ export default function PlanDetail() {
       toast.success('Plan started!');
       navigate('/');
     } catch (error) {
-      toast.error('Failed to start plan');
+      console.error('Start plan failed', error);
+      toast.error(error?.message ?? error?.response?.data?.message ?? 'Failed to start plan');
     }
   };
 
