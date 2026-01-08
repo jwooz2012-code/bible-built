@@ -14,6 +14,8 @@ import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/components/ThemeProvider';
+import AddChapterActionSheet from '@/components/calendar/AddChapterActionSheet';
+import BulkAddModal from '@/components/calendar/BulkAddModal';
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
