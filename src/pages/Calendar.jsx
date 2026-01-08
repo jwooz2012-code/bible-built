@@ -269,7 +269,7 @@ export default function Calendar() {
           <div className="mt-6 space-y-4">
             <div className="flex gap-2">
               <Button 
-                onClick={() => setShowAddForm(!showAddForm)}
+                onClick={() => setShowActionSheet(true)}
                 variant="outline" 
                 className="flex-1"
                 size="sm"
