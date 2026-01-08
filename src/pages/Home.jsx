@@ -120,21 +120,24 @@ export default function Home() {
   const now = new Date();
 
   // Year calculations
-  const yearStart = `${currentYear}-01-01`;
-  const yearEnd = `${currentYear}-12-31`;
-  const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
+  const yearStart = useMemo(() => `${currentYear}-01-01`, [currentYear]);
+  const yearEnd = useMemo(() => `${currentYear}-12-31`, [currentYear]);
+  const yearLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd), [allTimeLogs, yearStart, yearEnd]);
   const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
 
   // Week calculations (last 7 days)
-  const weekAgo = new Date(now);
-  weekAgo.setDate(weekAgo.getDate() - 7);
-  const weekStart = getDateKey(weekAgo);
-  const weekLogs = allTimeLogs.filter((log) => log.dateKey >= weekStart);
+  const weekAgo = useMemo(() => {
+    const date = new Date(now);
+    date.setDate(date.getDate() - 7);
+    return date;
+  }, [now]);
+  const weekStart = useMemo(() => getDateKey(weekAgo), [weekAgo]);
+  const weekLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= weekStart), [allTimeLogs, weekStart]);
   const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
 
   // Month calculations (current month)
-  const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-  const monthLogs = allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd);
+  const monthStart = useMemo(() => `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`, [currentYear, now]);
+  const monthLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd), [allTimeLogs, monthStart, yearEnd]);
   const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
 
   // Phase calculations
