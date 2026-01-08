@@ -17,6 +17,8 @@ export default function PlanDetail() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showFullPreview, setShowFullPreview] = useState(false);
+  const [showFullDescription, setShowFullDescription] = useState(false);
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
 
   const planId = new URLSearchParams(location.search).get('id');
@@ -156,6 +158,9 @@ export default function PlanDetail() {
     return { day: dayNum, chapters: chaptersForDay };
   });
 
+  // Check if description is long (needs truncation)
+  const isDescriptionLong = preset.description && preset.description.length > 180;
+
   const handleStartPlan = async () => {
     try {
       const planData = {
@@ -190,65 +195,95 @@ export default function PlanDetail() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-6 mb-6"
+          className="bg-card border border-border rounded-2xl p-6 mb-6 shadow-sm"
           style={{ background: accentColor ? `linear-gradient(135deg, ${accentColor}, transparent)` : undefined }}
         >
+          {/* Header Row */}
           <div className="flex items-start gap-4 mb-4">
             {Icon && (
-              <div className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${iconColor}`}>
-                <Icon className="w-6 h-6" />
+              <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${iconColor}`}>
+                <Icon className="w-7 h-7" strokeWidth={2} />
               </div>
             )}
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground mb-1">{preset.name}</h1>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold text-foreground mb-1.5">{preset.name}</h1>
               {preset.shortHook && (
-                <p className="text-xs text-muted-foreground/70 mb-2">{preset.shortHook}</p>
+                <p className="text-xs text-muted-foreground truncate mb-1.5">{preset.shortHook}</p>
               )}
               {preset.subtitle && (
-                <p className="text-sm text-muted-foreground">{preset.subtitle}</p>
+                <p className="text-sm text-muted-foreground/90 leading-snug line-clamp-2">{preset.subtitle}</p>
               )}
             </div>
           </div>
 
-          {isCustomPlan && (
-            <div className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium mb-4 ${badgeColor}`}>
-              {preset.chaptersPerDay}+ chapters/day
+          {/* Description */}
+          {preset.description && (
+            <div className="mb-5">
+              <p className={`text-sm text-foreground/80 leading-relaxed ${!showFullDescription && isDescriptionLong ? 'line-clamp-3' : ''}`}>
+                {preset.description}
+              </p>
+              {isDescriptionLong && (
+                <button
+                  onClick={() => setShowFullDescription(!showFullDescription)}
+                  className="text-xs text-primary hover:underline mt-1.5"
+                >
+                  {showFullDescription ? 'Show less' : 'Read more'}
+                </button>
+              )}
             </div>
           )}
 
-          <p className="text-sm text-foreground leading-relaxed mb-6">
-            {preset.description}
-          </p>
-
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-1">Duration</p>
-              <p className="text-lg font-semibold text-foreground">{durationInDays} days</p>
+          {/* Stat Row */}
+          <div className="grid grid-cols-2 gap-3 mb-5">
+            <div className="bg-muted/40 rounded-xl p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1">Duration</p>
+              <p className="text-2xl font-bold text-foreground">{durationInDays}</p>
+              <p className="text-[10px] text-muted-foreground">days</p>
             </div>
-            <div className="bg-secondary/50 rounded-lg p-3">
-              <p className="text-xs text-muted-foreground mb-1">Chapters/Day</p>
-              <p className="text-lg font-semibold text-foreground">{preset.chaptersPerDay}</p>
+            <div className="bg-muted/40 rounded-xl p-3 text-center">
+              <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-1">Daily</p>
+              <p className="text-2xl font-bold text-foreground">{preset.chaptersPerDay}</p>
+              <p className="text-[10px] text-muted-foreground">chapters</p>
             </div>
           </div>
 
+          {/* Reading Preview */}
           {dayPreviews[0].chapters.length > 0 && (
-            <div className="space-y-3">
-              <h3 className="text-sm font-semibold text-foreground">Reading Preview</h3>
-              {dayPreviews.map((preview) => (
-                <div key={preview.day} className="bg-secondary/30 rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1.5">Day {preview.day}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {preview.chapters.map((chap, idx) => (
-                      <span
-                        key={idx}
-                        className="text-xs font-medium text-foreground bg-background/60 px-2 py-1 rounded"
-                      >
-                        {chap}
-                      </span>
-                    ))}
+            <div className="space-y-2.5">
+              <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide">Reading Preview</h3>
+              {dayPreviews.slice(0, showFullPreview ? 3 : 2).map((preview) => {
+                const visibleChapters = preview.chapters.slice(0, 3);
+                const remainingCount = preview.chapters.length - visibleChapters.length;
+                
+                return (
+                  <div key={preview.day} className="bg-muted/30 rounded-lg p-3">
+                    <p className="text-[10px] uppercase tracking-wide text-muted-foreground font-medium mb-2">Day {preview.day}</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {visibleChapters.map((chap, idx) => (
+                        <span
+                          key={idx}
+                          className="text-xs font-medium text-foreground bg-background/70 px-2 py-1 rounded-md"
+                        >
+                          {chap}
+                        </span>
+                      ))}
+                      {remainingCount > 0 && (
+                        <span className="text-xs font-medium text-muted-foreground bg-background/40 px-2 py-1 rounded-md">
+                          +{remainingCount} more
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
+              {dayPreviews[0].chapters.length > 0 && (
+                <button
+                  onClick={() => setShowFullPreview(!showFullPreview)}
+                  className="text-xs text-primary hover:underline font-medium"
+                >
+                  {showFullPreview ? 'Show less' : 'View full preview'}
+                </button>
+              )}
             </div>
           )}
         </motion.div>
