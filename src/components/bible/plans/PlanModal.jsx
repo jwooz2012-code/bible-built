@@ -221,7 +221,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
           </SheetDescription>
         </SheetHeader>
 
-        <div className="mt-6 space-y-6">
+        <div className="mt-6 space-y-6 pb-28">
           {/* Plan Details */}
           {planDetails && existingPlan && (
             <div className="bg-muted/50 rounded-lg p-4 border border-border space-y-4">
