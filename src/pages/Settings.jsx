@@ -142,12 +142,12 @@ export default function Settings() {
                       <p className="text-xs text-muted-foreground">Arcade-style visuals</p>
                     </div>
                   </div>
-                  <div 
-                    className={energyMode && energyPalette === 'petal' ? 'p-2 rounded-full bg-foreground/10 border-2 border-foreground/20' : ''}
-                  >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">{energyMode ? 'On' : 'Off'}</span>
                     <Switch 
                       checked={energyMode} 
                       onCheckedChange={setEnergyMode}
+                      className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-border"
                     />
                   </div>
                 </div>
