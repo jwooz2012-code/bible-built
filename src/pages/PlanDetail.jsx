@@ -255,18 +255,18 @@ export default function PlanDetail() {
                 return (
                   <div key={preview.day} className="bg-secondary/25 rounded-lg p-3">
                     <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">Day {preview.day}</p>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex gap-2">
                       {visibleChapters.map((chap, idx) => (
                         <span
                           key={idx}
-                          className="text-xs font-medium text-foreground bg-background/50 px-2 py-1 rounded-md"
+                          className="text-xs font-medium text-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full max-w-[120px] truncate"
                         >
                           {chap}
                         </span>
                       ))}
                       {remaining > 0 && (
-                        <span className="text-xs font-medium text-muted-foreground bg-background/30 px-2 py-1 rounded-md">
-                          +{remaining} more
+                        <span className="text-xs font-medium text-muted-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full">
+                          +{remaining}
                         </span>
                       )}
                     </div>

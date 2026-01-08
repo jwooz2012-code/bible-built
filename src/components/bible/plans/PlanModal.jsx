@@ -375,14 +375,14 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                         
                         {/* Preview */}
                         {previewChapters.length > 0 && (
-                          <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="flex items-center gap-2">
                             {previewChapters.map((ch, idx) => (
-                              <div key={idx} className="px-1.5 py-0.5 rounded bg-muted/30 text-[9px] text-muted-foreground/70">
+                              <div key={idx} className="text-xs font-medium text-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full max-w-[120px] truncate">
                                 {ch.book} {ch.chapter}
                               </div>
                             ))}
                             {remainingCount > 0 && (
-                              <div className="px-1.5 py-0.5 text-[9px] text-muted-foreground/60">
+                              <div className="text-xs font-medium text-muted-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full">
                                 +{remainingCount}
                               </div>
                             )}
