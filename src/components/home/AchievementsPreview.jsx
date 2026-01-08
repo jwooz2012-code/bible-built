@@ -25,8 +25,8 @@ import {
 const getAchievementIcon = (title, energyPalette, resolvedTheme) => {
   const iconProps = { className: "w-4 h-4", strokeWidth: 2 };
   
-  // Battle badge: white in Surge/Royal energy modes (but not in dark mode)
-  if (title === 'Battle' && (energyPalette === 'surge' || energyPalette === 'royal') && resolvedTheme !== 'dark') {
+  // Battle badge: white in Surge/Royal energy modes
+  if (title === 'Battle' && (energyPalette === 'surge' || energyPalette === 'royal')) {
     return <Sword {...iconProps} style={{ color: '#FFFFFF' }} />;
   }
   
