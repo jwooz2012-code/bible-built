@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
@@ -17,8 +17,6 @@ export default function PlanDetail() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [descriptionExpanded, setDescriptionExpanded] = useState(false);
-  const [previewExpanded, setPreviewExpanded] = useState(false);
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
 
   const planId = new URLSearchParams(location.search).get('id');
@@ -142,25 +140,21 @@ export default function PlanDetail() {
   // Get curated chapters if available
   const curatedChapters = CURATED_PLANS[preset.scope] || [];
 
-  // Preview Day 1, 2, 3, 4, 5
-  const dayPreviews = useMemo(() => {
-    return [1, 2, 3, 4, 5].map((dayNum) => {
-      const chaptersForDay = [];
-      
-      if (curatedChapters.length > 0) {
-        const startIdx = (dayNum - 1) * preset.chaptersPerDay;
-        const endIdx = startIdx + preset.chaptersPerDay;
-        for (let i = startIdx; i < endIdx && i < curatedChapters.length; i++) {
-          const chap = curatedChapters[i];
-          chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
-        }
+  // Preview Day 1, 2, 3
+  const dayPreviews = [1, 2, 3].map((dayNum) => {
+    const chaptersForDay = [];
+    
+    if (curatedChapters.length > 0) {
+      const startIdx = (dayNum - 1) * preset.chaptersPerDay;
+      const endIdx = startIdx + preset.chaptersPerDay;
+      for (let i = startIdx; i < endIdx && i < curatedChapters.length; i++) {
+        const chap = curatedChapters[i];
+        chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
       }
+    }
 
-      return { day: dayNum, chapters: chaptersForDay };
-    });
-  }, [curatedChapters, preset.chaptersPerDay]);
-
-  const visiblePreviews = previewExpanded ? dayPreviews : dayPreviews.slice(0, 2);
+    return { day: dayNum, chapters: chaptersForDay };
+  });
 
   const handleStartPlan = async () => {
     try {
@@ -199,98 +193,62 @@ export default function PlanDetail() {
           className="bg-card border border-border rounded-2xl p-6 mb-6"
           style={{ background: accentColor ? `linear-gradient(135deg, ${accentColor}, transparent)` : undefined }}
         >
-          {/* Header: Icon + Title */}
           <div className="flex items-start gap-4 mb-4">
             {Icon && (
-              <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${iconColor}`}>
-                <Icon className="w-7 h-7" strokeWidth={2.5} />
+              <div className={`flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center ${iconColor}`}>
+                <Icon className="w-6 h-6" />
               </div>
             )}
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-foreground leading-tight mb-2">{preset.name}</h1>
+            <div className="flex-1">
+              <h1 className="text-2xl font-bold text-foreground mb-1">{preset.name}</h1>
               {preset.shortHook && (
-                <p className="text-sm text-muted-foreground/80 mb-1.5">{preset.shortHook}</p>
+                <p className="text-xs text-muted-foreground/70 mb-2">{preset.shortHook}</p>
               )}
               {preset.subtitle && (
-                <p className="text-sm text-muted-foreground leading-relaxed">{preset.subtitle}</p>
+                <p className="text-sm text-muted-foreground">{preset.subtitle}</p>
               )}
             </div>
           </div>
 
-          {/* Description */}
-          <div className="mb-5">
-            <p className={`text-sm text-foreground/90 leading-relaxed ${!descriptionExpanded ? 'line-clamp-3' : ''}`}>
-              {preset.description}
-            </p>
-            {preset.description && preset.description.length > 150 && (
-              <button
-                onClick={() => setDescriptionExpanded(!descriptionExpanded)}
-                className="text-xs text-primary hover:underline mt-1.5"
-              >
-                {descriptionExpanded ? 'Read less' : 'Read more'}
-              </button>
-            )}
-          </div>
-
-          {/* Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-5">
-            <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-foreground">{durationInDays}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">days</p>
+          {isCustomPlan && (
+            <div className={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-medium mb-4 ${badgeColor}`}>
+              {preset.chaptersPerDay}+ chapters/day
             </div>
-            <div className="bg-secondary/40 rounded-xl p-3 text-center">
-              <p className="text-2xl font-bold text-foreground">{preset.chaptersPerDay}</p>
-              <p className="text-[10px] text-muted-foreground uppercase tracking-wide mt-0.5">per day</p>
+          )}
+
+          <p className="text-sm text-foreground leading-relaxed mb-6">
+            {preset.description}
+          </p>
+
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">Duration</p>
+              <p className="text-lg font-semibold text-foreground">{durationInDays} days</p>
+            </div>
+            <div className="bg-secondary/50 rounded-lg p-3">
+              <p className="text-xs text-muted-foreground mb-1">Chapters/Day</p>
+              <p className="text-lg font-semibold text-foreground">{preset.chaptersPerDay}</p>
             </div>
           </div>
 
-          {/* Reading Preview */}
           {dayPreviews[0].chapters.length > 0 && (
-            <div className="space-y-2.5">
+            <div className="space-y-3">
               <h3 className="text-sm font-semibold text-foreground">Reading Preview</h3>
-              {visiblePreviews.map((preview) => {
-                const visibleChapters = preview.chapters.slice(0, 3);
-                const remaining = preview.chapters.length - visibleChapters.length;
-
-                return (
-                  <div key={preview.day} className="bg-secondary/25 rounded-lg p-3">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide mb-2">Day {preview.day}</p>
-                    <div className="flex gap-2">
-                      {visibleChapters.map((chap, idx) => (
-                        <span
-                          key={idx}
-                          className="text-xs font-medium text-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full max-w-[120px] truncate"
-                        >
-                          {chap}
-                        </span>
-                      ))}
-                      {remaining > 0 && (
-                        <span className="text-xs font-medium text-muted-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full">
-                          +{remaining}
-                        </span>
-                      )}
-                    </div>
+              {dayPreviews.map((preview) => (
+                <div key={preview.day} className="bg-secondary/30 rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground mb-1.5">Day {preview.day}</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {preview.chapters.map((chap, idx) => (
+                      <span
+                        key={idx}
+                        className="text-xs font-medium text-foreground bg-background/60 px-2 py-1 rounded"
+                      >
+                        {chap}
+                      </span>
+                    ))}
                   </div>
-                );
-              })}
-              {dayPreviews.length > 2 && (
-                <button
-                  onClick={() => setPreviewExpanded(!previewExpanded)}
-                  className="text-xs text-primary hover:underline flex items-center gap-1 mt-2"
-                >
-                  {previewExpanded ? (
-                    <>
-                      <ChevronUp className="w-3 h-3" />
-                      Show less
-                    </>
-                  ) : (
-                    <>
-                      <ChevronDown className="w-3 h-3" />
-                      View full preview
-                    </>
-                  )}
-                </button>
-              )}
+                </div>
+              ))}
             </div>
           )}
         </motion.div>

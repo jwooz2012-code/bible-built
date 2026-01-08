@@ -330,9 +330,13 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const end = new Date(dates.endDate);
                 const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
-                // Get Day 1 preview (simplified - avoid hooks in map)
-                const previewChapters = [];
-                const remainingCount = 0;
+                // Get Day 1 preview
+                const day1Assignment = getAssignmentForDate({ 
+                  plan: { ...dates, scope: preset.scope, chaptersPerDay: preset.chaptersPerDay }, 
+                  dateKey: dates.startDate 
+                });
+                const previewChapters = day1Assignment.slice(0, 4);
+                const remainingCount = day1Assignment.length - previewChapters.length;
                 
                 return (
                   <button
@@ -371,14 +375,14 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                         
                         {/* Preview */}
                         {previewChapters.length > 0 && (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5 flex-wrap">
                             {previewChapters.map((ch, idx) => (
-                              <div key={idx} className="text-xs font-medium text-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full max-w-[120px] truncate">
+                              <div key={idx} className="px-1.5 py-0.5 rounded bg-muted/30 text-[9px] text-muted-foreground/70">
                                 {ch.book} {ch.chapter}
                               </div>
                             ))}
                             {remainingCount > 0 && (
-                              <div className="text-xs font-medium text-muted-foreground bg-background/70 dark:bg-white/10 border border-border/50 px-2.5 py-1 rounded-full">
+                              <div className="px-1.5 py-0.5 text-[9px] text-muted-foreground/60">
                                 +{remainingCount}
                               </div>
                             )}

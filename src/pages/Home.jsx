@@ -63,11 +63,6 @@ export default function Home() {
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
 
-  // All hook calls must be before any conditional returns
-  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
-  const { markAllRead, isMarkingAll } = useMarkAllRead();
-  const recentBooks = useMostRecentBooks(allTimeLogs);
-
   const trackerStats = useMemo(() => {
     if (!allTimeLogs.length) {
       return {
@@ -125,24 +120,21 @@ export default function Home() {
   const now = new Date();
 
   // Year calculations
-  const yearStart = useMemo(() => `${currentYear}-01-01`, [currentYear]);
-  const yearEnd = useMemo(() => `${currentYear}-12-31`, [currentYear]);
-  const yearLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd), [allTimeLogs, yearStart, yearEnd]);
+  const yearStart = `${currentYear}-01-01`;
+  const yearEnd = `${currentYear}-12-31`;
+  const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
   const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
 
   // Week calculations (last 7 days)
-  const weekAgo = useMemo(() => {
-    const date = new Date(now);
-    date.setDate(date.getDate() - 7);
-    return date;
-  }, [now]);
-  const weekStart = useMemo(() => getDateKey(weekAgo), [weekAgo]);
-  const weekLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= weekStart), [allTimeLogs, weekStart]);
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekStart = getDateKey(weekAgo);
+  const weekLogs = allTimeLogs.filter((log) => log.dateKey >= weekStart);
   const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
 
   // Month calculations (current month)
-  const monthStart = useMemo(() => `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`, [currentYear, now]);
-  const monthLogs = useMemo(() => allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd), [allTimeLogs, monthStart, yearEnd]);
+  const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+  const monthLogs = allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd);
   const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
 
   // Phase calculations
@@ -150,10 +142,15 @@ export default function Home() {
   const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
 
+  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
+  const { markAllRead, isMarkingAll } = useMarkAllRead();
+
+  const recentBooks = useMostRecentBooks(allTimeLogs);
+
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
 
-  // Calculate achievements (must be before conditional returns)
+  // Calculate achievements
   const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
   const daysWithReadingDistinct = uniqueDays.size;
