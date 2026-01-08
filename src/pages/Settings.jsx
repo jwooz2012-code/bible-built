@@ -142,7 +142,11 @@ export default function Settings() {
                       <p className="text-xs text-muted-foreground">Arcade-style visuals</p>
                     </div>
                   </div>
-                  <Switch checked={energyMode} onCheckedChange={setEnergyMode} />
+                  <Switch 
+                    checked={energyMode} 
+                    onCheckedChange={setEnergyMode}
+                    className={energyMode && energyPalette === 'petal' ? 'ring-2 ring-foreground/40' : ''}
+                  />
                 </div>
 
                 {energyMode && (
