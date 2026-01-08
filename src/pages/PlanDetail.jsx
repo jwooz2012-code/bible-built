@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Shield, BookOpen, ScrollText, Heart } from 'lucide-react';
+import { ArrowLeft, Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
@@ -74,7 +74,7 @@ export default function PlanDetail() {
   const isChronoGospels = preset.id === 'chronological_gospels';
   const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels;
 
-  const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : isDavid ? Shield : isHeartOfGod ? BookOpen : isChronoBible ? ScrollText : isChronoGospels ? Heart : null;
+  const Icon = isLeadership ? Shield : isWisdom ? Lamp : isMotherhood ? Leaf : isGodlyMan ? Shield : isPurpose ? Compass : isDavid ? Crown : isHeartOfGod ? Heart : isChronoBible ? Hourglass : isChronoGospels ? Scroll : null;
   
   const accentColor = isLeadership 
     ? 'rgba(59, 130, 246, 0.1)' 

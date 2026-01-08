@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Shield, BookOpen, ScrollText, Heart } from 'lucide-react';
+import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll } from 'lucide-react';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -305,7 +305,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const isChronoGospels = preset.id === 'chronological_gospels';
                 const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels;
                 
-                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : isDavid ? Shield : isHeartOfGod ? BookOpen : isChronoBible ? ScrollText : isChronoGospels ? Heart : null;
+                const Icon = isLeadership ? Shield : isWisdom ? Lamp : isMotherhood ? Leaf : isGodlyMan ? Shield : isPurpose ? Compass : isDavid ? Crown : isHeartOfGod ? Heart : isChronoBible ? Hourglass : isChronoGospels ? Scroll : null;
                 const accentColor = isLeadership 
                   ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
                   : isWisdom 
