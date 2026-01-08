@@ -41,7 +41,7 @@ export const PLAN_PRESETS = [
     chaptersPerDay: 5,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 39), // ~40 days
+      endDate: addDaysKey(startDate, 15), // 16 days = 80 chapters (78 chapters in plan)
     }),
   },
   {
@@ -54,7 +54,7 @@ export const PLAN_PRESETS = [
     chaptersPerDay: 3,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 29), // ~30 days
+      endDate: addDaysKey(startDate, 28), // 29 days = 87 chapters (85 chapters in plan)
     }),
   },
   {
@@ -129,10 +129,10 @@ export const PLAN_PRESETS = [
     description: 'A full-Bible reading plan that follows the historical timeline of Scripture. This plan weaves narrative, poetry, and prophecy together as events unfold—helping you see God\'s redemptive work clearly from Genesis to Revelation.',
     shortHook: 'Read the entire Bible in the order events actually happened.',
     scope: 'CHRONOLOGICAL_BIBLE',
-    chaptersPerDay: 3.5,
+    chaptersPerDay: 4,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 364), // 365 days
+      endDate: addDaysKey(startDate, 364), // 365 days × 4 ch/day = 1460 chapters
     }),
   },
   {
@@ -142,10 +142,10 @@ export const PLAN_PRESETS = [
     description: 'A chronological harmony of the four Gospels. This plan arranges Matthew, Mark, Luke, and John into a single, unified timeline—allowing you to follow the life, ministry, death, and resurrection of Jesus step by step.',
     shortHook: 'Follow the life of Jesus as the Gospel accounts unfold together.',
     scope: 'CHRONOLOGICAL_GOSPELS',
-    chaptersPerDay: 2.5,
+    chaptersPerDay: 3,
     getDates: (startDate) => ({
       startDate,
-      endDate: addDaysKey(startDate, 49), // 50 days
+      endDate: addDaysKey(startDate, 44), // 45 days × 3 ch/day = 135 chapters
     }),
   },
 ];
