@@ -127,7 +127,7 @@ export const PLAN_PRESETS = [
     name: 'Chronological Bible',
     subtitle: 'Read Scripture in the order it happened.',
     description: 'A full-Bible reading plan that follows the historical timeline of Scripture. This plan weaves narrative, poetry, and prophecy together as events unfold—helping you see God\'s redemptive work clearly from Genesis to Revelation.',
-    shortHook: 'Follows Scripture in the order events happened.',
+    shortHook: 'Read the entire Bible in the order events actually happened.',
     scope: 'CHRONOLOGICAL_BIBLE',
     chaptersPerDay: 3.5,
     getDates: (startDate) => ({
@@ -140,7 +140,7 @@ export const PLAN_PRESETS = [
     name: 'Chronological Gospels',
     subtitle: 'Walk through the life of Christ as it unfolded.',
     description: 'A chronological harmony of the four Gospels. This plan arranges Matthew, Mark, Luke, and John into a single, unified timeline—allowing you to follow the life, ministry, death, and resurrection of Jesus step by step.',
-    shortHook: 'The life of Christ told as one unified account.',
+    shortHook: 'Follow the life of Jesus as the Gospel accounts unfold together.',
     scope: 'CHRONOLOGICAL_GOSPELS',
     chaptersPerDay: 2.5,
     getDates: (startDate) => ({

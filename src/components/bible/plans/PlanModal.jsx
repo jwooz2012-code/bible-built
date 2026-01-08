@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Shield, BookOpen } from 'lucide-react';
+import { Shield, BookOpen, ScrollText, Heart } from 'lucide-react';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -301,9 +301,11 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const isPurpose = preset.id === 'live_with_purpose';
                 const isDavid = preset.id === 'know_king_david';
                 const isHeartOfGod = preset.id === 'heart_of_god';
-                const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod;
+                const isChronoBible = preset.id === 'chronological_bible';
+                const isChronoGospels = preset.id === 'chronological_gospels';
+                const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels;
                 
-                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : isDavid ? Shield : isHeartOfGod ? BookOpen : null;
+                const Icon = isLeadership ? Shield : isWisdom ? BookOpen : isMotherhood ? BookOpen : isGodlyMan ? Shield : isPurpose ? BookOpen : isDavid ? Shield : isHeartOfGod ? BookOpen : isChronoBible ? ScrollText : isChronoGospels ? Heart : null;
                 const accentColor = isLeadership 
                   ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
                   : isWisdom 
@@ -318,6 +320,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                   ? 'rgba(14, 165, 233, 0.08)' // cyan tint for david
                   : isHeartOfGod
                   ? 'rgba(244, 63, 94, 0.08)' // rose tint for heart of god
+                  : isChronoBible
+                  ? 'rgba(168, 85, 247, 0.08)' // purple tint for chronological bible
+                  : isChronoGospels
+                  ? 'rgba(239, 68, 68, 0.08)' // red tint for chronological gospels
                   : null;
                 
                 return (
@@ -345,7 +351,11 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                             ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
                             : isDavid
                             ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
-                            : 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                            : isHeartOfGod
+                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
+                            : isChronoBible
+                            ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                            : 'bg-red-500/10 text-red-600 dark:text-red-400'
                         }`}>
                           <Icon className="w-5 h-5" strokeWidth={2.5} />
                         </div>
@@ -365,7 +375,11 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                                 ? 'bg-orange-500/15 text-orange-700 dark:text-orange-300'
                                 : isDavid
                                 ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300'
-                                : 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
+                                : isHeartOfGod
+                                ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
+                                : isChronoBible
+                                ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+                                : 'bg-red-500/15 text-red-700 dark:text-red-300'
                             }`}>
                               {preset.chaptersPerDay} ch/day
                             </div>
