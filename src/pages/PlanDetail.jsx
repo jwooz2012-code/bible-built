@@ -20,8 +20,7 @@ export default function PlanDetail() {
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
 
   const planId = new URLSearchParams(location.search).get('id');
-  // Check route state first for instant load, then lookup by ID
-  const preset = location.state?.preset || PLAN_PRESETS.find((p) => p.id === planId);
+  const preset = PLAN_PRESETS.find((p) => p.id === planId);
 
   useEffect(() => {
     let mounted = true;

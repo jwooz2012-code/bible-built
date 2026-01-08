@@ -331,7 +331,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     key={preset.id}
                     onClick={() => {
                       onClose();
-                      navigate(createPageUrl('PlanDetail') + `?id=${preset.id}`, { state: { preset } });
+                      navigate(createPageUrl('PlanDetail') + `?id=${preset.id}`);
                     }}
                     className="text-left p-3.5 rounded-lg border border-border bg-card hover:bg-accent transition-all group"
                     style={accentColor ? { backgroundColor: accentColor } : undefined}
