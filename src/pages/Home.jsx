@@ -29,6 +29,7 @@ import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
+import { runValidation } from '@/components/bible/plans/validatePlans';
 
 export default function Home() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
@@ -55,6 +56,11 @@ export default function Home() {
     }).
     catch(() => {if (mounted) setIsLoading(false);});
     return () => {mounted = false;};
+  }, []);
+
+  // DEV: Validate plans on mount
+  useEffect(() => {
+    runValidation();
   }, []);
 
   const userId = user?.id;
