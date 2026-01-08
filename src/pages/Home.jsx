@@ -63,6 +63,11 @@ export default function Home() {
   const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
 
+  // All hook calls must be before any conditional returns
+  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
+  const { markAllRead, isMarkingAll } = useMarkAllRead();
+  const recentBooks = useMostRecentBooks(allTimeLogs);
+
   const trackerStats = useMemo(() => {
     if (!allTimeLogs.length) {
       return {
@@ -145,15 +150,10 @@ export default function Home() {
   const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
 
-  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
-  const { markAllRead, isMarkingAll } = useMarkAllRead();
-
-  const recentBooks = useMostRecentBooks(allTimeLogs);
-
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
 
-  // Calculate achievements
+  // Calculate achievements (must be before conditional returns)
   const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
   const daysWithReadingDistinct = uniqueDays.size;
