@@ -122,4 +122,17 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 20), // 21 days
     }),
   },
+  {
+    id: 'chronological_bible',
+    name: 'Chronological Bible',
+    subtitle: 'Read Scripture in the order it happened.',
+    description: 'A full-Bible reading plan that follows the historical timeline of Scripture. This plan weaves narrative, poetry, and prophecy together as events unfold—helping you see God\'s redemptive work clearly from Genesis to Revelation.',
+    shortHook: 'Follows Scripture in the order events happened.',
+    scope: 'CHRONOLOGICAL_BIBLE',
+    chaptersPerDay: 3.5,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 364), // 365 days
+    }),
+  },
 ];
