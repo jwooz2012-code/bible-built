@@ -66,7 +66,7 @@ export default function Home() {
   const userId = user?.id;
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
-  const { data: allTimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+  const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
 
   const trackerStats = useMemo(() => {
@@ -336,7 +336,13 @@ export default function Home() {
               className="mb-5">
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
-                <span className="text-xs text-muted-foreground font-medium">• Year: {yearChaptersRead}</span>
+                {isLoadingLogs ? (
+                  <Skeleton className="h-4 w-40" />
+                ) : (
+                  <span className="text-xs text-muted-foreground font-medium">
+                    • Chapters read this year: {yearChaptersRead}
+                  </span>
+                )}
               </div>
               
               {energyMode &&
