@@ -334,7 +334,10 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mb-5">
-              <h2 className="text-lg font-semibold text-foreground mb-3">Your Progress</h2>
+              <div className="flex items-center gap-2 mb-3">
+                <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
+                <span className="text-xs text-muted-foreground font-medium">• Year: {yearChaptersRead}</span>
+              </div>
               
               {energyMode &&
                 <div className="flex items-center justify-center mb-4">
