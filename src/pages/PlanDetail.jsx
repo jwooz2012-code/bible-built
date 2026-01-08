@@ -20,6 +20,8 @@ export default function PlanDetail() {
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
 
   const planId = new URLSearchParams(location.search).get('id');
+  
+  // Find preset by ID - this lookup must happen immediately and synchronously
   const preset = PLAN_PRESETS.find((p) => p.id === planId);
 
   useEffect(() => {
