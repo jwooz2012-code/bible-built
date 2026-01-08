@@ -205,7 +205,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
           onClose();
         },
         onError: (error) => {
-          toast.error(error?.message || 'Failed to save plan');
+          const msg = error?.message || error?.response?.data?.message || error?.data?.message || (typeof error === 'string' ? error : 'Failed to save plan');
+          toast.error(msg);
         },
       }
     );

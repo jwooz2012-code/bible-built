@@ -173,12 +173,13 @@ export default function PlanDetail() {
         chaptersPerDay: preset.chaptersPerDay,
       };
 
-      await upsertPlan(planData);
+      await upsertPlan({ existingPlan: null, planData });
       toast.success('Plan started!');
       navigate('/');
     } catch (error) {
-      console.error('Start plan failed', error);
-      toast.error(error?.message ?? error?.response?.data?.message ?? 'Failed to start plan');
+      console.log('Start plan error', error);
+      const msg = error?.message || error?.response?.data?.message || error?.data?.message || (typeof error === 'string' ? error : 'Failed to start plan');
+      toast.error(msg);
     }
   };
 
