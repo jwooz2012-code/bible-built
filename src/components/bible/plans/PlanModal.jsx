@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll } from 'lucide-react';
+import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight } from 'lucide-react';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -303,28 +303,40 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const isHeartOfGod = preset.id === 'heart_of_god';
                 const isChronoBible = preset.id === 'chronological_bible';
                 const isChronoGospels = preset.id === 'chronological_gospels';
-                const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels;
                 
                 const Icon = isLeadership ? Shield : isWisdom ? Lamp : isMotherhood ? Leaf : isGodlyMan ? Shield : isPurpose ? Compass : isDavid ? Crown : isHeartOfGod ? Heart : isChronoBible ? Hourglass : isChronoGospels ? Scroll : null;
-                const accentColor = isLeadership 
-                  ? 'rgba(59, 130, 246, 0.1)' // blue tint for leadership
-                  : isWisdom 
-                  ? 'rgba(139, 92, 246, 0.08)' // purple tint for wisdom
+                
+                const iconBgClass = isLeadership 
+                  ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
+                  : isWisdom
+                  ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
                   : isMotherhood
-                  ? 'rgba(236, 72, 153, 0.08)' // pink tint for motherhood
+                  ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
                   : isGodlyMan
-                  ? 'rgba(34, 197, 94, 0.08)' // green tint for godly man
+                  ? 'bg-green-500/10 text-green-600 dark:text-green-400'
                   : isPurpose
-                  ? 'rgba(249, 115, 22, 0.08)' // orange tint for purpose
+                  ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
                   : isDavid
-                  ? 'rgba(14, 165, 233, 0.08)' // cyan tint for david
+                  ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
                   : isHeartOfGod
-                  ? 'rgba(244, 63, 94, 0.08)' // rose tint for heart of god
+                  ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
                   : isChronoBible
-                  ? 'rgba(168, 85, 247, 0.08)' // purple tint for chronological bible
-                  : isChronoGospels
-                  ? 'rgba(239, 68, 68, 0.08)' // red tint for chronological gospels
-                  : null;
+                  ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+                  : 'bg-red-500/10 text-red-600 dark:text-red-400';
+
+                // Calculate duration
+                const dates = preset.getDates(todayKey);
+                const start = new Date(dates.startDate);
+                const end = new Date(dates.endDate);
+                const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+                // Get Day 1 preview
+                const day1Assignment = getAssignmentForDate({ 
+                  plan: { ...dates, scope: preset.scope, chaptersPerDay: preset.chaptersPerDay }, 
+                  dateKey: dates.startDate 
+                });
+                const previewChapters = day1Assignment.slice(0, 4);
+                const remainingCount = day1Assignment.length - previewChapters.length;
                 
                 return (
                   <button
@@ -333,75 +345,53 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                       onClose();
                       navigate(createPageUrl('PlanDetail') + `?id=${preset.id}`);
                     }}
-                    className="text-left p-3.5 rounded-lg border border-border bg-card hover:bg-accent transition-all group"
-                    style={accentColor ? { backgroundColor: accentColor } : undefined}
+                    className="text-left px-4 py-4 rounded-2xl border border-border bg-card hover:bg-accent/50 transition-all shadow-sm hover:shadow"
                   >
-                    {isCustomPlan ? (
-                      <div className="flex gap-3">
-                        <div className={`flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center ${
-                          isLeadership 
-                            ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' 
-                            : isWisdom
-                            ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
-                            : isMotherhood
-                            ? 'bg-pink-500/10 text-pink-600 dark:text-pink-400'
-                            : isGodlyMan
-                            ? 'bg-green-500/10 text-green-600 dark:text-green-400'
-                            : isPurpose
-                            ? 'bg-orange-500/10 text-orange-600 dark:text-orange-400'
-                            : isDavid
-                            ? 'bg-cyan-500/10 text-cyan-600 dark:text-cyan-400'
-                            : isHeartOfGod
-                            ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
-                            : isChronoBible
-                            ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
-                            : 'bg-red-500/10 text-red-600 dark:text-red-400'
-                        }`}>
-                          <Icon className="w-5 h-5" strokeWidth={2.5} />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <div className="font-semibold text-sm text-foreground">{preset.name}</div>
-                            <div className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                              isLeadership
-                                ? 'bg-blue-500/15 text-blue-700 dark:text-blue-300'
-                                : isWisdom
-                                ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
-                                : isMotherhood
-                                ? 'bg-pink-500/15 text-pink-700 dark:text-pink-300'
-                                : isGodlyMan
-                                ? 'bg-green-500/15 text-green-700 dark:text-green-300'
-                                : isPurpose
-                                ? 'bg-orange-500/15 text-orange-700 dark:text-orange-300'
-                                : isDavid
-                                ? 'bg-cyan-500/15 text-cyan-700 dark:text-cyan-300'
-                                : isHeartOfGod
-                                ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
-                                : isChronoBible
-                                ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
-                                : 'bg-red-500/15 text-red-700 dark:text-red-300'
-                            }`}>
-                              {preset.chaptersPerDay} ch/day
-                            </div>
-                          </div>
-                          {preset.shortHook && (
-                            <div className="text-xs text-muted-foreground/70 mb-1">
-                              {preset.shortHook}
-                            </div>
-                          )}
-                          {preset.subtitle && (
-                            <div className="text-xs text-muted-foreground/80 font-medium">
-                              {preset.subtitle}
-                            </div>
-                          )}
-                        </div>
+                    <div className="flex items-start gap-3">
+                      <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${iconBgClass}`}>
+                        <Icon className="w-5 h-5" strokeWidth={2.5} />
                       </div>
-                    ) : (
-                      <>
-                        <div className="font-medium text-sm text-foreground">{preset.name}</div>
-                        <div className="text-xs text-muted-foreground mt-0.5">{preset.description}</div>
-                      </>
-                    )}
+                      
+                      <div className="flex-1 min-w-0 space-y-2">
+                        {/* Title */}
+                        <div className="text-base font-semibold text-foreground">{preset.name}</div>
+                        
+                        {/* Helper text */}
+                        {preset.shortHook && (
+                          <div className="text-xs text-muted-foreground truncate">
+                            {preset.shortHook}
+                          </div>
+                        )}
+                        
+                        {/* Stats */}
+                        <div className="flex items-center gap-2">
+                          <div className="px-2 py-1 rounded-md bg-muted/50 text-[10px] font-medium text-muted-foreground">
+                            {preset.chaptersPerDay} / day
+                          </div>
+                          <div className="px-2 py-1 rounded-md bg-muted/50 text-[10px] font-medium text-muted-foreground">
+                            {durationDays} days
+                          </div>
+                        </div>
+                        
+                        {/* Preview */}
+                        {previewChapters.length > 0 && (
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            {previewChapters.map((ch, idx) => (
+                              <div key={idx} className="px-1.5 py-0.5 rounded bg-muted/30 text-[9px] text-muted-foreground/70">
+                                {ch.book} {ch.chapter}
+                              </div>
+                            ))}
+                            {remainingCount > 0 && (
+                              <div className="px-1.5 py-0.5 text-[9px] text-muted-foreground/60">
+                                +{remainingCount}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/30 flex-shrink-0 mt-0.5" />
+                    </div>
                   </button>
                 );
               })}
