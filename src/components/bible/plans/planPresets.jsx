@@ -135,4 +135,17 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 364), // 365 days
     }),
   },
+  {
+    id: 'chronological_gospels',
+    name: 'Chronological Gospels',
+    subtitle: 'Walk through the life of Christ as it unfolded.',
+    description: 'A chronological harmony of the four Gospels. This plan arranges Matthew, Mark, Luke, and John into a single, unified timeline—allowing you to follow the life, ministry, death, and resurrection of Jesus step by step.',
+    shortHook: 'The life of Christ told as one unified account.',
+    scope: 'CHRONOLOGICAL_GOSPELS',
+    chaptersPerDay: 2.5,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 49), // 50 days
+    }),
+  },
 ];

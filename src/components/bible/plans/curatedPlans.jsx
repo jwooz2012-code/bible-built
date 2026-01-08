@@ -790,4 +790,63 @@ export const CURATED_PLANS = {
     { bookName: 'Revelation', chapter: 19 }, { bookName: 'Revelation', chapter: 20 }, { bookName: 'Revelation', chapter: 21 },
     { bookName: 'Revelation', chapter: 22 },
   ],
+  CHRONOLOGICAL_GOSPELS: [
+    // Birth and Early Years
+    { bookName: 'Luke', chapter: 1 }, { bookName: 'Matthew', chapter: 1 },
+    { bookName: 'Luke', chapter: 2 }, { bookName: 'Matthew', chapter: 2 },
+    // Preparation and Beginning of Ministry
+    { bookName: 'Matthew', chapter: 3 }, { bookName: 'Mark', chapter: 1 }, { bookName: 'Luke', chapter: 3 },
+    { bookName: 'Matthew', chapter: 4 }, { bookName: 'Luke', chapter: 4 },
+    { bookName: 'John', chapter: 1 }, { bookName: 'John', chapter: 2 },
+    // Early Galilean Ministry
+    { bookName: 'John', chapter: 3 }, { bookName: 'John', chapter: 4 },
+    { bookName: 'Mark', chapter: 1 }, { bookName: 'Luke', chapter: 4 }, { bookName: 'Luke', chapter: 5 },
+    { bookName: 'Mark', chapter: 2 }, { bookName: 'Matthew', chapter: 9 },
+    { bookName: 'John', chapter: 5 },
+    // Sermon on the Mount and Teachings
+    { bookName: 'Matthew', chapter: 5 }, { bookName: 'Matthew', chapter: 6 }, { bookName: 'Matthew', chapter: 7 },
+    { bookName: 'Luke', chapter: 6 }, { bookName: 'Luke', chapter: 7 },
+    { bookName: 'Matthew', chapter: 8 },
+    // Growing Ministry and Miracles
+    { bookName: 'Mark', chapter: 3 }, { bookName: 'Matthew', chapter: 12 },
+    { bookName: 'Mark', chapter: 4 }, { bookName: 'Matthew', chapter: 13 }, { bookName: 'Luke', chapter: 8 },
+    { bookName: 'Mark', chapter: 5 }, { bookName: 'Matthew', chapter: 9 },
+    { bookName: 'Matthew', chapter: 10 }, { bookName: 'Mark', chapter: 6 },
+    { bookName: 'Matthew', chapter: 14 }, { bookName: 'John', chapter: 6 },
+    // Conflicts and Withdrawal
+    { bookName: 'Matthew', chapter: 15 }, { bookName: 'Mark', chapter: 7 },
+    { bookName: 'Matthew', chapter: 16 }, { bookName: 'Mark', chapter: 8 },
+    { bookName: 'Matthew', chapter: 17 }, { bookName: 'Mark', chapter: 9 }, { bookName: 'Luke', chapter: 9 },
+    { bookName: 'Matthew', chapter: 18 },
+    // Journey to Jerusalem
+    { bookName: 'John', chapter: 7 }, { bookName: 'John', chapter: 8 },
+    { bookName: 'Luke', chapter: 10 }, { bookName: 'Luke', chapter: 11 },
+    { bookName: 'Luke', chapter: 12 }, { bookName: 'Luke', chapter: 13 },
+    { bookName: 'John', chapter: 9 }, { bookName: 'John', chapter: 10 },
+    { bookName: 'Luke', chapter: 14 }, { bookName: 'Luke', chapter: 15 },
+    { bookName: 'Luke', chapter: 16 }, { bookName: 'Luke', chapter: 17 },
+    { bookName: 'John', chapter: 11 },
+    // Final Journey and Entry
+    { bookName: 'Luke', chapter: 18 }, { bookName: 'Matthew', chapter: 19 }, { bookName: 'Mark', chapter: 10 },
+    { bookName: 'Matthew', chapter: 20 }, { bookName: 'Luke', chapter: 19 },
+    { bookName: 'Mark', chapter: 11 }, { bookName: 'Matthew', chapter: 21 },
+    { bookName: 'John', chapter: 12 },
+    // Final Week - Teaching in Jerusalem
+    { bookName: 'Matthew', chapter: 22 }, { bookName: 'Mark', chapter: 12 }, { bookName: 'Luke', chapter: 20 },
+    { bookName: 'Matthew', chapter: 23 }, { bookName: 'Luke', chapter: 21 },
+    { bookName: 'Mark', chapter: 13 }, { bookName: 'Matthew', chapter: 24 }, { bookName: 'Matthew', chapter: 25 },
+    // Last Supper and Upper Room
+    { bookName: 'Matthew', chapter: 26 }, { bookName: 'Mark', chapter: 14 }, { bookName: 'Luke', chapter: 22 },
+    { bookName: 'John', chapter: 13 }, { bookName: 'John', chapter: 14 },
+    { bookName: 'John', chapter: 15 }, { bookName: 'John', chapter: 16 }, { bookName: 'John', chapter: 17 },
+    // Arrest and Trials
+    { bookName: 'Matthew', chapter: 26 }, { bookName: 'Mark', chapter: 14 }, { bookName: 'Luke', chapter: 22 },
+    { bookName: 'John', chapter: 18 },
+    // Crucifixion
+    { bookName: 'Matthew', chapter: 27 }, { bookName: 'Mark', chapter: 15 },
+    { bookName: 'Luke', chapter: 23 }, { bookName: 'John', chapter: 19 },
+    // Resurrection and Appearances
+    { bookName: 'Matthew', chapter: 28 }, { bookName: 'Mark', chapter: 16 },
+    { bookName: 'Luke', chapter: 24 }, { bookName: 'John', chapter: 20 }, { bookName: 'John', chapter: 21 },
+  ],
 };
