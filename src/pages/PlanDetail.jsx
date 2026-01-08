@@ -151,7 +151,9 @@ export default function PlanDetail() {
       const endIdx = startIdx + preset.chaptersPerDay;
       for (let i = startIdx; i < endIdx && i < curatedChapters.length; i++) {
         const chap = curatedChapters[i];
-        chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
+        if (chap && chap.bookName && chap.chapter) {
+          chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
+        }
       }
     }
 
