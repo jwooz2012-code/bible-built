@@ -404,9 +404,24 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
             <div className="space-y-3">
               <div>
                 <Label htmlFor="scope" className="text-xs">Scope</Label>
-                <Select value={scope} onValueChange={setScope}>
+                <Select value={scope} onValueChange={(val) => setScope(String(val))}>
                   <SelectTrigger id="scope" className="mt-1">
-                    <SelectValue />
+                    <SelectValue placeholder="Select scope">
+                      {scope === 'BIBLE' && 'Whole Bible'}
+                      {scope === 'OT' && 'Old Testament'}
+                      {scope === 'NT' && 'New Testament'}
+                      {scope === 'PSALMS' && 'Psalms'}
+                      {scope === 'LEADERSHIP_INTENSIVE' && 'Leadership Intensive'}
+                      {scope === 'WISDOM_PLUNGE' && 'Wisdom Plunge'}
+                      {scope === 'INTENTIONAL_MOTHERHOOD' && 'The Intentional Mom'}
+                      {scope === 'GODLY_MAN' && 'The Godly Man'}
+                      {scope === 'LIVE_WITH_PURPOSE' && 'Live With Purpose'}
+                      {scope === 'KNOW_KING_DAVID' && 'Know King David'}
+                      {scope === 'HEART_OF_GOD' && 'Heart of God'}
+                      {scope === 'CHRONOLOGICAL_BIBLE' && 'Chronological Bible'}
+                      {scope === 'CHRONOLOGICAL_GOSPELS' && 'Chronological Gospels'}
+                      {scope === 'NONE' && 'No Plan'}
+                    </SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="BIBLE">Whole Bible</SelectItem>
@@ -420,6 +435,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     <SelectItem value="LIVE_WITH_PURPOSE">Live With Purpose</SelectItem>
                     <SelectItem value="KNOW_KING_DAVID">Know King David</SelectItem>
                     <SelectItem value="HEART_OF_GOD">Heart of God</SelectItem>
+                    <SelectItem value="CHRONOLOGICAL_BIBLE">Chronological Bible</SelectItem>
+                    <SelectItem value="CHRONOLOGICAL_GOSPELS">Chronological Gospels</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
