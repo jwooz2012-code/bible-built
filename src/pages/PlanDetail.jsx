@@ -20,8 +20,6 @@ export default function PlanDetail() {
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
 
   const planId = new URLSearchParams(location.search).get('id');
-  
-  // Find preset by ID - this happens synchronously
   const preset = PLAN_PRESETS.find((p) => p.id === planId);
 
   useEffect(() => {
@@ -41,7 +39,6 @@ export default function PlanDetail() {
     };
   }, []);
 
-  // Show loading only while fetching user
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -50,20 +47,18 @@ export default function PlanDetail() {
     );
   }
 
-  // Show error if user not found
-  if (!user) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">User not found</p>
-      </div>
-    );
-  }
-
-  // Show error if preset not found
   if (!preset) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <p className="text-muted-foreground">Plan not found</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading user...</p>
       </div>
     );
   }
