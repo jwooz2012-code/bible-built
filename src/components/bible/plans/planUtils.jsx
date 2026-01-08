@@ -2,6 +2,16 @@ import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 
 /**
+ * Normalize a chapter object to consistent shape
+ */
+function normalizeChapter(c) {
+  if (!c) return null;
+  const bookName = c.bookName ?? c.book ?? c.book_title ?? "";
+  const chapter = Number(c.chapter ?? c.chap ?? 0);
+  return bookName && chapter ? { bookName, chapter } : null;
+}
+
+/**
  * Build the full list of chapters for a given scope
  * Returns: [{ bookIndex, book, chapter, chapterId, testament }]
  */
@@ -64,10 +74,12 @@ export function buildScopeChapters(scope) {
         });
       }
     }
-  } else if (scope === 'LEADERSHIP_INTENSIVE' || scope === 'WISDOM_PLUNGE') {
-    // Curated plans
+  } else {
+    // Try curated plans for any other scope
     const curatedList = CURATED_PLANS[scope] || [];
-    curatedList.forEach((entry) => {
+    const normalized = curatedList.map(normalizeChapter).filter(Boolean);
+    
+    normalized.forEach((entry) => {
       const book = BIBLE_BOOKS.find((b) => b.name === entry.bookName);
       if (book) {
         chapters.push({
@@ -99,14 +111,45 @@ export function getAssignmentForDate({ plan, dateKey }) {
 
   const scopeChapters = buildScopeChapters(plan.scope);
   
-  const startDate = new Date(plan.startDate);
-  const targetDate = new Date(dateKey);
-  const dayIndex = Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24));
+  // Safe date parsing - treat as UTC dates to avoid timezone issues
+  const startDate = new Date(plan.startDate + 'T00:00:00');
+  const targetDate = new Date(dateKey + 'T00:00:00');
   
-  const start = dayIndex * plan.chaptersPerDay;
-  const end = start + plan.chaptersPerDay;
+  // Calculate day difference using calendar days
+  const dayIndex = Math.max(0, Math.floor((targetDate - startDate) / (1000 * 60 * 60 * 24)));
   
-  return scopeChapters.slice(start, end);
+  const chaptersPerDay = Number(plan.chaptersPerDay || 0);
+  const start = dayIndex * chaptersPerDay;
+  const end = start + chaptersPerDay;
+  
+  const result = scopeChapters.slice(start, end);
+  
+  // Debug logging (temporary)
+  console.log("TODAY_ASSIGNMENT_DEBUG", {
+    todayKey: dateKey,
+    plan: { 
+      scope: plan?.scope, 
+      startDate: plan?.startDate, 
+      endDate: plan?.endDate, 
+      chaptersPerDay: plan?.chaptersPerDay 
+    },
+    scopeChaptersLen: scopeChapters.length,
+    dayIndex,
+    start,
+    end,
+    resultLen: result.length
+  });
+  
+  if (scopeChapters.length > 0 && result.length === 0) {
+    console.warn("TODAY_ASSIGNMENT_EMPTY_SLICE", { 
+      dayIndex, 
+      start, 
+      end, 
+      scopeChaptersLen: scopeChapters.length 
+    });
+  }
+  
+  return result;
 }
 
 /**
