@@ -21,7 +21,7 @@ export default function PlanDetail() {
 
   const planId = new URLSearchParams(location.search).get('id');
   
-  // Find preset by ID - this lookup must happen immediately and synchronously
+  // Find preset by ID - this happens synchronously
   const preset = PLAN_PRESETS.find((p) => p.id === planId);
 
   useEffect(() => {
@@ -41,19 +41,29 @@ export default function PlanDetail() {
     };
   }, []);
 
-  // Show loading while fetching user OR if preset not found yet
-  if (isLoading || !user || !preset) {
-    if (!isLoading && !preset) {
-      // Only show "Plan not found" after loading completes and preset truly doesn't exist
-      return (
-        <div className="min-h-screen bg-background flex items-center justify-center">
-          <p className="text-muted-foreground">Plan not found</p>
-        </div>
-      );
-    }
+  // Show loading only while fetching user
+  if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
+      </div>
+    );
+  }
+
+  // Show error if user not found
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">User not found</p>
+      </div>
+    );
+  }
+
+  // Show error if preset not found
+  if (!preset) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Plan not found</p>
       </div>
     );
   }
