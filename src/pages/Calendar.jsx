@@ -404,6 +404,20 @@ export default function Calendar() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <AddChapterActionSheet
+        open={showActionSheet}
+        onOpenChange={setShowActionSheet}
+        onAddOne={() => setShowAddForm(true)}
+        onBulkAdd={() => setShowBulkModal(true)}
+      />
+
+      <BulkAddModal
+        open={showBulkModal}
+        onOpenChange={setShowBulkModal}
+        userId={userId}
+        dateKey={selectedDay}
+      />
     </div>
   );
 }
