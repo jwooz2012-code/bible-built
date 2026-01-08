@@ -370,14 +370,16 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                               {preset.chaptersPerDay} ch/day
                             </div>
                           </div>
+                          {preset.shortHook && (
+                            <div className="text-xs text-muted-foreground/70 mb-1">
+                              {preset.shortHook}
+                            </div>
+                          )}
                           {preset.subtitle && (
-                            <div className="text-xs text-muted-foreground mb-1.5 font-medium">
+                            <div className="text-xs text-muted-foreground/80 font-medium">
                               {preset.subtitle}
                             </div>
                           )}
-                          <div className="text-xs text-muted-foreground/80">
-                            {preset.shortHook || preset.description}
-                          </div>
                         </div>
                       </div>
                     ) : (

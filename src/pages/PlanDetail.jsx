@@ -178,7 +178,10 @@ export default function PlanDetail() {
               </div>
             )}
             <div className="flex-1">
-              <h1 className="text-2xl font-bold text-foreground mb-2">{preset.name}</h1>
+              <h1 className="text-2xl font-bold text-foreground mb-1">{preset.name}</h1>
+              {preset.shortHook && (
+                <p className="text-xs text-muted-foreground/70 mb-2">{preset.shortHook}</p>
+              )}
               {preset.subtitle && (
                 <p className="text-sm text-muted-foreground">{preset.subtitle}</p>
               )}
