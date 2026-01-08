@@ -39,18 +39,19 @@ export default function PlanDetail() {
     };
   }, []);
 
-  if (isLoading || !user) {
+  // Show loading while fetching user OR if preset not found yet
+  if (isLoading || !user || !preset) {
+    if (!isLoading && !preset) {
+      // Only show "Plan not found" after loading completes and preset truly doesn't exist
+      return (
+        <div className="min-h-screen bg-background flex items-center justify-center">
+          <p className="text-muted-foreground">Plan not found</p>
+        </div>
+      );
+    }
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
-      </div>
-    );
-  }
-
-  if (!preset) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Plan not found</p>
       </div>
     );
   }
