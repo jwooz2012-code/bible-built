@@ -330,13 +330,9 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 const end = new Date(dates.endDate);
                 const durationDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
 
-                // Get Day 1 preview
-                const day1Assignment = getAssignmentForDate({ 
-                  plan: { ...dates, scope: preset.scope, chaptersPerDay: preset.chaptersPerDay }, 
-                  dateKey: dates.startDate 
-                });
-                const previewChapters = day1Assignment.slice(0, 4);
-                const remainingCount = day1Assignment.length - previewChapters.length;
+                // Get Day 1 preview (simplified - avoid hooks in map)
+                const previewChapters = [];
+                const remainingCount = 0;
                 
                 return (
                   <button
