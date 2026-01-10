@@ -20,6 +20,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
   const [scope, setScope] = useState('BIBLE');
   const [startDate, setStartDate] = useState(todayKey);
   const [endDate, setEndDate] = useState(todayKey);
+  const [showUpcoming, setShowUpcoming] = useState(false);
 
   const { mutate: upsertPlan, isPending } = useUpsertReadingPlan();
 
@@ -126,6 +127,44 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         HEART_OF_GOD: 'Heart of God'
       }[existingPlan.scope] || existingPlan.scope
     };
+  }, [existingPlan, logs, todayKey]);
+
+  const upcomingReadings = useMemo(() => {
+    if (!existingPlan || existingPlan.scope === 'NONE') return [];
+    if (!existingPlan.startDate || !existingPlan.endDate) return [];
+
+    const completedIds = new Set(logs.map(log => log.chapterId));
+    const upcoming = [];
+
+    for (let i = 0; i < 7; i++) {
+      const dateKey = addDaysKey(todayKey, i);
+      const assigned = getAssignmentForDate({ plan: existingPlan, dateKey });
+      
+      if (assigned.length === 0) continue;
+
+      const completed = assigned.filter(ch => completedIds.has(ch.chapterId)).length;
+      const summary = assigned.reduce((acc, ch) => {
+        if (!acc[ch.book]) acc[ch.book] = [];
+        acc[ch.book].push(ch.chapter);
+        return acc;
+      }, {});
+      
+      const parts = Object.entries(summary).map(([book, chapters]) => {
+        if (chapters.length === 1) return `${book} ${chapters[0]}`;
+        const sorted = chapters.sort((a, b) => a - b);
+        return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+      });
+
+      upcoming.push({
+        dateKey,
+        isToday: i === 0,
+        summary: parts.join(' • '),
+        completed,
+        total: assigned.length
+      });
+    }
+
+    return upcoming;
   }, [existingPlan, logs, todayKey]);
 
   const handlePresetClick = (preset) => {
@@ -299,6 +338,18 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                       You can read ahead at any time — it will count toward upcoming days.
                     </div>
                   </div>
+
+                  {/* View Upcoming Button */}
+                  <div className="border-t border-border pt-4">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => setShowUpcoming(true)}
+                      className="w-full"
+                    >
+                      View Upcoming Readings
+                    </Button>
+                  </div>
                 </>
               )}
 
@@ -308,6 +359,62 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 </div>
               )}
             </div>
+          )}
+
+          {/* Upcoming Readings Modal */}
+          {showUpcoming && (
+            <Sheet open={showUpcoming} onOpenChange={setShowUpcoming}>
+              <SheetContent side="bottom" className="h-[70vh]">
+                <SheetHeader>
+                  <SheetTitle>Upcoming Readings</SheetTitle>
+                  <SheetDescription>
+                    Next 7 days in your current plan
+                  </SheetDescription>
+                </SheetHeader>
+                
+                <div className="mt-6 space-y-3 pb-8 overflow-y-auto max-h-[calc(70vh-120px)]">
+                  {upcomingReadings.map((day, idx) => (
+                    <div 
+                      key={day.dateKey}
+                      className={cn(
+                        "p-4 rounded-lg border",
+                        day.isToday 
+                          ? "border-primary bg-primary/5" 
+                          : "border-border bg-card"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-semibold text-foreground">
+                          {day.isToday ? 'Today' : formatDateKey(day.dateKey)}
+                        </div>
+                        {day.completed === day.total && day.total > 0 && (
+                          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                            <Check className="w-3 h-3" />
+                            <span>Done</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-base text-foreground mb-1">
+                        {day.summary}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {day.completed}/{day.total} chapters read
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="pt-4 border-t">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => setShowUpcoming(false)}
+                    className="w-full"
+                  >
+                    Close
+                  </Button>
+                </div>
+              </SheetContent>
+            </Sheet>
           )}
 
           {/* Options */}
