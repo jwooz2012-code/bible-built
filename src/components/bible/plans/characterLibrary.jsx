@@ -725,29 +725,30 @@ export const CHARACTER_LIBRARY = {
   Ruth: {
     iconKey: 'wheat',
     accentColorKey: 'amber',
-    hook: 'Faithful in the ordinary.',
-    description: "Walk with Ruth through loyalty, humility, and quiet faithfulness as God works through everyday obedience to accomplish His redemptive purposes.",
+    hook: 'Faithfulness in obscurity, redemption through obedience.',
+    description: "Walk through Ruth's quiet faith, God's unseen providence, and the redemptive line leading to Christ. This study highlights loyalty, humility, and God's sovereign work through ordinary faithfulness.",
     sections: [
       {
-        title: 'Formation & Loss',
+        title: 'Loss & Beginning',
         chapters: [
+          { bookName: 'Judges', chapter: 21 },
           { bookName: 'Ruth', chapter: 1 },
         ]
       },
       {
-        title: 'Defining Choice of Faith',
+        title: 'Faithfulness in the Harvest',
         chapters: [
           { bookName: 'Ruth', chapter: 2 },
         ]
       },
       {
-        title: "God's Provision",
+        title: "Seeking Redemption",
         chapters: [
           { bookName: 'Ruth', chapter: 3 },
         ]
       },
       {
-        title: 'Redemption & Restoration',
+        title: 'Restoration & Belonging',
         chapters: [
           { bookName: 'Ruth', chapter: 4 },
         ]
@@ -756,6 +757,8 @@ export const CHARACTER_LIBRARY = {
         title: 'Legacy & Remembrance',
         chapters: [
           { bookName: 'Matthew', chapter: 1 },
+          { bookName: '1 Samuel', chapter: 16 },
+          { bookName: 'Luke', chapter: 3 },
         ]
       }
     ]
