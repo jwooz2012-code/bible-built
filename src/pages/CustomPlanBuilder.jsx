@@ -323,9 +323,27 @@ export default function CustomPlanBuilder() {
           </TabsContent>
 
           <TabsContent value="people" className="space-y-4">
-            <PeopleTab selectedPerson={selectedPerson} onPersonChange={setSelectedPerson} />
+            <PeopleTab 
+              onPersonClick={(characterKey) => {
+                setSelectedCharacterForDetail(characterKey);
+                setCharacterDetailOpen(true);
+              }}
+            />
           </TabsContent>
         </Tabs>
+
+        {/* Character Detail Card */}
+        <CharacterDetailCard
+          open={characterDetailOpen}
+          onClose={() => {
+            setCharacterDetailOpen(false);
+            setSelectedCharacterForDetail(null);
+          }}
+          characterKey={selectedCharacterForDetail}
+          onConfirm={(characterKey) => {
+            setSelectedPerson(characterKey);
+          }}
+        />
 
         {/* Timeframe */}
         <div className="mt-6 space-y-4">
