@@ -84,37 +84,43 @@ export default function PlansPage() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <PageHeader 
-        title="Set Reading" 
-        subtitle="Choose your reading path"
-      />
+      <div className="px-6 pt-8 pb-6">
+        <h1 className="text-3xl font-bold text-foreground mb-1">Choose Your Reading Path</h1>
+        <p className="text-sm text-muted-foreground">Pick the approach that fits this season.</p>
+      </div>
 
-      <div className="max-w-lg mx-auto px-4 space-y-4">
-        {/* 1) CURRENT PLAN */}
-        <div className="bg-card border border-border rounded-2xl p-5">
-          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">Current Plan</div>
-          
+      <div className="max-w-lg mx-auto px-6 space-y-8">
+        {/* CURRENT PLAN (PRIMARY ANCHOR) */}
+        <div className="bg-gradient-to-br from-card to-accent/5 border-2 border-border rounded-3xl p-6 shadow-sm">
           {hasActivePlan ? (
             <>
-              <div className="text-lg font-bold text-foreground mb-2">{scopeName}</div>
-              {todayAssignment.length > 0 && (
-                <div className="text-xs text-muted-foreground mb-3">
+              <div className="text-2xl font-bold text-foreground mb-1">{scopeName}</div>
+              {todayAssignment.length > 0 ? (
+                <div className="text-sm text-muted-foreground mb-5">
                   Today: {todayParts.join(' • ')}
+                </div>
+              ) : (
+                <div className="text-sm text-muted-foreground mb-5">
+                  No reading assigned for today
                 </div>
               )}
               <Button 
-                className="w-full" 
+                size="lg"
+                className="w-full text-base h-12" 
                 onClick={() => navigate(createPageUrl('Home'))}
               >
-                Continue Current Plan
+                Continue Today
               </Button>
             </>
           ) : (
             <>
-              <div className="text-sm text-muted-foreground mb-3">No plan selected</div>
+              <div className="text-xl font-semibold text-muted-foreground mb-1">No Active Plan</div>
+              <div className="text-sm text-muted-foreground/80 mb-5">
+                Start a new plan to begin tracking your reading
+              </div>
               <Button 
-                className="w-full" 
-                variant="outline"
+                size="lg"
+                className="w-full text-base h-12" 
                 onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
               >
                 Choose a Plan
@@ -123,43 +129,52 @@ export default function PlansPage() {
           )}
         </div>
 
-        {/* 2) CUSTOM PLAN BUILDER */}
-        <button
-          onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
-          className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:bg-accent/50 transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
-              <Compass className="w-6 h-6 text-orange-600 dark:text-orange-400" strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-base font-bold text-foreground mb-0.5">Custom Plan Builder</div>
-              <div className="text-xs text-muted-foreground">
-                Build your own plan by books, people, or themes
+        {/* CHOOSE A READING MODE */}
+        <div className="space-y-4">
+          <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide px-1">
+            Choose a Reading Mode
+          </h2>
+          
+          <div className="space-y-3">
+            {/* Custom Plan Builder */}
+            <button
+              onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
+              className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:border-foreground/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-orange-500/15 flex items-center justify-center flex-shrink-0">
+                  <Compass className="w-7 h-7 text-orange-600 dark:text-orange-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-lg font-bold text-foreground mb-1">Custom Plan Builder</div>
+                  <div className="text-xs text-muted-foreground">
+                    Build a plan by books, people, or themes
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
               </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
-          </div>
-        </button>
+            </button>
 
-        {/* 3) MANUAL TRACKING */}
-        <button
-          onClick={handleManualTracking}
-          className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:bg-accent/50 transition-all"
-        >
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
-              <Settings className="w-6 h-6 text-muted-foreground" strokeWidth={2.5} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-base font-bold text-foreground mb-0.5">Manual Tracking</div>
-              <div className="text-xs text-muted-foreground">
-                Track chapters without a reading plan
+            {/* Manual Tracking */}
+            <button
+              onClick={handleManualTracking}
+              className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:border-foreground/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center flex-shrink-0">
+                  <Settings className="w-7 h-7 text-muted-foreground" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-lg font-bold text-foreground mb-1">Manual Tracking</div>
+                  <div className="text-xs text-muted-foreground">
+                    Track chapters without a plan
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
               </div>
-            </div>
-            <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
+            </button>
           </div>
-        </button>
+        </div>
       </div>
     </div>
   );
