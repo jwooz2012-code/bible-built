@@ -29,7 +29,7 @@ const COLOR_MAP = {
 
 const PEOPLE_OPTIONS = [
   { id: 'Abraham', name: 'Abraham', description: 'Father of faith', iconKey: 'stars', colorKey: 'blue' },
-  { id: 'Job', name: 'Job', description: 'Patience through suffering', iconKey: 'storm', colorKey: 'slate' },
+  { id: 'Job', name: 'Job', description: 'Patient in Suffering', iconKey: 'storm', colorKey: 'slate' },
   { id: 'Joseph', name: 'Joseph', description: 'From pit to palace', iconKey: 'coat', colorKey: 'emerald' },
   { id: 'Moses', name: 'Moses', description: 'Deliverer and lawgiver', iconKey: 'tablets', colorKey: 'purple' },
   { id: 'Joshua', name: 'Joshua', description: 'Conqueror and leader', iconKey: 'sword', colorKey: 'orange' },
