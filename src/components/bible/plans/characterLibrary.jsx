@@ -164,7 +164,7 @@ export const CHARACTER_LIBRARY = {
         ]
       },
       {
-        title: 'God's Promotion',
+        title: "God's Promotion",
         chapters: [
           { bookName: 'Genesis', chapter: 41 },
         ]
