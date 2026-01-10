@@ -5,6 +5,7 @@ import PlanDetail from './pages/PlanDetail';
 import Settings from './pages/Settings';
 import Stats from './pages/Stats';
 import app from './pages/_app';
+import CustomPlanBuilder from './pages/CustomPlanBuilder';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "Settings": Settings,
     "Stats": Stats,
     "_app": app,
+    "CustomPlanBuilder": CustomPlanBuilder,
 }
 
 export const pagesConfig = {
