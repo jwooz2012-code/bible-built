@@ -13,7 +13,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'stars',
     accentColorKey: 'blue',
     hook: 'Called out. Set apart. Walking by faith.',
-    description: 'Follow Abraham from God's call out of Ur through the covenant promises that shaped Israel and the world. This deep dive traces his faith, obedience, failures, and lasting legacy.',
+    description: "Follow Abraham from God's call out of Ur through the covenant promises that shaped Israel and the world. This deep dive traces his faith, obedience, failures, and lasting legacy.",
     sections: [
       {
         title: 'Formation & Early Context',
@@ -69,8 +69,8 @@ export const CHARACTER_LIBRARY = {
   Job: {
     iconKey: 'storm',
     accentColorKey: 'slate',
-    hook: 'Faith when answers don't come.',
-    description: 'Walk through Job's suffering, honest questions, and restored trust in God's wisdom and sovereignty.',
+    hook: "Faith when answers don't come.",
+    description: "Walk through Job's suffering, honest questions, and restored trust in God's wisdom and sovereignty.",
     sections: [
       {
         title: 'Formation & Setting',
@@ -119,7 +119,7 @@ export const CHARACTER_LIBRARY = {
         ]
       },
       {
-        title: 'God Speaks',
+        title: "God Speaks",
         chapters: [
           { bookName: 'Job', chapter: 32 },
           { bookName: 'Job', chapter: 33 },
@@ -170,7 +170,7 @@ export const CHARACTER_LIBRARY = {
         ]
       },
       {
-        title: 'God's Purpose Revealed',
+        title: "God's Purpose Revealed",
         chapters: [
           { bookName: 'Genesis', chapter: 42 },
           { bookName: 'Genesis', chapter: 43 },
@@ -197,7 +197,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'tablets',
     accentColorKey: 'purple',
     hook: 'Chosen by God. Tested by people.',
-    description: 'Explore Moses' life from reluctant shepherd to faithful servant leading God's people.',
+    description: "Explore Moses' life from reluctant shepherd to faithful servant leading God's people.",
     sections: [
       {
         title: 'Formation & Calling',
@@ -292,7 +292,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'sword',
     accentColorKey: 'orange',
     hook: 'Strong, courageous, obedient.',
-    description: 'Follow Joshua from servant under Moses to faithful leader of Israel, emphasizing obedience to God's Word.',
+    description: "Follow Joshua from servant under Moses to faithful leader of Israel, emphasizing obedience to God's Word.",
     sections: [
       {
         title: 'Formation under Moses',
@@ -363,7 +363,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'harp',
     accentColorKey: 'cyan',
     hook: 'A heart for God—even when he failed.',
-    description: 'Study the rise, reign, repentance, and legacy of Israel's greatest king.',
+    description: "Study the rise, reign, repentance, and legacy of Israel's greatest king.",
     sections: [
       {
         title: 'Formation & Calling',
@@ -446,7 +446,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'fire',
     accentColorKey: 'red',
     hook: 'Faithful when standing alone.',
-    description: 'Walk with Elijah through bold faith, deep discouragement, and renewed strength from God.',
+    description: "Walk with Elijah through bold faith, deep discouragement, and renewed strength from God.",
     sections: [
       {
         title: 'Sudden Calling',
@@ -492,7 +492,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'lion',
     accentColorKey: 'amber',
     hook: 'Faithful in a hostile world.',
-    description: 'Follow Daniel's unwavering faith and trust in God's sovereignty while living in exile.',
+    description: "Follow Daniel's unwavering faith and trust in God's sovereignty while living in exile.",
     sections: [
       {
         title: 'Formation in Captivity',
@@ -509,7 +509,7 @@ export const CHARACTER_LIBRARY = {
         ]
       },
       {
-        title: 'God's Revelation',
+        title: "God's Revelation",
         chapters: [
           { bookName: 'Daniel', chapter: 4 },
           { bookName: 'Daniel', chapter: 5 },
@@ -540,7 +540,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'keys',
     accentColorKey: 'indigo',
     hook: 'Restored by grace, strengthened for service.',
-    description: 'Trace Peter's transformation from fearful disciple to faithful shepherd of the early church.',
+    description: "Trace Peter's transformation from fearful disciple to faithful shepherd of the early church.",
     sections: [
       {
         title: 'Formation as a Disciple',
@@ -599,7 +599,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'scroll',
     accentColorKey: 'rose',
     hook: 'Saved by grace. Sent with purpose.',
-    description: 'Journey through Paul's conversion, missionary ministry, and final testimony of faith.',
+    description: "Journey through Paul's conversion, missionary ministry, and final testimony of faith.",
     sections: [
       {
         title: 'Formation & Opposition',
