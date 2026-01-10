@@ -803,39 +803,87 @@ export const CHARACTER_LIBRARY = {
   },
 
   Deborah: {
-    iconKey: 'flame',
-    accentColorKey: 'orange',
-    hook: "God's leader in a time of weakness.",
-    description: "Study Deborah's role as prophetess, judge, and leader during one of Israel's darkest periods. This intensive deep dive highlights spiritual authority, courage, obedience, and God's power working through faithful leadership.",
+    iconKey: 'torch',
+    accentColorKey: 'indigo',
+    hook: 'Faithful leadership in a compromised generation.',
+    description: "Study Deborah's role as judge and prophetess during Israel's darkest days. This plan traces God's sovereign leadership through obedience, courage, and trust in His word when others failed to lead.",
     sections: [
       {
-        title: 'Formation & Historical Setting',
+        title: 'The Context of Compromise',
         chapters: [
+          { bookName: 'Judges', chapter: 1 },
           { bookName: 'Judges', chapter: 2 },
+          { bookName: 'Judges', chapter: 3 },
         ]
       },
       {
-        title: 'Defining Call to Leadership',
+        title: 'Deborah: Judge & Prophetess',
         chapters: [
           { bookName: 'Judges', chapter: 4 },
-        ]
-      },
-      {
-        title: 'Courage Under Pressure',
-        chapters: [
           { bookName: 'Judges', chapter: 5 },
         ]
       },
       {
-        title: 'Victory Through Obedience',
+        title: "God's People Restored",
         chapters: [
           { bookName: 'Judges', chapter: 6 },
+          { bookName: 'Judges', chapter: 7 },
+          { bookName: 'Judges', chapter: 8 },
+        ]
+      },
+      {
+        title: "The Pattern Repeats",
+        chapters: [
+          { bookName: 'Judges', chapter: 17 },
+          { bookName: 'Judges', chapter: 21 },
         ]
       },
       {
         title: 'Legacy & Remembrance',
         chapters: [
           { bookName: 'Hebrews', chapter: 11 },
+        ]
+      }
+    ]
+  },
+
+  Hannah: {
+    iconKey: 'prayer',
+    accentColorKey: 'cyan',
+    hook: 'A surrendered heart that shaped a nation.',
+    description: "Study Hannah's prayerful dependence on God and how quiet faith produced lasting spiritual impact. This plan traces prayer, surrender, and God's purposes beyond personal pain.",
+    sections: [
+      {
+        title: 'Formation & Heartache',
+        chapters: [
+          { bookName: 'Judges', chapter: 21 },
+          { bookName: '1 Samuel', chapter: 1 },
+        ]
+      },
+      {
+        title: 'Prayer & Surrender',
+        chapters: [
+          { bookName: '1 Samuel', chapter: 2 },
+        ]
+      },
+      {
+        title: "Samuel: God's Answer",
+        chapters: [
+          { bookName: '1 Samuel', chapter: 3 },
+          { bookName: '1 Samuel', chapter: 7 },
+        ]
+      },
+      {
+        title: 'Guidance & Leadership',
+        chapters: [
+          { bookName: '1 Samuel', chapter: 8 },
+          { bookName: '1 Samuel', chapter: 12 },
+        ]
+      },
+      {
+        title: 'Legacy & Remembrance',
+        chapters: [
+          { bookName: 'Luke', chapter: 1 },
         ]
       }
     ]
