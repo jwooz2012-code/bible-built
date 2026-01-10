@@ -293,6 +293,16 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
                 <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
               </button>
+              <button
+                onClick={() => {
+                  onClose();
+                  navigate(createPageUrl('CustomPlanBuilder'));
+                }}
+                className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
+              >
+                <div className="font-medium text-sm text-foreground">Custom Plan Builder</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Build your own reading plan</div>
+              </button>
               {PLAN_PRESETS.filter((preset) => {
                 return preset.id !== 'bible_year' && preset.id !== 'nt_30' && preset.id !== 'psalms_week';
               }).map((preset) => {
