@@ -373,6 +373,7 @@ export default function CustomPlanBuilder() {
 
               const plan = await base44.entities.ReadingPlan.create({
                 userId: user.id,
+                name: characterKey,
                 scope: 'CUSTOM',
                 startDate: effectiveStartDate,
                 endDate: result.summary.projectedFinish,
