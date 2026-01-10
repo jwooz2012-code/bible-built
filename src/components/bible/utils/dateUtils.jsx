@@ -1,9 +1,13 @@
 /**
  * Standardized date key generation
  * ALWAYS use this function for dateKey to ensure consistency between writes and reads
+ * Uses LOCAL timezone to ensure day boundaries align with user's midnight
  */
 export function getDateKey(date = new Date()) {
-  return date.toISOString().slice(0, 10);
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 }
 
 /**
