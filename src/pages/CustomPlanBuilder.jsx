@@ -351,6 +351,48 @@ export default function CustomPlanBuilder() {
           onConfirm={(characterKey) => {
             setSelectedPerson(characterKey);
           }}
+          onStartPlan={async (characterKey) => {
+            setIsSaving(true);
+            try {
+              const user = await base44.auth.me();
+              const chapterList = flattenCharacterSections(characterKey);
+
+              const timeframe = { mode: 'finishIn', days: 30 };
+
+              const result = generatePlanSchedule({
+                chapterList,
+                startDate: effectiveStartDate,
+                timeframe,
+                skipSundays: false,
+                maxPerDay: null,
+              });
+
+              const plan = await base44.entities.ReadingPlan.create({
+                userId: user.id,
+                scope: 'CUSTOM',
+                startDate: effectiveStartDate,
+                endDate: result.summary.projectedFinish,
+                chaptersPerDay: result.summary.autoPace,
+              });
+
+              const planDayRecords = result.planDays.map(day => ({
+                planId: plan.id,
+                userId: user.id,
+                date: day.date,
+                assignments: day.assignments,
+              }));
+
+              await base44.entities.PlanDay.bulkCreate(planDayRecords);
+
+              toast.success('Plan started!');
+              window.location.href = createPageUrl('Home');
+            } catch (error) {
+              console.error('Failed to start plan:', error);
+              toast.error('Failed to start plan');
+            } finally {
+              setIsSaving(false);
+            }
+          }}
         />
 
         {/* Theme Detail Card */}

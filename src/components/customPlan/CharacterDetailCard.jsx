@@ -30,7 +30,7 @@ const COLOR_MAP = {
   orange: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
 };
 
-export default function CharacterDetailCard({ open, onClose, characterKey, onConfirm }) {
+export default function CharacterDetailCard({ open, onClose, characterKey, onConfirm, onStartPlan }) {
   if (!characterKey) return null;
   
   const character = CHARACTER_LIBRARY[characterKey];
@@ -60,7 +60,7 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           </div>
         </SheetHeader>
         
-        <div className="mt-6 space-y-6 pb-24">
+        <div className="mt-6 space-y-6 pb-40">
           {/* Description */}
           <div>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -100,19 +100,35 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           
           {/* CTA */}
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-            <div className="max-w-lg mx-auto flex gap-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Cancel
-              </Button>
+            <div className="max-w-lg mx-auto space-y-2">
               <Button 
                 onClick={() => {
-                  onConfirm(characterKey);
+                  if (onStartPlan) {
+                    onStartPlan(characterKey);
+                  }
                   onClose();
                 }} 
-                className="flex-1"
+                className="w-full"
               >
-                Start Plan
+                Start This Plan
               </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onClose} className="flex-1">
+                  Cancel
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    if (onConfirm) {
+                      onConfirm(characterKey);
+                    }
+                    onClose();
+                  }} 
+                  className="flex-1"
+                >
+                  Customize
+                </Button>
+              </div>
             </div>
           </div>
         </div>
