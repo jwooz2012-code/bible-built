@@ -1,17 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Compass, Settings, ChevronRight } from 'lucide-react';
+import { Compass, Settings, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { getDateKey, formatDateKey } from '@/components/bible/utils/dateUtils';
 import { getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import PageHeader from '@/components/shared/PageHeader';
+import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 export default function PlansPage() {
   const navigate = useNavigate();
   const todayKey = getDateKey();
+  const [selectedMode, setSelectedMode] = useState(null);
 
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -69,17 +72,30 @@ export default function PlansPage() {
     CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
   }[plan?.scope] || 'Manual Tracking';
 
-  const handleManualTracking = async () => {
-    if (!user?.id) return;
-    
-    // Set plan scope to NONE for manual tracking
-    if (plan?.id) {
-      await base44.entities.ReadingPlan.update(plan.id, { scope: 'NONE' });
-    } else {
-      await base44.entities.ReadingPlan.create({ userId: user.id, scope: 'NONE' });
+  const handleManualTracking = () => {
+    setSelectedMode('manual');
+  };
+
+  const handleContinue = async () => {
+    if (!selectedMode) {
+      toast.error('Select a reading mode to continue');
+      return;
     }
-    
-    navigate(createPageUrl('Home'));
+
+    if (!user?.id) return;
+
+    if (selectedMode === 'manual') {
+      // Set plan scope to NONE for manual tracking
+      if (plan?.id) {
+        await base44.entities.ReadingPlan.update(plan.id, { scope: 'NONE' });
+      } else {
+        await base44.entities.ReadingPlan.create({ userId: user.id, scope: 'NONE' });
+      }
+      toast.success('Manual tracking mode enabled');
+      navigate(createPageUrl('Home'));
+    } else if (selectedMode === 'custom') {
+      navigate(createPageUrl('CustomPlanBuilder'));
+    }
   };
 
   return (
@@ -138,8 +154,13 @@ export default function PlansPage() {
           <div className="space-y-3">
             {/* Custom Plan Builder */}
             <button
-              onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
-              className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:border-foreground/20 hover:shadow-md transition-all"
+              onClick={() => setSelectedMode('custom')}
+              className={cn(
+                "w-full text-left rounded-2xl p-5 border-2 transition-all relative",
+                selectedMode === 'custom'
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-card hover:border-foreground/20 hover:shadow-md"
+              )}
             >
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-orange-500/15 flex items-center justify-center flex-shrink-0">
@@ -151,14 +172,25 @@ export default function PlansPage() {
                     Build a plan by books, people, or themes
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
+                {selectedMode === 'custom' ? (
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+                  </div>
+                ) : (
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
+                )}
               </div>
             </button>
 
             {/* Manual Tracking */}
             <button
               onClick={handleManualTracking}
-              className="w-full text-left bg-card border border-border rounded-2xl p-5 hover:border-foreground/20 hover:shadow-md transition-all"
+              className={cn(
+                "w-full text-left rounded-2xl p-5 border-2 transition-all relative",
+                selectedMode === 'manual'
+                  ? "border-primary bg-primary/5 shadow-md"
+                  : "border-border bg-card hover:border-foreground/20 hover:shadow-md"
+              )}
             >
               <div className="flex items-center gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center flex-shrink-0">
@@ -170,9 +202,27 @@ export default function PlansPage() {
                     Track chapters without a plan
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
+                {selectedMode === 'manual' ? (
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+                  </div>
+                ) : (
+                  <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
+                )}
               </div>
             </button>
+          </div>
+
+          {/* Continue Button */}
+          <div className="pt-4">
+            <Button 
+              size="lg"
+              className="w-full text-base h-12"
+              onClick={handleContinue}
+              disabled={!selectedMode}
+            >
+              Continue
+            </Button>
           </div>
         </div>
       </div>
