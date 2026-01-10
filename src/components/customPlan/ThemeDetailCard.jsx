@@ -2,6 +2,7 @@ import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 
 const ICON_MAP = {
@@ -106,8 +107,15 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
   
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
-        <SheetHeader>
+      <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-0">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 40 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+          className="h-full flex flex-col overflow-y-auto"
+        >
+          <SheetHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}>
               <Icon className="w-6 h-6" strokeWidth={2.5} />
@@ -203,7 +211,8 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
             </div>
           </div>
         </div>
-      </SheetContent>
-    </Sheet>
-  );
-}
+        </motion.div>
+        </SheetContent>
+        </Sheet>
+        );
+        }
