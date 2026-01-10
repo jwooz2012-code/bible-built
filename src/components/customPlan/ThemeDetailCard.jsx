@@ -166,7 +166,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
           
           {/* CTA */}
-          <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
+          <div className="p-4 bg-background border-t border-border rounded-lg">
             <div className="max-w-lg mx-auto space-y-2">
               <Button 
                 onClick={() => {
