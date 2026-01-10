@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship, Check } from 'lucide-react';
+import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship, Check, Zap, Wheat, Heart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ICON_MAP = {
@@ -13,6 +13,10 @@ const ICON_MAP = {
   lion: Sparkles,
   keys: Key,
   scroll: Ship,
+  torch: Zap,
+  wheat: Wheat,
+  prayer: Heart,
+  crown: Sparkles,
 };
 
 const COLOR_MAP = {
@@ -39,6 +43,10 @@ const PEOPLE_OPTIONS = [
   { id: 'Daniel', name: 'Daniel', description: 'Faithful in exile', iconKey: 'lion', colorKey: 'amber' },
   { id: 'Peter', name: 'Peter', description: 'Rock of the church', iconKey: 'keys', colorKey: 'indigo' },
   { id: 'Paul', name: 'Paul', description: 'Apostle to the Gentiles', iconKey: 'scroll', colorKey: 'rose' },
+  { id: 'Deborah', name: 'Deborah', description: 'Judge in dark times', iconKey: 'torch', colorKey: 'indigo' },
+  { id: 'Ruth', name: 'Ruth', description: 'Faithfulness in obscurity', iconKey: 'wheat', colorKey: 'amber' },
+  { id: 'Hannah', name: 'Hannah', description: 'Prayer shapes destiny', iconKey: 'prayer', colorKey: 'cyan' },
+  { id: 'Esther', name: 'Esther', description: 'Courage under pressure', iconKey: 'crown', colorKey: 'rose' },
 ];
 
 export default function PeopleTab({ onPersonClick, selectedPerson }) {
