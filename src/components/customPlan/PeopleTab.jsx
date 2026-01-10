@@ -1,5 +1,6 @@
 import React from 'react';
-import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship } from 'lucide-react';
+import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ICON_MAP = {
   stars: Sparkles,
@@ -40,7 +41,7 @@ const PEOPLE_OPTIONS = [
   { id: 'Paul', name: 'Paul', description: 'Apostle to the Gentiles', iconKey: 'scroll', colorKey: 'rose' },
 ];
 
-export default function PeopleTab({ onPersonClick }) {
+export default function PeopleTab({ onPersonClick, selectedPerson }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {PEOPLE_OPTIONS.map((person) => {

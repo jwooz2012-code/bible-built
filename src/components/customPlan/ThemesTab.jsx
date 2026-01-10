@@ -1,5 +1,6 @@
 import React from 'react';
-import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
+import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 const ICON_MAP = {
   cross: Cross,
@@ -81,7 +82,7 @@ const THEME_OPTIONS = [
   },
 ];
 
-export default function ThemesTab({ onThemeClick }) {
+export default function ThemesTab({ onThemeClick, selectedTheme }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {THEME_OPTIONS.map((theme) => {

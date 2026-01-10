@@ -42,6 +42,7 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
   const totalChapters = character.sections.reduce((sum, section) => {
     return sum + section.chapters.length;
   }, 0);
+  const recommendedDays = Math.ceil(totalChapters / 2);
   
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -69,12 +70,15 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           </div>
           
           {/* Stats */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               {totalChapters} chapters
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               Intensive Deep Dive
+            </div>
+            <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
+              Recommended: ~{recommendedDays} days
             </div>
           </div>
           

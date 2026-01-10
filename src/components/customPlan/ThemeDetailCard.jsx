@@ -102,6 +102,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
   
   const chapters = CURATED_PLANS[themeKey] || [];
   const totalChapters = chapters.length;
+  const recommendedDays = Math.ceil(totalChapters / 2);
   
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -129,12 +130,15 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
           
           {/* Stats */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               {totalChapters} chapters
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               Thematic Study
+            </div>
+            <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
+              Recommended: ~{recommendedDays} days
             </div>
           </div>
           

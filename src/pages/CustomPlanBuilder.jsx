@@ -319,6 +319,7 @@ export default function CustomPlanBuilder() {
 
           <TabsContent value="themes" className="space-y-4">
             <ThemesTab 
+              selectedTheme={selectedTheme}
               onThemeClick={(themeKey) => {
                 setSelectedThemeForDetail(themeKey);
                 setThemeDetailOpen(true);
@@ -328,6 +329,7 @@ export default function CustomPlanBuilder() {
 
           <TabsContent value="people" className="space-y-4">
             <PeopleTab 
+              selectedPerson={selectedPerson}
               onPersonClick={(characterKey) => {
                 setSelectedCharacterForDetail(characterKey);
                 setCharacterDetailOpen(true);
@@ -607,6 +609,13 @@ export default function CustomPlanBuilder() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Selection Warning */}
+        {chapterList.length === 0 && (
+          <div className="mt-6 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground text-center">
+            Select a plan to continue
           </div>
         )}
 
