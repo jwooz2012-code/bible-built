@@ -680,43 +680,48 @@ export const CHARACTER_LIBRARY = {
 
   Esther: {
     iconKey: 'crown',
-    accentColorKey: 'purple',
-    hook: 'For such a time as this.',
-    description: "Follow Esther from obscurity to queen as God uses her courage and obedience to preserve His people. This intensive study highlights God's providence, bold faith, and the cost of obedience.",
+    accentColorKey: 'rose',
+    hook: 'Courage and faith under unseen providence.',
+    description: "Trace God's hidden hand through Esther's courage, obedience, and sacrifice. This study explores divine providence, faith under pressure, and God's preservation of His people.",
     sections: [
       {
-        title: 'Formation & Early Context',
+        title: 'Captivity & Context',
+        chapters: [
+          { bookName: '2 Kings', chapter: 24 },
+          { bookName: '2 Kings', chapter: 25 },
+          { bookName: 'Ezra', chapter: 1 },
+        ]
+      },
+      {
+        title: 'Queen & Hidden Identity',
         chapters: [
           { bookName: 'Esther', chapter: 1 },
           { bookName: 'Esther', chapter: 2 },
-        ]
-      },
-      {
-        title: 'Defining Test of Faith',
-        chapters: [
           { bookName: 'Esther', chapter: 3 },
+        ]
+      },
+      {
+        title: 'Crisis of Faith',
+        chapters: [
           { bookName: 'Esther', chapter: 4 },
-        ]
-      },
-      {
-        title: 'Calling & Commissioning',
-        chapters: [
           { bookName: 'Esther', chapter: 5 },
+          { bookName: 'Esther', chapter: 6 },
         ]
       },
       {
-        title: 'Courage in Leadership',
+        title: 'Courage & Deliverance',
         chapters: [
-          { bookName: 'Esther', chapter: 6 },
           { bookName: 'Esther', chapter: 7 },
           { bookName: 'Esther', chapter: 8 },
           { bookName: 'Esther', chapter: 9 },
+          { bookName: 'Esther', chapter: 10 },
         ]
       },
       {
         title: 'Legacy & Remembrance',
         chapters: [
-          { bookName: 'Esther', chapter: 10 },
+          { bookName: 'Nehemiah', chapter: 9 },
+          { bookName: 'Psalm', chapter: 124 },
         ]
       }
     ]
