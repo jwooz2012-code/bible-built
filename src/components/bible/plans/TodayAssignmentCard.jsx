@@ -18,8 +18,17 @@ export default function TodayAssignmentCard({
   userId
 }) {
   const hasPlan = !!plan?.startDate && !!plan?.endDate && plan?.scope !== 'NONE';
-  const { completeToday, isCompleting } = useCompleteTodaysAssignment();
+  const { completeToday, isPending: isCompleting } = useCompleteTodaysAssignment();
+  const { markTodayComplete, isPending: isMarkingToday } = useMarkTodayComplete();
   const [showTomorrow, setShowTomorrow] = useState(false);
+  
+  // Check if this is a CUSTOM plan with PlanDays
+  const isCustomPlan = plan?.scope === 'CUSTOM';
+  const { data: todayPlanDay } = useTodayPlanDay({ 
+    planId: plan?.id, 
+    todayKey, 
+    enabled: isCustomPlan 
+  });
 
   const assignment = useMemo(() => {
     if (!hasPlan) return null;
@@ -32,8 +41,23 @@ export default function TodayAssignmentCard({
 
   const assignedToday = useMemo(() => {
     if (!hasPlan) return [];
+    
+    // For CUSTOM plans, use PlanDays
+    if (isCustomPlan && todayPlanDay) {
+      const { BIBLE_BOOKS, generateChapterId } = require('@/components/bible/bibleData');
+      return (todayPlanDay.assignments || []).map(a => {
+        const book = BIBLE_BOOKS.find(b => b.name === a.bookName);
+        if (!book) return null;
+        return {
+          book: book.name,
+          chapter: a.chapter,
+          chapterId: generateChapterId(book.index, a.chapter),
+        };
+      }).filter(Boolean);
+    }
+    
     return getAssignmentForDate({ plan, dateKey: todayKey });
-  }, [hasPlan, plan, todayKey]);
+  }, [hasPlan, plan, todayKey, isCustomPlan, todayPlanDay]);
 
   const { summary, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
     if (!assignedToday.length) {
@@ -103,7 +127,19 @@ export default function TodayAssignmentCard({
   }, [showTomorrow, hasPlan, plan, todayKey, allTimeLogs]);
 
   const handleComplete = () => {
-    completeToday({ userId, plan, allTimeLogs, todayKey });
+    if (isCustomPlan && assignedToday.length > 0) {
+      // Use new hook for CUSTOM plans
+      markTodayComplete({
+        userId,
+        todayAssignments: assignedToday.map(a => ({
+          bookName: a.book,
+          chapter: a.chapter,
+        })),
+      });
+    } else {
+      // Use existing hook for other plans
+      completeToday({ userId, plan, logs: allTimeLogs, todayKey });
+    }
   };
 
   if (!hasPlan) {
@@ -176,7 +212,7 @@ export default function TodayAssignmentCard({
             e.stopPropagation();
             handleComplete();
           }}
-          disabled={isComplete || isCompleting}
+          disabled={isComplete || isCompleting || isMarkingToday}
           className="w-full"
           style={isComplete ? {
             background: successBg,
@@ -184,7 +220,7 @@ export default function TodayAssignmentCard({
             opacity: 1,
             cursor: 'default'
           } : undefined}>
-          {isCompleting ? 
+          {(isCompleting || isMarkingToday) ? 
             'Saving...' : 
             isComplete ? 
               <>
