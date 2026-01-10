@@ -47,12 +47,18 @@ export default function PeopleTab({ onPersonClick, selectedPerson }) {
       {PEOPLE_OPTIONS.map((person) => {
         const Icon = ICON_MAP[person.iconKey] || Sparkles;
         const colorClass = COLOR_MAP[person.colorKey] || COLOR_MAP.blue;
+        const isSelected = selectedPerson === person.id;
         
         return (
           <button
             key={person.id}
             onClick={() => onPersonClick(person.id)}
-            className="text-left p-3 rounded-xl border border-border bg-card hover:bg-accent/50 transition-all"
+            className={cn(
+              "text-left p-3 rounded-xl border-2 transition-all relative",
+              isSelected 
+                ? "border-primary bg-primary/5 shadow-md" 
+                : "border-border bg-card hover:bg-accent/50"
+            )}
           >
             <div className="flex items-start gap-2">
               <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>
@@ -63,6 +69,12 @@ export default function PeopleTab({ onPersonClick, selectedPerson }) {
                 <div className="text-sm font-semibold text-foreground">{person.name}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{person.description}</div>
               </div>
+              
+              {isSelected && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                </div>
+              )}
             </div>
           </button>
         );
