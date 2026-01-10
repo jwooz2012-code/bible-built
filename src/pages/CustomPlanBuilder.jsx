@@ -359,7 +359,8 @@ export default function CustomPlanBuilder() {
               const user = await base44.auth.me();
               const chapterList = flattenCharacterSections(characterKey);
 
-              const timeframe = { mode: 'finishIn', days: 30 };
+              const recommendedDays = Math.ceil(chapterList.length / 2);
+              const timeframe = { mode: 'finishIn', days: recommendedDays };
 
               const result = generatePlanSchedule({
                 chapterList,
@@ -414,7 +415,8 @@ export default function CustomPlanBuilder() {
               const user = await base44.auth.me();
               const chapterList = CURATED_PLANS[themeKey] || [];
 
-              const timeframe = { mode: 'finishIn', days: 30 };
+              const recommendedDays = Math.ceil(chapterList.length / 2);
+              const timeframe = { mode: 'finishIn', days: recommendedDays };
 
               const result = generatePlanSchedule({
                 chapterList,
