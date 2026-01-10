@@ -227,56 +227,84 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
         <div className="mt-6 space-y-4 pb-28">
           {/* Plan Details */}
           {planDetails && existingPlan && (
-            <div className="bg-muted/50 rounded-lg p-4 border border-border space-y-4">
+            <div className="bg-gradient-to-br from-card to-accent/5 border-2 border-border rounded-2xl p-5 shadow-sm space-y-4">
+              {/* Plan Identity */}
               <div>
-                <h3 className="text-sm font-semibold text-foreground mb-2">Current Plan</h3>
-                <div className="space-y-1 text-xs text-muted-foreground">
-                  <div>{planDetails.scopeName}</div>
-                  {!planDetails.isNoPlan && (
-                    <>
-                      <div>{formatDateRange(existingPlan.startDate, existingPlan.endDate)}</div>
-                      <div>
-                        {planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left
-                        {planDetails.remaining > 0 && ` • ${planDetails.remaining} remaining`}
-                      </div>
-                    </>
-                  )}
-                  {planDetails.isNoPlan && (
-                    <div>No plan selected</div>
-                  )}
-                </div>
+                <h3 className="text-xl font-bold text-foreground">{planDetails.scopeName}</h3>
+                {!planDetails.isNoPlan && (
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {planDetails.chaptersPerDay} chapters/day
+                  </div>
+                )}
               </div>
 
               {!planDetails.isNoPlan && (
-                <div className="border-t border-border pt-3 space-y-3">
-                  <div>
-                    <div className="text-xs font-medium text-muted-foreground mb-1">
-                      Today · {formatDateKey(todayKey)}
+                <>
+                  {/* Today's Reading */}
+                  <div className="border-t border-border pt-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-semibold text-foreground">
+                        Today's Reading
+                      </div>
+                      {planDetails.doneToday === planDetails.totalToday && planDetails.totalToday > 0 && (
+                        <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                          <Check className="w-3 h-3" />
+                          <span>Completed</span>
+                        </div>
+                      )}
                     </div>
-                    <div className="text-sm text-foreground">{planDetails.todaySummary}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {planDetails.doneToday}/{planDetails.totalToday} complete
-                    </div>
-                    <div className="text-xs text-muted-foreground/60 mt-0.5">
-                      Read today: {planDetails.readTodayCount} chapter{planDetails.readTodayCount !== 1 ? 's' : ''}
-                    </div>
+                    {planDetails.todaySummary ? (
+                      <>
+                        <div className="text-base text-foreground font-medium mb-1">
+                          {planDetails.todaySummary}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {planDetails.doneToday}/{planDetails.totalToday} chapters read
+                        </div>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">No assignment today</div>
+                    )}
                   </div>
 
+                  {/* Up Next */}
                   {planDetails.tomorrowSummary && (
-                    <div>
-                      <div className="text-xs font-medium text-muted-foreground mb-1">
-                        Next Up · {formatDateKey(planDetails.nextKey)}
+                    <div className="border-t border-border pt-4">
+                      <div className="text-sm font-semibold text-foreground mb-2">
+                        Up Next
                       </div>
-                      <div className="text-sm text-foreground">{planDetails.tomorrowSummary}</div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {planDetails.doneTomorrow}/{planDetails.totalTomorrow} complete
+                      <div className="text-base text-foreground/80 mb-1">
+                        {planDetails.tomorrowSummary}
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {formatDateKey(planDetails.nextKey)}
+                        {planDetails.doneTomorrow > 0 && ` • ${planDetails.doneTomorrow}/${planDetails.totalTomorrow} already read`}
                       </div>
                     </div>
                   )}
 
-                  <div className="text-xs text-muted-foreground/70 pt-2 border-t border-border">
-                    Reading ahead counts toward future days.
+                  {/* Progress Info */}
+                  <div className="border-t border-border pt-4 space-y-2">
+                    <div className="text-xs text-muted-foreground">
+                      {planDetails.daysLeft > 0 ? (
+                        <>
+                          {planDetails.daysLeft} day{planDetails.daysLeft !== 1 ? 's' : ''} remaining
+                          {planDetails.remaining > 0 && ` • ${planDetails.remaining} chapters left`}
+                        </>
+                      ) : (
+                        <>Plan complete • {formatDateKey(existingPlan.endDate)}</>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground/70">
+                      You can read ahead at any time — it will count toward upcoming days.
+                    </div>
                   </div>
+                </>
+              )}
+
+              {planDetails.isNoPlan && (
+                <div className="text-sm text-muted-foreground">
+                  No active plan — tracking chapters manually
                 </div>
               )}
             </div>
