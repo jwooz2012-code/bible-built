@@ -72,111 +72,121 @@ export default function PlansPage() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <PageHeader 
-        title="Choose Your Path" 
-        subtitle="Start a new reading plan"
+        title="Set Reading" 
+        subtitle="Choose your reading path"
       />
 
-      <div className="max-w-2xl mx-auto px-4 space-y-6">
-        {/* Active Plan */}
+      <div className="max-w-2xl mx-auto px-4 space-y-8">
+        {/* A) CURRENT PLAN (only if active) */}
         {hasActivePlan && (
-          <div className="bg-card border border-border rounded-2xl p-5 space-y-4">
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="text-xs font-medium text-muted-foreground mb-1">Active Plan</div>
-                <div className="text-lg font-semibold text-foreground">{scopeName}</div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => navigate(createPageUrl('Settings'))}
-              >
-                <Settings className="w-4 h-4" />
-              </Button>
-            </div>
+          <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
+            <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Current Plan</div>
+            <div className="text-lg font-bold text-foreground">{scopeName}</div>
 
             {todayAssignment.length > 0 && (
-              <div className="space-y-2">
-                <div className="text-xs font-medium text-muted-foreground">
+              <div className="space-y-1">
+                <div className="text-xs text-muted-foreground">
                   Today · {formatDateKey(todayKey)}
                 </div>
-                <div className="text-sm text-foreground">{todayParts.join(' • ')}</div>
+                <div className="text-sm text-foreground font-medium">{todayParts.join(' • ')}</div>
+                <div className="h-2 bg-muted rounded-full overflow-hidden mt-2">
+                  <div 
+                    className="h-full bg-foreground transition-all" 
+                    style={{ width: `${(todayCompleted / todayTotal) * 100}%` }}
+                  />
+                </div>
                 <div className="text-xs text-muted-foreground">
-                  {todayCompleted}/{todayTotal} complete
+                  {todayCompleted} of {todayTotal} complete
                 </div>
               </div>
             )}
 
             <Button 
-              className="w-full" 
+              className="w-full mt-2" 
               onClick={() => navigate(createPageUrl('Home'))}
             >
-              Go to Today
+              Continue Today
             </Button>
           </div>
         )}
 
-        {/* Main Entry Cards */}
-        <div className="space-y-3">
-          <button
-            onClick={() => navigate(createPageUrl('ThemesLibrary'))}
-            className="w-full text-left bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-border rounded-2xl p-6 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all"
-          >
-            <div className="flex items-center gap-4 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" strokeWidth={2.5} />
+        {/* B) START A NEW PLAN */}
+        <div className="space-y-4">
+          <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            {hasActivePlan ? 'Start a New Plan' : 'Start a Plan'}
+          </div>
+          
+          <div className="space-y-3">
+            <button
+              onClick={() => navigate(createPageUrl('ThemesLibrary'))}
+              className="w-full text-left bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-border rounded-2xl p-5 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                  <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-bold text-foreground mb-0.5">Themes</div>
+                  <div className="text-xs text-muted-foreground leading-relaxed">
+                    Guided studies focused on wisdom, faith, leadership, and life.
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
               </div>
-              <div className="flex-1">
-                <div className="text-xl font-bold text-foreground">Themes</div>
-                <div className="text-sm text-muted-foreground">Focused topical studies</div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </button>
+            </button>
 
-          <button
-            onClick={() => navigate(createPageUrl('PeopleLibrary'))}
-            className="w-full text-left bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-border rounded-2xl p-6 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
-          >
-            <div className="flex items-center gap-4 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center">
-                <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" strokeWidth={2.5} />
+            <button
+              onClick={() => navigate(createPageUrl('PeopleLibrary'))}
+              className="w-full text-left bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-border rounded-2xl p-5 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-bold text-foreground mb-0.5">People of the Bible</div>
+                  <div className="text-xs text-muted-foreground leading-relaxed">
+                    Deep dives into the lives of biblical men and women.
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
               </div>
-              <div className="flex-1">
-                <div className="text-xl font-bold text-foreground">People of the Bible</div>
-                <div className="text-sm text-muted-foreground">Walk with biblical characters</div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </button>
+            </button>
 
-          <button
-            onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
-            className="w-full text-left bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-border rounded-2xl p-6 hover:from-orange-500/20 hover:to-red-500/20 transition-all"
-          >
-            <div className="flex items-center gap-4 mb-3">
-              <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center">
-                <Compass className="w-6 h-6 text-orange-600 dark:text-orange-400" strokeWidth={2.5} />
+            <button
+              onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
+              className="w-full text-left bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-border rounded-2xl p-5 hover:from-orange-500/20 hover:to-red-500/20 transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                  <Compass className="w-6 h-6 text-orange-600 dark:text-orange-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-base font-bold text-foreground mb-0.5">Custom Plan Builder</div>
+                  <div className="text-xs text-muted-foreground leading-relaxed">
+                    Build your own plan by books, topics, or timeline.
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
               </div>
-              <div className="flex-1">
-                <div className="text-xl font-bold text-foreground">Custom Plan Builder</div>
-                <div className="text-sm text-muted-foreground">Create your own plan</div>
-              </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
-            </div>
-          </button>
+            </button>
+          </div>
         </div>
 
-        {/* Secondary Options */}
-        <div className="pt-2 space-y-2">
+        {/* C) SECONDARY / ADVANCED (LOW VISUAL PRIORITY) */}
+        <div className="flex items-center justify-center gap-4 text-xs text-muted-foreground/60 pt-4">
           <button
             onClick={() => navigate(createPageUrl('Settings'))}
-            className="w-full text-left px-4 py-3 rounded-xl bg-card border border-border hover:bg-accent transition-colors"
+            className="hover:text-muted-foreground transition-colors"
           >
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-medium text-foreground">Manual Tracking</div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">Track reading without a plan</div>
+            Manual Tracking
+          </button>
+          <span>·</span>
+          <button
+            onClick={() => navigate(createPageUrl('Settings'))}
+            className="hover:text-muted-foreground transition-colors"
+          >
+            Settings
           </button>
         </div>
       </div>
