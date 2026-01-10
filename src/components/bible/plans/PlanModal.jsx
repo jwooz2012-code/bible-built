@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight } from 'lucide-react';
+import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -290,10 +291,24 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                   setStartDate(todayKey);
                   setEndDate(todayKey);
                 }}
-                className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
+                className={cn(
+                  "text-left p-3 rounded-lg border-2 transition-all relative",
+                  scope === 'NONE'
+                    ? "border-primary bg-primary/5 shadow-md"
+                    : "border-border bg-card hover:bg-accent"
+                )}
               >
-                <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
+                <div className="flex items-center gap-2">
+                  <div className="flex-1">
+                    <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
+                  </div>
+                  {scope === 'NONE' && (
+                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                    </div>
+                  )}
+                </div>
               </button>
               <button
                 onClick={() => {
