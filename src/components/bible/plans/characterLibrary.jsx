@@ -148,7 +148,7 @@ export const CHARACTER_LIBRARY = {
     iconKey: 'coat',
     accentColorKey: 'emerald',
     hook: 'God was working, even in the pit.',
-    description: 'Trace Joseph's journey from betrayal to leadership as God uses hardship to accomplish His purposes.',
+    description: "Trace Joseph's journey from betrayal to leadership as God uses hardship to accomplish His purposes.",
     sections: [
       {
         title: 'Formation & Family Context',
