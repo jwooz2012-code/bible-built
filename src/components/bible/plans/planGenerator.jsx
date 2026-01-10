@@ -89,8 +89,8 @@ export function generatePlanSchedule({
     // Assign base chapters to every day
     let dayCount = base;
     
-    // Assign remainder chapters to LATER days
-    if (dayIndex >= (readingDays - remainder)) {
+    // Assign remainder chapters to EARLIER days (beginning of plan)
+    if (dayIndex < remainder) {
       dayCount += 1;
     }
     

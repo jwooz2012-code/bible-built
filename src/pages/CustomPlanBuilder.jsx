@@ -13,7 +13,7 @@ import { getDateKey, addDaysKey, formatDateLong } from '@/components/bible/utils
 import { generatePlanSchedule } from '@/components/bible/plans/planGenerator';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
-import { CHARACTER_LIBRARY } from '@/components/bible/plans/characterLibrary';
+import { CHARACTER_LIBRARY, flattenCharacterSections } from '@/components/bible/plans/characterLibrary';
 import BooksTab from '@/components/customPlan/BooksTab';
 import ThemesTab from '@/components/customPlan/ThemesTab';
 import PeopleTab from '@/components/customPlan/PeopleTab';
@@ -76,7 +76,7 @@ export default function CustomPlanBuilder() {
 
     if (activeTab === 'people') {
       if (!selectedPerson) return [];
-      return CHARACTER_LIBRARY[selectedPerson] || [];
+      return flattenCharacterSections(selectedPerson);
     }
 
     return [];
@@ -210,7 +210,9 @@ export default function CustomPlanBuilder() {
       await base44.entities.PlanDay.bulkCreate(planDayRecords);
 
       toast.success('Custom plan created!');
-      navigate(createPageUrl('Home'));
+      
+      // Refresh the page to load the new active plan
+      window.location.href = createPageUrl('Home');
     } catch (error) {
       console.error('Failed to save plan:', error);
       toast.error('Failed to save plan');
