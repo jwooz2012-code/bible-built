@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
 /**
  * Hook to mark all of today's assigned chapters as complete
@@ -19,9 +20,6 @@ export function useMarkTodayComplete() {
       const now = new Date();
       const todayKey = getDateKey(now);
       const timestamp = now.toISOString();
-
-      // Get book data for each assignment
-      const { BIBLE_BOOKS, generateChapterId } = await import('@/components/bible/bibleData');
       
       const logsToCreate = [];
       

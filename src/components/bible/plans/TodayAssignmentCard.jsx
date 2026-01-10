@@ -7,6 +7,7 @@ import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useComplet
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
 import { useMarkTodayComplete } from '@/components/bible/hooks/useMarkTodayComplete';
 import { formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
+import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
 export default function TodayAssignmentCard({
   plan,
@@ -44,7 +45,6 @@ export default function TodayAssignmentCard({
     
     // For CUSTOM plans, use PlanDays
     if (isCustomPlan && todayPlanDay) {
-      const { BIBLE_BOOKS, generateChapterId } = require('@/components/bible/bibleData');
       return (todayPlanDay.assignments || []).map(a => {
         const book = BIBLE_BOOKS.find(b => b.name === a.bookName);
         if (!book) return null;
