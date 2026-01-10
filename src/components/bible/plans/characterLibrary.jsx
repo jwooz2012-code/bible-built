@@ -677,6 +677,169 @@ export const CHARACTER_LIBRARY = {
       }
     ]
   },
+
+  Esther: {
+    iconKey: 'crown',
+    accentColorKey: 'purple',
+    hook: 'For such a time as this.',
+    description: "Follow Esther from obscurity to queen as God uses her courage and obedience to preserve His people. This intensive study highlights God's providence, bold faith, and the cost of obedience.",
+    sections: [
+      {
+        title: 'Formation & Early Context',
+        chapters: [
+          { bookName: 'Esther', chapter: 1 },
+          { bookName: 'Esther', chapter: 2 },
+        ]
+      },
+      {
+        title: 'Defining Test of Faith',
+        chapters: [
+          { bookName: 'Esther', chapter: 3 },
+          { bookName: 'Esther', chapter: 4 },
+        ]
+      },
+      {
+        title: 'Calling & Commissioning',
+        chapters: [
+          { bookName: 'Esther', chapter: 5 },
+        ]
+      },
+      {
+        title: 'Courage in Leadership',
+        chapters: [
+          { bookName: 'Esther', chapter: 6 },
+          { bookName: 'Esther', chapter: 7 },
+          { bookName: 'Esther', chapter: 8 },
+          { bookName: 'Esther', chapter: 9 },
+        ]
+      },
+      {
+        title: 'Legacy & Remembrance',
+        chapters: [
+          { bookName: 'Esther', chapter: 10 },
+        ]
+      }
+    ]
+  },
+
+  Ruth: {
+    iconKey: 'wheat',
+    accentColorKey: 'amber',
+    hook: 'Faithful in the ordinary.',
+    description: "Walk with Ruth through loyalty, humility, and quiet faithfulness as God works through everyday obedience to accomplish His redemptive purposes.",
+    sections: [
+      {
+        title: 'Formation & Loss',
+        chapters: [
+          { bookName: 'Ruth', chapter: 1 },
+        ]
+      },
+      {
+        title: 'Defining Choice of Faith',
+        chapters: [
+          { bookName: 'Ruth', chapter: 2 },
+        ]
+      },
+      {
+        title: "God's Provision",
+        chapters: [
+          { bookName: 'Ruth', chapter: 3 },
+        ]
+      },
+      {
+        title: 'Redemption & Restoration',
+        chapters: [
+          { bookName: 'Ruth', chapter: 4 },
+        ]
+      },
+      {
+        title: 'Legacy & Remembrance',
+        chapters: [
+          { bookName: 'Matthew', chapter: 1 },
+        ]
+      }
+    ]
+  },
+
+  Mary: {
+    iconKey: 'heart',
+    accentColorKey: 'cyan',
+    hook: 'Be it unto me according to thy word.',
+    description: "Study the life of Mary as a humble servant chosen by God for an extraordinary purpose. This plan emphasizes submission, faith, worship, and trust in God's promises.",
+    sections: [
+      {
+        title: 'Formation & Calling',
+        chapters: [
+          { bookName: 'Luke', chapter: 1 },
+        ]
+      },
+      {
+        title: 'Defining Act of Faith',
+        chapters: [
+          { bookName: 'Luke', chapter: 2 },
+          { bookName: 'Matthew', chapter: 1 },
+          { bookName: 'Matthew', chapter: 2 },
+        ]
+      },
+      {
+        title: 'Treasuring God\'s Work',
+        chapters: [
+          { bookName: 'John', chapter: 2 },
+        ]
+      },
+      {
+        title: "Witnessing Christ's Life",
+        chapters: [
+          { bookName: 'John', chapter: 19 },
+        ]
+      },
+      {
+        title: 'Legacy & Remembrance',
+        chapters: [
+          { bookName: 'Acts', chapter: 1 },
+        ]
+      }
+    ]
+  },
+
+  Deborah: {
+    iconKey: 'flame',
+    accentColorKey: 'orange',
+    hook: "God's leader in a time of weakness.",
+    description: "Study Deborah's role as prophetess, judge, and leader during one of Israel's darkest periods. This intensive deep dive highlights spiritual authority, courage, obedience, and God's power working through faithful leadership.",
+    sections: [
+      {
+        title: 'Formation & Historical Setting',
+        chapters: [
+          { bookName: 'Judges', chapter: 2 },
+        ]
+      },
+      {
+        title: 'Defining Call to Leadership',
+        chapters: [
+          { bookName: 'Judges', chapter: 4 },
+        ]
+      },
+      {
+        title: 'Courage Under Pressure',
+        chapters: [
+          { bookName: 'Judges', chapter: 5 },
+        ]
+      },
+      {
+        title: 'Victory Through Obedience',
+        chapters: [
+          { bookName: 'Judges', chapter: 6 },
+        ]
+      },
+      {
+        title: 'Legacy & Remembrance',
+        chapters: [
+          { bookName: 'Hebrews', chapter: 11 },
+        ]
+      }
+    ]
+  },
 };
 
 /**

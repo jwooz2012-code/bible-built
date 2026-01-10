@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Sparkles, Cloud, Shirt, ScrollText, Sword, Music, Flame, Crown as LionCrown, Key, Book, ChevronLeft, Loader2 } from 'lucide-react';
+import { Sparkles, Cloud, Shirt, ScrollText, Sword, Music, Flame, Crown as LionCrown, Key, Book, ChevronLeft, Loader2, Crown, Wheat, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { createPageUrl } from '@/utils';
@@ -21,6 +21,10 @@ const ICON_MAP = {
   lion: LionCrown,
   keys: Key,
   scroll: Book,
+  crown: Crown,
+  wheat: Wheat,
+  heart: Heart,
+  flame: Flame,
 };
 
 const COLOR_MAP = {

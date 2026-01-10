@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Sparkles, Cloud, Shirt, ScrollText, Sword, Music, Flame, Crown as LionCrown, Key, Book, ChevronLeft } from 'lucide-react';
+import { Sparkles, Cloud, Shirt, ScrollText, Sword, Music, Flame, Crown as LionCrown, Key, Book, ChevronLeft, Crown, Wheat, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { CHARACTER_LIBRARY } from '@/components/bible/plans/characterLibrary';
@@ -16,6 +16,10 @@ const ICON_MAP = {
   lion: LionCrown,
   keys: Key,
   scroll: Book,
+  crown: Crown,
+  wheat: Wheat,
+  heart: Heart,
+  flame: Flame,
 };
 
 const COLOR_MAP = {
