@@ -24,7 +24,7 @@ export default function CustomPlanBuilder() {
   const todayKey = getDateKey();
 
   // Tab state
-  const [activeTab, setActiveTab] = useState('books');
+  const [activeTab, setActiveTab] = useState('themes');
 
   // Selection state
   const [selectedBooks, setSelectedBooks] = useState([]);
@@ -309,14 +309,10 @@ export default function CustomPlanBuilder() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="books">Books</TabsTrigger>
             <TabsTrigger value="themes">Themes</TabsTrigger>
             <TabsTrigger value="people">People</TabsTrigger>
+            <TabsTrigger value="books">Books</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="books" className="space-y-4">
-            <BooksTab selectedBooks={selectedBooks} onBooksChange={setSelectedBooks} />
-          </TabsContent>
 
           <TabsContent value="themes" className="space-y-4">
             <ThemesTab selectedTheme={selectedTheme} onThemeChange={setSelectedTheme} />
@@ -329,6 +325,10 @@ export default function CustomPlanBuilder() {
                 setCharacterDetailOpen(true);
               }}
             />
+          </TabsContent>
+
+          <TabsContent value="books" className="space-y-4">
+            <BooksTab selectedBooks={selectedBooks} onBooksChange={setSelectedBooks} />
           </TabsContent>
         </Tabs>
 

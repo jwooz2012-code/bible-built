@@ -2,15 +2,15 @@ import Calendar from './pages/Calendar';
 import CustomPlanBuilder from './pages/CustomPlanBuilder';
 import Home from './pages/Home';
 import Index from './pages/Index';
+import PeopleLibrary from './pages/PeopleLibrary';
+import PersonDetail from './pages/PersonDetail';
 import PlanDetail from './pages/PlanDetail';
+import Plans from './pages/Plans';
 import Settings from './pages/Settings';
 import Stats from './pages/Stats';
-import app from './pages/_app';
-import Plans from './pages/Plans';
-import ThemesLibrary from './pages/ThemesLibrary';
-import PeopleLibrary from './pages/PeopleLibrary';
 import ThemeDetail from './pages/ThemeDetail';
-import PersonDetail from './pages/PersonDetail';
+import ThemesLibrary from './pages/ThemesLibrary';
+import app from './pages/_app';
 import __Layout from './Layout.jsx';
 
 
@@ -19,15 +19,15 @@ export const PAGES = {
     "CustomPlanBuilder": CustomPlanBuilder,
     "Home": Home,
     "Index": Index,
+    "PeopleLibrary": PeopleLibrary,
+    "PersonDetail": PersonDetail,
     "PlanDetail": PlanDetail,
+    "Plans": Plans,
     "Settings": Settings,
     "Stats": Stats,
-    "_app": app,
-    "Plans": Plans,
-    "ThemesLibrary": ThemesLibrary,
-    "PeopleLibrary": PeopleLibrary,
     "ThemeDetail": ThemeDetail,
-    "PersonDetail": PersonDetail,
+    "ThemesLibrary": ThemesLibrary,
+    "_app": app,
 }
 
 export const pagesConfig = {

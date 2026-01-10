@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Shield, Lamp, Leaf, Compass, Heart, Crown, Hourglass, Scroll, Users, Sparkles, Settings, ChevronRight } from 'lucide-react';
+import { Compass, Settings, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { getDateKey, formatDateKey } from '@/components/bible/utils/dateUtils';
@@ -118,42 +118,6 @@ export default function PlansPage() {
           
           <div className="space-y-3">
             <button
-              onClick={() => navigate(createPageUrl('ThemesLibrary'))}
-              className="w-full text-left bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border border-border rounded-2xl p-5 hover:from-indigo-500/20 hover:to-purple-500/20 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-6 h-6 text-indigo-600 dark:text-indigo-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-base font-bold text-foreground mb-0.5">Themes</div>
-                  <div className="text-xs text-muted-foreground leading-relaxed">
-                    Guided studies focused on wisdom, faith, leadership, and life.
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
-              </div>
-            </button>
-
-            <button
-              onClick={() => navigate(createPageUrl('PeopleLibrary'))}
-              className="w-full text-left bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-border rounded-2xl p-5 hover:from-cyan-500/20 hover:to-blue-500/20 transition-all"
-            >
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-cyan-500/20 flex items-center justify-center flex-shrink-0">
-                  <Users className="w-6 h-6 text-cyan-600 dark:text-cyan-400" strokeWidth={2.5} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-base font-bold text-foreground mb-0.5">People of the Bible</div>
-                  <div className="text-xs text-muted-foreground leading-relaxed">
-                    Deep dives into the lives of biblical men and women.
-                  </div>
-                </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
-              </div>
-            </button>
-
-            <button
               onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
               className="w-full text-left bg-gradient-to-br from-orange-500/10 to-red-500/10 border border-border rounded-2xl p-5 hover:from-orange-500/20 hover:to-red-500/20 transition-all"
             >
@@ -164,7 +128,7 @@ export default function PlansPage() {
                 <div className="flex-1 min-w-0">
                   <div className="text-base font-bold text-foreground mb-0.5">Custom Plan Builder</div>
                   <div className="text-xs text-muted-foreground leading-relaxed">
-                    Build your own plan by books, topics, or timeline.
+                    Build your own plan by books, themes, people, or timeline.
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-muted-foreground/50 flex-shrink-0" />
