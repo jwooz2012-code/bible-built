@@ -134,43 +134,53 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
     };
   }, [existingPlan, logs, todayKey]);
 
+  const endOfWeek = addDaysKey(todayKey, 6);
+  const { data: planDays = [], isLoading: isLoadingPlanDays } = useQuery({
+    queryKey: ['planDays', userId, existingPlan?.id, todayKey, endOfWeek],
+    queryFn: async () => {
+      if (!existingPlan?.id) return [];
+      const days = await base44.entities.PlanDay.filter({
+        planId: existingPlan.id,
+        userId,
+      });
+      return days.filter(d => d.date >= todayKey && d.date <= endOfWeek).sort((a, b) => a.date.localeCompare(b.date));
+    },
+    enabled: !!existingPlan?.id && !!userId,
+  });
+
   const upcomingReadings = useMemo(() => {
-    if (!existingPlan || existingPlan.scope === 'NONE') return [];
-    if (!existingPlan.startDate || !existingPlan.endDate) return [];
+    if (!planDays.length) return [];
 
     const completedIds = new Set(logs.map(log => log.chapterId));
-    const upcoming = [];
 
-    for (let i = 0; i < 7; i++) {
-      const dateKey = addDaysKey(todayKey, i);
-      const assigned = getAssignmentForDate({ plan: existingPlan, dateKey });
-      
-      if (assigned.length === 0) continue;
+    return planDays.map(day => {
+      const assigned = day.assignments || [];
+      const completed = assigned.filter(ch => completedIds.has(generateChapterId(
+        BIBLE_BOOKS.find(b => b.name === ch.bookName)?.index || 0,
+        ch.chapter
+      ))).length;
 
-      const completed = assigned.filter(ch => completedIds.has(ch.chapterId)).length;
       const summary = assigned.reduce((acc, ch) => {
-        if (!acc[ch.book]) acc[ch.book] = [];
-        acc[ch.book].push(ch.chapter);
+        if (!acc[ch.bookName]) acc[ch.bookName] = [];
+        acc[ch.bookName].push(ch.chapter);
         return acc;
       }, {});
-      
+
       const parts = Object.entries(summary).map(([book, chapters]) => {
         if (chapters.length === 1) return `${book} ${chapters[0]}`;
         const sorted = chapters.sort((a, b) => a - b);
         return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
       });
 
-      upcoming.push({
-        dateKey,
-        isToday: i === 0,
+      return {
+        dateKey: day.date,
+        isToday: day.date === todayKey,
         summary: parts.join(' • '),
         completed,
         total: assigned.length
-      });
-    }
-
-    return upcoming;
-  }, [existingPlan, logs, todayKey]);
+      };
+    });
+  }, [planDays, logs, todayKey]);
 
   const handlePresetClick = (preset) => {
     const dates = preset.getDates(todayKey);
@@ -378,35 +388,46 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 </SheetHeader>
                 
                 <div className="mt-6 space-y-3 pb-8 overflow-y-auto max-h-[calc(70vh-120px)]">
-                  {upcomingReadings.map((day, idx) => (
-                    <div 
-                      key={day.dateKey}
-                      className={cn(
-                        "p-4 rounded-lg border",
-                        day.isToday 
-                          ? "border-primary bg-primary/5" 
-                          : "border-border bg-card"
-                      )}
-                    >
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm font-semibold text-foreground">
-                          {day.isToday ? 'Today' : formatDateKey(day.dateKey)}
-                        </div>
-                        {day.completed === day.total && day.total > 0 && (
-                          <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                            <Check className="w-3 h-3" />
-                            <span>Done</span>
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-base text-foreground mb-1">
-                        {day.summary}
-                      </div>
-                      <div className="text-xs text-muted-foreground">
-                        {day.completed}/{day.total} chapters read
-                      </div>
+                  {isLoadingPlanDays ? (
+                    <div className="flex items-center justify-center py-8 text-muted-foreground">
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      <span className="text-sm">Loading upcoming readings…</span>
                     </div>
-                  ))}
+                  ) : upcomingReadings.length === 0 ? (
+                    <div className="text-center py-8 text-sm text-muted-foreground">
+                      No upcoming readings found for this plan.
+                    </div>
+                  ) : (
+                    upcomingReadings.map((day, idx) => (
+                      <div 
+                        key={day.dateKey}
+                        className={cn(
+                          "p-4 rounded-lg border",
+                          day.isToday 
+                            ? "border-primary bg-primary/5" 
+                            : "border-border bg-card"
+                        )}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="text-sm font-semibold text-foreground">
+                            {day.isToday ? 'Today' : formatDateKey(day.dateKey)}
+                          </div>
+                          {day.completed === day.total && day.total > 0 && (
+                            <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
+                              <Check className="w-3 h-3" />
+                              <span>Done</span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="text-base text-foreground mb-1">
+                          {day.summary}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          {day.completed}/{day.total} chapters read
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
 
                 <div className="pt-4 border-t">
