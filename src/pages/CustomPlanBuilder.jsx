@@ -386,7 +386,7 @@ export default function CustomPlanBuilder() {
                 onClick={() => setTimeframeMode('finishIn')}
                 className="flex-1"
               >
-                Finish in X days
+                Number of Days
               </Button>
               <Button
                 size="sm"
