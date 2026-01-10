@@ -254,7 +254,7 @@ export default function Calendar() {
       </div>
 
       <Sheet open={!!selectedDay} onOpenChange={() => setSelectedDay(null)}>
-        <SheetContent side="bottom" className="max-h-[70vh] overflow-auto">
+        <SheetContent side="bottom" className="max-h-[70vh] flex flex-col">
           <SheetHeader>
             <SheetTitle>
               {selectedDay && new Date(selectedDay + 'T12:00:00').toLocaleDateString('en-US', {
@@ -266,7 +266,7 @@ export default function Calendar() {
             </SheetTitle>
           </SheetHeader>
           
-          <div className="mt-6 space-y-4">
+          <div className="mt-6 space-y-4 flex-1 overflow-y-auto min-h-0">
             <div className="flex gap-2">
               <Button 
                 onClick={() => setShowActionSheet(true)}
