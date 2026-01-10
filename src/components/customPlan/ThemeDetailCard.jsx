@@ -91,7 +91,7 @@ const THEME_INFO = {
   },
 };
 
-export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm }) {
+export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
   if (!themeKey) return null;
   
   const theme = THEME_INFO[themeKey];
@@ -167,19 +167,35 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm }) 
           
           {/* CTA */}
           <div className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border">
-            <div className="max-w-lg mx-auto flex gap-2">
-              <Button variant="outline" onClick={onClose} className="flex-1">
-                Cancel
-              </Button>
+            <div className="max-w-lg mx-auto space-y-2">
               <Button 
                 onClick={() => {
-                  onConfirm(themeKey);
+                  if (onStartPlan) {
+                    onStartPlan(themeKey);
+                  }
                   onClose();
                 }} 
-                className="flex-1"
+                className="w-full"
               >
-                Start Plan
+                Start This Plan
               </Button>
+              <div className="flex gap-2">
+                <Button variant="outline" onClick={onClose} className="flex-1">
+                  Cancel
+                </Button>
+                <Button 
+                  variant="outline"
+                  onClick={() => {
+                    if (onConfirm) {
+                      onConfirm(themeKey);
+                    }
+                    onClose();
+                  }} 
+                  className="flex-1"
+                >
+                  Customize
+                </Button>
+              </div>
             </div>
           </div>
         </div>
