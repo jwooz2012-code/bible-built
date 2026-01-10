@@ -18,6 +18,7 @@ import BooksTab from '@/components/customPlan/BooksTab';
 import ThemesTab from '@/components/customPlan/ThemesTab';
 import PeopleTab from '@/components/customPlan/PeopleTab';
 import CharacterDetailCard from '@/components/customPlan/CharacterDetailCard';
+import ThemeDetailCard from '@/components/customPlan/ThemeDetailCard';
 
 export default function CustomPlanBuilder() {
   const navigate = useNavigate();
@@ -32,6 +33,8 @@ export default function CustomPlanBuilder() {
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [characterDetailOpen, setCharacterDetailOpen] = useState(false);
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
+  const [themeDetailOpen, setThemeDetailOpen] = useState(false);
+  const [selectedThemeForDetail, setSelectedThemeForDetail] = useState(null);
 
   // Timeframe state
   const [timeframeMode, setTimeframeMode] = useState('finishIn'); // 'finishIn' or 'dateRange'
@@ -315,7 +318,12 @@ export default function CustomPlanBuilder() {
           </TabsList>
 
           <TabsContent value="themes" className="space-y-4">
-            <ThemesTab selectedTheme={selectedTheme} onThemeChange={setSelectedTheme} />
+            <ThemesTab 
+              onThemeClick={(themeKey) => {
+                setSelectedThemeForDetail(themeKey);
+                setThemeDetailOpen(true);
+              }}
+            />
           </TabsContent>
 
           <TabsContent value="people" className="space-y-4">
@@ -342,6 +350,19 @@ export default function CustomPlanBuilder() {
           characterKey={selectedCharacterForDetail}
           onConfirm={(characterKey) => {
             setSelectedPerson(characterKey);
+          }}
+        />
+
+        {/* Theme Detail Card */}
+        <ThemeDetailCard
+          open={themeDetailOpen}
+          onClose={() => {
+            setThemeDetailOpen(false);
+            setSelectedThemeForDetail(null);
+          }}
+          themeKey={selectedThemeForDetail}
+          onConfirm={(themeKey) => {
+            setSelectedTheme(themeKey);
           }}
         />
 
