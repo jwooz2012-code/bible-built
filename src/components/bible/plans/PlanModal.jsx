@@ -482,7 +482,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
               >
                 <div className="font-medium text-sm text-foreground">Custom Plan Builder</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Build your own reading plan</div>
+                <div className="text-xs text-muted-foreground mt-0.5">Choose themes, books, or people to build your plan.</div>
               </button>
             </div>
           </div>
