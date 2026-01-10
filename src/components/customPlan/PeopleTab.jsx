@@ -40,23 +40,18 @@ const PEOPLE_OPTIONS = [
   { id: 'Paul', name: 'Paul', description: 'Apostle to the Gentiles', iconKey: 'scroll', colorKey: 'rose' },
 ];
 
-export default function PeopleTab({ selectedPerson, onPersonChange }) {
+export default function PeopleTab({ onPersonClick }) {
   return (
     <div className="grid grid-cols-2 gap-3">
       {PEOPLE_OPTIONS.map((person) => {
-        const isSelected = selectedPerson === person.id;
         const Icon = ICON_MAP[person.iconKey] || Sparkles;
         const colorClass = COLOR_MAP[person.colorKey] || COLOR_MAP.blue;
         
         return (
           <button
             key={person.id}
-            onClick={() => onPersonChange(person.id)}
-            className={`text-left p-3 rounded-xl border transition-all ${
-              isSelected
-                ? 'border-foreground bg-accent'
-                : 'border-border bg-card hover:bg-accent/50'
-            }`}
+            onClick={() => onPersonClick(person.id)}
+            className="text-left p-3 rounded-xl border border-border bg-card hover:bg-accent/50 transition-all"
           >
             <div className="flex items-start gap-2">
               <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>

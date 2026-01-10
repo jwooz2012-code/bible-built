@@ -17,6 +17,7 @@ import { CHARACTER_LIBRARY, flattenCharacterSections } from '@/components/bible/
 import BooksTab from '@/components/customPlan/BooksTab';
 import ThemesTab from '@/components/customPlan/ThemesTab';
 import PeopleTab from '@/components/customPlan/PeopleTab';
+import CharacterDetailCard from '@/components/customPlan/CharacterDetailCard';
 
 export default function CustomPlanBuilder() {
   const navigate = useNavigate();
@@ -29,6 +30,8 @@ export default function CustomPlanBuilder() {
   const [selectedBooks, setSelectedBooks] = useState([]);
   const [selectedTheme, setSelectedTheme] = useState(null);
   const [selectedPerson, setSelectedPerson] = useState(null);
+  const [characterDetailOpen, setCharacterDetailOpen] = useState(false);
+  const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
 
   // Timeframe state
   const [timeframeMode, setTimeframeMode] = useState('finishIn'); // 'finishIn' or 'dateRange'
