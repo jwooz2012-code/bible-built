@@ -120,7 +120,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
         </SheetHeader>
         
-        <div className="mt-6 space-y-6 pb-24">
+        <div className="mt-6 space-y-6 pb-40">
           {/* Description */}
           <div>
             <p className="text-sm text-muted-foreground leading-relaxed">
