@@ -113,19 +113,24 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       chaptersPerDay: existingPlan.chaptersPerDay || 0,
       daysLeft,
       remaining,
-      scopeName: {
-        BIBLE: 'Whole Bible',
-        OT: 'Old Testament',
-        NT: 'New Testament',
-        PSALMS: 'Psalms',
-        LEADERSHIP_INTENSIVE: 'Leadership Intensive',
-        WISDOM_PLUNGE: 'Wisdom Plunge',
-        INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
-        GODLY_MAN: 'The Godly Man',
-        LIVE_WITH_PURPOSE: 'Live With Purpose',
-        KNOW_KING_DAVID: 'Know King David',
-        HEART_OF_GOD: 'Heart of God'
-      }[existingPlan.scope] || existingPlan.scope
+      scopeName: existingPlan.scope === 'CUSTOM' 
+        ? (existingPlan.name || 'My Reading Plan')
+        : ({
+            BIBLE: 'Whole Bible',
+            OT: 'Old Testament',
+            NT: 'New Testament',
+            PSALMS: 'Psalms',
+            LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+            WISDOM_PLUNGE: 'Wisdom Plunge',
+            INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
+            GODLY_MAN: 'The Godly Man',
+            LIVE_WITH_PURPOSE: 'Live With Purpose',
+            KNOW_KING_DAVID: 'Know King David',
+            HEART_OF_GOD: 'Heart of God',
+            WHO_IS_JESUS: 'Who Is Jesus',
+            CHRONOLOGICAL_BIBLE: 'Chronological Bible',
+            CHRONOLOGICAL_GOSPELS: 'Chronological Gospels'
+          }[existingPlan.scope] || 'My Reading Plan')
     };
   }, [existingPlan, logs, todayKey]);
 

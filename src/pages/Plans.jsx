@@ -56,21 +56,23 @@ export default function PlansPage() {
     return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
   });
 
-  const scopeName = {
-    BIBLE: 'Whole Bible',
-    OT: 'Old Testament',
-    NT: 'New Testament',
-    PSALMS: 'Psalms',
-    LEADERSHIP_INTENSIVE: 'Leadership Intensive',
-    WISDOM_PLUNGE: 'Wisdom Plunge',
-    INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
-    GODLY_MAN: 'The Godly Man',
-    LIVE_WITH_PURPOSE: 'Live With Purpose',
-    KNOW_KING_DAVID: 'Know King David',
-    HEART_OF_GOD: 'Heart of God',
-    CHRONOLOGICAL_BIBLE: 'Chronological Bible',
-    CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
-  }[plan?.scope] || 'Manual Tracking';
+  const scopeName = plan?.scope === 'CUSTOM'
+    ? (plan?.name || 'My Reading Plan')
+    : ({
+        BIBLE: 'Whole Bible',
+        OT: 'Old Testament',
+        NT: 'New Testament',
+        PSALMS: 'Psalms',
+        LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+        WISDOM_PLUNGE: 'Wisdom Plunge',
+        INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
+        GODLY_MAN: 'The Godly Man',
+        LIVE_WITH_PURPOSE: 'Live With Purpose',
+        KNOW_KING_DAVID: 'Know King David',
+        HEART_OF_GOD: 'Heart of God',
+        CHRONOLOGICAL_BIBLE: 'Chronological Bible',
+        CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
+      }[plan?.scope] || 'Manual Tracking');
 
   const handleManualTracking = () => {
     setSelectedMode('manual');

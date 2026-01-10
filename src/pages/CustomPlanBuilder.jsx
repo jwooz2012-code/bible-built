@@ -199,6 +199,7 @@ export default function CustomPlanBuilder() {
       // Create the reading plan
       const plan = await base44.entities.ReadingPlan.create({
         userId: user.id,
+        name: planName,
         scope: 'CUSTOM',
         startDate: effectiveStartDate,
         endDate: generatedPlan.summary.projectedFinish,
@@ -426,8 +427,22 @@ export default function CustomPlanBuilder() {
                 maxPerDay: null,
               });
 
+              const themeName = {
+                LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+                WISDOM_PLUNGE: 'Wisdom Plunge',
+                INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
+                GODLY_MAN: 'The Godly Man',
+                LIVE_WITH_PURPOSE: 'Live With Purpose',
+                KNOW_KING_DAVID: 'Know King David',
+                HEART_OF_GOD: 'Heart of God',
+                WHO_IS_JESUS: 'Who Is Jesus',
+                CHRONOLOGICAL_BIBLE: 'Chronological Bible',
+                CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
+              }[themeKey] || themeKey;
+
               const plan = await base44.entities.ReadingPlan.create({
                 userId: user.id,
+                name: themeName,
                 scope: 'CUSTOM',
                 startDate: effectiveStartDate,
                 endDate: result.summary.projectedFinish,
@@ -445,16 +460,16 @@ export default function CustomPlanBuilder() {
 
               toast.success('Plan started!');
               window.location.href = createPageUrl('Home');
-            } catch (error) {
+              } catch (error) {
               console.error('Failed to start plan:', error);
               toast.error('Failed to start plan');
-            } finally {
+              } finally {
               setIsSaving(false);
-            }
-          }}
-        />
+              }
+              }}
+              />
 
-        {/* Timeframe */}
+              {/* Timeframe */}
         <div className="mt-6 space-y-4">
           <h3 className="text-sm font-semibold text-foreground">Timeframe</h3>
 
