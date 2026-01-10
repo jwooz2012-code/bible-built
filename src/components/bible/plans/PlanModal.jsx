@@ -278,9 +278,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
             </div>
           )}
 
-          {/* Suggested Plans */}
+          {/* Options */}
           <div>
-            <h3 className="text-sm font-semibold text-foreground mb-3">Suggested Plans</h3>
             <div className="grid grid-cols-1 gap-2">
               <button
                 onClick={() => {
