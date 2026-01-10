@@ -1,10 +1,11 @@
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Shield, Lamp, Leaf, Compass, Crown, Heart } from 'lucide-react';
+import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 
 const ICON_MAP = {
+  cross: Cross,
   shield: Shield,
   lamp: Lamp,
   leaf: Leaf,
@@ -14,6 +15,7 @@ const ICON_MAP = {
 };
 
 const COLOR_MAP = {
+  gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
   pink: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
@@ -24,6 +26,20 @@ const COLOR_MAP = {
 };
 
 const THEME_INFO = {
+  WHO_IS_JESUS: {
+    name: 'Who Is Jesus?',
+    hook: 'From prophecy to person, from cross to crown.',
+    description: 'This intensive study traces the identity of Jesus Christ from Old Testament prophecy through His earthly ministry, sacrificial death, resurrection, exaltation, and eternal reign. Scripture defines who Jesus is—not opinion, tradition, or culture.',
+    iconKey: 'cross',
+    colorKey: 'gold',
+    sections: [
+      { title: 'Promised Messiah (Prophecy)', count: 13 },
+      { title: 'Incarnation & Identity', count: 7 },
+      { title: 'Ministry & Message', count: 15 },
+      { title: 'Rejection, Cross & Atonement', count: 8 },
+      { title: 'Resurrection, Exaltation & Eternal Reign', count: 13 },
+    ]
+  },
   LEADERSHIP_INTENSIVE: {
     name: 'Leadership Intensive',
     hook: 'Lead with wisdom and strength.',
@@ -121,6 +137,21 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm }) 
               Thematic Study
             </div>
           </div>
+          
+          {/* Plan Structure (if sections provided) */}
+          {theme.sections && (
+            <div>
+              <h3 className="text-sm font-semibold text-foreground mb-3">Plan Structure</h3>
+              <div className="space-y-2">
+                {theme.sections.map((section, idx) => (
+                  <div key={idx} className="flex items-center justify-between p-2.5 rounded-lg bg-muted/30">
+                    <span className="text-xs font-medium text-foreground">{section.title}</span>
+                    <span className="text-xs text-muted-foreground">{section.count} chapters</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
           
           {/* Preview of books included */}
           <div>
