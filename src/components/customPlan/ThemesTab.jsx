@@ -1,7 +1,8 @@
 import React from 'react';
-import { Shield, Lamp, Leaf, Compass, Crown, Heart } from 'lucide-react';
+import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
 
 const ICON_MAP = {
+  cross: Cross,
   shield: Shield,
   lamp: Lamp,
   leaf: Leaf,
@@ -11,6 +12,7 @@ const ICON_MAP = {
 };
 
 const COLOR_MAP = {
+  gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
   pink: 'bg-pink-500/10 text-pink-600 dark:text-pink-400',
@@ -21,6 +23,13 @@ const COLOR_MAP = {
 };
 
 const THEME_OPTIONS = [
+  {
+    id: 'WHO_IS_JESUS',
+    name: 'Who Is Jesus?',
+    iconKey: 'cross',
+    colorKey: 'gold',
+    description: 'From Promise to Fulfillment'
+  },
   {
     id: 'LEADERSHIP_INTENSIVE',
     name: 'Leadership Intensive',
