@@ -234,7 +234,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                   {!planDetails.isNoPlan && (
                     <>
                       <div>{formatDateRange(existingPlan.startDate, existingPlan.endDate)}</div>
-                      <div>{planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left • {planDetails.remaining} remaining</div>
+                      <div>
+                        {planDetails.chaptersPerDay}/day • {planDetails.daysLeft} days left
+                        {planDetails.remaining > 0 && ` • ${planDetails.remaining} remaining`}
+                      </div>
                     </>
                   )}
                   {planDetails.isNoPlan && (
