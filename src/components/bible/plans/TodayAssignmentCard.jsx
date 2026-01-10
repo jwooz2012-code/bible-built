@@ -195,12 +195,7 @@ export default function TodayAssignmentCard({
             
             {/* Context line */}
             <p className="text-sm text-muted-foreground mb-4">
-              {plan.scope === 'LEADERSHIP_30' ? 'Leadership Intensive' : 
-               plan.scope === 'WISDOM_7' ? 'Wisdom Plunge' :
-               plan.scope === 'BIBLE' ? 'Whole Bible' :
-               plan.scope === 'OT' ? 'Old Testament' :
-               plan.scope === 'NT' ? 'New Testament' :
-               plan.scope === 'PSALMS' ? 'Psalms' : 'Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
+              {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
             </p>
           </>
         )}
