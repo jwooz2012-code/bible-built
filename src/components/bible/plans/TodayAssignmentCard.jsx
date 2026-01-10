@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
+import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
+import { useMarkTodayComplete } from '@/components/bible/hooks/useMarkTodayComplete';
 import { formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
 
 export default function TodayAssignmentCard({
