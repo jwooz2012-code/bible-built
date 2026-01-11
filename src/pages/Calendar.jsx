@@ -212,8 +212,10 @@ export default function Calendar() {
           </div>
 
           {logsLoading ? (
-            <div className="grid grid-cols-7 gap-2">
-              {Array(35).fill(0).map((_, i) => <Skeleton key={i} className="aspect-square" />)}
+            <div className="grid grid-cols-7 gap-2 py-12">
+              <div className="col-span-7 flex justify-center">
+                <LoadingSpinner />
+              </div>
             </div>
           ) : (
             <div className="grid grid-cols-7 gap-2">

@@ -336,9 +336,7 @@ export default function Home() {
               className="mb-5">
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
-                {isLoadingLogs ? (
-                  <Skeleton className="h-4 w-40" />
-                ) : (
+                {!isLoadingLogs && (
                   <span className="text-xs text-muted-foreground font-medium">
                     • Chapters read this year: {yearChaptersRead}
                   </span>
