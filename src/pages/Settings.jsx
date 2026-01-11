@@ -37,6 +37,30 @@ export default function Settings() {
     base44.auth.logout();
   };
 
+  const handleDeleteAccount = async () => {
+    if (deleteConfirmText !== 'DELETE') {
+      toast.error('Please type DELETE to confirm');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      // Delete all user data
+      await base44.entities.ReadingLog.delete({ userId: user.id });
+      await base44.entities.ReadingPlan.delete({ userId: user.id });
+      await base44.entities.PlanDay.delete({ userId: user.id });
+      
+      // Sign out and redirect
+      toast.success('Account deleted');
+      setTimeout(() => {
+        base44.auth.logout();
+      }, 1000);
+    } catch (error) {
+      toast.error('Failed to delete account. Please try again.');
+      setIsDeleting(false);
+    }
+  };
+
   const handleResendVerification = async () => {
     try {
       await base44.auth.resendVerificationEmail(user.email);
