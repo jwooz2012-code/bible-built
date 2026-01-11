@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
+import CustomizePlanSheet from './CustomizePlanSheet';
 
 const ICON_MAP = {
   cross: Cross,
@@ -93,6 +94,8 @@ const THEME_INFO = {
 };
 
 export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
+  const [showCustomize, setShowCustomize] = useState(false);
+
   if (!themeKey) return null;
   
   const theme = THEME_INFO[themeKey];
@@ -182,37 +185,35 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
             <div className="max-w-lg mx-auto space-y-2">
               <Button 
                 onClick={() => {
-                  if (onStartPlan) {
-                    onStartPlan(themeKey);
-                  }
                   onClose();
+                  setShowCustomize(true);
                 }} 
                 className="w-full"
               >
-                Start This Plan
+                Start / Customize
               </Button>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onClose} className="flex-1">
-                  Cancel
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    if (onConfirm) {
-                      onConfirm(themeKey);
-                    }
-                    onClose();
-                  }} 
-                  className="flex-1"
-                >
-                  Customize
-                </Button>
-              </div>
+              <Button variant="outline" onClick={onClose} className="w-full">
+                Cancel
+              </Button>
             </div>
           </div>
         </div>
         </motion.div>
         </SheetContent>
         </Sheet>
+
+        <CustomizePlanSheet
+          open={showCustomize}
+          onClose={() => setShowCustomize(false)}
+          planName={theme.name}
+          chapterList={chapters}
+          onConfirm={(planData) => {
+            setShowCustomize(false);
+            if (onStartPlan) {
+              onStartPlan(themeKey, planData);
+            }
+          }}
+        />
+        </>
         );
         }

@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { CHARACTER_LIBRARY } from '@/components/bible/plans/characterLibrary';
+import { CHARACTER_LIBRARY, flattenCharacterSections } from '@/components/bible/plans/characterLibrary';
+import CustomizePlanSheet from './CustomizePlanSheet';
 
 const ICON_MAP = {
   stars: Sparkles,
@@ -32,6 +33,8 @@ const COLOR_MAP = {
 };
 
 export default function CharacterDetailCard({ open, onClose, characterKey, onConfirm, onStartPlan }) {
+  const [showCustomize, setShowCustomize] = useState(false);
+
   if (!characterKey) return null;
   
   const character = CHARACTER_LIBRARY[characterKey];
@@ -115,37 +118,35 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
             <div className="max-w-lg mx-auto space-y-2">
               <Button 
                 onClick={() => {
-                  if (onStartPlan) {
-                    onStartPlan(characterKey);
-                  }
                   onClose();
+                  setShowCustomize(true);
                 }} 
                 className="w-full"
               >
-                Start This Plan
+                Start / Customize
               </Button>
-              <div className="flex gap-2">
-                <Button variant="outline" onClick={onClose} className="flex-1">
-                  Cancel
-                </Button>
-                <Button 
-                  variant="outline"
-                  onClick={() => {
-                    if (onConfirm) {
-                      onConfirm(characterKey);
-                    }
-                    onClose();
-                  }} 
-                  className="flex-1"
-                >
-                  Customize
-                </Button>
-              </div>
+              <Button variant="outline" onClick={onClose} className="w-full">
+                Cancel
+              </Button>
             </div>
           </div>
         </div>
         </motion.div>
         </SheetContent>
         </Sheet>
+
+        <CustomizePlanSheet
+          open={showCustomize}
+          onClose={() => setShowCustomize(false)}
+          planName={characterKey}
+          chapterList={flattenCharacterSections(characterKey)}
+          onConfirm={(planData) => {
+            setShowCustomize(false);
+            if (onStartPlan) {
+              onStartPlan(characterKey, planData);
+            }
+          }}
+        />
+        </>
         );
         }
