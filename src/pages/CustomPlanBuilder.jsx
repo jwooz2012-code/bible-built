@@ -354,21 +354,33 @@ export default function CustomPlanBuilder() {
           onConfirm={(characterKey) => {
             setSelectedPerson(characterKey);
           }}
-          onStartPlan={async (characterKey, planData) => {
+          onStartPlan={async (characterKey) => {
             setIsSaving(true);
             try {
               const user = await base44.auth.me();
+              const chapterList = flattenCharacterSections(characterKey);
+
+              const recommendedDays = Math.ceil(chapterList.length / 2);
+              const timeframe = { mode: 'finishIn', days: recommendedDays };
+
+              const result = generatePlanSchedule({
+                chapterList,
+                startDate: effectiveStartDate,
+                timeframe,
+                skipSundays: false,
+                maxPerDay: null,
+              });
 
               const plan = await base44.entities.ReadingPlan.create({
                 userId: user.id,
-                name: planData.planName,
+                name: characterKey,
                 scope: 'CUSTOM',
-                startDate: planData.startDate,
-                endDate: planData.endDate,
-                chaptersPerDay: planData.chaptersPerDay,
+                startDate: effectiveStartDate,
+                endDate: result.summary.projectedFinish,
+                chaptersPerDay: result.summary.autoPace,
               });
 
-              const planDayRecords = planData.planDays.map(day => ({
+              const planDayRecords = result.planDays.map(day => ({
                 planId: plan.id,
                 userId: user.id,
                 date: day.date,
@@ -399,21 +411,46 @@ export default function CustomPlanBuilder() {
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
           }}
-          onStartPlan={async (themeKey, planData) => {
+          onStartPlan={async (themeKey) => {
             setIsSaving(true);
             try {
               const user = await base44.auth.me();
+              const chapterList = CURATED_PLANS[themeKey] || [];
+
+              const recommendedDays = Math.ceil(chapterList.length / 2);
+              const timeframe = { mode: 'finishIn', days: recommendedDays };
+
+              const result = generatePlanSchedule({
+                chapterList,
+                startDate: effectiveStartDate,
+                timeframe,
+                skipSundays: false,
+                maxPerDay: null,
+              });
+
+              const themeName = {
+                LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+                WISDOM_PLUNGE: 'Wisdom Plunge',
+                INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
+                GODLY_MAN: 'The Godly Man',
+                LIVE_WITH_PURPOSE: 'Live With Purpose',
+                KNOW_KING_DAVID: 'Know King David',
+                HEART_OF_GOD: 'Heart of God',
+                WHO_IS_JESUS: 'Who Is Jesus',
+                CHRONOLOGICAL_BIBLE: 'Chronological Bible',
+                CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
+              }[themeKey] || themeKey;
 
               const plan = await base44.entities.ReadingPlan.create({
                 userId: user.id,
-                name: planData.planName,
+                name: themeName,
                 scope: 'CUSTOM',
-                startDate: planData.startDate,
-                endDate: planData.endDate,
-                chaptersPerDay: planData.chaptersPerDay,
+                startDate: effectiveStartDate,
+                endDate: result.summary.projectedFinish,
+                chaptersPerDay: result.summary.autoPace,
               });
 
-              const planDayRecords = planData.planDays.map(day => ({
+              const planDayRecords = result.planDays.map(day => ({
                 planId: plan.id,
                 userId: user.id,
                 date: day.date,
@@ -424,13 +461,13 @@ export default function CustomPlanBuilder() {
 
               toast.success('Plan started!');
               window.location.href = createPageUrl('Home');
-            } catch (error) {
+              } catch (error) {
               console.error('Failed to start plan:', error);
               toast.error('Failed to start plan');
-            } finally {
+              } finally {
               setIsSaving(false);
-            }
-          }}
+              }
+              }}
               />
 
               {/* Timeframe */}
