@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
@@ -15,6 +15,7 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [displayName, setDisplayName] = useState('');
+  const [isEditingName, setIsEditingName] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
@@ -50,6 +51,7 @@ export default function Settings() {
     try {
       await base44.auth.updateMe({ displayName: displayName.trim() });
       setUser({ ...user, displayName: displayName.trim() });
+      setIsEditingName(false);
       toast.success('Saved');
     } catch (error) {
       toast.error(error?.message || 'Failed to save');
@@ -96,14 +98,53 @@ export default function Settings() {
               <CardDescription>Your display name and account details</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-xs font-medium text-muted-foreground">Display Name</label>
-                <Input
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Enter your name"
-                  className="w-full"
-                />
+              <div>
+                <p className="text-xs text-muted-foreground mb-2">Display Name</p>
+                {!isEditingName ? (
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-medium text-foreground">
+                      {user.displayName || user.email?.split('@')[0] || 'Friend'}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsEditingName(true)}
+                      className="h-8 w-8 p-0"
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <Input
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="Enter your name"
+                      autoFocus
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleSaveProfile} 
+                        disabled={isSaving}
+                        size="sm"
+                        className="flex-1"
+                      >
+                        {isSaving ? 'Saving...' : 'Save'}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setDisplayName(user.displayName || '');
+                          setIsEditingName(false);
+                        }}
+                        disabled={isSaving}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
               <div>
                 <p className="text-xs text-muted-foreground mb-1">Email</p>
@@ -113,13 +154,6 @@ export default function Settings() {
                 <p className="text-xs text-muted-foreground mb-1">Timezone</p>
                 <p className="text-sm font-medium text-foreground">{timezone}</p>
               </div>
-              <Button 
-                onClick={handleSaveProfile} 
-                disabled={isSaving}
-                className="w-full"
-              >
-                {isSaving ? 'Saving...' : 'Save Profile'}
-              </Button>
             </CardContent>
           </Card>
 
