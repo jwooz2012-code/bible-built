@@ -2,23 +2,32 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [displayName, setDisplayName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
   const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
   useEffect(() => {
     let mounted = true;
     base44.auth.me()
-      .then(u => { if (mounted) { setUser(u); setIsLoading(false); } })
+      .then(u => { 
+        if (mounted) { 
+          setUser(u); 
+          setDisplayName(u.displayName || '');
+          setIsLoading(false); 
+        } 
+      })
       .catch(() => { if (mounted) setIsLoading(false); });
     return () => { mounted = false; };
   }, []);
@@ -33,6 +42,19 @@ export default function Settings() {
       toast.success('Verification email sent');
     } catch (error) {
       toast.error(error?.message || 'Failed to resend');
+    }
+  };
+
+  const handleSaveProfile = async () => {
+    setIsSaving(true);
+    try {
+      await base44.auth.updateMe({ displayName: displayName.trim() });
+      setUser({ ...user, displayName: displayName.trim() });
+      toast.success('Saved');
+    } catch (error) {
+      toast.error(error?.message || 'Failed to save');
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -67,22 +89,37 @@ export default function Settings() {
         >
           <Card>
             <CardHeader>
-              <CardTitle>Account</CardTitle>
-              <CardDescription>Your profile information</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <User className="w-5 h-5" />
+                Profile
+              </CardTitle>
+              <CardDescription>Your display name and account details</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div>
-                <p className="text-xs text-muted-foreground">Name</p>
-                <p className="text-sm font-medium text-foreground">{user.full_name}</p>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-xs font-medium text-muted-foreground">Display Name</label>
+                <Input
+                  value={displayName}
+                  onChange={(e) => setDisplayName(e.target.value)}
+                  placeholder="Enter your name"
+                  className="w-full"
+                />
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Email</p>
+                <p className="text-xs text-muted-foreground mb-1">Email</p>
                 <p className="text-sm font-medium text-foreground">{user.email}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground">Timezone</p>
+                <p className="text-xs text-muted-foreground mb-1">Timezone</p>
                 <p className="text-sm font-medium text-foreground">{timezone}</p>
               </div>
+              <Button 
+                onClick={handleSaveProfile} 
+                disabled={isSaving}
+                className="w-full"
+              >
+                {isSaving ? 'Saving...' : 'Save Profile'}
+              </Button>
             </CardContent>
           </Card>
 
