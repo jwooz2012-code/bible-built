@@ -16,10 +16,10 @@ export default function Layout({ children }) {
   }, [location.pathname, currentPath]);
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/home' },
-    { name: 'Calendar', icon: Calendar, path: '/calendar' },
-    { name: 'Stats', icon: BarChart3, path: '/stats' },
-    { name: 'Settings', icon: Settings, path: '/settings' },
+    { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
+    { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
+    { name: 'Stats', icon: BarChart3, path: '/stats', pageName: 'stats' },
+    { name: 'Settings', icon: Settings, path: '/settings', pageName: 'settings' },
   ];
 
 
@@ -47,7 +47,7 @@ export default function Layout({ children }) {
                 return (
                   <Link
                     key={item.name}
-                    to={createPageUrl(item.name)}
+                    to={createPageUrl(item.pageName)}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
                     <item.icon 
