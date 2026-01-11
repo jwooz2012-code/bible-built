@@ -201,7 +201,8 @@ export default function Home() {
     { id: 12, title: 'Deep Roots', achieved: ntReadThroughCount >= 5 },
     { id: 13, title: 'Iron Discipline', achieved: daysWithReadingDistinct >= 250 },
     { id: 14, title: 'Master Builder', achieved: totalBooksCompletedDistinct >= 30 },
-    { id: 15, title: 'Built for a Lifetime', achieved: lifetimeTotalCount >= 1000 }
+    { id: 15, title: 'Built for a Lifetime', achieved: lifetimeTotalCount >= 1000 },
+    { id: 16, title: 'Swordsmen', achieved: trackerStats.records.mostReadBook.count >= 30 }
   ];
 
   const unlockedAchievements = achievements.filter(a => a.achieved);
