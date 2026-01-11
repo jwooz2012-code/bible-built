@@ -27,7 +27,14 @@ export function ThemeProvider({ children }) {
         setUser(u);
         const savedTheme = u?.theme_preference || localStorage.getItem('theme') || 'system';
         const savedEnergy = localStorage.getItem('energy_mode') === 'true';
-        const savedPalette = localStorage.getItem('bb_energy_palette') || 'surge';
+        let savedPalette = localStorage.getItem('bb_energy_palette') || 'surge';
+        
+        // Force surge as the only palette
+        if (savedPalette !== 'surge') {
+          savedPalette = 'surge';
+          localStorage.setItem('bb_energy_palette', 'surge');
+        }
+        
         setThemeState(savedTheme);
         setEnergyModeState(savedEnergy);
         setEnergyPaletteState(savedPalette);
@@ -35,7 +42,14 @@ export function ThemeProvider({ children }) {
       .catch(() => {
         const savedTheme = localStorage.getItem('theme') || 'system';
         const savedEnergy = localStorage.getItem('energy_mode') === 'true';
-        const savedPalette = localStorage.getItem('bb_energy_palette') || 'surge';
+        let savedPalette = localStorage.getItem('bb_energy_palette') || 'surge';
+        
+        // Force surge as the only palette
+        if (savedPalette !== 'surge') {
+          savedPalette = 'surge';
+          localStorage.setItem('bb_energy_palette', 'surge');
+        }
+        
         setThemeState(savedTheme);
         setEnergyModeState(savedEnergy);
         setEnergyPaletteState(savedPalette);
@@ -88,8 +102,9 @@ export function ThemeProvider({ children }) {
   };
 
   const setEnergyPalette = (palette) => {
-    setEnergyPaletteState(palette);
-    localStorage.setItem('bb_energy_palette', palette);
+    // Always force surge
+    setEnergyPaletteState('surge');
+    localStorage.setItem('bb_energy_palette', 'surge');
   };
 
   return (
