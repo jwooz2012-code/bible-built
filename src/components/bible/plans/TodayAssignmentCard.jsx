@@ -64,8 +64,10 @@ export default function TodayAssignmentCard({
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
 
-    // Check progress across all logs (not just today's)
-    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
+    // Check progress only from logs on or after plan start date
+    const planStartDate = plan?.startDate || '2000-01-01';
+    const relevantLogs = allTimeLogs.filter((log) => log.dateKey >= planStartDate);
+    const completedIds = new Set(relevantLogs.map((log) => log.chapterId));
     const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignedToday.length;
 
@@ -102,7 +104,10 @@ export default function TodayAssignmentCard({
     
     if (!assignedTomorrow.length) return null;
 
-    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
+    // Check progress only from logs on or after plan start date
+    const planStartDate = plan?.startDate || '2000-01-01';
+    const relevantLogs = allTimeLogs.filter((log) => log.dateKey >= planStartDate);
+    const completedIds = new Set(relevantLogs.map((log) => log.chapterId));
     const doneTomorrow = assignedTomorrow.filter((ch) => completedIds.has(ch.chapterId)).length;
 
     // Build summary string

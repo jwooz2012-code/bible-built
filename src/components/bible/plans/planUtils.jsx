@@ -160,9 +160,10 @@ export function computeTodayAssignment({ plan, logs, todayKey }) {
   const scopeChapters = buildScopeChapters(plan.scope);
   const totalChapters = scopeChapters.length;
 
-  // Filter logs to only those within the plan's scope
+  // Filter logs to only those within the plan's scope AND on or after plan start date
   const relevantLogs = logs.filter((log) =>
-    scopeChapters.some((ch) => ch.chapterId === log.chapterId)
+    scopeChapters.some((ch) => ch.chapterId === log.chapterId) &&
+    log.dateKey >= plan.startDate
   );
 
   // Count unique chapters read
