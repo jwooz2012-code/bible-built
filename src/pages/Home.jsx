@@ -83,7 +83,7 @@ export default function Home() {
         thisWeekChapters: 0,
         thisWeekActiveDays: 0,
         deltaVsLastWeek: 0,
-        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 } }
+        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 }, mostCompletedBook: { name: 'None', count: 0 } }
       };
     }
 
@@ -202,7 +202,7 @@ export default function Home() {
     { id: 13, title: 'Iron Discipline', achieved: daysWithReadingDistinct >= 250 },
     { id: 14, title: 'Master Builder', achieved: totalBooksCompletedDistinct >= 30 },
     { id: 15, title: 'Built for a Lifetime', achieved: lifetimeTotalCount >= 1000 },
-    { id: 16, title: 'Swordsmen', achieved: trackerStats.records.mostReadBook.count >= 30 }
+    { id: 16, title: 'Swordsmen', achieved: trackerStats.records.mostCompletedBook.count >= 30 }
   ];
 
   const unlockedAchievements = achievements.filter(a => a.achieved);

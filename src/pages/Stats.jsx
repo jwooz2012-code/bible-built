@@ -74,7 +74,7 @@ export default function Stats() {
         sectionCoverage: [],
         bookProgressYear: [],
         bookProgressLifetime: [],
-        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 } }
+        records: { longestStreak: 0, bestRolling7: 0, bestMonth: 0, mostReadBook: { name: 'None', count: 0 }, mostCompletedBook: { name: 'None', count: 0 } }
       };
     }
 
@@ -215,7 +215,7 @@ export default function Stats() {
   { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250, current: daysWithReadingDistinct, target: 250 },
   { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30, current: totalBooksCompletedDistinct, target: 30 },
   { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000, current: totalChaptersRead, target: 1000 },
-  { id: 16, title: 'Swordsmen', subtitle: 'Read any book 30 times', achieved: trackerStats.records.mostReadBook.count >= 30, current: trackerStats.records.mostReadBook.count, target: 30 }];
+  { id: 16, title: 'Swordsmen', subtitle: 'Complete any book 30 times', achieved: trackerStats.records.mostCompletedBook.count >= 30, current: trackerStats.records.mostCompletedBook.count, target: 30 }];
 
 
   if (isLoading) {

@@ -188,7 +188,7 @@ export function computeRecords(dateCountMap, logs) {
   }
   const bestMonth = Math.max(0, ...monthTotals.values());
 
-  // Most-read book
+  // Most-read book (by chapter reads)
   const bookCounts = new Map();
   for (const log of logs) {
     bookCounts.set(log.book, (bookCounts.get(log.book) || 0) + 1);
@@ -200,5 +200,26 @@ export function computeRecords(dateCountMap, logs) {
     }
   }
 
-  return { longestStreak, bestRolling7, bestMonth, mostReadBook };
+  // Most-completed book (for Swordsmen badge)
+  const bookCompletions = new Map();
+  for (const log of logs) {
+    const key = `${log.bookIndex}-${log.book}`;
+    if (!bookCompletions.has(key)) {
+      bookCompletions.set(key, { bookName: log.book, bookIndex: log.bookIndex, chapters: new Map() });
+    }
+    const bookData = bookCompletions.get(key);
+    bookData.chapters.set(log.chapter, (bookData.chapters.get(log.chapter) || 0) + 1);
+  }
+
+  let mostCompletedBook = { name: 'None', count: 0 };
+  for (const [key, bookData] of bookCompletions.entries()) {
+    // Find minimum chapter read count (= times book was completed)
+    const chapterCounts = Array.from(bookData.chapters.values());
+    const minCount = chapterCounts.length > 0 ? Math.min(...chapterCounts) : 0;
+    if (minCount > mostCompletedBook.count) {
+      mostCompletedBook = { name: bookData.bookName, count: minCount };
+    }
+  }
+
+  return { longestStreak, bestRolling7, bestMonth, mostReadBook, mostCompletedBook };
 }
