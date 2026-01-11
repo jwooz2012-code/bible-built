@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -8,7 +8,16 @@ import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Layout({ children }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentPath = location.pathname;
+
+  useEffect(() => {
+    // Root-only landing fix. Do not affect deep links.
+    if (location.pathname === "/") {
+      console.log("[ROOT_FIX] redirecting / -> /home");
+      navigate("/home", { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     console.log('[LAYOUT] Current pathname:', currentPath);
