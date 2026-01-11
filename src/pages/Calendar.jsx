@@ -211,16 +211,6 @@ export default function Calendar() {
           </div>
         </motion.div>
 
-        {daysReadInLast7 > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center text-xs text-muted-foreground mb-4 opacity-75"
-          >
-            You read on {daysReadInLast7} of the last 7 days.
-          </motion.div>
-        )}
-
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
