@@ -27,7 +27,8 @@ import {
   TreePine, 
   Hammer,
   Circle,
-  Sword
+  Sword,
+  Swords
 } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
@@ -165,6 +166,8 @@ export default function Stats() {
         return <Ruler {...iconProps} style={{ color }} />;
       case 'Built for a Lifetime':
         return <Columns {...iconProps} style={{ color }} />;
+      case 'Swordsmen':
+        return <Swords {...iconProps} style={{ color }} />;
       default:
         return <Circle {...iconProps} style={{ color }} />;
     }
@@ -182,6 +185,7 @@ export default function Stats() {
       case 'All In': return 'from-[#EF4444] to-[#DC2626]'; // Accent red-orange
       case 'Built to Last': return 'from-[#D4A574] to-[#B8956A]'; // Accent clay
       case 'Built for a Lifetime': return 'from-[#64748B] to-[#475569]'; // Accent slate
+      case 'Swordsmen': return 'from-[#94A3B8] to-[#64748B]'; // Steel/slate
       case 'Cover to Cover': return 'from-[#14B8A6] to-[#0D9488]'; // Accent teal
       case 'Testament Strong': return 'from-[#A855F7] to-[#9333EA]'; // Accent purple
       case 'The Whole Word': return 'from-[#FBBF24] to-[#F59E0B]'; // Accent gold
@@ -210,7 +214,8 @@ export default function Stats() {
   { id: 12, title: 'Deep Roots', subtitle: 'Read NT 5 times', achieved: ntReadThroughCount >= 5, current: ntReadThroughCount, target: 5 },
   { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250, current: daysWithReadingDistinct, target: 250 },
   { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30, current: totalBooksCompletedDistinct, target: 30 },
-  { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000, current: totalChaptersRead, target: 1000 }];
+  { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000, current: totalChaptersRead, target: 1000 },
+  { id: 16, title: 'Swordsmen', subtitle: 'Read any book 30 times', achieved: trackerStats.records.mostReadBook.count >= 30, current: trackerStats.records.mostReadBook.count, target: 30 }];
 
 
   if (isLoading) {
