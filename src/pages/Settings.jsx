@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
@@ -39,7 +39,7 @@ export default function Settings() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>
     );
   }
@@ -47,7 +47,7 @@ export default function Settings() {
   if (!user) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>
     );
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Skeleton } from '@/components/ui/skeleton';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -216,7 +216,7 @@ export default function Stats() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>);
 
   }
@@ -224,7 +224,7 @@ export default function Stats() {
   if (!user || !userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>);
 
   }
@@ -272,8 +272,8 @@ export default function Stats() {
           </div>
 
           {yearLoading ?
-          <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
+          <div className="flex justify-center py-12">
+              <LoadingSpinner />
             </div> :
 
           <div className="space-y-4">
@@ -337,8 +337,8 @@ export default function Stats() {
           </div>
 
           {lifetimeLoading ?
-          <div className="space-y-4">
-              <Skeleton className="h-24 w-full" />
+          <div className="flex justify-center py-12">
+              <LoadingSpinner />
             </div> :
 
           <div className="space-y-4">
@@ -489,10 +489,8 @@ export default function Stats() {
             )}
 
           {lifetimeLoading ?
-          <div className="space-y-3">
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
-              <Skeleton className="h-16 w-full" />
+          <div className="flex justify-center py-12">
+              <LoadingSpinner />
             </div> :
 
           <div className="grid grid-cols-1 gap-3">
