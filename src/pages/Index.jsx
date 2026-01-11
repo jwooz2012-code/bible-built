@@ -7,7 +7,7 @@ export default function Index() {
 
   useEffect(() => {
     // Force navigation to Home page
-    navigate(createPageUrl('Home'), { replace: true });
+    navigate(createPageUrl('home'), { replace: true });
   }, [navigate]);
 
   return null;
