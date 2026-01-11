@@ -190,8 +190,9 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
                   setShowCustomize(true);
                 }} 
                 className="w-full"
+                size="lg"
               >
-                Start / Customize
+                Select Plan
               </Button>
               <Button variant="outline" onClick={onClose} className="w-full">
                 Cancel

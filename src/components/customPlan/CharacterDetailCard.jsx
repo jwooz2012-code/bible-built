@@ -123,8 +123,9 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
                   setShowCustomize(true);
                 }} 
                 className="w-full"
+                size="lg"
               >
-                Start / Customize
+                Select Plan
               </Button>
               <Button variant="outline" onClick={onClose} className="w-full">
                 Cancel
