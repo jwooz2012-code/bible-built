@@ -42,7 +42,7 @@ export default function Layout({ children }) {
             <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
               {navItems.map((item) => {
                 const isActive = currentPath === item.path || 
-                  (item.path === '/home' && currentPath === '/');
+                  (item.path === '/home' && (currentPath === '/' || currentPath === '/home'));
                 return (
                   <Link
                     key={item.name}
