@@ -49,6 +49,7 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
   const recommendedDays = Math.ceil(totalChapters / 2);
   
   return (
+    <>
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[85vh] overflow-y-auto p-0">
         <motion.div
