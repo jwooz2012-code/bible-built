@@ -353,6 +353,9 @@ export default function CustomPlanBuilder() {
           characterKey={selectedCharacterForDetail}
           onConfirm={(characterKey) => {
             setSelectedPerson(characterKey);
+            const chapterList = flattenCharacterSections(characterKey);
+            const recommendedDays = Math.ceil(chapterList.length / 2);
+            setFinishInDays(recommendedDays);
           }}
           onStartPlan={async (characterKey) => {
             setIsSaving(true);
@@ -361,6 +364,7 @@ export default function CustomPlanBuilder() {
               const chapterList = flattenCharacterSections(characterKey);
 
               const recommendedDays = Math.ceil(chapterList.length / 2);
+              setFinishInDays(recommendedDays);
               const timeframe = { mode: 'finishIn', days: recommendedDays };
 
               const result = generatePlanSchedule({
@@ -410,6 +414,9 @@ export default function CustomPlanBuilder() {
           themeKey={selectedThemeForDetail}
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
+            const chapterList = CURATED_PLANS[themeKey] || [];
+            const recommendedDays = Math.ceil(chapterList.length / 2);
+            setFinishInDays(recommendedDays);
           }}
           onStartPlan={async (themeKey) => {
             setIsSaving(true);
@@ -418,6 +425,7 @@ export default function CustomPlanBuilder() {
               const chapterList = CURATED_PLANS[themeKey] || [];
 
               const recommendedDays = Math.ceil(chapterList.length / 2);
+              setFinishInDays(recommendedDays);
               const timeframe = { mode: 'finishIn', days: recommendedDays };
 
               const result = generatePlanSchedule({
