@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
@@ -268,7 +268,7 @@ export default function Home() {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>);
 
   }
@@ -276,7 +276,7 @@ export default function Home() {
   if (!user || !userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <Skeleton className="h-20 w-64" />
+        <LoadingSpinner />
       </div>);
 
   }
