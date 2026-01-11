@@ -11,8 +11,9 @@ export default function Layout({ children }) {
   const currentPath = location.pathname;
 
   useEffect(() => {
+    console.log('[LAYOUT] Current pathname:', currentPath);
     window.scrollTo(0, 0);
-  }, [location.pathname]);
+  }, [location.pathname, currentPath]);
 
   const navItems = [
     { name: 'Home', icon: Home, path: '/home' },

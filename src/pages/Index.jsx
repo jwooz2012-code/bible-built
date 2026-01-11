@@ -6,6 +6,7 @@ export default function Index() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    console.log('[INDEX] Navigating to Home from Index');
     navigate(createPageUrl('Home'), { replace: true });
   }, [navigate]);
 
