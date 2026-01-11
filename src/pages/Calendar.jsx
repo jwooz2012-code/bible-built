@@ -54,6 +54,15 @@ export default function Calendar() {
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
   const logsByDay = groupLogsByDay(logs);
 
+  // Year totals
+  const yearStart = `${year}-01-01`;
+  const yearEnd = `${year}-12-31`;
+  const { data: yearLogs = [] } = useReadingLogsRange(userId, yearStart, yearEnd);
+
+  // Compute totals with duplicate safety
+  const thisMonthTotal = logs.length;
+  const thisYearTotal = yearLogs.length;
+
   // Calculate last 7 days reading frequency
   const today = new Date();
   const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
@@ -175,6 +184,32 @@ export default function Calendar() {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
+
+        {/* Momentum Chips */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex items-center justify-center gap-3 mb-5"
+        >
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/10 to-blue-500/10 border border-green-500/20">
+            <span className="text-base">📅</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">This Month</span>
+              <span className="text-xs font-medium text-muted-foreground">•</span>
+              <span className="text-base font-bold text-foreground">{thisMonthTotal}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20">
+            <span className="text-base">⚔️</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-medium text-muted-foreground">This Year</span>
+              <span className="text-xs font-medium text-muted-foreground">•</span>
+              <span className="text-base font-bold text-foreground">{thisYearTotal}</span>
+            </div>
+          </div>
+        </motion.div>
 
         {daysReadInLast7 > 0 && (
           <motion.div
