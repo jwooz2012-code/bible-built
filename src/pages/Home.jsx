@@ -129,7 +129,7 @@ export default function Home() {
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
   const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
-  const { totalCount: yearChaptersRead } = useReadingStats(yearLogs);
+  const yearChaptersRead = yearLogs.length;
 
   // Week calculations (last 7 days)
   const weekAgo = new Date(now);
