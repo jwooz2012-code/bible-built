@@ -19,6 +19,7 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
+import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
@@ -68,6 +69,9 @@ export default function Home() {
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
+  
+  // Single source of truth for current streak
+  const currentStreak = useCurrentStreak(allTimeLogs);
 
   const trackerStats = useMemo(() => {
     if (!allTimeLogs.length) {
@@ -78,7 +82,6 @@ export default function Home() {
         ntUniqueChapters: 0,
         otPercent: 0,
         ntPercent: 0,
-        currentStreak: 0,
         longestStreak: 0,
         thisWeekChapters: 0,
         thisWeekActiveDays: 0,
@@ -102,7 +105,7 @@ export default function Home() {
 
     const dateCountMap = groupByDateKey(allTimeLogs);
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
-    const { currentStreak, longestStreak } = computeStreaks(sortedDates, today);
+    const { longestStreak } = computeStreaks(sortedDates, today);
     const { thisWeekChapters, thisWeekActiveDays, deltaVsLastWeek } = computeWeeklySummary(dateCountMap, today);
     const records = computeRecords(dateCountMap, allTimeLogs);
 
@@ -113,7 +116,6 @@ export default function Home() {
       ntUniqueChapters: ntUnique.size,
       otPercent: Math.round(otUnique.size / 929 * 100),
       ntPercent: Math.round(ntUnique.size / 260 * 100),
-      currentStreak,
       longestStreak,
       thisWeekChapters,
       thisWeekActiveDays,
@@ -355,7 +357,7 @@ export default function Home() {
                 </div>
               }
 
-              <PersonalRecordsCard records={trackerStats.records} currentStreak={trackerStats.currentStreak} showTitle={false} />
+              <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} showTitle={false} />
               <AchievementsPreview unlockedAchievements={unlockedAchievements} />
             </motion.div>
 

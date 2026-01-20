@@ -8,6 +8,7 @@ import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
+import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { 
   Pencil, 
@@ -66,6 +67,9 @@ export default function Stats() {
   const lifetimeStats = useReadingStats(lifetimeLogs);
 
   const today = getDateKey();
+  
+  // Single source of truth for current streak
+  const currentStreak = useCurrentStreak(lifetimeLogs);
 
   const trackerStats = useMemo(() => {
     if (!lifetimeLogs.length) {
@@ -437,7 +441,7 @@ export default function Stats() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.16 }}
           className="mb-8">
-          <PersonalRecordsCard records={trackerStats.records} />
+          <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} />
         </motion.div>
 
         <motion.div
