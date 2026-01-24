@@ -2,7 +2,6 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
-import { OT_CHRONOLOGICAL_ADVANCED } from '@/components/bible/plans/otChronologicalAdvanced';
 
 export default function BooksTab({ selectedBooks, onBooksChange }) {
 
@@ -39,10 +38,6 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
                 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 
                 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'];
         break;
-      case 'ot_chronological':
-        // Map the chronological order to book names preserving the order
-        books = OT_CHRONOLOGICAL_ADVANCED.map(ch => ch.book);
-        break;
       default:
         books = [];
     }
@@ -60,22 +55,12 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
   return (
     <div className="space-y-4">
       {/* Presets */}
-      <div className="space-y-2">
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline" onClick={() => handlePreset('ot')} className="flex-1">
-            Old Testament
-          </Button>
-          <Button size="sm" variant="outline" onClick={() => handlePreset('nt')} className="flex-1">
-            New Testament
-          </Button>
-        </div>
-        <Button 
-          size="sm" 
-          variant="outline" 
-          onClick={() => handlePreset('ot_chronological')} 
-          className="w-full"
-        >
-          Old Testament – Chronological (Advanced)
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => handlePreset('ot')} className="flex-1">
+          Old Testament
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => handlePreset('nt')} className="flex-1">
+          New Testament
         </Button>
       </div>
 
