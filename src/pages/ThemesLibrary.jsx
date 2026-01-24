@@ -29,6 +29,12 @@ const COLOR_MAP = {
 
 const THEME_OPTIONS = [
   { 
+    id: 'chronological_ot', 
+    preset: PLAN_PRESETS.find(p => p.id === 'chronological_ot'),
+    iconKey: 'Hourglass', 
+    colorKey: 'purple',
+  },
+  { 
     id: 'leadership_intensive', 
     preset: PLAN_PRESETS.find(p => p.id === 'leadership_intensive'),
     iconKey: 'Shield', 
@@ -69,12 +75,6 @@ const THEME_OPTIONS = [
     preset: PLAN_PRESETS.find(p => p.id === 'heart_of_god'),
     iconKey: 'Heart', 
     colorKey: 'rose',
-  },
-  { 
-    id: 'chronological_ot', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_ot'),
-    iconKey: 'Hourglass', 
-    colorKey: 'purple',
   },
 ];
 
