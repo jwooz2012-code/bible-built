@@ -448,7 +448,7 @@ export default function Stats() {
                   }>
                         {achievement.title}
                       </h3>
-                      <p className="text-xs text-muted-foreground mt-1">{achievement.subtitle}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{achievement.subtitle.split('.')[0]}.</p>
                       {!achievement.achieved &&
                   <p className="text-xs text-muted-foreground mt-1.5 font-medium">
                           {achievement.current} / {achievement.target}
