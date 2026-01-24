@@ -106,7 +106,25 @@ export default function ThemesLibrary() {
       </div>
 
       <div className="max-w-2xl mx-auto px-4 py-6 space-y-3">
-        {THEME_OPTIONS.map((theme) => {
+        {(() => {
+          console.log("THEMES GRID RAW OPTIONS:", THEME_OPTIONS.map(o => ({
+            id: o.id,
+            hasPreset: !!o.preset,
+            presetName: o.preset?.name
+          })));
+          
+          const validOptions = THEME_OPTIONS.filter(theme => {
+            const hasPreset = !!theme.preset;
+            if (!hasPreset) {
+              console.log("FILTERED OUT - NO PRESET:", theme.id);
+            }
+            return hasPreset;
+          });
+          
+          console.log("THEMES GRID AFTER FILTER:", validOptions.map(o => o.preset?.name));
+          
+          return validOptions;
+        })().map((theme) => {
           const Icon = ICON_MAP[theme.iconKey];
           const colorClass = COLOR_MAP[theme.colorKey];
           const preset = theme.preset;
