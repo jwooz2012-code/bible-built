@@ -16,7 +16,11 @@ import {
   Hammer,
   Circle,
   Sword,
-  Swords
+  Swords,
+  DoorOpen,
+  Users,
+  Heart,
+  Handshake
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
