@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { format, parse } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { getBadgesForRow } from '@/components/badges/badgeUtils';
-import { getBadgeIcon, getBadgeColor } from '@/components/badges/badgeIcons';
+import { getAchievementIcon } from '@/components/badges/badgeIcons';
 
 export default function ShareSummary() {
   const [searchParams] = useSearchParams();
