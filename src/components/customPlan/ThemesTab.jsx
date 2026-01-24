@@ -98,42 +98,68 @@ const THEME_OPTIONS = [
 ];
 
 export default function ThemesTab({ onThemeClick, selectedTheme }) {
+  const chronologicalThemes = THEME_OPTIONS.slice(0, 2);
+  const standardThemes = THEME_OPTIONS.slice(2);
+  
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {THEME_OPTIONS.map((theme) => {
-        const Icon = ICON_MAP[theme.iconKey] || Shield;
-        const colorClass = COLOR_MAP[theme.colorKey] || COLOR_MAP.blue;
-        const isSelected = selectedTheme === theme.id;
-        
-        return (
-          <button
-            key={theme.id}
-            onClick={() => onThemeClick(theme.id)}
-            className={cn(
-              "text-left p-3 rounded-xl border-2 transition-all relative",
-              isSelected 
-                ? "border-primary bg-primary/5 shadow-md" 
-                : "border-border bg-card hover:bg-accent/50"
-            )}
-          >
-            <div className="flex items-start gap-2">
-              <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>
-                <Icon className="w-5 h-5" strokeWidth={2.5} />
-              </div>
-              
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-semibold text-foreground">{theme.name}</div>
-              </div>
-              
-              {isSelected && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                  <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-                </div>
+    <div className="space-y-4">
+      {/* Full-width chronological journey cards */}
+      <div className="space-y-3">
+        {chronologicalThemes.map((theme) => {
+          const Icon = ICON_MAP[theme.iconKey] || Shield;
+          const colorClass = COLOR_MAP[theme.colorKey] || COLOR_MAP.blue;
+          const isSelected = selectedTheme === theme.id;
+          
+          return (
+            <ChronologicalJourneyCard
+              key={theme.id}
+              theme={theme}
+              Icon={Icon}
+              colorClass={colorClass}
+              isSelected={isSelected}
+              onThemeClick={onThemeClick}
+            />
+          );
+        })}
+      </div>
+      
+      {/* Standard theme grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {standardThemes.map((theme) => {
+          const Icon = ICON_MAP[theme.iconKey] || Shield;
+          const colorClass = COLOR_MAP[theme.colorKey] || COLOR_MAP.blue;
+          const isSelected = selectedTheme === theme.id;
+          
+          return (
+            <button
+              key={theme.id}
+              onClick={() => onThemeClick(theme.id)}
+              className={cn(
+                "text-left p-3 rounded-xl border-2 transition-all relative",
+                isSelected 
+                  ? "border-primary bg-primary/5 shadow-md" 
+                  : "border-border bg-card hover:bg-accent/50"
               )}
-            </div>
-          </button>
-        );
-      })}
+            >
+              <div className="flex items-start gap-2">
+                <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${colorClass}`}>
+                  <Icon className="w-5 h-5" strokeWidth={2.5} />
+                </div>
+                
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-foreground">{theme.name}</div>
+                </div>
+                
+                {isSelected && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+                  </div>
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
