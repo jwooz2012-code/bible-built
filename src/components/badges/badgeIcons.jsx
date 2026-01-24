@@ -102,6 +102,13 @@ export const getAchievementColor = (title) => {
     case 'Deep Roots': return 'from-[#06B6D4] to-[#0891B2]'; // Cyan — depth, connection
     case 'Iron Discipline': return 'from-[#6366F1] to-[#4F46E5]'; // Indigo — strength, discipline
     case 'Master Builder': return 'from-[#A855F7] to-[#9333EA]'; // Violet — mastery, craft
+    // Accountability badges — muted, understated palette
+    case 'Opened the Door': return 'from-[#9CA3AF] to-[#78716C]'; // Muted gray-brown — quiet beginning
+    case 'Walking Accountably': return 'from-[#A1A1AA] to-[#71717A]'; // Soft gray — steady presence
+    case 'Living Examined': return 'from-[#B4B4B8] to-[#6B7280]'; // Light gray-blue — depth, reflection
+    case 'Lifted a Brother': return 'from-[#9CA3AF] to-[#6B7280]'; // Muted gray — humble encouragement
+    case 'Faithful Encourager': return 'from-[#A1A1AA] to-[#75838A]'; // Soft gray-blue — steady faith
+    case 'Strengthened Many': return 'from-[#B4B4B8] to-[#7C8A99]'; // Light gray-blue — broad impact
     default: return 'from-[#F59E0B] to-[#D97706]';
   }
 };
