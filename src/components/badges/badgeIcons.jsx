@@ -70,22 +70,22 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
 export const getAchievementColor = (title) => {
   switch(title) {
     case 'Battle': return 'BLACK_WHITE';
-    case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]';
-    case 'Locked In': return 'from-[#10B981] to-[#059669]';
-    case 'Habit Forming': return 'from-[#10B981] to-[#059669]';
-    case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]';
-    case 'Triple Digits': return 'from-[#FBBF24] to-[#F59E0B]';
-    case 'All In': return 'from-[#EF4444] to-[#DC2626]';
-    case 'Built to Last': return 'from-[#D4A574] to-[#B8956A]';
-    case 'Built for a Lifetime': return 'from-[#64748B] to-[#475569]';
-    case 'Swordsmen': return 'from-[#94A3B8] to-[#64748B]';
-    case 'Cover to Cover': return 'from-[#14B8A6] to-[#0D9488]';
-    case 'Testament Strong': return 'from-[#A855F7] to-[#9333EA]';
-    case 'The Whole Word': return 'from-[#FBBF24] to-[#F59E0B]';
-    case 'Back for More': return 'from-[#0EA5E9] to-[#0284C7]';
-    case 'Deep Roots': return 'from-[#84CC16] to-[#65A30D]';
-    case 'Iron Discipline': return 'from-[#6B7280] to-[#4B5563]';
-    case 'Master Builder': return 'from-[#6366F1] to-[#4F46E5]';
+    case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]'; // Silver
+    case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Green
+    case 'Habit Forming': return 'from-[#22C55E] to-[#16A34A]'; // Brighter green
+    case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]'; // Orange
+    case 'Triple Digits': return 'from-[#FCD34D] to-[#FBB020]'; // Golden yellow
+    case 'All In': return 'from-[#EF4444] to-[#DC2626]'; // Red
+    case 'Built to Last': return 'from-[#D4A574] to-[#B8956A]'; // Clay/tan
+    case 'Built for a Lifetime': return 'from-[#64748B] to-[#475569]'; // Slate gray
+    case 'Swordsmen': return 'from-[#94A3B8] to-[#64748B]'; // Steel blue-gray
+    case 'Cover to Cover': return 'from-[#14B8A6] to-[#0D9488]'; // Teal
+    case 'Testament Strong': return 'from-[#A855F7] to-[#9333EA]'; // Purple
+    case 'The Whole Word': return 'from-[#FBBF24] to-[#F59E0B]'; // Gold
+    case 'Back for More': return 'from-[#0EA5E9] to-[#0284C7]'; // Sky blue
+    case 'Deep Roots': return 'from-[#84CC16] to-[#65A30D]'; // Lime green
+    case 'Iron Discipline': return 'from-[#6B7280] to-[#4B5563]'; // Dark gray
+    case 'Master Builder': return 'from-[#6366F1] to-[#4F46E5]'; // Indigo
     default: return 'from-[#F97316] to-[#FACC15]';
   }
 };

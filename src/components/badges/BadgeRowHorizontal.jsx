@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getAchievementIcon, getAchievementColor } from './badgeIcons';
 import { getBadgesForRow } from './badgeUtils';
@@ -9,12 +9,20 @@ export default function BadgeRowHorizontal({
   maxVisible = 7,
   onBadgeClick
 }) {
+  const scrollRef = useRef(null);
   const displayBadges = getBadgesForRow(badges, mode);
   const visibleBadges = displayBadges.slice(0, maxVisible);
   const placeholderCount = mode === 'earned' ? Math.max(0, maxVisible - visibleBadges.length) : 0;
 
+  // Reset scroll position to start on mount
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollLeft = 0;
+    }
+  }, []);
+
   return (
-    <div className="flex items-center justify-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+    <div ref={scrollRef} className="flex items-center justify-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
       {visibleBadges.map((badge, idx) => {
         const color = getAchievementColor(badge.title);
         const isBW = color === 'BLACK_WHITE';
