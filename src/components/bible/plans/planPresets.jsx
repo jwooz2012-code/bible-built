@@ -129,7 +129,7 @@ export const PLAN_PRESETS = [
     description: 'Experience the Old Testament in historical order, seeing how God\'s plan unfolds chronologically from creation to the exile and return. This journey takes you through the narrative as it happened in time.',
     shortHook: 'Read the OT as one unfolding story in historical order.',
     scope: 'CHRONOLOGICAL_OT_JOURNEY',
-    chaptersPerDay: 3,
+    chaptersPerDay: 4,
     getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 364), // 365 days
