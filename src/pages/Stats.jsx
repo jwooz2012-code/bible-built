@@ -143,7 +143,9 @@ export default function Stats() {
     lifetimeUniqueChapters: lifetimeStats.uniqueChapters,
     ntReadThroughCount,
     otOrNtCompletedFlag,
-    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count
+    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count,
+    statsSharedCount: user?.statsSharedCount || 0,
+    statsReceivedCount: user?.statsReceivedCount || 0
   });
 
 
