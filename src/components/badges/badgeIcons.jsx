@@ -72,7 +72,7 @@ export const getAchievementColor = (title) => {
     case 'Battle': return 'BLACK_WHITE';
     case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]'; // Silver
     case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Green
-    case 'Habit Forming': return 'from-[#22C55E] to-[#16A34A]'; // Brighter green
+    case 'Habit Forming': return 'from-[#F5A524] to-[#E89612]'; // Warm amber/gold
     case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]'; // Orange
     case 'Triple Digits': return 'from-[#FCD34D] to-[#FBB020]'; // Golden yellow
     case 'All In': return 'from-[#EF4444] to-[#DC2626]'; // Red
