@@ -117,7 +117,12 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
   
   const chapters = CURATED_PLANS[themeKey] || [];
   const totalChapters = chapters.length;
-  const recommendedDays = Math.ceil(totalChapters / 2);
+  
+  // Chronological journey plans use 4 chapters/day, others default to 2
+  const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY') 
+    ? 4 
+    : 2;
+  const recommendedDays = Math.ceil(totalChapters / chaptersPerDay);
   
   return (
     <Sheet open={open} onOpenChange={onClose}>
