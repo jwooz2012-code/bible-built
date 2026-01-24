@@ -71,16 +71,10 @@ const THEME_OPTIONS = [
     colorKey: 'rose',
   },
   { 
-    id: 'chronological_bible', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_bible'),
+    id: 'chronological_ot_journey', 
+    preset: PLAN_PRESETS.find(p => p.id === 'chronological_ot_journey'),
     iconKey: 'Hourglass', 
-    colorKey: 'purple',
-  },
-  { 
-    id: 'chronological_gospels', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_gospels'),
-    iconKey: 'Scroll', 
-    colorKey: 'red',
+    colorKey: 'orange',
   },
 ];
 
