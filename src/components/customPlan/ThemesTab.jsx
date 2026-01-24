@@ -80,6 +80,13 @@ const THEME_OPTIONS = [
     colorKey: 'rose',
     description: 'Understand God\'s character and love'
   },
+  {
+    id: 'CHRONOLOGICAL_OT_JOURNEY',
+    name: 'Chronological OT Journey',
+    iconKey: 'compass',
+    colorKey: 'orange',
+    description: 'Read the OT as one unfolding story in historical order'
+  },
 ];
 
 export default function ThemesTab({ onThemeClick, selectedTheme }) {

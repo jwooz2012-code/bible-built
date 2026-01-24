@@ -172,6 +172,7 @@ export default function CustomPlanBuilder() {
           LIVE_WITH_PURPOSE: 'Live With Purpose',
           KNOW_KING_DAVID: 'Know King David',
           HEART_OF_GOD: 'Heart of God',
+          CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
         }[selectedTheme];
         autoName = themeName || 'Theme Plan';
       } else if (activeTab === 'people') {
@@ -445,8 +446,7 @@ export default function CustomPlanBuilder() {
                 KNOW_KING_DAVID: 'Know King David',
                 HEART_OF_GOD: 'Heart of God',
                 WHO_IS_JESUS: 'Who Is Jesus',
-                CHRONOLOGICAL_BIBLE: 'Chronological Bible',
-                CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
+                CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
               }[themeKey] || themeKey;
 
               const plan = await base44.entities.ReadingPlan.create({

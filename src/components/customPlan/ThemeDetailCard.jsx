@@ -90,6 +90,13 @@ const THEME_INFO = {
     iconKey: 'heart',
     colorKey: 'rose',
   },
+  CHRONOLOGICAL_OT_JOURNEY: {
+    name: 'Chronological Old Testament Journey',
+    hook: 'Read the OT as one unfolding story in historical order.',
+    description: 'Experience the Old Testament in historical order, seeing how God\'s plan unfolds chronologically from creation through the patriarchs, exodus, conquest, kingdom, exile, and return. This journey takes you through the narrative as it happened in time, with Psalms and wisdom literature placed in their historical context.',
+    iconKey: 'compass',
+    colorKey: 'orange',
+  },
 };
 
 export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
