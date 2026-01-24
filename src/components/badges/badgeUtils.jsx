@@ -11,7 +11,9 @@ export function defineBadges({
   lifetimeUniqueChapters,
   ntReadThroughCount,
   otOrNtCompletedFlag,
-  mostCompletedBookCount
+  mostCompletedBookCount,
+  statsSharedCount = 0,
+  statsReceivedCount = 0
 }) {
   return [
     { 
