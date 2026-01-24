@@ -1,3 +1,4 @@
+
 import { getDateKey, addDaysKey, addYearsKey } from '@/components/bible/utils/dateUtils';
 
 export const PLAN_PRESETS = [
@@ -120,45 +121,6 @@ export const PLAN_PRESETS = [
     getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 20), // 21 days
-    }),
-  },
-  {
-    id: 'ot_chronological',
-    name: 'Old Testament – Chronological',
-    subtitle: 'Read the OT in historical order.',
-    description: 'Read the Old Testament in historical order. Narrative books remain intact, while Psalms are grouped and placed in historically appropriate sections to preserve clarity, flow, and theological integrity.',
-    shortHook: 'Old Testament in the order events happened.',
-    scope: 'OT_CHRONOLOGICAL',
-    chaptersPerDay: 3,
-    getDates: (startDate) => ({
-      startDate,
-      endDate: addDaysKey(startDate, 309), // 310 days × 3 ch/day ≈ 929 OT chapters
-    }),
-  },
-  {
-    id: 'chronological_bible',
-    name: 'Chronological Bible',
-    subtitle: 'Read Scripture in the order it happened.',
-    description: 'A full-Bible reading plan that follows the historical timeline of Scripture. This plan weaves narrative, poetry, and prophecy together as events unfold—helping you see God\'s redemptive work clearly from Genesis to Revelation.',
-    shortHook: 'Read the entire Bible in the order events actually happened.',
-    scope: 'CHRONOLOGICAL_BIBLE',
-    chaptersPerDay: 4,
-    getDates: (startDate) => ({
-      startDate,
-      endDate: addDaysKey(startDate, 364), // 365 days × 4 ch/day = 1460 chapters
-    }),
-  },
-  {
-    id: 'chronological_gospels',
-    name: 'Chronological Gospels',
-    subtitle: 'Walk through the life of Christ as it unfolded.',
-    description: 'A chronological harmony of the four Gospels. This plan arranges Matthew, Mark, Luke, and John into a single, unified timeline—allowing you to follow the life, ministry, death, and resurrection of Jesus step by step.',
-    shortHook: 'Follow the life of Jesus as the Gospel accounts unfold together.',
-    scope: 'CHRONOLOGICAL_GOSPELS',
-    chaptersPerDay: 3,
-    getDates: (startDate) => ({
-      startDate,
-      endDate: addDaysKey(startDate, 44), // 45 days × 3 ch/day = 135 chapters
     }),
   },
 ];
