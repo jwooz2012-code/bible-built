@@ -97,6 +97,13 @@ const THEME_INFO = {
     iconKey: 'compass',
     colorKey: 'orange',
   },
+  CHRONOLOGICAL_NT_JOURNEY: {
+    name: 'Chronological New Testament Journey',
+    hook: 'Read the NT as one unfolding story in historical order.',
+    description: 'Read the New Testament as one unfolding story—from the birth of Christ to the growth of the Church and the hope of His return. This guided journey follows the historical flow of Acts and places each book in its biblical context.',
+    iconKey: 'compass',
+    colorKey: 'cyan',
+  },
 };
 
 export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
