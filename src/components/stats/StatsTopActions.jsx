@@ -98,8 +98,21 @@ export default function StatsTopActions() {
           <SheetHeader className="mb-6">
             <SheetTitle>Accountability</SheetTitle>
           </SheetHeader>
-          <div className="space-y-2 text-sm text-muted-foreground">
-            <p>Accountability features coming soon.</p>
+          <div className="space-y-2">
+            <Button
+              variant="outline"
+              onClick={handleLogShared}
+              disabled={isLoading}
+              className="w-full justify-start">
+              I shared my stats with someone
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handleLogReceived}
+              disabled={isLoading}
+              className="w-full justify-start">
+              Someone shared their stats with me
+            </Button>
           </div>
         </SheetContent>
       </Sheet>
