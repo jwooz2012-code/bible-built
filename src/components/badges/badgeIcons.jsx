@@ -66,6 +66,18 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
       return <Columns {...iconProps} style={{ color }} />;
     case 'Swordsmen':
       return <Swords {...iconProps} style={{ color }} />;
+    case 'Opened the Door':
+      return <DoorOpen {...iconProps} style={{ color }} />;
+    case 'Walking Accountably':
+      return <Users {...iconProps} style={{ color }} />;
+    case 'Living Examined':
+      return <Heart {...iconProps} style={{ color }} />;
+    case 'Lifted a Brother':
+      return <DoorOpen {...iconProps} style={{ color }} />;
+    case 'Faithful Encourager':
+      return <Users {...iconProps} style={{ color }} />;
+    case 'Strengthened Many':
+      return <Handshake {...iconProps} style={{ color }} />;
     default:
       return <Circle {...iconProps} style={{ color }} />;
   }
