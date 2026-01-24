@@ -40,6 +40,7 @@ const THEME_META = {
   live_with_purpose: { iconKey: 'Compass', colorKey: 'orange' },
   know_king_david: { iconKey: 'Crown', colorKey: 'cyan' },
   heart_of_god: { iconKey: 'Heart', colorKey: 'rose' },
+  chronological_ot: { iconKey: 'Hourglass', colorKey: 'orange' },
   chronological_bible: { iconKey: 'Hourglass', colorKey: 'purple' },
   chronological_gospels: { iconKey: 'Scroll', colorKey: 'red' },
 };
