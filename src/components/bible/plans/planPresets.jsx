@@ -123,6 +123,19 @@ export const PLAN_PRESETS = [
     }),
   },
   {
+    id: 'ot_chronological',
+    name: 'Old Testament – Chronological',
+    subtitle: 'Read the OT in historical order.',
+    description: 'Read the Old Testament in historical order. Narrative books remain intact, while Psalms are grouped and placed in historically appropriate sections to preserve clarity, flow, and theological integrity.',
+    shortHook: 'Old Testament in the order events happened.',
+    scope: 'OT_CHRONOLOGICAL',
+    chaptersPerDay: 3,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 309), // 310 days × 3 ch/day ≈ 929 OT chapters
+    }),
+  },
+  {
     id: 'chronological_bible',
     name: 'Chronological Bible',
     subtitle: 'Read Scripture in the order it happened.',
