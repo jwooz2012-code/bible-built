@@ -76,18 +76,6 @@ const THEME_OPTIONS = [
     iconKey: 'Hourglass', 
     colorKey: 'orange',
   },
-  { 
-    id: 'chronological_bible', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_bible'),
-    iconKey: 'Hourglass', 
-    colorKey: 'purple',
-  },
-  { 
-    id: 'chronological_gospels', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_gospels'),
-    iconKey: 'Scroll', 
-    colorKey: 'red',
-  },
 ];
 
 export default function ThemesLibrary() {

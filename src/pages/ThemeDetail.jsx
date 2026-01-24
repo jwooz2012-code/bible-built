@@ -41,8 +41,6 @@ const THEME_META = {
   know_king_david: { iconKey: 'Crown', colorKey: 'cyan' },
   heart_of_god: { iconKey: 'Heart', colorKey: 'rose' },
   chronological_ot: { iconKey: 'Hourglass', colorKey: 'orange' },
-  chronological_bible: { iconKey: 'Hourglass', colorKey: 'purple' },
-  chronological_gospels: { iconKey: 'Scroll', colorKey: 'red' },
 };
 
 export default function ThemeDetail() {
