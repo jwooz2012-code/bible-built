@@ -119,7 +119,7 @@ export default function ThemesLibrary() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-base font-semibold text-foreground mb-1">{preset.name}</div>
-                  <div className="text-xs text-muted-foreground mb-2">{preset.shortHook}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{preset.shortHook || preset.subtitle}</div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="px-2 py-1 rounded-md bg-muted/50 text-[10px] font-medium text-muted-foreground">
                       {preset.chaptersPerDay} / day
