@@ -236,22 +236,17 @@ export default function ShareSummary() {
                 </div>
                 <div className="flex-1 grid gap-2 auto-rows-max overflow-hidden">
                   <div className="grid grid-cols-6 gap-1">
-                    {earnedBadges.map((badge) => {
-                      const Icon = getBadgeIcon(badge.title, true);
-                      return (
-                        <div
-                          key={badge.id}
-                          className="flex items-center justify-center"
-                          title={badge.title}
-                        >
-                          {Icon && (
-                            <div className="w-8 h-8 flex items-center justify-center">
-                              {Icon}
-                            </div>
-                          )}
+                    {earnedBadges.map((badge) => (
+                      <div
+                        key={badge.id}
+                        className="flex items-center justify-center"
+                        title={badge.title}
+                      >
+                        <div className="w-8 h-8 flex items-center justify-center">
+                          {getAchievementIcon(badge.title, true)}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
