@@ -55,13 +55,13 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
   return (
     <div className="space-y-4">
       {/* Presets */}
-      <div className="flex flex-wrap gap-2">
-        <Button size="sm" variant="outline" onClick={() => handlePreset('ot')}>OT</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('nt')}>NT</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('gospels')}>Gospels</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('pauline')}>Pauline</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('wisdom')}>Wisdom</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('prophets')}>Prophets</Button>
+      <div className="flex gap-2">
+        <Button size="sm" variant="outline" onClick={() => handlePreset('ot')} className="flex-1">
+          Old Testament
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => handlePreset('nt')} className="flex-1">
+          New Testament
+        </Button>
       </div>
 
       {/* Actions */}
