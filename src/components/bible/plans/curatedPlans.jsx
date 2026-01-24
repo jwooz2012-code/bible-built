@@ -1304,4 +1304,331 @@ export const CURATED_PLANS = {
     { bookName: 'Psalms', chapter: 149 },
     { bookName: 'Psalms', chapter: 150 },
   ],
+  CHRONOLOGICAL_NT_JOURNEY: [
+    // Luke 1-2
+    { bookName: 'Luke', chapter: 1 },
+    { bookName: 'Luke', chapter: 2 },
+    // Matthew 1-2
+    { bookName: 'Matthew', chapter: 1 },
+    { bookName: 'Matthew', chapter: 2 },
+    // Matthew 3
+    { bookName: 'Matthew', chapter: 3 },
+    // Mark 1
+    { bookName: 'Mark', chapter: 1 },
+    // Luke 3
+    { bookName: 'Luke', chapter: 3 },
+    // John 1
+    { bookName: 'John', chapter: 1 },
+    // John 2-4
+    { bookName: 'John', chapter: 2 },
+    { bookName: 'John', chapter: 3 },
+    { bookName: 'John', chapter: 4 },
+    // Matthew 4
+    { bookName: 'Matthew', chapter: 4 },
+    // Luke 4-5
+    { bookName: 'Luke', chapter: 4 },
+    { bookName: 'Luke', chapter: 5 },
+    // Mark 2-3
+    { bookName: 'Mark', chapter: 2 },
+    { bookName: 'Mark', chapter: 3 },
+    // Matthew 5-7
+    { bookName: 'Matthew', chapter: 5 },
+    { bookName: 'Matthew', chapter: 6 },
+    { bookName: 'Matthew', chapter: 7 },
+    // Luke 6
+    { bookName: 'Luke', chapter: 6 },
+    // Matthew 8-9
+    { bookName: 'Matthew', chapter: 8 },
+    { bookName: 'Matthew', chapter: 9 },
+    // Mark 4-5
+    { bookName: 'Mark', chapter: 4 },
+    { bookName: 'Mark', chapter: 5 },
+    // Luke 7-8
+    { bookName: 'Luke', chapter: 7 },
+    { bookName: 'Luke', chapter: 8 },
+    // Matthew 10-12
+    { bookName: 'Matthew', chapter: 10 },
+    { bookName: 'Matthew', chapter: 11 },
+    { bookName: 'Matthew', chapter: 12 },
+    // Mark 6-7
+    { bookName: 'Mark', chapter: 6 },
+    { bookName: 'Mark', chapter: 7 },
+    // Luke 9
+    { bookName: 'Luke', chapter: 9 },
+    // Matthew 13
+    { bookName: 'Matthew', chapter: 13 },
+    // Mark 8-9
+    { bookName: 'Mark', chapter: 8 },
+    { bookName: 'Mark', chapter: 9 },
+    // Luke 10-11
+    { bookName: 'Luke', chapter: 10 },
+    { bookName: 'Luke', chapter: 11 },
+    // John 5-6
+    { bookName: 'John', chapter: 5 },
+    { bookName: 'John', chapter: 6 },
+    // Matthew 14-18
+    { bookName: 'Matthew', chapter: 14 },
+    { bookName: 'Matthew', chapter: 15 },
+    { bookName: 'Matthew', chapter: 16 },
+    { bookName: 'Matthew', chapter: 17 },
+    { bookName: 'Matthew', chapter: 18 },
+    // Luke 12-18
+    { bookName: 'Luke', chapter: 12 },
+    { bookName: 'Luke', chapter: 13 },
+    { bookName: 'Luke', chapter: 14 },
+    { bookName: 'Luke', chapter: 15 },
+    { bookName: 'Luke', chapter: 16 },
+    { bookName: 'Luke', chapter: 17 },
+    { bookName: 'Luke', chapter: 18 },
+    // John 7-11
+    { bookName: 'John', chapter: 7 },
+    { bookName: 'John', chapter: 8 },
+    { bookName: 'John', chapter: 9 },
+    { bookName: 'John', chapter: 10 },
+    { bookName: 'John', chapter: 11 },
+    // Matthew 19-25
+    { bookName: 'Matthew', chapter: 19 },
+    { bookName: 'Matthew', chapter: 20 },
+    { bookName: 'Matthew', chapter: 21 },
+    { bookName: 'Matthew', chapter: 22 },
+    { bookName: 'Matthew', chapter: 23 },
+    { bookName: 'Matthew', chapter: 24 },
+    { bookName: 'Matthew', chapter: 25 },
+    // Mark 10-13
+    { bookName: 'Mark', chapter: 10 },
+    { bookName: 'Mark', chapter: 11 },
+    { bookName: 'Mark', chapter: 12 },
+    { bookName: 'Mark', chapter: 13 },
+    // Luke 19-21
+    { bookName: 'Luke', chapter: 19 },
+    { bookName: 'Luke', chapter: 20 },
+    { bookName: 'Luke', chapter: 21 },
+    // Matthew 26-27
+    { bookName: 'Matthew', chapter: 26 },
+    { bookName: 'Matthew', chapter: 27 },
+    // Mark 14-15
+    { bookName: 'Mark', chapter: 14 },
+    { bookName: 'Mark', chapter: 15 },
+    // Luke 22-23
+    { bookName: 'Luke', chapter: 22 },
+    { bookName: 'Luke', chapter: 23 },
+    // John 12-19
+    { bookName: 'John', chapter: 12 },
+    { bookName: 'John', chapter: 13 },
+    { bookName: 'John', chapter: 14 },
+    { bookName: 'John', chapter: 15 },
+    { bookName: 'John', chapter: 16 },
+    { bookName: 'John', chapter: 17 },
+    { bookName: 'John', chapter: 18 },
+    { bookName: 'John', chapter: 19 },
+    // Matthew 28
+    { bookName: 'Matthew', chapter: 28 },
+    // Mark 16
+    { bookName: 'Mark', chapter: 16 },
+    // Luke 24
+    { bookName: 'Luke', chapter: 24 },
+    // John 20-21
+    { bookName: 'John', chapter: 20 },
+    { bookName: 'John', chapter: 21 },
+    // Acts 1-7
+    { bookName: 'Acts', chapter: 1 },
+    { bookName: 'Acts', chapter: 2 },
+    { bookName: 'Acts', chapter: 3 },
+    { bookName: 'Acts', chapter: 4 },
+    { bookName: 'Acts', chapter: 5 },
+    { bookName: 'Acts', chapter: 6 },
+    { bookName: 'Acts', chapter: 7 },
+    // Acts 8-12
+    { bookName: 'Acts', chapter: 8 },
+    { bookName: 'Acts', chapter: 9 },
+    { bookName: 'Acts', chapter: 10 },
+    { bookName: 'Acts', chapter: 11 },
+    { bookName: 'Acts', chapter: 12 },
+    // James 1-5
+    { bookName: 'James', chapter: 1 },
+    { bookName: 'James', chapter: 2 },
+    { bookName: 'James', chapter: 3 },
+    { bookName: 'James', chapter: 4 },
+    { bookName: 'James', chapter: 5 },
+    // Galatians 1-6
+    { bookName: 'Galatians', chapter: 1 },
+    { bookName: 'Galatians', chapter: 2 },
+    { bookName: 'Galatians', chapter: 3 },
+    { bookName: 'Galatians', chapter: 4 },
+    { bookName: 'Galatians', chapter: 5 },
+    { bookName: 'Galatians', chapter: 6 },
+    // Acts 13-14
+    { bookName: 'Acts', chapter: 13 },
+    { bookName: 'Acts', chapter: 14 },
+    // Acts 15
+    { bookName: 'Acts', chapter: 15 },
+    // Acts 16-18
+    { bookName: 'Acts', chapter: 16 },
+    { bookName: 'Acts', chapter: 17 },
+    { bookName: 'Acts', chapter: 18 },
+    // 1 Thessalonians 1-5
+    { bookName: '1 Thessalonians', chapter: 1 },
+    { bookName: '1 Thessalonians', chapter: 2 },
+    { bookName: '1 Thessalonians', chapter: 3 },
+    { bookName: '1 Thessalonians', chapter: 4 },
+    { bookName: '1 Thessalonians', chapter: 5 },
+    // 2 Thessalonians 1-3
+    { bookName: '2 Thessalonians', chapter: 1 },
+    { bookName: '2 Thessalonians', chapter: 2 },
+    { bookName: '2 Thessalonians', chapter: 3 },
+    // Acts 19-20
+    { bookName: 'Acts', chapter: 19 },
+    { bookName: 'Acts', chapter: 20 },
+    // 1 Corinthians 1-16
+    { bookName: '1 Corinthians', chapter: 1 },
+    { bookName: '1 Corinthians', chapter: 2 },
+    { bookName: '1 Corinthians', chapter: 3 },
+    { bookName: '1 Corinthians', chapter: 4 },
+    { bookName: '1 Corinthians', chapter: 5 },
+    { bookName: '1 Corinthians', chapter: 6 },
+    { bookName: '1 Corinthians', chapter: 7 },
+    { bookName: '1 Corinthians', chapter: 8 },
+    { bookName: '1 Corinthians', chapter: 9 },
+    { bookName: '1 Corinthians', chapter: 10 },
+    { bookName: '1 Corinthians', chapter: 11 },
+    { bookName: '1 Corinthians', chapter: 12 },
+    { bookName: '1 Corinthians', chapter: 13 },
+    { bookName: '1 Corinthians', chapter: 14 },
+    { bookName: '1 Corinthians', chapter: 15 },
+    { bookName: '1 Corinthians', chapter: 16 },
+    // 2 Corinthians 1-13
+    { bookName: '2 Corinthians', chapter: 1 },
+    { bookName: '2 Corinthians', chapter: 2 },
+    { bookName: '2 Corinthians', chapter: 3 },
+    { bookName: '2 Corinthians', chapter: 4 },
+    { bookName: '2 Corinthians', chapter: 5 },
+    { bookName: '2 Corinthians', chapter: 6 },
+    { bookName: '2 Corinthians', chapter: 7 },
+    { bookName: '2 Corinthians', chapter: 8 },
+    { bookName: '2 Corinthians', chapter: 9 },
+    { bookName: '2 Corinthians', chapter: 10 },
+    { bookName: '2 Corinthians', chapter: 11 },
+    { bookName: '2 Corinthians', chapter: 12 },
+    { bookName: '2 Corinthians', chapter: 13 },
+    // Romans 1-16
+    { bookName: 'Romans', chapter: 1 },
+    { bookName: 'Romans', chapter: 2 },
+    { bookName: 'Romans', chapter: 3 },
+    { bookName: 'Romans', chapter: 4 },
+    { bookName: 'Romans', chapter: 5 },
+    { bookName: 'Romans', chapter: 6 },
+    { bookName: 'Romans', chapter: 7 },
+    { bookName: 'Romans', chapter: 8 },
+    { bookName: 'Romans', chapter: 9 },
+    { bookName: 'Romans', chapter: 10 },
+    { bookName: 'Romans', chapter: 11 },
+    { bookName: 'Romans', chapter: 12 },
+    { bookName: 'Romans', chapter: 13 },
+    { bookName: 'Romans', chapter: 14 },
+    { bookName: 'Romans', chapter: 15 },
+    { bookName: 'Romans', chapter: 16 },
+    // Acts 21-28
+    { bookName: 'Acts', chapter: 21 },
+    { bookName: 'Acts', chapter: 22 },
+    { bookName: 'Acts', chapter: 23 },
+    { bookName: 'Acts', chapter: 24 },
+    { bookName: 'Acts', chapter: 25 },
+    { bookName: 'Acts', chapter: 26 },
+    { bookName: 'Acts', chapter: 27 },
+    { bookName: 'Acts', chapter: 28 },
+    // Ephesians 1-6
+    { bookName: 'Ephesians', chapter: 1 },
+    { bookName: 'Ephesians', chapter: 2 },
+    { bookName: 'Ephesians', chapter: 3 },
+    { bookName: 'Ephesians', chapter: 4 },
+    { bookName: 'Ephesians', chapter: 5 },
+    { bookName: 'Ephesians', chapter: 6 },
+    // Philippians 1-4
+    { bookName: 'Philippians', chapter: 1 },
+    { bookName: 'Philippians', chapter: 2 },
+    { bookName: 'Philippians', chapter: 3 },
+    { bookName: 'Philippians', chapter: 4 },
+    // Colossians 1-4
+    { bookName: 'Colossians', chapter: 1 },
+    { bookName: 'Colossians', chapter: 2 },
+    { bookName: 'Colossians', chapter: 3 },
+    { bookName: 'Colossians', chapter: 4 },
+    // Philemon 1
+    { bookName: 'Philemon', chapter: 1 },
+    // 1 Timothy 1-6
+    { bookName: '1 Timothy', chapter: 1 },
+    { bookName: '1 Timothy', chapter: 2 },
+    { bookName: '1 Timothy', chapter: 3 },
+    { bookName: '1 Timothy', chapter: 4 },
+    { bookName: '1 Timothy', chapter: 5 },
+    { bookName: '1 Timothy', chapter: 6 },
+    // Titus 1-3
+    { bookName: 'Titus', chapter: 1 },
+    { bookName: 'Titus', chapter: 2 },
+    { bookName: 'Titus', chapter: 3 },
+    // 2 Timothy 1-4
+    { bookName: '2 Timothy', chapter: 1 },
+    { bookName: '2 Timothy', chapter: 2 },
+    { bookName: '2 Timothy', chapter: 3 },
+    { bookName: '2 Timothy', chapter: 4 },
+    // Hebrews 1-13
+    { bookName: 'Hebrews', chapter: 1 },
+    { bookName: 'Hebrews', chapter: 2 },
+    { bookName: 'Hebrews', chapter: 3 },
+    { bookName: 'Hebrews', chapter: 4 },
+    { bookName: 'Hebrews', chapter: 5 },
+    { bookName: 'Hebrews', chapter: 6 },
+    { bookName: 'Hebrews', chapter: 7 },
+    { bookName: 'Hebrews', chapter: 8 },
+    { bookName: 'Hebrews', chapter: 9 },
+    { bookName: 'Hebrews', chapter: 10 },
+    { bookName: 'Hebrews', chapter: 11 },
+    { bookName: 'Hebrews', chapter: 12 },
+    { bookName: 'Hebrews', chapter: 13 },
+    // 1 Peter 1-5
+    { bookName: '1 Peter', chapter: 1 },
+    { bookName: '1 Peter', chapter: 2 },
+    { bookName: '1 Peter', chapter: 3 },
+    { bookName: '1 Peter', chapter: 4 },
+    { bookName: '1 Peter', chapter: 5 },
+    // 2 Peter 1-3
+    { bookName: '2 Peter', chapter: 1 },
+    { bookName: '2 Peter', chapter: 2 },
+    { bookName: '2 Peter', chapter: 3 },
+    // Jude 1
+    { bookName: 'Jude', chapter: 1 },
+    // 1 John 1-5
+    { bookName: '1 John', chapter: 1 },
+    { bookName: '1 John', chapter: 2 },
+    { bookName: '1 John', chapter: 3 },
+    { bookName: '1 John', chapter: 4 },
+    { bookName: '1 John', chapter: 5 },
+    // 2 John 1
+    { bookName: '2 John', chapter: 1 },
+    // 3 John 1
+    { bookName: '3 John', chapter: 1 },
+    // Revelation 1-22
+    { bookName: 'Revelation', chapter: 1 },
+    { bookName: 'Revelation', chapter: 2 },
+    { bookName: 'Revelation', chapter: 3 },
+    { bookName: 'Revelation', chapter: 4 },
+    { bookName: 'Revelation', chapter: 5 },
+    { bookName: 'Revelation', chapter: 6 },
+    { bookName: 'Revelation', chapter: 7 },
+    { bookName: 'Revelation', chapter: 8 },
+    { bookName: 'Revelation', chapter: 9 },
+    { bookName: 'Revelation', chapter: 10 },
+    { bookName: 'Revelation', chapter: 11 },
+    { bookName: 'Revelation', chapter: 12 },
+    { bookName: 'Revelation', chapter: 13 },
+    { bookName: 'Revelation', chapter: 14 },
+    { bookName: 'Revelation', chapter: 15 },
+    { bookName: 'Revelation', chapter: 16 },
+    { bookName: 'Revelation', chapter: 17 },
+    { bookName: 'Revelation', chapter: 18 },
+    { bookName: 'Revelation', chapter: 19 },
+    { bookName: 'Revelation', chapter: 20 },
+    { bookName: 'Revelation', chapter: 21 },
+    { bookName: 'Revelation', chapter: 22 },
+  ],
 };

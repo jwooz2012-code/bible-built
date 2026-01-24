@@ -76,6 +76,12 @@ const THEME_OPTIONS = [
     iconKey: 'Hourglass', 
     colorKey: 'orange',
   },
+  { 
+    id: 'chronological_nt_journey', 
+    preset: PLAN_PRESETS.find(p => p.id === 'chronological_nt_journey'),
+    iconKey: 'Scroll', 
+    colorKey: 'cyan',
+  },
 ];
 
 export default function ThemesLibrary() {
