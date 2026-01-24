@@ -1,3 +1,4 @@
+
 import { getDateKey, addDaysKey, addYearsKey } from '@/components/bible/utils/dateUtils';
 
 export const PLAN_PRESETS = [
@@ -120,19 +121,6 @@ export const PLAN_PRESETS = [
     getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 20), // 21 days
-    }),
-  },
-  {
-    id: 'chronological_ot',
-    name: 'Chronological Old Testament Journey',
-    subtitle: 'Read the OT as one unfolding story in historical order.',
-    description: 'Read the Old Testament as one unfolding story. This guided journey walks through Scripture in historical order, helping readers understand God\'s work across people, covenants, and history.',
-    shortHook: 'Follow God\'s story through the Old Testament in order.',
-    scope: 'CHRONOLOGICAL_OT',
-    chaptersPerDay: 3,
-    getDates: (startDate) => ({
-      startDate,
-      endDate: addDaysKey(startDate, 308), // 309 days = 927 chapters
     }),
   },
 ];

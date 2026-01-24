@@ -29,12 +29,6 @@ const COLOR_MAP = {
 
 const THEME_OPTIONS = [
   { 
-    id: 'chronological_ot', 
-    preset: PLAN_PRESETS.find(p => p.id === 'chronological_ot'),
-    iconKey: 'Hourglass', 
-    colorKey: 'purple',
-  },
-  { 
     id: 'leadership_intensive', 
     preset: PLAN_PRESETS.find(p => p.id === 'leadership_intensive'),
     iconKey: 'Shield', 
@@ -75,6 +69,18 @@ const THEME_OPTIONS = [
     preset: PLAN_PRESETS.find(p => p.id === 'heart_of_god'),
     iconKey: 'Heart', 
     colorKey: 'rose',
+  },
+  { 
+    id: 'chronological_bible', 
+    preset: PLAN_PRESETS.find(p => p.id === 'chronological_bible'),
+    iconKey: 'Hourglass', 
+    colorKey: 'purple',
+  },
+  { 
+    id: 'chronological_gospels', 
+    preset: PLAN_PRESETS.find(p => p.id === 'chronological_gospels'),
+    iconKey: 'Scroll', 
+    colorKey: 'red',
   },
 ];
 
@@ -119,7 +125,7 @@ export default function ThemesLibrary() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="text-base font-semibold text-foreground mb-1">{preset.name}</div>
-                  <div className="text-xs text-muted-foreground mb-2">{preset.shortHook || preset.subtitle}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{preset.shortHook}</div>
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="px-2 py-1 rounded-md bg-muted/50 text-[10px] font-medium text-muted-foreground">
                       {preset.chaptersPerDay} / day
