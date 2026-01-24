@@ -1,8 +1,5 @@
 
-import { WHOLE_BIBLE_CHRONOLOGICAL_SEQUENCE } from './otChronological';
-
 export const CURATED_PLANS = {
-  WHOLE_BIBLE_CHRONOLOGICAL: WHOLE_BIBLE_CHRONOLOGICAL_SEQUENCE,
   WHO_IS_JESUS: [
     // SECTION 1: PROMISED MESSIAH (PROPHECY)
     { bookName: 'Genesis', chapter: 3 },
