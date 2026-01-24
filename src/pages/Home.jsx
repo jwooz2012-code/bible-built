@@ -24,7 +24,8 @@ import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
-import AchievementsPreview from '@/components/home/AchievementsPreview';
+import BadgeRowHorizontal from '@/components/badges/BadgeRowHorizontal';
+import { defineBadges } from '@/components/badges/badgeUtils';
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
 import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
@@ -182,32 +183,16 @@ export default function Home() {
   const ntReadThroughCount = Math.floor(trackerStats.ntUniqueChapters / NT_CHAPTERS);
   const otOrNtCompletedFlag = trackerStats.otUniqueChapters >= OT_CHAPTERS || trackerStats.ntUniqueChapters >= NT_CHAPTERS;
   
-  const achievements = [
-    { 
-      id: 0, 
-      title: 'Battle', 
-      achieved: true,
-      description: 'You showed up knowing the Christian life is a fight. The Word of God is your weapon — and this is where faithfulness begins.'
-    },
-    { id: 1, title: 'First Rep', achieved: lifetimeTotalCount >= 1 },
-    { id: 2, title: 'Locked In', achieved: totalBooksCompletedDistinct >= 1 },
-    { id: 3, title: 'Habit Forming', achieved: daysWithReadingDistinct >= 7 },
-    { id: 4, title: 'Fifty Down', achieved: lifetimeTotalCount >= 50 },
-    { id: 5, title: 'Triple Digits', achieved: lifetimeTotalCount >= 100 },
-    { id: 6, title: 'All In', achieved: lifetimeTotalCount >= 250 },
-    { id: 7, title: 'Built to Last', achieved: lifetimeTotalCount >= 500 },
-    { id: 8, title: 'Cover to Cover', achieved: totalBooksCompletedDistinct >= 10 },
-    { id: 9, title: 'Testament Strong', achieved: otOrNtCompletedFlag },
-    { id: 10, title: 'The Whole Word', achieved: trackerStats.lifetimeUniqueChapters >= TOTAL_CHAPTERS },
-    { id: 11, title: 'Back for More', achieved: lifetimeTotalCount >= TOTAL_CHAPTERS * 2 },
-    { id: 12, title: 'Deep Roots', achieved: ntReadThroughCount >= 5 },
-    { id: 13, title: 'Iron Discipline', achieved: daysWithReadingDistinct >= 250 },
-    { id: 14, title: 'Master Builder', achieved: totalBooksCompletedDistinct >= 30 },
-    { id: 15, title: 'Built for a Lifetime', achieved: lifetimeTotalCount >= 1000 },
-    { id: 16, title: 'Swordsmen', achieved: trackerStats.records.mostCompletedBook.count >= 30 }
-  ];
-
-  const unlockedAchievements = achievements.filter(a => a.achieved);
+  // Use centralized badge definition
+  const achievements = defineBadges({
+    totalChaptersRead: lifetimeTotalCount,
+    daysWithReadingDistinct,
+    totalBooksCompletedDistinct,
+    lifetimeUniqueChapters: trackerStats.lifetimeUniqueChapters,
+    ntReadThroughCount,
+    otOrNtCompletedFlag,
+    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count
+  });
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
@@ -358,7 +343,15 @@ export default function Home() {
               }
 
               <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} showTitle={false} />
-              <AchievementsPreview unlockedAchievements={unlockedAchievements} />
+              
+              <div className="mt-3 mb-1">
+                <div className="text-center">
+                  <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">
+                    Badges
+                  </p>
+                  <BadgeRowHorizontal badges={achievements} mode="earned" maxVisible={7} />
+                </div>
+              </div>
             </motion.div>
 
             {energyMode &&
