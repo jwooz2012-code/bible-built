@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 export default function StatsTopActions() {
   const [showShareSummary, setShowShareSummary] = useState(false);
