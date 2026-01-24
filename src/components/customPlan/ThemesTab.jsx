@@ -1,6 +1,7 @@
 import React from 'react';
 import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import ChronologicalJourneyCard from './ChronologicalJourneyCard';
 
 const ICON_MAP = {
   cross: Cross,
