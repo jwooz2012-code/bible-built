@@ -14,15 +14,20 @@ export default function BadgeRowHorizontal({
   const visibleBadges = displayBadges.slice(0, maxVisible);
   const placeholderCount = mode === 'earned' ? Math.max(0, maxVisible - visibleBadges.length) : 0;
 
-  // Reset scroll position to start on mount
+  // Reset scroll position to start after layout is complete
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollLeft = 0;
+      // Use requestAnimationFrame to ensure layout is complete
+      requestAnimationFrame(() => {
+        if (scrollRef.current) {
+          scrollRef.current.scrollLeft = 0;
+        }
+      });
     }
-  }, []);
+  }, [badges, mode]);
 
   return (
-    <div ref={scrollRef} className="flex items-center justify-center gap-2 overflow-x-auto pb-1 -mx-1 px-1">
+    <div ref={scrollRef} className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: 'none' }}>
       {visibleBadges.map((badge, idx) => {
         const color = getAchievementColor(badge.title);
         const isBW = color === 'BLACK_WHITE';
