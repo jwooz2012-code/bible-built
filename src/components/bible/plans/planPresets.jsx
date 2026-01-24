@@ -133,19 +133,19 @@ export const PLAN_PRESETS = [
     getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 364), // 365 days
-      }),
-      },
-      {
-      id: 'chronological_nt_journey',
-      name: 'Chronological New Testament Journey',
-      subtitle: 'Read the NT as one unfolding story in historical order.',
-      description: 'Read the New Testament as one unfolding story—from the birth of Christ to the growth of the Church and the hope of His return. This guided journey follows the historical flow of Acts and places each book in its biblical context.',
-      shortHook: 'Read the NT as one unfolding story in historical order.',
-      scope: 'CHRONOLOGICAL_NT_JOURNEY',
-      chaptersPerDay: 3,
-      getDates: (startDate) => ({
+    }),
+  },
+  {
+    id: 'chronological_nt_journey',
+    name: 'Chronological New Testament Journey',
+    subtitle: 'Read the NT as one unfolding story in historical order.',
+    description: 'Read the New Testament as one unfolding story—from the birth of Christ to the growth of the Church and the hope of His return. This guided journey follows the historical flow of Acts and places each book in its biblical context.',
+    shortHook: 'Read the NT as one unfolding story in historical order.',
+    scope: 'CHRONOLOGICAL_NT_JOURNEY',
+    chaptersPerDay: 3,
+    getDates: (startDate) => ({
       startDate,
       endDate: addDaysKey(startDate, 89), // ~90 days at 3 chapters/day
-      }),
-      },
-      ];
+    }),
+  },
+];
