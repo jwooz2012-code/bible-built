@@ -36,6 +36,9 @@ import VelocityMeter from '@/components/trackers/VelocityMeter';
 import CoverageRadar from '@/components/trackers/CoverageRadar';
 import BookCompletionBars from '@/components/trackers/BookCompletionBars';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
+import BadgeRowHorizontal from '@/components/badges/BadgeRowHorizontal';
+import { defineBadges } from '@/components/badges/badgeUtils';
+import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
 import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleSections';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -131,95 +134,16 @@ export default function Stats() {
   // Check if OT or NT completed at least once
   const otOrNtCompletedFlag = lifetimeStats.otCount >= OT_CHAPTERS || lifetimeStats.ntCount >= NT_CHAPTERS;
 
-  // Get icon for achievement by title
-  const getAchievementIcon = (title, achieved) => {
-    const iconProps = { className: "w-5 h-5", strokeWidth: 2 };
-    // Battle badge uses theme-aware color, no inline style
-    const color = title === 'Battle' ? undefined : (achieved ? '#FFFFFF' : '#9CA3AF');
-    
-    switch(title) {
-      case 'Battle':
-        return <Sword {...iconProps} />;
-      case 'First Rep':
-        return <Zap {...iconProps} style={{ color }} />;
-      case 'Locked In':
-        return <BookMarked {...iconProps} style={{ color }} />;
-      case 'Habit Forming':
-        return <CalendarCheck {...iconProps} style={{ color }} />;
-      case 'Fifty Down':
-        return <Library {...iconProps} style={{ color }} />;
-      case 'Triple Digits':
-        return <Award {...iconProps} style={{ color }} />;
-      case 'All In':
-        return <Flame {...iconProps} style={{ color }} />;
-      case 'Built to Last':
-        return <Blocks {...iconProps} style={{ color }} />;
-      case 'Cover to Cover':
-        return <BookCopy {...iconProps} style={{ color }} />;
-      case 'Testament Strong':
-        return <ScrollText {...iconProps} style={{ color }} />;
-      case 'The Whole Word':
-        return <Crown {...iconProps} style={{ color }} />;
-      case 'Back for More':
-        return <RefreshCw {...iconProps} style={{ color }} />;
-      case 'Deep Roots':
-        return <TreePine {...iconProps} style={{ color }} />;
-      case 'Iron Discipline':
-        return <Hammer {...iconProps} style={{ color }} />;
-      case 'Master Builder':
-        return <Ruler {...iconProps} style={{ color }} />;
-      case 'Built for a Lifetime':
-        return <Columns {...iconProps} style={{ color }} />;
-      case 'Swordsmen':
-        return <Swords {...iconProps} style={{ color }} />;
-      default:
-        return <Circle {...iconProps} style={{ color }} />;
-    }
-  };
-
-  // Get color for achievement by title
-  const getAchievementColor = (title) => {
-    switch(title) {
-      case 'Battle': return 'BLACK_WHITE';
-      case 'First Rep': return 'from-[#D1D5DB] to-[#9CA3AF]'; // Silver
-      case 'Locked In': return 'from-[#10B981] to-[#059669]'; // Forest green
-      case 'Habit Forming': return 'from-[#10B981] to-[#059669]'; // Accent green
-      case 'Fifty Down': return 'from-[#F97316] to-[#EA580C]'; // Accent orange
-      case 'Triple Digits': return 'from-[#FBBF24] to-[#F59E0B]'; // Accent gold
-      case 'All In': return 'from-[#EF4444] to-[#DC2626]'; // Accent red-orange
-      case 'Built to Last': return 'from-[#D4A574] to-[#B8956A]'; // Accent clay
-      case 'Built for a Lifetime': return 'from-[#64748B] to-[#475569]'; // Accent slate
-      case 'Swordsmen': return 'from-[#94A3B8] to-[#64748B]'; // Steel/slate
-      case 'Cover to Cover': return 'from-[#14B8A6] to-[#0D9488]'; // Accent teal
-      case 'Testament Strong': return 'from-[#A855F7] to-[#9333EA]'; // Accent purple
-      case 'The Whole Word': return 'from-[#FBBF24] to-[#F59E0B]'; // Accent gold
-      case 'Back for More': return 'from-[#0EA5E9] to-[#0284C7]'; // Accent sky
-      case 'Deep Roots': return 'from-[#84CC16] to-[#65A30D]'; // Accent brown/green
-      case 'Iron Discipline': return 'from-[#6B7280] to-[#4B5563]'; // Accent graphite
-      case 'Master Builder': return 'from-[#6366F1] to-[#4F46E5]'; // Accent indigo
-      case 'default': return 'from-[#F97316] to-[#FACC15]';
-    }
-  };
-
-  // Define achievements with simple threshold checks
-  const achievements = [
-  { id: 0, title: 'Battle', subtitle: 'You showed up knowing the Christian life is a fight. The Word of God is your weapon — and this is where faithfulness begins.', achieved: true, current: 1, target: 1 },
-  { id: 1, title: 'First Rep', subtitle: 'Read your first chapter', achieved: totalChaptersRead >= 1, current: totalChaptersRead, target: 1 },
-  { id: 2, title: 'Locked In', subtitle: 'Completed a book', achieved: totalBooksCompletedDistinct >= 1, current: totalBooksCompletedDistinct, target: 1 },
-  { id: 3, title: 'Habit Forming', subtitle: 'Read for 7 days', achieved: daysWithReadingDistinct >= 7, current: daysWithReadingDistinct, target: 7 },
-  { id: 4, title: 'Fifty Down', subtitle: 'Read 50 chapters', achieved: totalChaptersRead >= 50, current: totalChaptersRead, target: 50 },
-  { id: 5, title: 'Triple Digits', subtitle: 'Read 100 chapters', achieved: totalChaptersRead >= 100, current: totalChaptersRead, target: 100 },
-  { id: 6, title: 'All In', subtitle: 'Read 250 chapters', achieved: totalChaptersRead >= 250, current: totalChaptersRead, target: 250 },
-  { id: 7, title: 'Built to Last', subtitle: 'Read 500 chapters', achieved: totalChaptersRead >= 500, current: totalChaptersRead, target: 500 },
-  { id: 8, title: 'Cover to Cover', subtitle: 'Completed 10 books', achieved: totalBooksCompletedDistinct >= 10, current: totalBooksCompletedDistinct, target: 10 },
-  { id: 9, title: 'Testament Strong', subtitle: 'Finished OT or NT', achieved: otOrNtCompletedFlag, current: Math.max(lifetimeStats.otCount, lifetimeStats.ntCount), target: Math.min(OT_CHAPTERS, NT_CHAPTERS) },
-  { id: 10, title: 'The Whole Word', subtitle: 'Read the entire Bible', achieved: bibleReadThroughCount >= 1, current: lifetimeStats.totalCount, target: TOTAL_CHAPTERS },
-  { id: 11, title: 'Back for More', subtitle: 'Read the Bible twice', achieved: bibleReadThroughCount >= 2, current: bibleReadThroughCount, target: 2 },
-  { id: 12, title: 'Deep Roots', subtitle: 'Read NT 5 times', achieved: ntReadThroughCount >= 5, current: ntReadThroughCount, target: 5 },
-  { id: 13, title: 'Iron Discipline', subtitle: 'Read for 250 days', achieved: daysWithReadingDistinct >= 250, current: daysWithReadingDistinct, target: 250 },
-  { id: 14, title: 'Master Builder', subtitle: 'Completed 30 books', achieved: totalBooksCompletedDistinct >= 30, current: totalBooksCompletedDistinct, target: 30 },
-  { id: 15, title: 'Built for a Lifetime', subtitle: 'Read 1000 chapters', achieved: totalChaptersRead >= 1000, current: totalChaptersRead, target: 1000 },
-  { id: 16, title: 'Swordsmen', subtitle: 'Complete any book 30 times', achieved: trackerStats.records.mostCompletedBook.count >= 30, current: trackerStats.records.mostCompletedBook.count, target: 30 }];
+  // Use centralized badge definition
+  const achievements = defineBadges({
+    totalChaptersRead,
+    daysWithReadingDistinct,
+    totalBooksCompletedDistinct,
+    lifetimeUniqueChapters: lifetimeStats.uniqueChapters,
+    ntReadThroughCount,
+    otOrNtCompletedFlag,
+    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count
+  });
 
 
   if (isLoading) {
@@ -466,34 +390,7 @@ export default function Stats() {
             {!lifetimeLoading && achievements.filter((a) => a.achieved).length > 0 && (
               <div className="mb-6 pb-5 border-b border-border">
                 <p className="text-xs text-muted-foreground mb-3">Unlocked Badges</p>
-                <div className="flex gap-2 overflow-x-auto pb-1 -mx-1 px-1">
-                  {achievements.filter((a) => a.achieved).map((achievement) => {
-                    const color = getAchievementColor(achievement.title);
-                    const isBW = color === 'BLACK_WHITE';
-                    return (
-                      <div
-                        key={achievement.id}
-                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
-                          isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
-                        }`}
-                        style={{
-                          boxShadow: '0 2px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)',
-                          border: '1.5px solid',
-                          borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
-                        }}
-                      >
-                        <div 
-                          style={{ 
-                            color: isBW ? 'hsl(var(--background))' : '#FFFFFF',
-                            filter: 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.2))',
-                            opacity: 0.95
-                          }}>
-                          {getAchievementIcon(achievement.title, true)}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
+                <BadgeRowHorizontal badges={achievements} mode="earned" maxVisible={10} />
               </div>
             )}
 
