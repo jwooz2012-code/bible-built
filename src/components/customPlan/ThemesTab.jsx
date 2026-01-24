@@ -25,6 +25,20 @@ const COLOR_MAP = {
 
 const THEME_OPTIONS = [
   {
+    id: 'CHRONOLOGICAL_OT_JOURNEY',
+    name: 'Chronological OT Journey',
+    iconKey: 'compass',
+    colorKey: 'orange',
+    description: 'Read the OT as one unfolding story in historical order'
+  },
+  {
+    id: 'CHRONOLOGICAL_NT_JOURNEY',
+    name: 'Chronological NT Journey',
+    iconKey: 'compass',
+    colorKey: 'cyan',
+    description: 'Read the NT as one unfolding story in historical order'
+  },
+  {
     id: 'WHO_IS_JESUS',
     name: 'Who Is Jesus?',
     iconKey: 'cross',
@@ -79,20 +93,6 @@ const THEME_OPTIONS = [
     iconKey: 'heart',
     colorKey: 'rose',
     description: 'Understand God\'s character and love'
-  },
-  {
-    id: 'CHRONOLOGICAL_OT_JOURNEY',
-    name: 'Chronological OT Journey',
-    iconKey: 'compass',
-    colorKey: 'orange',
-    description: 'Read the OT as one unfolding story in historical order'
-  },
-  {
-    id: 'CHRONOLOGICAL_NT_JOURNEY',
-    name: 'Chronological NT Journey',
-    iconKey: 'compass',
-    colorKey: 'cyan',
-    description: 'Read the NT as one unfolding story in historical order'
   },
 ];
 
