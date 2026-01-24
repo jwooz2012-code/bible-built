@@ -87,6 +87,13 @@ const THEME_OPTIONS = [
     colorKey: 'orange',
     description: 'Read the OT as one unfolding story in historical order'
   },
+  {
+    id: 'CHRONOLOGICAL_NT_JOURNEY',
+    name: 'Chronological NT Journey',
+    iconKey: 'compass',
+    colorKey: 'cyan',
+    description: 'Read the NT as one unfolding story in historical order'
+  },
 ];
 
 export default function ThemesTab({ onThemeClick, selectedTheme }) {
