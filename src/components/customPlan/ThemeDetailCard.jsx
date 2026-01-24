@@ -162,7 +162,10 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
               {totalChapters} chapters
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
-              Thematic Study
+              {(themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY') ? 'Chronological Study' : 'Thematic Study'}
+            </div>
+            <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
+              {chaptersPerDay} chapters/day
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
               Recommended: ~{recommendedDays} days
