@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
-import { Compass, Settings, ChevronRight, Check } from 'lucide-react';
+import { Compass, Settings, ChevronRight, Check, Hourglass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { getDateKey, formatDateKey } from '@/components/bible/utils/dateUtils';
@@ -72,6 +72,7 @@ export default function PlansPage() {
         HEART_OF_GOD: 'Heart of God',
         CHRONOLOGICAL_BIBLE: 'Chronological Bible',
         CHRONOLOGICAL_GOSPELS: 'Chronological Gospels',
+        CHRONOLOGICAL_OT: 'Chronological Old Testament Journey',
       }[plan?.scope] || 'Manual Tracking');
 
   const handleManualTracking = () => {
@@ -154,6 +155,25 @@ export default function PlansPage() {
           </h2>
           
           <div className="space-y-3">
+            {/* Chronological OT Journey */}
+            <button
+              onClick={() => navigate(createPageUrl('ThemeDetail') + '?id=chronological_ot')}
+              className="w-full text-left rounded-2xl p-5 border-2 border-border bg-card hover:border-foreground/20 hover:shadow-md transition-all"
+            >
+              <div className="flex items-center gap-4">
+                <div className="w-14 h-14 rounded-2xl bg-purple-500/15 flex items-center justify-center flex-shrink-0">
+                  <Hourglass className="w-7 h-7 text-purple-600 dark:text-purple-400" strokeWidth={2.5} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-lg font-bold text-foreground mb-1">Chronological OT Journey</div>
+                  <div className="text-xs text-muted-foreground">
+                    Follow God's story through the Old Testament in order
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground/40 flex-shrink-0" />
+              </div>
+            </button>
+
             {/* Custom Plan Builder */}
             <button
               onClick={() => setSelectedMode('custom')}
