@@ -4,9 +4,13 @@
  * This is the official and only OT chronological reading plan.
  * Narrative books remain intact, while Psalms are grouped and placed
  * in historically appropriate sections.
+ * 
+ * CRITICAL: This is an ORDERED chapter sequence with explicit indices.
+ * Do NOT sort, merge, or deduplicate. Iterate in index order only.
  */
 
-export const OT_CHRONOLOGICAL_SEQUENCE = [
+// Raw sequence for reference (kept for clarity)
+const RAW_SEQUENCE = [
   // Genesis 1-11
   { bookName: 'Genesis', chapter: 1 },
   { bookName: 'Genesis', chapter: 2 },
@@ -935,3 +939,24 @@ export const OT_CHRONOLOGICAL_SEQUENCE = [
   { bookName: 'Psalms', chapter: 149 },
   { bookName: 'Psalms', chapter: 150 },
 ];
+
+/**
+ * Expanded ordered chapter sequence with explicit indices.
+ * Each chapter has: { index, bookName, chapter }
+ * Generator MUST iterate in index order without sorting.
+ */
+export const OT_CHRONOLOGICAL_SEQUENCE = (() => {
+  const ordered = [];
+  let index = 1;
+  
+  for (const item of RAW_SEQUENCE) {
+    ordered.push({
+      index,
+      bookName: item.bookName,
+      chapter: item.chapter,
+    });
+    index++;
+  }
+  
+  return ordered;
+})();
