@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 export default function StatsTopActions() {
   const [showShareSummary, setShowShareSummary] = useState(false);
   const [showAccountability, setShowAccountability] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleShareMonthly = () => {
@@ -19,6 +20,36 @@ export default function StatsTopActions() {
   const handleShareYearly = () => {
     setShowShareSummary(false);
     navigate(createPageUrl('ShareSummary') + '?mode=yearly');
+  };
+
+  const handleLogShared = async () => {
+    setIsLoading(true);
+    try {
+      const user = await base44.auth.me();
+      const statsSharedCount = (user?.statsSharedCount || 0) + 1;
+      await base44.auth.updateMe({ statsSharedCount });
+      setShowAccountability(false);
+      toast.success('Logged');
+    } catch (error) {
+      toast.error('Failed to log');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleLogReceived = async () => {
+    setIsLoading(true);
+    try {
+      const user = await base44.auth.me();
+      const statsReceivedCount = (user?.statsReceivedCount || 0) + 1;
+      await base44.auth.updateMe({ statsReceivedCount });
+      setShowAccountability(false);
+      toast.success('Logged');
+    } catch (error) {
+      toast.error('Failed to log');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
