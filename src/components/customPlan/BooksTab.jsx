@@ -4,11 +4,9 @@ import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Search } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
-import { CHRONOLOGICAL_OT_ORDER } from '@/components/bible/chronologicalOrder';
 
 export default function BooksTab({ selectedBooks, onBooksChange }) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [bookOrder, setBookOrder] = useState('canonical');
 
   const filteredBooks = useMemo(() => {
     if (!searchQuery) return BIBLE_BOOKS;
@@ -49,22 +47,10 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
                 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah', 'Nahum', 
                 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi'];
         break;
-      case 'chronological_ot':
-        books = CHRONOLOGICAL_OT_ORDER;
-        break;
       default:
         books = [];
     }
     onBooksChange(books);
-  };
-
-  const handleBookOrderChange = (order) => {
-    setBookOrder(order);
-    if (order === 'chronological') {
-      onBooksChange(CHRONOLOGICAL_OT_ORDER);
-    } else if (order === 'canonical') {
-      onBooksChange(BIBLE_BOOKS.filter(b => b.testament === 'OT').map(b => b.name));
-    }
   };
 
   const handleSelectAll = () => {
@@ -77,27 +63,6 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
 
   return (
     <div className="space-y-4">
-      {/* Book Order Selector */}
-      <div>
-        <p className="text-xs text-muted-foreground mb-2">Book Order</p>
-        <div className="flex gap-2">
-          <Button 
-            size="sm" 
-            variant={bookOrder === 'canonical' ? 'secondary' : 'outline'}
-            onClick={() => handleBookOrderChange('canonical')}
-          >
-            Canonical
-          </Button>
-          <Button 
-            size="sm" 
-            variant={bookOrder === 'chronological' ? 'secondary' : 'outline'}
-            onClick={() => handleBookOrderChange('chronological')}
-          >
-            Chronological (OT)
-          </Button>
-        </div>
-      </div>
-
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -117,7 +82,6 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
         <Button size="sm" variant="outline" onClick={() => handlePreset('pauline')}>Pauline</Button>
         <Button size="sm" variant="outline" onClick={() => handlePreset('wisdom')}>Wisdom</Button>
         <Button size="sm" variant="outline" onClick={() => handlePreset('prophets')}>Prophets</Button>
-        <Button size="sm" variant="outline" onClick={() => handlePreset('chronological_ot')}>Chronological OT</Button>
       </div>
 
       {/* Actions */}
