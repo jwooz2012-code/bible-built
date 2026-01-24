@@ -151,6 +151,60 @@ export function defineBadges({
       achieved: mostCompletedBookCount >= 30,
       current: mostCompletedBookCount,
       target: 30
+    },
+    { 
+      id: 17, 
+      title: 'Opened the Door', 
+      subtitle: 'Shared your stats once',
+      achieved: statsSharedCount >= 1,
+      current: statsSharedCount,
+      target: 1,
+      isAccountability: true
+    },
+    { 
+      id: 18, 
+      title: 'Walking Accountably', 
+      subtitle: 'Shared your stats 5 times',
+      achieved: statsSharedCount >= 5,
+      current: statsSharedCount,
+      target: 5,
+      isAccountability: true
+    },
+    { 
+      id: 19, 
+      title: 'Living Examined', 
+      subtitle: 'Shared your stats 12 times',
+      achieved: statsSharedCount >= 12,
+      current: statsSharedCount,
+      target: 12,
+      isAccountability: true
+    },
+    { 
+      id: 20, 
+      title: 'Lifted a Brother', 
+      subtitle: 'Received stats once',
+      achieved: statsReceivedCount >= 1,
+      current: statsReceivedCount,
+      target: 1,
+      isAccountability: true
+    },
+    { 
+      id: 21, 
+      title: 'Faithful Encourager', 
+      subtitle: 'Received stats 5 times',
+      achieved: statsReceivedCount >= 5,
+      current: statsReceivedCount,
+      target: 5,
+      isAccountability: true
+    },
+    { 
+      id: 22, 
+      title: 'Strengthened Many', 
+      subtitle: 'Received stats 12 times',
+      achieved: statsReceivedCount >= 12,
+      current: statsReceivedCount,
+      target: 12,
+      isAccountability: true
     }
   ];
 }
