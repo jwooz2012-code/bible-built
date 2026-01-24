@@ -1,18 +1,9 @@
-import React, { useState, useMemo } from 'react';
-import { Input } from '@/components/ui/input';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Search } from 'lucide-react';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 
 export default function BooksTab({ selectedBooks, onBooksChange }) {
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const filteredBooks = useMemo(() => {
-    if (!searchQuery) return BIBLE_BOOKS;
-    const query = searchQuery.toLowerCase();
-    return BIBLE_BOOKS.filter(book => book.name.toLowerCase().includes(query));
-  }, [searchQuery]);
 
   const toggleBook = (bookName) => {
     if (selectedBooks.includes(bookName)) {
@@ -63,17 +54,6 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search books..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-9"
-        />
-      </div>
-
       {/* Presets */}
       <div className="flex flex-wrap gap-2">
         <Button size="sm" variant="outline" onClick={() => handlePreset('ot')}>OT</Button>
@@ -92,7 +72,7 @@ export default function BooksTab({ selectedBooks, onBooksChange }) {
 
       {/* Book List */}
       <div className="grid grid-cols-2 gap-2 max-h-96 overflow-y-auto">
-        {filteredBooks.map((book) => (
+        {BIBLE_BOOKS.map((book) => (
           <div
             key={book.name}
             className="flex items-center gap-2 p-2 rounded-md border border-border hover:bg-accent cursor-pointer"
