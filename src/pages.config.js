@@ -11,6 +11,7 @@ import Stats from './pages/Stats';
 import ThemeDetail from './pages/ThemeDetail';
 import ThemesLibrary from './pages/ThemesLibrary';
 import app from './pages/_app';
+import ShareSummary from './pages/ShareSummary';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "ThemeDetail": ThemeDetail,
     "ThemesLibrary": ThemesLibrary,
     "_app": app,
+    "ShareSummary": ShareSummary,
 }
 
 export const pagesConfig = {
