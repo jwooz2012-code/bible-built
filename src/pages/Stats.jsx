@@ -192,6 +192,7 @@ export default function Stats() {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-5 py-8">
         <PageHeader title="Statistics" subtitle="Your reading progress" />
+        <StatsTopActions />
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}
