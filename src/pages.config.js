@@ -1,3 +1,4 @@
+import Accountability from './pages/Accountability';
 import Calendar from './pages/Calendar';
 import CustomPlanBuilder from './pages/CustomPlanBuilder';
 import Home from './pages/Home';
@@ -12,11 +13,11 @@ import Stats from './pages/Stats';
 import ThemeDetail from './pages/ThemeDetail';
 import ThemesLibrary from './pages/ThemesLibrary';
 import app from './pages/_app';
-import Accountability from './pages/Accountability';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "Accountability": Accountability,
     "Calendar": Calendar,
     "CustomPlanBuilder": CustomPlanBuilder,
     "Home": Home,
@@ -31,7 +32,6 @@ export const PAGES = {
     "ThemeDetail": ThemeDetail,
     "ThemesLibrary": ThemesLibrary,
     "_app": app,
-    "Accountability": Accountability,
 }
 
 export const pagesConfig = {

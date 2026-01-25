@@ -229,7 +229,7 @@ export default function ShareSummary() {
               Badges Earned
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div className="flex-1 flex items-start justify-center pt-2">
+              <div className="flex items-start justify-center pt-2">
                 <div 
                   className={`grid ${
                     earnedBadges.length === 1 ? 'grid-cols-1' :
