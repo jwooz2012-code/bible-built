@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
+import { getChartColors } from '@/components/utils/chartColors';
 
 export default function CoverageRadar({ sectionData }) {
+  const { resolvedTheme, energyMode } = useTheme();
+  const colors = getChartColors(resolvedTheme, energyMode);
   const [isExpanded, setIsExpanded] = useState(false);
   
   // Sort by coverage descending (highest first)
@@ -26,12 +30,12 @@ export default function CoverageRadar({ sectionData }) {
                 <span className="text-foreground font-medium">{sectionName}</span>
                 <span className="text-muted-foreground font-semibold text-xs">{displayPercent}</span>
               </div>
-              <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
+              <div className="relative w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: colors.track }}>
                 <div
                   className="h-full rounded-full transition-all duration-500"
                   style={{
                     width: `${percent}%`,
-                    backgroundColor: 'hsl(var(--chart-1))'
+                    backgroundColor: colors.primary
                   }}
                 />
               </div>

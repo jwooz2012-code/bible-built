@@ -1,10 +1,15 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Minus, Zap } from 'lucide-react';
+import { useTheme } from '@/components/ThemeProvider';
+import { getChartColors } from '@/components/utils/chartColors';
 
 export default function VelocityMeter({ avg7, trend }) {
+  const { resolvedTheme, energyMode } = useTheme();
+  const colors = getChartColors(resolvedTheme, energyMode);
+  
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : Minus;
-  const trendColor = trend === 'up' ? '#10B981' : trend === 'down' ? '#EF4444' : '#9CA3AF';
-  const trendBg = trend === 'up' ? 'bg-green-500/10' : trend === 'down' ? 'bg-red-500/10' : 'bg-muted';
+  const trendColor = trend === 'up' ? colors.success : trend === 'down' ? colors.error : colors.neutral;
+  const trendBg = trend === 'up' ? colors.successBg : trend === 'down' ? colors.errorBg : colors.neutralBg;
 
   // Generate micro bars for visualization (last 7 days simulation)
   const barHeights = [65, 48, 72, 85, 55, 78, 62];
@@ -13,7 +18,7 @@ export default function VelocityMeter({ avg7, trend }) {
     <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-base font-semibold text-foreground">Reading Velocity</h3>
-        <div className={`flex items-center gap-1.5 px-2 py-1 rounded-md ${trendBg}`}>
+        <div className="flex items-center gap-1.5 px-2 py-1 rounded-md" style={{ backgroundColor: trendBg }}>
           <TrendIcon className="w-3.5 h-3.5" style={{ color: trendColor }} />
           <span className="text-xs font-medium" style={{ color: trendColor }}>
             {trend === 'up' ? '+' : trend === 'down' ? '-' : ''}
@@ -34,8 +39,11 @@ export default function VelocityMeter({ avg7, trend }) {
           {barHeights.map((height, idx) => (
             <div
               key={idx}
-              className="w-1 rounded-full bg-primary/30 transition-all"
-              style={{ height: `${height}%` }}
+              className="w-1 rounded-full transition-all"
+              style={{ 
+                height: `${height}%`,
+                backgroundColor: colors.primaryOpacity
+              }}
             />
           ))}
         </div>

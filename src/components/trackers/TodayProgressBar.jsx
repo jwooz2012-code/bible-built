@@ -1,7 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTheme } from '@/components/ThemeProvider';
+import { getChartColors } from '@/components/utils/chartColors';
 
-export default function TodayProgressBar({ chaptersToday, goal = 3, energyMode = false }) {
+export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
+  const { resolvedTheme, energyMode } = useTheme();
+  const colors = getChartColors(resolvedTheme, energyMode);
   const percent = Math.min(100, (chaptersToday / goal) * 100);
   const goalHit = chaptersToday >= goal;
 
@@ -20,13 +24,16 @@ export default function TodayProgressBar({ chaptersToday, goal = 3, energyMode =
           </span>
         </div>
       </div>
-      <div className="relative w-full h-2 bg-secondary rounded-full overflow-hidden">
+      <div className="relative w-full h-2 rounded-full overflow-hidden" style={{ backgroundColor: colors.track }}>
         <motion.div
-          className={`h-full ${energyMode ? 'bb-shimmer' : 'bb-progress-gradient'}`}
+          className={`h-full ${energyMode ? 'bb-shimmer' : ''}`}
           initial={{ width: 0 }}
           animate={{ width: `${percent}%` }}
           transition={{ duration: 0.5, ease: 'easeOut' }}
-          style={goalHit ? { boxShadow: '0 0 12px hsl(var(--primary) / 0.4)' } : {}}
+          style={{
+            backgroundColor: energyMode ? undefined : colors.primary,
+            boxShadow: goalHit ? '0 0 12px hsl(var(--primary) / 0.4)' : undefined
+          }}
         />
       </div>
     </div>

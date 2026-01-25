@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/components/ThemeProvider';
+import { getChartColors } from '@/components/utils/chartColors';
 
 export default function BookCompletionBars({ bookProgressYear, bookProgressLifetime }) {
+  const { resolvedTheme, energyMode } = useTheme();
+  const colors = getChartColors(resolvedTheme, energyMode);
   const [mode, setMode] = useState('year');
   const data = mode === 'year' ? bookProgressYear : bookProgressLifetime;
 
@@ -43,10 +47,13 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
                   {book.completedDistinct}/{book.totalChapters}
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+              <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: colors.track }}>
                 <div
-                  className="h-full bb-progress-gradient transition-all duration-300"
-                  style={{ width: `${book.percent}%` }}
+                  className={`h-full transition-all duration-300 ${energyMode ? 'bb-progress-gradient' : ''}`}
+                  style={{ 
+                    width: `${book.percent}%`,
+                    backgroundColor: energyMode ? undefined : colors.primary
+                  }}
                 />
               </div>
             </div>
