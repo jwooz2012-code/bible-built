@@ -49,10 +49,11 @@ export default function BookCompletionBars({ bookProgressYear, bookProgressLifet
               </div>
               <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: colors.track }}>
                 <div
-                  className={`h-full transition-all duration-300 ${energyMode ? 'bb-progress-gradient' : ''}`}
+                  className="h-full transition-all duration-300"
                   style={{ 
                     width: `${book.percent}%`,
-                    backgroundColor: energyMode ? undefined : colors.primary
+                    backgroundColor: colors.primary,
+                    backgroundImage: energyMode ? 'linear-gradient(90deg, hsl(var(--primary)), hsl(var(--accent)))' : undefined
                   }}
                 />
               </div>
