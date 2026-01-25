@@ -110,46 +110,49 @@ export default function ShareSummary() {
     enabled: !!user && !!readingLogs.length,
   });
 
-  // Build badge list (yearly only)
-  const badges =
-    mode === 'yearly'
-      ? getBadgesForRow({
-          totalChapters,
-          uniqueDays,
-          booksRead,
-          longestStreak,
-          otChapters,
-          ntChapters,
-        })
-      : [];
+  // Build badge list for BOTH monthly and yearly
+  const badges = getBadgesForRow({
+    totalChapters,
+    uniqueDays,
+    booksRead,
+    longestStreak,
+    otChapters,
+    ntChapters,
+  });
 
   const earnedBadges = badges.filter((b) => b.achieved);
 
-  // Stats for display
+  // Stats for display - story-driven
   const statTiles = [
     {
-      label: 'Chapters Read',
+      label: 'Chapters',
       value: totalChapters.toString(),
+      accent: true,
     },
     {
-      label: 'Reading Days',
+      label: 'Days',
       value: uniqueDays.toString(),
+      accent: false,
     },
     {
       label: 'Books',
       value: booksRead.toString(),
-    },
-    {
-      label: 'OT Chapters',
-      value: otChapters.toString(),
-    },
-    {
-      label: 'NT Chapters',
-      value: ntChapters.toString(),
+      accent: false,
     },
     {
       label: 'Best Streak',
       value: longestStreak.toString(),
+      accent: false,
+    },
+    {
+      label: 'OT',
+      value: otChapters.toString(),
+      accent: false,
+    },
+    {
+      label: 'NT',
+      value: ntChapters.toString(),
+      accent: false,
     },
   ];
 
@@ -201,49 +204,74 @@ export default function ShareSummary() {
         style={{ aspectRatio: '9/16', minHeight: '600px' }}
       >
         {/* Container that fits content in one viewport */}
-        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white">
-          {/* Header */}
-          <div className="pt-8 px-6 pb-6 flex-shrink-0">
-            <h1 className="text-2xl font-bold text-foreground text-center">
-              {displayTitle} Reading Summary
+        <div className="w-full h-full flex flex-col relative overflow-hidden" style={{
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)'
+        }}>
+          {/* Header - The Moment */}
+          <div className="pt-12 px-8 pb-8 flex-shrink-0">
+            <h1 className="text-4xl font-bold text-gray-900 text-center leading-tight">
+              {displayTitle}
             </h1>
+            <p className="text-sm text-gray-500 text-center mt-2 font-medium">
+              Reading Summary
+            </p>
           </div>
 
-          {/* Main Content - Flex to fill available space */}
-          <div className="flex-1 flex flex-col px-6 pb-6 gap-6 overflow-hidden">
-            {/* Stats Grid */}
+          {/* Main Content - The Story */}
+          <div className="flex-1 flex flex-col px-8 pb-6 gap-8 overflow-hidden">
+            {/* Hero Stat */}
+            <div className="flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 shadow-lg flex-shrink-0">
+              <div className="text-6xl font-bold text-white mb-2">
+                {totalChapters}
+              </div>
+              <div className="text-sm text-gray-300 font-medium uppercase tracking-wider">
+                Chapters Read
+              </div>
+            </div>
+
+            {/* Secondary Stats - Visual Rhythm */}
             <div className="grid grid-cols-3 gap-3 flex-shrink-0">
-              {statTiles.map((stat) => (
+              {statTiles.slice(1).map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col items-center gap-1 p-3 bg-muted/40 rounded-lg"
+                  className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-200"
                 >
-                  <div className="text-2xl font-bold text-primary">
+                  <div className="text-3xl font-bold text-gray-900">
                     {stat.value}
                   </div>
-                  <div className="text-xs text-muted-foreground text-center whitespace-nowrap">
+                  <div className="text-[10px] text-gray-500 text-center font-medium uppercase tracking-wide mt-1.5">
                     {stat.label}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Badges Grid - Yearly Only */}
-            {mode === 'yearly' && earnedBadges.length > 0 && (
-              <div className="flex-1 flex flex-col gap-2 overflow-hidden">
-                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                  Achievements
+            {/* Badges Grid - The Milestones */}
+            {earnedBadges.length > 0 && (
+              <div className="flex-1 flex flex-col gap-3 overflow-hidden min-h-0">
+                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">
+                  Milestones
                 </div>
-                <div className="flex-1 grid gap-2 auto-rows-max overflow-hidden">
-                  <div className="grid grid-cols-6 gap-1">
+                <div className="flex-1 flex items-center justify-center overflow-hidden">
+                  <div 
+                    className={`grid gap-2 ${
+                      mode === 'monthly' 
+                        ? earnedBadges.length <= 3 ? 'grid-cols-3' : 'grid-cols-4'
+                        : 'grid-cols-6'
+                    }`}
+                  >
                     {earnedBadges.map((badge) => (
                       <div
                         key={badge.id}
                         className="flex items-center justify-center"
                         title={badge.title}
                       >
-                        <div className="w-8 h-8 flex items-center justify-center">
-                          {getAchievementIcon(badge.title, true)}
+                        <div 
+                          className={`${
+                            mode === 'monthly' ? 'w-12 h-12' : 'w-10 h-10'
+                          } flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm`}
+                        >
+                          {getAchievementIcon(badge.title, true, mode === 'monthly' ? 'large' : 'default')}
                         </div>
                       </div>
                     ))}
@@ -253,12 +281,12 @@ export default function ShareSummary() {
             )}
           </div>
 
-          {/* Footer Branding */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-border/50 flex flex-col items-center gap-1">
-            <div className="text-xs font-semibold text-foreground">
-              Bible Built
+          {/* Footer - The Signature */}
+          <div className="flex-shrink-0 px-8 py-5 border-t border-gray-200 flex flex-col items-center gap-0.5">
+            <div className="text-xs font-bold text-gray-900 tracking-wide">
+              BIBLE BUILT
             </div>
-            <div className="text-xs text-muted-foreground">Track what matters</div>
+            <div className="text-[10px] text-gray-500 font-medium">Track what matters</div>
           </div>
         </div>
       </div>
