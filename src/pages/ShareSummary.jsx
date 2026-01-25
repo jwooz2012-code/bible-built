@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import html2canvas from 'html2canvas';
-import { Share2, Download, Loader2 } from 'lucide-react';
+import { Share2, Download, Loader2, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, parse } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -40,7 +40,7 @@ export default function ShareSummary() {
     displaySubtitle = 'Reading Summary';
   }
 
-  // Fetch reading logs for the period
+  // Fetch reading logs for the period (for display stats)
   const { data: readingLogs = [] } = useQuery({
     queryKey: ['readingLogs', startDate, endDate],
     queryFn: async () => {
@@ -49,6 +49,15 @@ export default function ShareSummary() {
         '-dateKey',
         1000
       );
+      return logs || [];
+    },
+  });
+
+  // Fetch LIFETIME reading logs (for accurate badge determination)
+  const { data: lifetimeLogs = [] } = useQuery({
+    queryKey: ['lifetimeReadingLogs'],
+    queryFn: async () => {
+      const logs = await base44.entities.ReadingLog.list('-dateKey', 10000);
       return logs || [];
     },
   });
@@ -89,6 +98,22 @@ export default function ShareSummary() {
   });
   const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
 
+  // Calculate LIFETIME stats for badge determination
+  const lifetimeTotalChapters = lifetimeLogs.length;
+  const lifetimeUniqueDays = new Set(lifetimeLogs.map((l) => l.dateKey)).size;
+  const lifetimeUniqueChapters = new Set(lifetimeLogs.map((l) => l.chapterId)).size;
+  const lifetimeBooksCompleted = new Set(lifetimeLogs.map((l) => l.bookIndex)).size;
+  const lifetimeOtChapters = lifetimeLogs.filter((l) => l.testament === 'OT').length;
+  const lifetimeNtChapters = lifetimeLogs.filter((l) => l.testament === 'NT').length;
+  
+  // Calculate most completed book count
+  const bookCompletionCounts = {};
+  lifetimeLogs.forEach((log) => {
+    const key = log.book;
+    bookCompletionCounts[key] = (bookCompletionCounts[key] || 0) + 1;
+  });
+  const mostCompletedBookCount = Math.max(0, ...Object.values(bookCompletionCounts));
+
   // Fetch user data for badges
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -101,20 +126,20 @@ export default function ShareSummary() {
     },
   });
 
-  // Define badges array FIRST - single source of truth
+  // Define badges using LIFETIME stats - source of truth
   const badges = defineBadges({
-    totalChaptersRead: totalChapters,
-    daysWithReadingDistinct: uniqueDays,
-    totalBooksCompletedDistinct: booksRead,
-    lifetimeUniqueChapters: totalChapters,
-    ntReadThroughCount: Math.floor(ntChapters / 260),
-    otOrNtCompletedFlag: otChapters >= 929 || ntChapters >= 260,
-    mostCompletedBookCount: 0,
+    totalChaptersRead: lifetimeTotalChapters,
+    daysWithReadingDistinct: lifetimeUniqueDays,
+    totalBooksCompletedDistinct: lifetimeBooksCompleted,
+    lifetimeUniqueChapters: lifetimeUniqueChapters,
+    ntReadThroughCount: Math.floor(lifetimeNtChapters / 260),
+    otOrNtCompletedFlag: lifetimeUniqueChapters >= 929 || lifetimeUniqueChapters >= 260,
+    mostCompletedBookCount: mostCompletedBookCount,
     statsSharedCount: user?.statsSharedCount || 0,
     statsReceivedCount: user?.statsReceivedCount || 0
   });
 
-  // Get earned badges for display
+  // Get earned badges for display (ALL earned badges, not filtered by timeframe)
   const earnedBadges = getBadgesForRow(badges, 'earned');
 
   // Secondary stats - only 4 for spacious layout
@@ -255,13 +280,18 @@ export default function ShareSummary() {
             </div>
           </div>
 
-          {/* Footer - Signature */}
+          {/* Footer - Signature with Logo */}
           <div className="flex-shrink-0 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
-            <div className="flex flex-col gap-0.5">
-              <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase">
-                Bible Built
+            <div className="flex items-center gap-2">
+              <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
+                <BookOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
               </div>
-              <div className="text-[8px] text-gray-500 font-medium">Track what matters</div>
+              <div className="flex flex-col gap-0.5">
+                <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase leading-none">
+                  Bible Built
+                </div>
+                <div className="text-[8px] text-gray-500 font-medium leading-none">Track what matters</div>
+              </div>
             </div>
             <button
               onClick={handleShare}
