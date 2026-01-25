@@ -173,6 +173,17 @@ export default function Accountability() {
           </p>
         </motion.div>
 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
+          className="text-center my-6"
+        >
+          <p className="text-xs text-muted-foreground/70 leading-relaxed">
+            "Iron sharpeneth iron." — Proverbs 27:17
+          </p>
+        </motion.div>
+
         {/* Accountability Badges */}
         {accountabilityBadges.length > 0 && (
           <motion.div
