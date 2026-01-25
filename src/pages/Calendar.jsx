@@ -202,26 +202,15 @@ export default function Calendar() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="max-w-2xl mx-auto px-4 py-4">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
-
-        {/* Reflective Quote */}
-        <motion.div
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-5 -mt-1"
-        >
-          <p className="text-sm text-muted-foreground opacity-75 italic">
-            {getWeeklyQuote()}
-          </p>
-        </motion.div>
 
         {/* Momentum Stats */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex items-center justify-center gap-6 mb-5 text-center"
+          className="flex items-center justify-center gap-6 mb-4 text-center"
         >
           <div className="flex items-center gap-2">
             <span className="text-base">📅</span>
@@ -245,9 +234,9 @@ export default function Calendar() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-6"
+          className="bg-card border border-border rounded-2xl p-5"
         >
-          <div className="flex items-center justify-between mb-5">
+          <div className="flex items-center justify-between mb-4">
             <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
@@ -308,6 +297,18 @@ export default function Calendar() {
               })}
             </div>
           )}
+        </motion.div>
+
+        {/* Reflective Quote - Footer */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-center mt-6"
+        >
+          <p className="text-xs text-muted-foreground opacity-60 italic">
+            {getWeeklyQuote()}
+          </p>
         </motion.div>
       </div>
 
