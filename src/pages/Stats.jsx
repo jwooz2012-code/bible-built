@@ -40,7 +40,7 @@ import VelocityMeter from '@/components/trackers/VelocityMeter';
 import CoverageRadar from '@/components/trackers/CoverageRadar';
 import BookCompletionBars from '@/components/trackers/BookCompletionBars';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
-import BadgeRowHorizontal from '@/components/badges/BadgeRowHorizontal';
+import BadgeStrip from '@/components/badges/BadgeStrip';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
@@ -405,8 +405,7 @@ export default function Stats() {
 
             {!lifetimeLoading && achievements.filter((a) => a.achieved).length > 0 && (
               <div className="mb-6 pb-5 border-b border-border">
-                <p className="text-xs text-muted-foreground mb-3">Unlocked Badges</p>
-                <BadgeRowHorizontal badges={achievements} mode="earned" maxVisible={10} />
+                <BadgeStrip badges={achievements} showLabel={false} />
               </div>
             )}
 

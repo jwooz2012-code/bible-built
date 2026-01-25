@@ -24,8 +24,8 @@ import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
-import BadgeRowHorizontal from '@/components/badges/BadgeRowHorizontal';
-import { defineBadges } from '@/components/badges/badgeUtils';
+import BadgeStrip from '@/components/badges/BadgeStrip';
+import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
 import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
@@ -180,19 +180,9 @@ export default function Home() {
     }
   });
 
-  const ntReadThroughCount = Math.floor(trackerStats.ntUniqueChapters / NT_CHAPTERS);
-  const otOrNtCompletedFlag = trackerStats.otUniqueChapters >= OT_CHAPTERS || trackerStats.ntUniqueChapters >= NT_CHAPTERS;
-  
-  // Use centralized badge definition
-  const achievements = defineBadges({
-    totalChaptersRead: lifetimeTotalCount,
-    daysWithReadingDistinct,
-    totalBooksCompletedDistinct,
-    lifetimeUniqueChapters: trackerStats.lifetimeUniqueChapters,
-    ntReadThroughCount,
-    otOrNtCompletedFlag,
-    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count
-  });
+  // Use centralized badge engine
+  const badgeState = computeBadgeState(allTimeLogs, user, { debug: false });
+  const achievements = badgeState.badges;
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
@@ -345,12 +335,7 @@ export default function Home() {
               <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} showTitle={false} />
               
               <div className="mt-3 mb-1">
-                <div className="text-center">
-                  <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider mb-2">
-                    Badges
-                  </p>
-                  <BadgeRowHorizontal badges={achievements} mode="earned" maxVisible={7} />
-                </div>
+                <BadgeStrip badges={achievements} showLabel={true} />
               </div>
             </motion.div>
 
