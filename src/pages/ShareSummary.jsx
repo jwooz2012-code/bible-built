@@ -178,116 +178,115 @@ export default function ShareSummary() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
-      {/* Actual screenshot-ready content */}
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-0 pb-[calc(5rem+env(safe-area-inset-bottom))]">
+      {/* Screenshot-ready content - designed to fit in ONE viewport */}
       <div
         ref={screenshotRef}
-        className="w-full max-w-md bg-white relative shadow-2xl rounded-3xl border-4 border-gray-100"
-        style={{ aspectRatio: '9/16', minHeight: '600px' }}
-
+        className="w-full h-[calc(100vh-5rem-env(safe-area-inset-bottom))] max-w-md bg-white relative"
       >
-        {/* Container that fits content in one viewport */}
-        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white rounded-3xl">
+        {/* Container that fits ALL content in one viewport without scrolling */}
+        <div className="w-full h-full flex flex-col bg-white px-6 py-6">
           {/* Header - Compact */}
-          <div className="pt-8 px-6 pb-4 flex-shrink-0">
-            <h1 className="text-3xl font-bold text-gray-900 text-center leading-tight">
+          <div className="flex-shrink-0 mb-4">
+            <h1 className="text-2xl font-bold text-gray-900 text-center leading-tight">
               {displayTitle}
             </h1>
-            <p className="text-xs text-gray-500 text-center mt-1.5 font-medium uppercase tracking-wide">
+            <p className="text-[10px] text-gray-500 text-center mt-1 font-semibold uppercase tracking-wider">
               {displaySubtitle}
             </p>
           </div>
 
-          {/* Main Content - Spacious Hierarchy */}
-          <div className="flex-1 flex flex-col px-6 pb-6 gap-5 overflow-hidden">
-            {/* Hero Stat - Premium Card */}
-            <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-8 shadow-sm flex-shrink-0">
-              <div className="text-7xl font-bold text-white mb-2 tracking-tight">
-                {totalChapters}
-              </div>
-              <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest">
-                Chapters Read
-              </div>
+          {/* Hero Stat - Anchor */}
+          <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-6 flex-shrink-0 mb-4">
+            <div className="text-6xl font-bold text-white mb-1 tracking-tight">
+              {totalChapters}
             </div>
+            <div className="text-[10px] text-gray-400 font-semibold uppercase tracking-wider">
+              Chapters Read
+            </div>
+          </div>
 
-            {/* Secondary Stats - 4 Tiles Only */}
-            <div className="grid grid-cols-4 gap-2 flex-shrink-0">
-              {secondaryStats.map((stat) => (
-                <div
-                  key={stat.label}
-                  className="flex flex-col items-center justify-center p-2.5 bg-gray-50 rounded-xl"
+          {/* Key Stats Row - 4 Even Stats */}
+          <div className="grid grid-cols-4 gap-2 flex-shrink-0 mb-4">
+            {secondaryStats.map((stat) => (
+              <div
+                key={stat.label}
+                className="flex flex-col items-center justify-center p-2.5 bg-gray-50 rounded-xl"
+              >
+                <div className="text-xl font-bold text-gray-900">
+                  {stat.value}
+                </div>
+                <div className="text-[8px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-0.5 leading-tight">
+                  {stat.label.replace(' ', '\n')}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Badges Section - All Earned Badges */}
+          <div className="flex-1 flex flex-col min-h-0 mb-4">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center mb-2.5">
+              Badges Earned
+            </div>
+            {earnedBadges && earnedBadges.length > 0 ? (
+              <div className="flex-1 flex items-center justify-center">
+                <div 
+                  className={`grid ${
+                    earnedBadges.length === 1 ? 'grid-cols-1' :
+                    earnedBadges.length === 2 ? 'grid-cols-2 gap-3' :
+                    earnedBadges.length <= 4 ? 'grid-cols-2 gap-2.5' :
+                    earnedBadges.length <= 6 ? 'grid-cols-3 gap-2.5' :
+                    earnedBadges.length <= 9 ? 'grid-cols-3 gap-2' :
+                    earnedBadges.length <= 12 ? 'grid-cols-4 gap-2' :
+                    earnedBadges.length <= 16 ? 'grid-cols-4 gap-1.5' :
+                    'grid-cols-5 gap-1.5'
+                  } max-w-full`}
                 >
-                  <div className="text-2xl font-bold text-gray-900">
-                    {stat.value}
-                  </div>
-                  <div className="text-[9px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-0.5">
-                    {stat.label}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Badges Grid - Always Visible */}
-            <div className="flex-1 flex flex-col gap-2 overflow-hidden min-h-0">
-              <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center">
-                Badges Earned
-              </div>
-              {earnedBadges && earnedBadges.length > 0 ? (
-                <div className="flex-1 flex items-start justify-center overflow-hidden">
-                  <div 
-                    className={`grid ${
-                      earnedBadges.length <= 3 ? 'grid-cols-3 gap-3' :
-                      earnedBadges.length <= 6 ? 'grid-cols-3 gap-2.5' :
-                      earnedBadges.length <= 12 ? 'grid-cols-4 gap-2' :
-                      earnedBadges.length <= 18 ? 'grid-cols-5 gap-1.5' :
-                      'grid-cols-6 gap-1.5'
-                    }`}
-                  >
-                    {earnedBadges.map((badge) => {
-                      const color = getAchievementColor(badge.title);
-                      const isBlackWhite = color === 'BLACK_WHITE';
-                      return (
-                        <div
-                          key={badge.id}
-                          className="flex items-center justify-center"
+                  {earnedBadges.map((badge) => {
+                    const color = getAchievementColor(badge.title);
+                    const isBlackWhite = color === 'BLACK_WHITE';
+                    return (
+                      <div
+                        key={badge.id}
+                        className="flex items-center justify-center"
+                      >
+                        <div 
+                          className={`${
+                            earnedBadges.length <= 4 ? 'w-14 h-14' :
+                            earnedBadges.length <= 9 ? 'w-12 h-12' :
+                            earnedBadges.length <= 16 ? 'w-10 h-10' :
+                            'w-8 h-8'
+                          } flex items-center justify-center rounded-full shadow-sm ${
+                            isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
+                          }`}
                         >
-                          <div 
-                            className={`${
-                              earnedBadges.length <= 6 ? 'w-14 h-14' :
-                              earnedBadges.length <= 12 ? 'w-11 h-11' :
-                              'w-9 h-9'
-                            } flex items-center justify-center rounded-full shadow-sm ${
-                              isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
-                            }`}
-                          >
-                            {getAchievementIcon(badge.title, true, earnedBadges.length <= 6 ? 'large' : 'default')}
-                          </div>
+                          {getAchievementIcon(badge.title, true, earnedBadges.length <= 9 ? 'large' : 'default')}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })}
                 </div>
-              ) : (
-                <div className="flex-1 flex items-center justify-center">
-                  <p className="text-xs text-gray-400 font-medium">No badges earned yet</p>
-                </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-xs text-gray-400 font-medium">No badges earned yet</p>
+              </div>
+            )}
+          </div>
 
-            {/* Integrated Branding - Part of Content */}
-            <div className="flex-shrink-0 pt-4 border-t border-gray-200">
-              <div className="flex items-center justify-center gap-3">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-                  alt="Bible Built"
-                  className="w-9 h-9 rounded-xl"
-                />
-                <div className="flex flex-col gap-0.5">
-                  <div className="text-xs font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
-                    Bible Built
-                  </div>
-                  <div className="text-[9px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
+          {/* Integrated Branding Footer */}
+          <div className="flex-shrink-0 pt-3 border-t border-gray-200">
+            <div className="flex items-center justify-center gap-2.5">
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                alt="Bible Built"
+                className="w-8 h-8 rounded-lg"
+              />
+              <div className="flex flex-col gap-0.5">
+                <div className="text-[11px] font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
+                  Bible Built
                 </div>
+                <div className="text-[8px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
               </div>
             </div>
           </div>
