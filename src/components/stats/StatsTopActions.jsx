@@ -71,7 +71,7 @@ export default function StatsTopActions() {
 
       {/* Share Summary Sheet */}
       <Sheet open={showShareSummary} onOpenChange={setShowShareSummary}>
-        <SheetContent side="bottom" className="max-w-md mx-auto">
+        <SheetContent side="bottom" className="max-w-md mx-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           <SheetHeader className="mb-6">
             <SheetTitle>Share Summary</SheetTitle>
           </SheetHeader>
@@ -94,7 +94,7 @@ export default function StatsTopActions() {
 
       {/* Accountability Sheet */}
       <Sheet open={showAccountability} onOpenChange={setShowAccountability}>
-        <SheetContent side="bottom" className="max-w-md mx-auto">
+        <SheetContent side="bottom" className="max-w-md mx-auto pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
           <SheetHeader className="mb-6">
             <SheetTitle>Accountability</SheetTitle>
           </SheetHeader>
