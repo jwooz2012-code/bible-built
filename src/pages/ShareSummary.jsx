@@ -23,19 +23,21 @@ export default function ShareSummary() {
   const month = monthParam ? parseInt(monthParam) : null;
 
   // Determine date range
-  let startDate, endDate, displayTitle;
+  let startDate, endDate, displayTitle, instructionText;
   if (mode === 'monthly' && month) {
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
     startDate = getDateKey(firstDay);
     endDate = getDateKey(lastDay);
     displayTitle = format(firstDay, 'MMMM yyyy');
+    instructionText = 'Screenshot & share your month';
   } else {
     const firstDay = new Date(year, 0, 1);
     const lastDay = new Date(year, 11, 31);
     startDate = getDateKey(firstDay);
     endDate = getDateKey(lastDay);
     displayTitle = year.toString();
+    instructionText = 'Screenshot & share your year';
   }
 
   // Fetch reading logs for the period
@@ -173,53 +175,41 @@ export default function ShareSummary() {
         {/* Container that fits content in one viewport */}
         <div className="w-full h-full flex flex-col relative overflow-hidden bg-white">
           {/* Header - Compact */}
-          <div className="pt-10 px-6 pb-6 flex-shrink-0">
+          <div className="pt-8 px-6 pb-4 flex-shrink-0">
             <h1 className="text-3xl font-bold text-gray-900 text-center leading-tight">
               {displayTitle}
             </h1>
             <p className="text-xs text-gray-500 text-center mt-1.5 font-medium uppercase tracking-wide">
               Reading Summary
             </p>
+            <p className="text-xs text-gray-400 text-center mt-2 font-medium">
+              {instructionText}
+            </p>
           </div>
 
           {/* Main Content - Spacious Hierarchy */}
-          <div className="flex-1 flex flex-col px-6 pb-4 gap-6 overflow-hidden">
+          <div className="flex-1 flex flex-col px-6 pb-3 gap-5 overflow-hidden">
             {/* Hero Stat - Premium Card */}
-            <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-10 shadow-sm flex-shrink-0 relative">
-              <div className="text-7xl font-bold text-white mb-3 tracking-tight">
+            <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-8 shadow-sm flex-shrink-0">
+              <div className="text-7xl font-bold text-white mb-2 tracking-tight">
                 {totalChapters}
               </div>
               <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest">
                 Chapters Read
               </div>
-              
-              {/* Share button embedded in hero */}
-              <div className="absolute top-3 right-3">
-                <button
-                  onClick={handleShare}
-                  disabled={isExporting}
-                  className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  {isExporting ? (
-                    <Loader2 className="w-4 h-4 text-white animate-spin" />
-                  ) : (
-                    <Share2 className="w-4 h-4 text-white" />
-                  )}
-                </button>
-              </div>
             </div>
 
             {/* Secondary Stats - 4 Tiles Only */}
-            <div className="grid grid-cols-4 gap-2.5 flex-shrink-0">
+            <div className="grid grid-cols-4 gap-2 flex-shrink-0">
               {secondaryStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-xl"
+                  className="flex flex-col items-center justify-center p-2.5 bg-gray-50 rounded-xl"
                 >
                   <div className="text-2xl font-bold text-gray-900">
                     {stat.value}
                   </div>
-                  <div className="text-[9px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-1">
+                  <div className="text-[9px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-0.5">
                     {stat.label}
                   </div>
                 </div>
@@ -227,19 +217,19 @@ export default function ShareSummary() {
             </div>
 
             {/* Badges Grid - Always Visible */}
-            <div className="flex-1 flex flex-col gap-2.5 overflow-hidden min-h-0">
+            <div className="flex-1 flex flex-col gap-2 overflow-hidden min-h-0">
               <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center">
                 Badges Earned
               </div>
               {earnedBadges.length > 0 ? (
-                <div className="flex-1 flex items-start justify-center overflow-hidden pt-1">
+                <div className="flex-1 flex items-start justify-center overflow-hidden">
                   <div 
-                    className={`grid gap-2 ${
-                      earnedBadges.length <= 3 ? 'grid-cols-3' :
-                      earnedBadges.length <= 6 ? 'grid-cols-3' :
-                      earnedBadges.length <= 12 ? 'grid-cols-4' :
-                      earnedBadges.length <= 18 ? 'grid-cols-5' :
-                      'grid-cols-6'
+                    className={`grid ${
+                      earnedBadges.length <= 3 ? 'grid-cols-3 gap-3' :
+                      earnedBadges.length <= 6 ? 'grid-cols-3 gap-2.5' :
+                      earnedBadges.length <= 12 ? 'grid-cols-4 gap-2' :
+                      earnedBadges.length <= 18 ? 'grid-cols-5 gap-1.5' :
+                      'grid-cols-6 gap-1.5'
                     }`}
                   >
                     {earnedBadges.map((badge) => (
@@ -249,10 +239,10 @@ export default function ShareSummary() {
                       >
                         <div 
                           className={`${
-                            earnedBadges.length <= 6 ? 'w-14 h-14' :
-                            earnedBadges.length <= 12 ? 'w-12 h-12' :
-                            'w-10 h-10'
-                          } flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm`}
+                            earnedBadges.length <= 6 ? 'w-14 h-14 border-2' :
+                            earnedBadges.length <= 12 ? 'w-11 h-11 border-2' :
+                            'w-9 h-9 border-[1.5px]'
+                          } flex items-center justify-center bg-white rounded-full border-gray-200 shadow-sm`}
                         >
                           {getAchievementIcon(badge.title, true, earnedBadges.length <= 6 ? 'large' : 'default')}
                         </div>
@@ -269,11 +259,25 @@ export default function ShareSummary() {
           </div>
 
           {/* Footer - Signature */}
-          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 flex flex-col items-center gap-0.5">
-            <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase">
-              Bible Built
+          <div className="flex-shrink-0 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
+            <div className="flex flex-col gap-0.5">
+              <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase">
+                Bible Built
+              </div>
+              <div className="text-[8px] text-gray-500 font-medium">Track what matters</div>
             </div>
-            <div className="text-[8px] text-gray-500 font-medium">Track what matters</div>
+            <button
+              onClick={handleShare}
+              disabled={isExporting}
+              className="px-3 py-1.5 rounded-full bg-gray-900 text-white text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1.5 hover:bg-gray-800 transition-colors"
+            >
+              {isExporting ? (
+                <Loader2 className="w-3 h-3 animate-spin" />
+              ) : (
+                <Share2 className="w-3 h-3" />
+              )}
+              Share
+            </button>
           </div>
         </div>
       </div>
