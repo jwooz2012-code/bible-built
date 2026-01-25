@@ -193,7 +193,7 @@ export default function ShareSummary() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 pb-[calc(6rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-screen bg-white flex items-center justify-center p-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
       {/* Actual screenshot-ready content */}
       <div
         ref={screenshotRef}
@@ -264,7 +264,7 @@ export default function ShareSummary() {
       </div>
 
       {/* Share Button - Outside screenshot */}
-      <div className="fixed right-6 flex gap-2" style={{ bottom: `calc(6rem + env(safe-area-inset-bottom))` }}>
+      <div className="fixed right-6 flex gap-2" style={{ bottom: `calc(6.5rem + env(safe-area-inset-bottom))` }}>
         <Button
           onClick={handleShare}
           disabled={isExporting}
