@@ -194,16 +194,16 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="mb-6"
+          className="mb-4"
         >
           <div className="grid grid-cols-2 gap-2">
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-5 h-12 hover:bg-accent transition-colors text-sm font-semibold text-foreground"
+              className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-4 h-9 hover:bg-accent transition-colors text-xs font-semibold text-foreground"
             >
               Accountability
-              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             </Link>
           </div>
         </motion.div>
@@ -212,7 +212,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-8">
+          className="bg-card border border-border rounded-2xl p-5 mb-6">
 
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-foreground">
