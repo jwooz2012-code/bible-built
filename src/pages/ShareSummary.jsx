@@ -197,7 +197,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Hero Stat - Anchor */}
-          <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-5 flex-shrink-0 mb-4">
+          <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-5 flex-shrink-0 mb-3">
             <div className="text-6xl font-bold text-white mb-1 tracking-tight">
               {totalChapters}
             </div>
@@ -207,7 +207,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Key Stats Row - 4 Even Stats */}
-          <div className="grid grid-cols-4 gap-2.5 flex-shrink-0 mb-4">
+          <div className="grid grid-cols-4 gap-2.5 flex-shrink-0 mb-5">
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
@@ -224,12 +224,12 @@ export default function ShareSummary() {
           </div>
 
           {/* Badges Section - All Earned Badges */}
-          <div className="flex flex-col mb-4">
-            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center mb-2">
+          <div className="flex flex-col mb-3">
+            <div className="text-[9px] font-extrabold text-gray-500 uppercase tracking-[0.2em] text-center mb-2.5">
               Badges Earned
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div className="flex items-start justify-center pt-2">
+              <div className="flex items-start justify-center bg-gray-50/50 rounded-xl py-3 px-2">
                 <div 
                   className={`grid ${
                     earnedBadges.length === 1 ? 'grid-cols-1' :
@@ -275,7 +275,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Integrated Branding Footer */}
-          <div className="flex-shrink-0 pt-2.5 border-t border-gray-200">
+          <div className="flex-shrink-0 pt-3 mt-auto">
             <div className="flex items-center justify-center gap-2.5">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
