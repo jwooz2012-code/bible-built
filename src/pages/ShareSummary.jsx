@@ -274,14 +274,19 @@ export default function ShareSummary() {
             )}
             
             {/* Achievement Signature Line */}
-            <div className="flex items-center justify-center gap-2 pt-4">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-                alt="Bible Built"
-                className="w-7 h-7 rounded-lg opacity-90"
-              />
+            <div className="flex flex-col items-center justify-center gap-1 pt-4">
+              <div className="flex items-center gap-1.5">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                  alt="Bible Built"
+                  className="w-5 h-5 rounded-md opacity-80"
+                />
+                <div className="text-xs font-semibold text-gray-800 tracking-wide">
+                  Bible Built
+                </div>
+              </div>
               <div className="text-[9px] text-gray-500 font-medium tracking-wide">
-                Built with <span className="font-bold text-gray-700">Bible Built</span>
+                Track what matters
               </div>
             </div>
           </div>
