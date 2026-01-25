@@ -23,21 +23,21 @@ export default function ShareSummary() {
   const month = monthParam ? parseInt(monthParam) : null;
 
   // Determine date range
-  let startDate, endDate, displayTitle, instructionText;
+  let startDate, endDate, displayTitle, displaySubtitle;
   if (mode === 'monthly' && month) {
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
     startDate = getDateKey(firstDay);
     endDate = getDateKey(lastDay);
     displayTitle = format(firstDay, 'MMMM yyyy');
-    instructionText = 'Screenshot & share your month';
+    displaySubtitle = 'Reading Summary';
   } else {
     const firstDay = new Date(year, 0, 1);
     const lastDay = new Date(year, 11, 31);
     startDate = getDateKey(firstDay);
     endDate = getDateKey(lastDay);
     displayTitle = year.toString();
-    instructionText = 'Screenshot & share your year';
+    displaySubtitle = 'Reading Summary';
   }
 
   // Fetch reading logs for the period
@@ -180,10 +180,7 @@ export default function ShareSummary() {
               {displayTitle}
             </h1>
             <p className="text-xs text-gray-500 text-center mt-1.5 font-medium uppercase tracking-wide">
-              Reading Summary
-            </p>
-            <p className="text-xs text-gray-400 text-center mt-2 font-medium">
-              {instructionText}
+              {displaySubtitle}
             </p>
           </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { base44 } from '@/api/base44Client';
@@ -8,18 +8,25 @@ import { toast } from 'sonner';
 
 export default function StatsTopActions() {
   const [showShareSummary, setShowShareSummary] = useState(false);
+  const [showSharePreview, setShowSharePreview] = useState(false);
   const [showAccountability, setShowAccountability] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedMode, setSelectedMode] = useState(null);
   const navigate = useNavigate();
 
-  const handleShareMonthly = () => {
+  const handleOpenPreview = (mode) => {
+    setSelectedMode(mode);
     setShowShareSummary(false);
-    navigate(createPageUrl('ShareSummary') + '?mode=monthly');
+    setShowSharePreview(true);
   };
 
-  const handleShareYearly = () => {
-    setShowShareSummary(false);
-    navigate(createPageUrl('ShareSummary') + '?mode=yearly');
+  const handleProceedToSummary = () => {
+    setShowSharePreview(false);
+    const now = new Date();
+    const params = selectedMode === 'monthly' 
+      ? `?mode=monthly&year=${now.getFullYear()}&month=${now.getMonth() + 1}`
+      : `?mode=yearly&year=${now.getFullYear()}`;
+    navigate(createPageUrl('ShareSummary') + params);
   };
 
   const handleLogShared = async () => {
@@ -69,7 +76,7 @@ export default function StatsTopActions() {
         </Button>
       </div>
 
-      {/* Share Summary Sheet */}
+      {/* Share Summary Selection Sheet */}
       <Sheet open={showShareSummary} onOpenChange={setShowShareSummary}>
         <SheetContent side="bottom" className="max-w-md mx-auto pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
           <SheetHeader className="mb-6">
@@ -78,17 +85,34 @@ export default function StatsTopActions() {
           <div className="space-y-2">
             <Button
               variant="outline"
-              onClick={handleShareMonthly}
+              onClick={() => handleOpenPreview('monthly')}
               className="w-full justify-start">
               Share Monthly Summary
             </Button>
             <Button
               variant="outline"
-              onClick={handleShareYearly}
+              onClick={() => handleOpenPreview('yearly')}
               className="w-full justify-start">
               Share Yearly Summary
             </Button>
           </div>
+        </SheetContent>
+      </Sheet>
+
+      {/* Share Preview/Explainer Sheet */}
+      <Sheet open={showSharePreview} onOpenChange={setShowSharePreview}>
+        <SheetContent side="bottom" className="max-w-md mx-auto pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
+          <SheetHeader className="mb-6">
+            <SheetTitle>Screenshot & Share</SheetTitle>
+            <SheetDescription className="text-sm text-muted-foreground pt-2">
+              This summary is designed to be screenshotted and shared.
+            </SheetDescription>
+          </SheetHeader>
+          <Button
+            onClick={handleProceedToSummary}
+            className="w-full">
+            View Summary
+          </Button>
         </SheetContent>
       </Sheet>
 
