@@ -80,6 +80,13 @@ export default function ShareSummary() {
     }
   }
 
+  // Calculate best day (most chapters in one day)
+  const chaptersPerDay = {};
+  readingLogs.forEach((log) => {
+    chaptersPerDay[log.dateKey] = (chaptersPerDay[log.dateKey] || 0) + 1;
+  });
+  const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
+
   // Fetch user data for badges
   const { data: user } = useQuery({
     queryKey: ['user'],
@@ -108,38 +115,12 @@ export default function ShareSummary() {
   // Get earned badges for display
   const earnedBadges = getBadgesForRow(badges, 'earned');
 
-  // Stats for display - story-driven
-  const statTiles = [
-    {
-      label: 'Chapters',
-      value: totalChapters.toString(),
-      accent: true,
-    },
-    {
-      label: 'Days',
-      value: uniqueDays.toString(),
-      accent: false,
-    },
-    {
-      label: 'Books',
-      value: booksRead.toString(),
-      accent: false,
-    },
-    {
-      label: 'Best Streak',
-      value: longestStreak.toString(),
-      accent: false,
-    },
-    {
-      label: 'OT',
-      value: otChapters.toString(),
-      accent: false,
-    },
-    {
-      label: 'NT',
-      value: ntChapters.toString(),
-      accent: false,
-    },
+  // Secondary stats - only 4 for spacious layout
+  const secondaryStats = [
+    { label: 'Days', value: uniqueDays },
+    { label: 'Books', value: booksRead },
+    { label: 'Best Streak', value: longestStreak },
+    { label: 'Best Day', value: bestDay },
   ];
 
   // Share/Export handler
@@ -182,115 +163,114 @@ export default function ShareSummary() {
   };
 
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4 pb-[calc(7rem+env(safe-area-inset-bottom))]">
       {/* Actual screenshot-ready content */}
       <div
         ref={screenshotRef}
-        className="w-full max-w-md bg-white relative"
+        className="w-full max-w-md bg-white relative shadow-2xl"
         style={{ aspectRatio: '9/16', minHeight: '600px' }}
       >
         {/* Container that fits content in one viewport */}
-        <div className="w-full h-full flex flex-col relative overflow-hidden" style={{
-          background: 'linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%)'
-        }}>
-          {/* Header - The Moment */}
-          <div className="pt-12 px-8 pb-8 flex-shrink-0">
-            <h1 className="text-4xl font-bold text-gray-900 text-center leading-tight">
+        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white">
+          {/* Header - Compact */}
+          <div className="pt-10 px-6 pb-6 flex-shrink-0">
+            <h1 className="text-3xl font-bold text-gray-900 text-center leading-tight">
               {displayTitle}
             </h1>
-            <p className="text-sm text-gray-500 text-center mt-2 font-medium">
+            <p className="text-xs text-gray-500 text-center mt-1.5 font-medium uppercase tracking-wide">
               Reading Summary
             </p>
           </div>
 
-          {/* Main Content - The Story */}
-          <div className="flex-1 flex flex-col px-8 pb-6 gap-8 overflow-hidden">
-            {/* Hero Stat */}
-            <div className="flex flex-col items-center justify-center bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 shadow-lg flex-shrink-0">
-              <div className="text-6xl font-bold text-white mb-2">
+          {/* Main Content - Spacious Hierarchy */}
+          <div className="flex-1 flex flex-col px-6 pb-4 gap-6 overflow-hidden">
+            {/* Hero Stat - Premium Card */}
+            <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-10 shadow-sm flex-shrink-0 relative">
+              <div className="text-7xl font-bold text-white mb-3 tracking-tight">
                 {totalChapters}
               </div>
-              <div className="text-sm text-gray-300 font-medium uppercase tracking-wider">
+              <div className="text-xs text-gray-400 font-semibold uppercase tracking-widest">
                 Chapters Read
+              </div>
+              
+              {/* Share button embedded in hero */}
+              <div className="absolute top-3 right-3">
+                <button
+                  onClick={handleShare}
+                  disabled={isExporting}
+                  className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  {isExporting ? (
+                    <Loader2 className="w-4 h-4 text-white animate-spin" />
+                  ) : (
+                    <Share2 className="w-4 h-4 text-white" />
+                  )}
+                </button>
               </div>
             </div>
 
-            {/* Secondary Stats - Visual Rhythm */}
-            <div className="grid grid-cols-3 gap-3 flex-shrink-0">
-              {statTiles.slice(1).map((stat) => (
+            {/* Secondary Stats - 4 Tiles Only */}
+            <div className="grid grid-cols-4 gap-2.5 flex-shrink-0">
+              {secondaryStats.map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col items-center justify-center p-4 bg-white rounded-xl border border-gray-200"
+                  className="flex flex-col items-center justify-center p-3 bg-gray-50 rounded-xl"
                 >
-                  <div className="text-3xl font-bold text-gray-900">
+                  <div className="text-2xl font-bold text-gray-900">
                     {stat.value}
                   </div>
-                  <div className="text-[10px] text-gray-500 text-center font-medium uppercase tracking-wide mt-1.5">
+                  <div className="text-[9px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-1">
                     {stat.label}
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* Badges Grid - The Milestones */}
-            {earnedBadges.length > 0 && (
-              <div className="flex-1 flex flex-col gap-3 overflow-hidden min-h-0">
-                <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider text-center">
-                  Milestones
-                </div>
-                <div className="flex-1 flex items-center justify-center overflow-hidden">
+            {/* Badges Grid - Always Visible */}
+            <div className="flex-1 flex flex-col gap-2.5 overflow-hidden min-h-0">
+              <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center">
+                Badges Earned
+              </div>
+              {earnedBadges.length > 0 ? (
+                <div className="flex-1 flex items-start justify-center overflow-hidden pt-1">
                   <div 
-                    className={`grid gap-2 ${
-                      mode === 'monthly' 
-                        ? earnedBadges.length <= 3 ? 'grid-cols-3' : 'grid-cols-4'
-                        : 'grid-cols-6'
+                    className={`grid gap-2.5 ${
+                      earnedBadges.length <= 3 ? 'grid-cols-3' :
+                      earnedBadges.length <= 6 ? 'grid-cols-3' :
+                      earnedBadges.length <= 9 ? 'grid-cols-3' :
+                      'grid-cols-4'
                     }`}
                   >
-                    {earnedBadges.map((badge) => (
+                    {earnedBadges.slice(0, 12).map((badge) => (
                       <div
                         key={badge.id}
                         className="flex items-center justify-center"
-                        title={badge.title}
                       >
                         <div 
-                          className={`${
-                            mode === 'monthly' ? 'w-12 h-12' : 'w-10 h-10'
-                          } flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm`}
+                          className="w-14 h-14 flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm"
                         >
-                          {getAchievementIcon(badge.title, true, mode === 'monthly' ? 'large' : 'default')}
+                          {getAchievementIcon(badge.title, true, 'large')}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex-1 flex items-center justify-center">
+                  <p className="text-xs text-gray-400 font-medium">No badges earned yet</p>
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Footer - The Signature */}
-          <div className="flex-shrink-0 px-8 py-5 border-t border-gray-200 flex flex-col items-center gap-0.5">
-            <div className="text-xs font-bold text-gray-900 tracking-wide">
-              BIBLE BUILT
+          {/* Footer - Signature */}
+          <div className="flex-shrink-0 px-6 py-4 border-t border-gray-100 flex flex-col items-center gap-0.5">
+            <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase">
+              Bible Built
             </div>
-            <div className="text-[10px] text-gray-500 font-medium">Track what matters</div>
+            <div className="text-[8px] text-gray-500 font-medium">Track what matters</div>
           </div>
         </div>
-      </div>
-
-      {/* Share Button - Outside screenshot */}
-      <div className="fixed right-6 flex gap-2" style={{ bottom: `calc(6.5rem + env(safe-area-inset-bottom))` }}>
-        <Button
-          onClick={handleShare}
-          disabled={isExporting}
-          className="gap-2"
-        >
-          {isExporting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
-          ) : (
-            <Share2 className="w-4 h-4" />
-          )}
-          Share
-        </Button>
       </div>
     </div>
   );
