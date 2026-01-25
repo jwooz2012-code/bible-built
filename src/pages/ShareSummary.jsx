@@ -98,17 +98,12 @@ export default function ShareSummary() {
   });
   const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
 
-  // Calculate LIFETIME stats for badge determination
-  const lifetimeTotalChapters = lifetimeLogs.length;
-  const lifetimeUniqueDays = new Set(lifetimeLogs.map((l) => l.dateKey)).size;
-  const lifetimeUniqueChapters = new Set(lifetimeLogs.map((l) => l.chapterId)).size;
-  const lifetimeBooksCompleted = new Set(lifetimeLogs.map((l) => l.bookIndex)).size;
-  const lifetimeOtChapters = lifetimeLogs.filter((l) => l.testament === 'OT').length;
-  const lifetimeNtChapters = lifetimeLogs.filter((l) => l.testament === 'NT').length;
-  
-  // Calculate most completed book count
+  // Calculate unique chapters for the timeframe
+  const uniqueChapters = new Set(readingLogs.map((l) => l.chapterId)).size;
+
+  // Calculate most completed book count for timeframe
   const bookCompletionCounts = {};
-  lifetimeLogs.forEach((log) => {
+  readingLogs.forEach((log) => {
     const key = log.book;
     bookCompletionCounts[key] = (bookCompletionCounts[key] || 0) + 1;
   });
@@ -126,14 +121,14 @@ export default function ShareSummary() {
     },
   });
 
-  // Define badges using LIFETIME stats - source of truth
+  // Define badges using TIMEFRAME stats (not lifetime) - badges earned during this period
   const badges = defineBadges({
-    totalChaptersRead: lifetimeTotalChapters,
-    daysWithReadingDistinct: lifetimeUniqueDays,
-    totalBooksCompletedDistinct: lifetimeBooksCompleted,
-    lifetimeUniqueChapters: lifetimeUniqueChapters,
-    ntReadThroughCount: Math.floor(lifetimeNtChapters / 260),
-    otOrNtCompletedFlag: lifetimeUniqueChapters >= 929 || lifetimeUniqueChapters >= 260,
+    totalChaptersRead: totalChapters,
+    daysWithReadingDistinct: uniqueDays,
+    totalBooksCompletedDistinct: booksRead,
+    lifetimeUniqueChapters: uniqueChapters,
+    ntReadThroughCount: Math.floor(ntChapters / 260),
+    otOrNtCompletedFlag: uniqueChapters >= 929 || uniqueChapters >= 260,
     mostCompletedBookCount: mostCompletedBookCount,
     statsSharedCount: user?.statsSharedCount || 0,
     statsReceivedCount: user?.statsReceivedCount || 0
@@ -194,12 +189,12 @@ export default function ShareSummary() {
       {/* Actual screenshot-ready content */}
       <div
         ref={screenshotRef}
-        className="w-full max-w-md bg-white relative shadow-2xl"
+        className="w-full max-w-md bg-white relative shadow-2xl rounded-3xl border-4 border-gray-100"
         style={{ aspectRatio: '9/16', minHeight: '600px' }}
 
       >
         {/* Container that fits content in one viewport */}
-        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white rounded-3xl border-4 border-gray-100">
+        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white rounded-3xl">
           {/* Header - Compact */}
           <div className="pt-8 px-6 pb-4 flex-shrink-0">
             <h1 className="text-3xl font-bold text-gray-900 text-center leading-tight">
@@ -287,19 +282,19 @@ export default function ShareSummary() {
             </div>
           </div>
 
-          {/* Footer - Signature Frame */}
-          <div className="flex-shrink-0 w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 border-t-2 border-gray-200 py-5 px-6">
+          {/* Footer - Integrated Signature */}
+          <div className="flex-shrink-0 w-full border-t border-gray-200 bg-gray-50 py-4 px-6 rounded-b-3xl">
             <div className="flex items-center justify-center gap-3">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                 alt="Bible Built"
-                className="w-10 h-10 rounded-xl shadow-sm"
+                className="w-9 h-9 rounded-xl"
               />
-              <div className="flex flex-col gap-1">
-                <div className="text-sm font-bold text-gray-900 tracking-[0.2em] uppercase leading-none">
+              <div className="flex flex-col gap-0.5">
+                <div className="text-xs font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
                   Bible Built
                 </div>
-                <div className="text-[10px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
+                <div className="text-[9px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
               </div>
             </div>
           </div>
