@@ -195,21 +195,21 @@ export default function Stats() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 py-8">
-        <PageHeader title="Statistics" subtitle="Your reading progress" />
+      <div className="max-w-2xl mx-auto px-5 pt-6 pb-8">
+        <PageHeader title="Statistics" />
 
         {/* Top Actions */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="mb-8"
+          className="mb-6"
         >
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-2">
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-4 h-10 hover:bg-accent transition-colors text-sm font-medium text-foreground"
+              className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-5 h-12 hover:bg-accent transition-colors text-sm font-semibold text-foreground"
             >
               Accountability
               <ChevronRight className="w-4 h-4 text-muted-foreground" />
