@@ -92,29 +92,8 @@ export default function ShareSummary() {
     },
   });
 
-  // Get badges
-  const { data: badgeData = {} } = useQuery({
-    queryKey: ['badges', user?.id, readingLogs],
-    queryFn: async () => {
-      if (!user || !readingLogs.length) return {};
-      // Return data that would be used to calculate badges
-      // For now, return empty - badges are calculated client-side
-      return {
-        totalChapters,
-        uniqueDays,
-        booksRead,
-        otChapters,
-        ntChapters,
-      };
-    },
-    enabled: !!user && !!readingLogs.length,
-  });
-
-  // Build badge list for BOTH monthly and yearly
-  // Need to use defineBadges to create the badges first
-  const { defineBadges } = require('@/components/badges/badgeUtils');
-  
-  const allBadges = defineBadges({
+  // Define badges array FIRST - single source of truth
+  const badges = defineBadges({
     totalChaptersRead: totalChapters,
     daysWithReadingDistinct: uniqueDays,
     totalBooksCompletedDistinct: booksRead,
@@ -122,11 +101,12 @@ export default function ShareSummary() {
     ntReadThroughCount: Math.floor(ntChapters / 260),
     otOrNtCompletedFlag: otChapters >= 929 || ntChapters >= 260,
     mostCompletedBookCount: 0,
-    statsSharedCount: 0,
-    statsReceivedCount: 0
+    statsSharedCount: user?.statsSharedCount || 0,
+    statsReceivedCount: user?.statsReceivedCount || 0
   });
 
-  const earnedBadges = getBadgesForRow(allBadges, 'earned');
+  // Get earned badges for display
+  const earnedBadges = getBadgesForRow(badges, 'earned');
 
   // Stats for display - story-driven
   const statTiles = [
