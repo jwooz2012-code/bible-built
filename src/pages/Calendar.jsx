@@ -270,27 +270,91 @@ export default function Calendar() {
                 const count = logsByDay[dateKey]?.length || 0;
                 const isToday = dateKey === todayKey;
 
+                // Energy mode: use dark neutral background with subtle orange ring/accent
+                const getEnergyDayStyle = () => {
+                  if (isToday) {
+                    return count > 0 
+                      ? {
+                          background: 'rgba(28, 32, 38, 0.95)',
+                          borderColor: 'hsl(var(--primary))',
+                          borderWidth: '2px',
+                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.25), inset 0 0 12px hsla(var(--primary) / 0.15)'
+                        }
+                      : {
+                          background: 'rgba(28, 32, 38, 0.6)',
+                          borderColor: 'hsl(var(--primary))',
+                          borderWidth: '2px',
+                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.2)'
+                        };
+                  }
+                  if (count > 0) {
+                    return {
+                      background: 'rgba(28, 32, 38, 0.9)',
+                      borderWidth: '1.5px',
+                      borderColor: 'hsla(var(--primary) / 0.4)',
+                      boxShadow: 'inset 0 0 8px hsla(var(--primary) / 0.1)'
+                    };
+                  }
+                  return {
+                    background: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))'
+                  };
+                };
+
+                const getDefaultDayStyle = () => {
+                  if (isToday) {
+                    return count > 0 
+                      ? {
+                          background: 'hsl(var(--accent))',
+                          borderColor: 'hsl(var(--primary))',
+                          borderWidth: '2px',
+                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
+                        }
+                      : {
+                          background: 'hsla(var(--accent) / 0.08)',
+                          borderColor: 'hsl(var(--primary))',
+                          borderWidth: '2px',
+                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
+                        };
+                  }
+                  if (count > 0) {
+                    return {
+                      background: 'hsl(var(--accent))',
+                      borderWidth: '1.5px',
+                      borderColor: 'hsl(var(--accent))'
+                    };
+                  }
+                  return {
+                    background: 'hsl(var(--card))',
+                    borderColor: 'hsl(var(--border))'
+                  };
+                };
+
                 return (
                   <button
                     key={i}
                     onClick={() => handleDayClick(day)}
                     className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium hover:opacity-80 border"
-                    style={isToday ? {
-                      background: count > 0 ? 'hsl(var(--accent))' : 'hsla(var(--accent) / 0.08)',
-                      borderColor: 'hsl(var(--primary))',
-                      borderWidth: '2px',
-                      boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
-                    } : count > 0 ? {
-                      background: 'hsl(var(--accent))',
-                      borderWidth: '1.5px',
-                      borderColor: 'hsl(var(--accent))'
-                    } : {
-                      background: 'hsl(var(--card))',
-                      borderColor: 'hsl(var(--border))'
-                    }}
+                    style={energyMode ? getEnergyDayStyle() : getDefaultDayStyle()}
                   >
-                    <span className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} style={(isToday || count > 0) ? { color: energyMode && energyPalette === 'royal' && count > 0 ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : 'hsl(222 22% 18%)' } : {}}>{day}</span>
-                    <span className="text-sm h-4 flex items-center justify-center font-bold opacity-85" style={count > 0 ? { color: energyMode && energyPalette === 'royal' ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : '#1a1a1a' } : { color: 'transparent' }}>
+                    <span 
+                      className={(isToday || count > 0) ? "font-semibold text-[15px]" : "text-foreground font-semibold text-[15px]"} 
+                      style={(isToday || count > 0) ? { 
+                        color: energyMode 
+                          ? '#FFFFFF' 
+                          : (energyPalette === 'royal' && count > 0 ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : 'hsl(222 22% 18%)') 
+                      } : {}}
+                    >
+                      {day}
+                    </span>
+                    <span 
+                      className="text-sm h-4 flex items-center justify-center font-bold opacity-85" 
+                      style={count > 0 ? { 
+                        color: energyMode 
+                          ? '#FFFFFF' 
+                          : (energyPalette === 'royal' ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : '#1a1a1a') 
+                      } : { color: 'transparent' }}
+                    >
                       {count > 0 ? count : '•'}
                     </span>
                   </button>
