@@ -434,7 +434,7 @@ export default function Stats() {
                         className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
                           achievement.achieved
                             ? isBW
-                              ? 'bg-foreground'
+                              ? 'bg-gray-900'
                               : `bg-gradient-to-br ${color}`
                             : 'bg-muted'
                         }`}
@@ -443,14 +443,14 @@ export default function Stats() {
                           boxShadow: achievement.achieved 
                             ? '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)'
                             : 'none',
-                          border: '1.5px solid',
-                          borderColor: achievement.achieved 
+                          border: achievement.achieved && isBW ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid',
+                          borderColor: achievement.achieved && !isBW
                             ? 'color-mix(in srgb, var(--border) 60%, transparent)'
-                            : 'var(--border)'
+                            : achievement.achieved ? 'rgba(255,255,255,0.15)' : 'var(--border)'
                         }}>
                         <div 
                           style={{ 
-                            color: achievement.achieved && isBW ? 'hsl(var(--background))' : undefined,
+                            color: achievement.achieved && isBW ? '#FFFFFF' : undefined,
                             filter: achievement.achieved ? 'drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.15))' : 'none',
                             opacity: achievement.achieved ? 0.95 : 1
                           }}>

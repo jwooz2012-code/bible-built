@@ -64,18 +64,18 @@ export default function BadgeStrip({ badges, showLabel = true }) {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.05, duration: 0.2 }}
                 className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 snap-start ${
-                  isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
+                  isBW ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
                 }`}
                 style={{
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)',
-                  border: '1.5px solid',
-                  borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
+                  border: isBW ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid',
+                  borderColor: isBW ? 'rgba(255,255,255,0.15)' : 'color-mix(in srgb, var(--border) 60%, transparent)'
                 }}
                 title={badge.title}
               >
                 <div 
-                  className={isBW ? 'text-background' : 'text-white'}
                   style={{ 
+                    color: isBW ? '#FFFFFF' : '#FFFFFF',
                     filter: 'drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.15))',
                     opacity: 0.95
                   }}

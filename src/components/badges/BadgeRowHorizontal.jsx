@@ -41,24 +41,24 @@ export default function BadgeRowHorizontal({
             onClick={() => onBadgeClick?.(badge)}
             className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 cursor-pointer ${
               badge.achieved
-                ? isBW ? 'bg-foreground' : `bg-gradient-to-br ${color}`
+                ? isBW ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
                 : 'bg-muted'
             }`}
             style={{
               boxShadow: badge.achieved 
                 ? '0 2px 4px rgba(0,0,0,0.12), inset 0 1px 0 rgba(255,255,255,0.1)'
                 : 'none',
-              border: '1.5px solid',
-              borderColor: badge.achieved 
+              border: badge.achieved && isBW ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid',
+              borderColor: badge.achieved && !isBW
                 ? 'color-mix(in srgb, var(--border) 60%, transparent)'
-                : 'var(--border)',
+                : badge.achieved ? 'rgba(255,255,255,0.15)' : 'var(--border)',
               opacity: badge.achieved ? 1 : 0.5
             }}
             title={badge.title}
           >
             <div 
               style={{ 
-                color: badge.achieved && isBW ? 'hsl(var(--background))' : undefined,
+                color: badge.achieved && isBW ? '#FFFFFF' : undefined,
                 filter: badge.achieved ? 'drop-shadow(0 0.5px 1px rgba(0,0,0,0.2))' : 'none',
                 opacity: badge.achieved ? 0.95 : 1
               }}>

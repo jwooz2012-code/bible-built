@@ -101,18 +101,18 @@ export default function AchievementsPreview({ unlockedAchievements }) {
                 transition={{ delay: idx * 0.05 }}
                 className={`w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0 relative ${
                   isBW 
-                    ? (isEnergyMode ? 'bg-[#1a1a1a]' : 'bg-foreground')
+                    ? 'bg-gray-900'
                     : `bg-gradient-to-br ${color}`
                 }`}
                 style={{
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)',
-                  border: '1.5px solid',
-                  borderColor: 'color-mix(in srgb, var(--border) 60%, transparent)'
+                  border: isBW ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid',
+                  borderColor: isBW ? 'rgba(255,255,255,0.15)' : 'color-mix(in srgb, var(--border) 60%, transparent)'
                 }}
                 title={achievement.title}>
                 <div 
-                  className={(isBW && !isEnergyMode) ? 'text-background' : 'text-white'}
                   style={{ 
+                    color: isBW ? '#FFFFFF' : '#FFFFFF',
                     filter: 'drop-shadow(0 0.5px 0.5px rgba(0,0,0,0.15))',
                     opacity: 0.95
                   }}>
