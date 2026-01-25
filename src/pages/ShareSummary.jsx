@@ -118,7 +118,7 @@ export default function ShareSummary() {
     longestStreak,
     otChapters,
     ntChapters,
-  });
+  }) || [];
 
   const earnedBadges = badges.filter((b) => b.achieved);
 
