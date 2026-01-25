@@ -283,9 +283,11 @@ export default function ShareSummary() {
           {/* Footer - Signature with Logo */}
           <div className="flex-shrink-0 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-lg bg-gray-900 flex items-center justify-center">
-                <BookOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
-              </div>
+              <img 
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                alt="Bible Built"
+                className="w-7 h-7 rounded-lg"
+              />
               <div className="flex flex-col gap-0.5">
                 <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase leading-none">
                   Bible Built
