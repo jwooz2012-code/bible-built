@@ -197,7 +197,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Hero Stat - Anchor */}
-          <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-6 flex-shrink-0 mb-4">
+          <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-5 flex-shrink-0 mb-4">
             <div className="text-6xl font-bold text-white mb-1 tracking-tight">
               {totalChapters}
             </div>
@@ -207,7 +207,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Key Stats Row - 4 Even Stats */}
-          <div className="grid grid-cols-4 gap-2 flex-shrink-0 mb-4">
+          <div className="grid grid-cols-4 gap-2.5 flex-shrink-0 mb-4">
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
@@ -216,7 +216,7 @@ export default function ShareSummary() {
                 <div className="text-xl font-bold text-gray-900">
                   {stat.value}
                 </div>
-                <div className="text-[8px] text-gray-500 text-center font-semibold uppercase tracking-wide mt-0.5 leading-tight">
+                <div className="text-[8px] text-gray-400/90 text-center font-semibold uppercase tracking-wide mt-0.5 leading-tight">
                   {stat.label.replace(' ', '\n')}
                 </div>
               </div>
@@ -225,7 +225,7 @@ export default function ShareSummary() {
 
           {/* Badges Section - All Earned Badges */}
           <div className="flex-1 flex flex-col min-h-0 mb-4">
-            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center mb-2.5">
+            <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center mb-2">
               Badges Earned
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
@@ -252,10 +252,10 @@ export default function ShareSummary() {
                       >
                         <div 
                           className={`${
-                            earnedBadges.length <= 4 ? 'w-14 h-14' :
-                            earnedBadges.length <= 9 ? 'w-12 h-12' :
-                            earnedBadges.length <= 16 ? 'w-10 h-10' :
-                            'w-8 h-8'
+                            earnedBadges.length <= 4 ? 'w-13 h-13' :
+                            earnedBadges.length <= 9 ? 'w-11 h-11' :
+                            earnedBadges.length <= 16 ? 'w-9 h-9' :
+                            'w-7.5 h-7.5'
                           } flex items-center justify-center rounded-full shadow-sm ${
                             isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
                           }`}
@@ -275,18 +275,18 @@ export default function ShareSummary() {
           </div>
 
           {/* Integrated Branding Footer */}
-          <div className="flex-shrink-0 pt-3 border-t border-gray-200">
+          <div className="flex-shrink-0 pt-2.5 border-t border-gray-200">
             <div className="flex items-center justify-center gap-2.5">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                 alt="Bible Built"
-                className="w-8 h-8 rounded-lg"
+                className="w-9 h-9 rounded-lg"
               />
               <div className="flex flex-col gap-0.5">
                 <div className="text-[11px] font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
                   Bible Built
                 </div>
-                <div className="text-[8px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
+                <div className="text-[8px] text-gray-500/80 font-semibold tracking-wide leading-none">Track what matters</div>
               </div>
             </div>
           </div>
