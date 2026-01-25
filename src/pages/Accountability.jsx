@@ -64,26 +64,26 @@ export default function Accountability() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 py-8">
+      <div className="max-w-2xl mx-auto px-5 pt-6 pb-8">
         <PageHeader 
           title="Accountability" 
           subtitle="Walk with others in the faith"
         />
 
         {/* Main Stats Cards */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-5">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15 }}
-            className="bg-card border border-border rounded-2xl p-6"
-          >
-            <div className="flex items-center justify-center mb-3">
-              <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                <Share2 className="w-5 h-5 text-blue-500" />
+            className="bg-card border border-border rounded-2xl p-4"
+            >
+            <div className="flex items-center justify-center mb-2">
+              <div className="w-9 h-9 rounded-full bg-blue-500/10 flex items-center justify-center">
+                <Share2 className="w-4 h-4 text-blue-500" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-center text-foreground mb-2">
+            <p className="text-3xl font-bold text-center text-foreground mb-1">
               {statsShared}
             </p>
             <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wide">
@@ -95,14 +95,14 @@ export default function Accountability() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15, delay: 0.05 }}
-            className="bg-card border border-border rounded-2xl p-6"
-          >
-            <div className="flex items-center justify-center mb-3">
-              <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                <Users className="w-5 h-5 text-green-500" />
+            className="bg-card border border-border rounded-2xl p-4"
+            >
+            <div className="flex items-center justify-center mb-2">
+              <div className="w-9 h-9 rounded-full bg-green-500/10 flex items-center justify-center">
+                <Users className="w-4 h-4 text-green-500" />
               </div>
             </div>
-            <p className="text-4xl font-bold text-center text-foreground mb-2">
+            <p className="text-3xl font-bold text-center text-foreground mb-1">
               {statsReceived}
             </p>
             <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wide">
@@ -113,62 +113,62 @@ export default function Accountability() {
 
         {/* Log Accountability Actions */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.1 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-8"
+         initial={{ opacity: 0, y: 10 }}
+         animate={{ opacity: 1, y: 0 }}
+         transition={{ duration: 0.15, delay: 0.1 }}
+         className="bg-card border border-border rounded-2xl p-4 mb-5"
         >
-          <h2 className="text-lg font-semibold text-foreground mb-4">Log Accountability</h2>
-          
-          <div className="space-y-3">
-            <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+         <h2 className="text-base font-semibold text-foreground mb-3">Log Accountability</h2>
+
+         <div className="space-y-2">
+            <div className="flex items-center justify-between p-2.5 bg-secondary rounded-lg">
               <span className="text-sm text-foreground">I shared my stats</span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => updateCountMutation.mutate({ field: 'statsSharedCount', delta: -1 })}
                   disabled={adjusting === 'statsSharedCount' || statsShared === 0}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3.5 h-3.5" />
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => updateCountMutation.mutate({ field: 'statsSharedCount', delta: 1 })}
                   disabled={adjusting === 'statsSharedCount'}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-3 bg-secondary rounded-lg">
+            <div className="flex items-center justify-between p-2.5 bg-secondary rounded-lg">
               <span className="text-sm text-foreground">Someone shared with me</span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => updateCountMutation.mutate({ field: 'statsReceivedCount', delta: -1 })}
                   disabled={adjusting === 'statsReceivedCount' || statsReceived === 0}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Minus className="w-4 h-4" />
+                  <Minus className="w-3.5 h-3.5" />
                 </Button>
                 <Button
                   size="sm"
                   onClick={() => updateCountMutation.mutate({ field: 'statsReceivedCount', delta: 1 })}
                   disabled={adjusting === 'statsReceivedCount'}
-                  className="h-8 w-8 p-0"
+                  className="h-7 w-7 p-0"
                 >
-                  <Plus className="w-4 h-4" />
+                  <Plus className="w-3.5 h-3.5" />
                 </Button>
               </div>
             </div>
           </div>
 
-          <p className="text-xs text-muted-foreground mt-4 text-center">
+          <p className="text-xs text-muted-foreground mt-3 text-center">
             Accountability is about honesty, not performance
           </p>
         </motion.div>
@@ -179,11 +179,11 @@ export default function Accountability() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.15, delay: 0.15 }}
-            className="bg-card border border-border rounded-2xl p-5"
+            className="bg-card border border-border rounded-2xl p-4"
           >
-            <h2 className="text-lg font-semibold text-foreground mb-4">Accountability Badges</h2>
+            <h2 className="text-base font-semibold text-foreground mb-3">Accountability Badges</h2>
             
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-2.5">
               {accountabilityBadges.map((badge) => {
                 const color = getAchievementColor(badge.title);
                 const isBW = color === 'BLACK_WHITE';
