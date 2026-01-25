@@ -50,18 +50,9 @@ export default function Accountability() {
   const statsShared = user?.statsSharedCount || 0;
   const statsReceived = user?.statsReceivedCount || 0;
 
-  // Calculate accountability badges
-  const accountabilityBadges = defineBadges({
-    totalChaptersRead: 0,
-    daysWithReadingDistinct: 0,
-    totalBooksCompletedDistinct: 0,
-    lifetimeUniqueChapters: 0,
-    ntReadThroughCount: 0,
-    otOrNtCompletedFlag: false,
-    mostCompletedBookCount: 0,
-    statsSharedCount: statsShared,
-    statsReceivedCount: statsReceived
-  }).filter(b => b.isAccountability);
+  // Use badge engine for accountability badges
+  const badgeState = computeBadgeState([], user, { debug: false });
+  const accountabilityBadges = badgeState.badges.filter(b => b.isAccountability);
 
   if (isLoading) {
     return (
