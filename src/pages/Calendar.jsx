@@ -350,9 +350,7 @@ export default function Calendar() {
                     <span 
                       className="text-sm h-4 flex items-center justify-center font-bold opacity-85" 
                       style={count > 0 ? { 
-                        color: energyMode 
-                          ? '#FFFFFF' 
-                          : (energyPalette === 'royal' ? '#000000' : resolvedTheme === 'dark' ? '#FFFFFF' : '#1a1a1a') 
+                        color: '#10B981'
                       } : { color: 'transparent' }}
                     >
                       {count > 0 ? count : '•'}
