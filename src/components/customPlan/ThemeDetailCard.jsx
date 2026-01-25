@@ -132,9 +132,9 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="h-full flex flex-col overflow-y-auto"
+          className="h-full flex flex-col overflow-y-auto px-6 pt-6"
         >
-          <SheetHeader>
+          <SheetHeader className="px-0">
           <div className="flex items-center gap-3 mb-2">
             <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}>
               <Icon className="w-6 h-6" strokeWidth={2.5} />
@@ -200,8 +200,8 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
           
           {/* CTA */}
-          <div className="p-4 bg-background border-t border-border rounded-lg">
-            <div className="max-w-lg mx-auto space-y-2">
+          <div className="p-4 bg-background border-t border-border rounded-lg mx-(-6) px-6">
+            <div className="space-y-2">
               <Button 
                 onClick={() => {
                   if (onStartPlan) {
