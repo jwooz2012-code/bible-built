@@ -224,7 +224,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Badges Section - All Earned Badges */}
-          <div className="flex flex-col mb-3">
+          <div className="flex flex-col">
             <div className="text-[9px] font-extrabold text-gray-500 uppercase tracking-[0.2em] text-center mb-2.5">
               Badges Earned
             </div>
@@ -272,21 +272,16 @@ export default function ShareSummary() {
                 <p className="text-xs text-gray-400 font-medium">No badges earned yet</p>
               </div>
             )}
-          </div>
-
-          {/* Integrated Branding Footer */}
-          <div className="flex-shrink-0 pt-3 mt-auto">
-            <div className="flex items-center justify-center gap-2.5">
+            
+            {/* Achievement Signature Line */}
+            <div className="flex items-center justify-center gap-2 pt-4">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                 alt="Bible Built"
-                className="w-9 h-9 rounded-lg"
+                className="w-7 h-7 rounded-lg opacity-90"
               />
-              <div className="flex flex-col gap-0.5">
-                <div className="text-[11px] font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
-                  Bible Built
-                </div>
-                <div className="text-[8px] text-gray-500/80 font-semibold tracking-wide leading-none">Track what matters</div>
+              <div className="text-[9px] text-gray-500 font-medium tracking-wide">
+                Built with <span className="font-bold text-gray-700">Bible Built</span>
               </div>
             </div>
           </div>
