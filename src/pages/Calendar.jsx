@@ -276,9 +276,10 @@ export default function Calendar() {
                     onClick={() => handleDayClick(day)}
                     className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium hover:opacity-80 border"
                     style={isToday ? {
-                      background: 'hsl(var(--accent))',
-                      borderColor: 'hsl(var(--accent))',
-                      borderWidth: '1.5px'
+                      background: count > 0 ? 'hsl(var(--accent))' : 'hsla(var(--accent) / 0.08)',
+                      borderColor: 'hsl(var(--primary))',
+                      borderWidth: '2px',
+                      boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
                     } : count > 0 ? {
                       background: 'hsl(var(--accent))',
                       borderWidth: '1.5px',
