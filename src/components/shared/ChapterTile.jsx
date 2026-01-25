@@ -5,15 +5,43 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
-  const { energyMode, energyPalette } = useTheme();
-
-  const isRoyalRead = energyMode && energyPalette === 'royal' && timesRead > 0;
+  const { energyMode, energyPalette, resolvedTheme } = useTheme();
 
   const handleClick = () => {
     if (!disabled) {
       triggerHaptic();
       onClick();
     }
+  };
+
+  // Energy mode: match calendar day styling
+  const getEnergyTileStyle = () => {
+    if (timesRead > 0) {
+      return {
+        background: 'rgba(28, 32, 38, 0.9)',
+        borderWidth: '1.5px',
+        borderColor: 'hsla(var(--primary) / 0.4)',
+        boxShadow: 'inset 0 0 8px hsla(var(--primary) / 0.1)'
+      };
+    }
+    return {
+      background: 'hsl(var(--card))',
+      borderColor: 'hsl(var(--border))'
+    };
+  };
+
+  const getDefaultTileStyle = () => {
+    if (timesRead > 0) {
+      return {
+        background: 'hsl(var(--accent))',
+        borderColor: 'hsl(var(--accent))',
+        borderWidth: '1.5px'
+      };
+    }
+    return {
+      background: 'hsl(var(--card))',
+      borderColor: 'hsl(var(--border))'
+    };
   };
 
   return (
@@ -23,14 +51,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       onClick={handleClick}
       disabled={disabled}
       className={`relative aspect-square rounded-xl flex items-center justify-center transition-all border shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-      style={timesRead > 0 ? {
-        background: 'hsl(var(--accent))',
-        borderColor: 'hsl(var(--accent))',
-        borderWidth: '1.5px'
-      } : {
-        background: 'hsl(var(--card))',
-        borderColor: 'hsl(var(--border))'
-      }}>
+      style={energyMode ? getEnergyTileStyle() : getDefaultTileStyle()}>
 
       {timesRead >= 1 &&
       <div 
@@ -52,8 +73,11 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       
       <span
         className="text-[15px] font-semibold leading-none"
-        style={isRoyalRead ? { color: 'hsl(220 25% 12%)' } : { color: 'hsl(var(--foreground))' }}>
-
+        style={{ 
+          color: energyMode && timesRead > 0 
+            ? '#FFFFFF' 
+            : 'hsl(var(--foreground))' 
+        }}>
         {chapter}
       </span>
     </motion.button>);
