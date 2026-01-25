@@ -234,22 +234,27 @@ export default function ShareSummary() {
               {earnedBadges.length > 0 ? (
                 <div className="flex-1 flex items-start justify-center overflow-hidden pt-1">
                   <div 
-                    className={`grid gap-2.5 ${
+                    className={`grid gap-2 ${
                       earnedBadges.length <= 3 ? 'grid-cols-3' :
                       earnedBadges.length <= 6 ? 'grid-cols-3' :
-                      earnedBadges.length <= 9 ? 'grid-cols-3' :
-                      'grid-cols-4'
+                      earnedBadges.length <= 12 ? 'grid-cols-4' :
+                      earnedBadges.length <= 18 ? 'grid-cols-5' :
+                      'grid-cols-6'
                     }`}
                   >
-                    {earnedBadges.slice(0, 12).map((badge) => (
+                    {earnedBadges.map((badge) => (
                       <div
                         key={badge.id}
                         className="flex items-center justify-center"
                       >
                         <div 
-                          className="w-14 h-14 flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm"
+                          className={`${
+                            earnedBadges.length <= 6 ? 'w-14 h-14' :
+                            earnedBadges.length <= 12 ? 'w-12 h-12' :
+                            'w-10 h-10'
+                          } flex items-center justify-center bg-white rounded-full border-2 border-gray-200 shadow-sm`}
                         >
-                          {getAchievementIcon(badge.title, true, 'large')}
+                          {getAchievementIcon(badge.title, true, earnedBadges.length <= 6 ? 'large' : 'default')}
                         </div>
                       </div>
                     ))}
