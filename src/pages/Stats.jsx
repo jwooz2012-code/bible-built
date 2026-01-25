@@ -356,7 +356,7 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.12 }}
+          transition={{ duration: 0.15, delay: 0.1 }}
           className="mb-8">
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-foreground mb-1">Bible Coverage</h2>
@@ -369,7 +369,7 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.14 }}
+          transition={{ duration: 0.15, delay: 0.12 }}
           className="mb-8">
           <BookCompletionBars
             bookProgressYear={trackerStats.bookProgressYear}
@@ -380,7 +380,7 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.16 }}
+          transition={{ duration: 0.15, delay: 0.14 }}
           className="mb-8">
           <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} />
         </motion.div>
@@ -388,7 +388,7 @@ export default function Stats() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.18 }}>
+          transition={{ duration: 0.15, delay: 0.16 }}>
           <div className="mb-4">
             <h2 className="text-xl font-semibold text-foreground mb-1">Badges</h2>
             <p className="text-sm text-muted-foreground">Milestones you've earned</p>
