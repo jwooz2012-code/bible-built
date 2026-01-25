@@ -224,7 +224,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Badges Section - All Earned Badges */}
-          <div className="flex-1 flex flex-col min-h-0 mb-4">
+          <div className="flex flex-col mb-4">
             <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center mb-2">
               Badges Earned
             </div>
