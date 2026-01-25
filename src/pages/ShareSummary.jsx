@@ -7,7 +7,8 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, parse } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { getBadgesForRow, defineBadges } from '@/components/badges/badgeUtils';
+import { computeBadgeState } from '@/components/badges/badgeEngine';
+import { getBadgesForRow } from '@/components/badges/badgeUtils';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 
 export default function ShareSummary() {
@@ -121,18 +122,10 @@ export default function ShareSummary() {
     },
   });
 
-  // Define badges using TIMEFRAME stats (not lifetime) - badges earned during this period
-  const badges = defineBadges({
-    totalChaptersRead: totalChapters,
-    daysWithReadingDistinct: uniqueDays,
-    totalBooksCompletedDistinct: booksRead,
-    lifetimeUniqueChapters: uniqueChapters,
-    ntReadThroughCount: Math.floor(ntChapters / 260),
-    otOrNtCompletedFlag: uniqueChapters >= 929 || uniqueChapters >= 260,
-    mostCompletedBookCount: mostCompletedBookCount,
-    statsSharedCount: user?.statsSharedCount || 0,
-    statsReceivedCount: user?.statsReceivedCount || 0
-  });
+  // Use centralized badge engine with timeframe logs
+  // This ensures consistency with Stats page
+  const badgeState = computeBadgeState(readingLogs, user, { debug: false });
+  const badges = badgeState.badges;
 
   // Get ONLY earned badges - strict filter to match app state
   const earnedBadges = badges.filter(b => b.achieved === true);

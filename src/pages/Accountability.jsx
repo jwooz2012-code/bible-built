@@ -7,7 +7,7 @@ import { Plus, Minus, Users, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 import PageHeader from '@/components/shared/PageHeader';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import { defineBadges } from '@/components/badges/badgeUtils';
+import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 
 export default function Accountability() {

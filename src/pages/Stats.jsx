@@ -41,7 +41,7 @@ import CoverageRadar from '@/components/trackers/CoverageRadar';
 import BookCompletionBars from '@/components/trackers/BookCompletionBars';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import BadgeRowHorizontal from '@/components/badges/BadgeRowHorizontal';
-import { defineBadges } from '@/components/badges/badgeUtils';
+import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
 import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleSections';
@@ -138,18 +138,9 @@ export default function Stats() {
   // Check if OT or NT completed at least once
   const otOrNtCompletedFlag = lifetimeStats.otCount >= OT_CHAPTERS || lifetimeStats.ntCount >= NT_CHAPTERS;
 
-  // Use centralized badge definition
-  const achievements = defineBadges({
-    totalChaptersRead,
-    daysWithReadingDistinct,
-    totalBooksCompletedDistinct,
-    lifetimeUniqueChapters: lifetimeStats.uniqueChapters,
-    ntReadThroughCount,
-    otOrNtCompletedFlag,
-    mostCompletedBookCount: trackerStats.records.mostCompletedBook.count,
-    statsSharedCount: user?.statsSharedCount || 0,
-    statsReceivedCount: user?.statsReceivedCount || 0
-  });
+  // Use centralized badge engine
+  const badgeState = computeBadgeState(lifetimeLogs, user, { debug: false });
+  const achievements = badgeState.badges;
 
 
   if (isLoading) {
