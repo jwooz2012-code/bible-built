@@ -206,7 +206,7 @@ export default function ShareSummary() {
           </div>
 
           {/* Main Content - Spacious Hierarchy */}
-          <div className="flex-1 flex flex-col px-6 pb-3 gap-5 overflow-hidden">
+          <div className="flex-1 flex flex-col px-6 pb-6 gap-5 overflow-hidden">
             {/* Hero Stat - Premium Card */}
             <div className="flex flex-col items-center justify-center bg-gray-900 rounded-2xl p-8 shadow-sm flex-shrink-0">
               <div className="text-7xl font-bold text-white mb-2 tracking-tight">
@@ -280,21 +280,21 @@ export default function ShareSummary() {
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Footer - Integrated Signature */}
-          <div className="flex-shrink-0 w-full border-t border-gray-200 bg-gray-50 py-4 px-6 rounded-b-3xl">
-            <div className="flex items-center justify-center gap-3">
-              <img 
-                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-                alt="Bible Built"
-                className="w-9 h-9 rounded-xl"
-              />
-              <div className="flex flex-col gap-0.5">
-                <div className="text-xs font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
-                  Bible Built
+            {/* Integrated Branding - Part of Content */}
+            <div className="flex-shrink-0 pt-4 border-t border-gray-200">
+              <div className="flex items-center justify-center gap-3">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                  alt="Bible Built"
+                  className="w-9 h-9 rounded-xl"
+                />
+                <div className="flex flex-col gap-0.5">
+                  <div className="text-xs font-bold text-gray-900 tracking-[0.15em] uppercase leading-none">
+                    Bible Built
+                  </div>
+                  <div className="text-[9px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
                 </div>
-                <div className="text-[9px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
               </div>
             </div>
           </div>
