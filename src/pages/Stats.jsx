@@ -41,6 +41,7 @@ import CoverageRadar from '@/components/trackers/CoverageRadar';
 import BookCompletionBars from '@/components/trackers/BookCompletionBars';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import BadgeStrip from '@/components/badges/BadgeStrip';
+import BadgeListWithProgress from '@/components/trackers/BadgeListWithProgress';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
