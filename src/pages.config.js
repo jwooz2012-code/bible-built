@@ -12,6 +12,7 @@ import Stats from './pages/Stats';
 import ThemeDetail from './pages/ThemeDetail';
 import ThemesLibrary from './pages/ThemesLibrary';
 import app from './pages/_app';
+import Accountability from './pages/Accountability';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "ThemeDetail": ThemeDetail,
     "ThemesLibrary": ThemesLibrary,
     "_app": app,
+    "Accountability": Accountability,
 }
 
 export const pagesConfig = {

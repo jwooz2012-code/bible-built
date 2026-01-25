@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import StatsTopActions from '@/components/stats/StatsTopActions';
@@ -7,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
+import { createPageUrl } from '@/utils';
+import { ChevronRight } from 'lucide-react';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
@@ -195,6 +198,29 @@ export default function Stats() {
       <div className="max-w-2xl mx-auto px-5 py-8">
         <PageHeader title="Statistics" subtitle="Your reading progress" />
         <StatsTopActions />
+
+        {/* Accountability Summary */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
+          className="mb-8"
+        >
+          <Link 
+            to={createPageUrl('accountability')} 
+            className="block bg-card border border-border rounded-2xl p-4 hover:bg-accent transition-colors"
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-foreground mb-1">Accountability</p>
+                <p className="text-xs text-muted-foreground">
+                  Shared: {user?.statsSharedCount || 0} • Received: {user?.statsReceivedCount || 0}
+                </p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+            </div>
+          </Link>
+        </motion.div>
 
         <motion.div
           initial={{ opacity: 0, y: 10 }}

@@ -31,6 +31,9 @@ export default function Layout({ children }) {
     { name: 'Settings', icon: Settings, path: '/settings', pageName: 'settings' },
   ];
 
+  // Ensure Accountability page is accessible via direct navigation
+  // (not in bottom nav, but available as a page)
+
 
 
   return (
