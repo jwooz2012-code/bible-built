@@ -281,19 +281,6 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 py-8">
-        <div className="-mb-5">
-          <PageHeader
-            title={
-            readingDays < 7 ? "You showed up today." :
-            readingDays >= 7 && readingDays <= 14 ? "You're building consistency." :
-            `${yearChaptersRead} chapters read in ${currentYear}`
-            } />
-
-        </div>
-        <p className="text-sm text-muted-foreground mb-5 opacity-85">
-          {getWeeklyQuote()}
-        </p>
-
         {!selectedBook &&
         <>
             {/* Today's Assignment Card */}

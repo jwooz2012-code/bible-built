@@ -180,10 +180,41 @@ export default function Calendar() {
     );
   }
 
+  const weeklyQuotes = [
+    "Faithfulness is built one chapter at a time.",
+    "Show up. Let the Word do the work.",
+    "You don't master the Word. You return to it.",
+    "Consistency shapes understanding.",
+    "A quiet habit can carry a lifetime.",
+    "Read again. There is more here.",
+    "Depth comes from staying.",
+    "The Word rewards the patient reader.",
+    "This is how Scripture becomes familiar.",
+    "Built slowly. Held forever."
+  ];
+
+  const getWeeklyQuote = () => {
+    const startOfYear = new Date(year, 0, 1);
+    const now = new Date();
+    const weeksSinceStartOfYear = Math.floor((now - startOfYear) / (7 * 24 * 60 * 60 * 1000));
+    return weeklyQuotes[weeksSinceStartOfYear % weeklyQuotes.length];
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-4 py-6">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
+
+        {/* Reflective Quote */}
+        <motion.div
+          initial={{ opacity: 0, y: -5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-5 -mt-1"
+        >
+          <p className="text-sm text-muted-foreground opacity-75 italic">
+            {getWeeklyQuote()}
+          </p>
+        </motion.div>
 
         {/* Momentum Stats */}
         <motion.div
