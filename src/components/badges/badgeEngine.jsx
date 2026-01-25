@@ -38,7 +38,7 @@ function computeCanonicalMetrics(logs, user = null) {
   // OT or NT completed flag
   const otOrNtCompleted = otUniqueChapters >= OT_CHAPTERS || ntUniqueChapters >= NT_CHAPTERS;
   
-  // Books completed (all chapters read)
+  // Master Builder: Count UNIQUE books where ALL chapters have been read
   const bookChaptersRead = {};
   logs.forEach(log => {
     if (!bookChaptersRead[log.book]) {
@@ -55,12 +55,22 @@ function computeCanonicalMetrics(logs, user = null) {
     }
   });
   
-  // Most completed book count (how many times the most-read book was completed)
-  const bookReadCounts = {};
+  // Swordsmen: Count how many times the MOST-READ BOOK was FULLY COMPLETED
+  // (Total chapters read of that book ÷ total chapters in book = completion count)
+  const bookChapterCounts = {};
   logs.forEach(log => {
-    bookReadCounts[log.book] = (bookReadCounts[log.book] || 0) + 1;
+    bookChapterCounts[log.book] = (bookChapterCounts[log.book] || 0) + 1;
   });
-  const mostCompletedBookCount = Math.max(0, ...Object.values(bookReadCounts));
+  
+  let mostCompletedBookCount = 0;
+  Object.keys(bookChapterCounts).forEach(bookName => {
+    const bookData = BIBLE_BOOKS.find(b => b.name === bookName);
+    if (bookData) {
+      const completionCount = Math.floor(bookChapterCounts[bookName] / bookData.chapters);
+      mostCompletedBookCount = Math.max(mostCompletedBookCount, completionCount);
+    }
+  });
+  mostCompletedBookCount = Math.max(0, mostCompletedBookCount);
   
   // Unique books touched
   const uniqueBooksRead = new Set(logs.map(l => l.book)).size;
@@ -222,7 +232,7 @@ function getBadgeDefinitions(metrics) {
     {
       id: 14,
       title: 'Master Builder',
-      subtitle: 'Completed 30 books',
+      subtitle: 'Completed 30 unique books',
       metric: 'booksCompleted',
       achieved: metrics.booksCompleted >= 30,
       current: metrics.booksCompleted,
@@ -240,7 +250,7 @@ function getBadgeDefinitions(metrics) {
     {
       id: 16,
       title: 'Swordsmen',
-      subtitle: 'Complete any book 30 times',
+      subtitle: 'Read one book 30 times',
       metric: 'mostCompletedBookCount',
       achieved: metrics.mostCompletedBookCount >= 30,
       current: metrics.mostCompletedBookCount,
