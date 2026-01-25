@@ -139,8 +139,8 @@ export default function ShareSummary() {
     statsReceivedCount: user?.statsReceivedCount || 0
   });
 
-  // Get earned badges for display (ALL earned badges, not filtered by timeframe)
-  const earnedBadges = getBadgesForRow(badges, 'earned');
+  // Get ONLY earned badges - strict filter to match app state
+  const earnedBadges = badges.filter(b => b.achieved === true);
 
   // Secondary stats - only 4 for spacious layout
   const secondaryStats = [
@@ -196,9 +196,10 @@ export default function ShareSummary() {
         ref={screenshotRef}
         className="w-full max-w-md bg-white relative shadow-2xl"
         style={{ aspectRatio: '9/16', minHeight: '600px' }}
+
       >
         {/* Container that fits content in one viewport */}
-        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white">
+        <div className="w-full h-full flex flex-col relative overflow-hidden bg-white rounded-3xl border-4 border-gray-100">
           {/* Header - Compact */}
           <div className="pt-8 px-6 pb-4 flex-shrink-0">
             <h1 className="text-3xl font-bold text-gray-900 text-center leading-tight">
@@ -243,7 +244,7 @@ export default function ShareSummary() {
               <div className="text-[9px] font-bold text-gray-400 uppercase tracking-widest text-center">
                 Badges Earned
               </div>
-              {earnedBadges.length > 0 ? (
+              {earnedBadges && earnedBadges.length > 0 ? (
                 <div className="flex-1 flex items-start justify-center overflow-hidden">
                   <div 
                     className={`grid ${
@@ -286,19 +287,19 @@ export default function ShareSummary() {
             </div>
           </div>
 
-          {/* Footer - Signature Band */}
-          <div className="flex-shrink-0 w-full bg-gray-50 border-t border-gray-200 py-4 px-6">
-            <div className="flex items-center justify-center gap-2.5">
+          {/* Footer - Signature Frame */}
+          <div className="flex-shrink-0 w-full bg-gradient-to-b from-white via-gray-50 to-gray-100 border-t-2 border-gray-200 py-5 px-6">
+            <div className="flex items-center justify-center gap-3">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                 alt="Bible Built"
-                className="w-8 h-8 rounded-lg"
+                className="w-10 h-10 rounded-xl shadow-sm"
               />
-              <div className="flex flex-col gap-0.5">
-                <div className="text-xs font-bold text-gray-900 tracking-widest uppercase leading-none">
+              <div className="flex flex-col gap-1">
+                <div className="text-sm font-bold text-gray-900 tracking-[0.2em] uppercase leading-none">
                   Bible Built
                 </div>
-                <div className="text-[9px] text-gray-500 font-medium leading-none">Track what matters</div>
+                <div className="text-[10px] text-gray-600 font-semibold tracking-wide leading-none">Track what matters</div>
               </div>
             </div>
           </div>
