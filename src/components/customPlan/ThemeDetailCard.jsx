@@ -90,20 +90,6 @@ const THEME_INFO = {
     iconKey: 'heart',
     colorKey: 'rose',
   },
-  CHRONOLOGICAL_OT_JOURNEY: {
-    name: 'Chronological Old Testament Journey',
-    hook: 'Read the OT as one unfolding story in historical order.',
-    description: 'Experience the Old Testament in historical order, seeing how God\'s plan unfolds chronologically from creation through the patriarchs, exodus, conquest, kingdom, exile, and return. This journey takes you through the narrative as it happened in time, with Psalms and wisdom literature placed in their historical context.',
-    iconKey: 'compass',
-    colorKey: 'orange',
-  },
-  CHRONOLOGICAL_NT_JOURNEY: {
-    name: 'Chronological New Testament Journey',
-    hook: 'Read the NT as one unfolding story in historical order.',
-    description: 'Read the New Testament as one unfolding story—from the birth of Christ to the growth of the Church and the hope of His return. This guided journey follows the historical flow of Acts and places each book in its biblical context.',
-    iconKey: 'compass',
-    colorKey: 'cyan',
-  },
 };
 
 export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
@@ -117,12 +103,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
   
   const chapters = CURATED_PLANS[themeKey] || [];
   const totalChapters = chapters.length;
-  
-  // Chronological journey plans use 4 chapters/day, others default to 2
-  const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY') 
-    ? 4 
-    : 2;
-  const recommendedDays = Math.ceil(totalChapters / chaptersPerDay);
+  const recommendedDays = Math.ceil(totalChapters / 2);
   
   return (
     <Sheet open={open} onOpenChange={onClose}>
@@ -162,10 +143,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
               {totalChapters} chapters
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
-              {(themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY') ? 'Chronological Study' : 'Thematic Study'}
-            </div>
-            <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
-              {chaptersPerDay} chapters/day
+              Thematic Study
             </div>
             <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-xs font-semibold text-primary">
               Recommended: ~{recommendedDays} days
