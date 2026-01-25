@@ -3,12 +3,12 @@ import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import html2canvas from 'html2canvas';
-import { Share2, Download, Loader2, BookOpen } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, parse } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { getBadgesForRow, defineBadges } from '@/components/badges/badgeUtils';
-import { getAchievementIcon } from '@/components/badges/badgeIcons';
+import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 
 export default function ShareSummary() {
   const [searchParams] = useSearchParams();
@@ -254,22 +254,28 @@ export default function ShareSummary() {
                       'grid-cols-6 gap-1.5'
                     }`}
                   >
-                    {earnedBadges.map((badge) => (
-                      <div
-                        key={badge.id}
-                        className="flex items-center justify-center"
-                      >
-                        <div 
-                          className={`${
-                            earnedBadges.length <= 6 ? 'w-14 h-14 border-2' :
-                            earnedBadges.length <= 12 ? 'w-11 h-11 border-2' :
-                            'w-9 h-9 border-[1.5px]'
-                          } flex items-center justify-center bg-white rounded-full border-gray-200 shadow-sm`}
+                    {earnedBadges.map((badge) => {
+                      const color = getAchievementColor(badge.title);
+                      const isBlackWhite = color === 'BLACK_WHITE';
+                      return (
+                        <div
+                          key={badge.id}
+                          className="flex items-center justify-center"
                         >
-                          {getAchievementIcon(badge.title, true, earnedBadges.length <= 6 ? 'large' : 'default')}
+                          <div 
+                            className={`${
+                              earnedBadges.length <= 6 ? 'w-14 h-14' :
+                              earnedBadges.length <= 12 ? 'w-11 h-11' :
+                              'w-9 h-9'
+                            } flex items-center justify-center rounded-full shadow-sm ${
+                              isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
+                            }`}
+                          >
+                            {getAchievementIcon(badge.title, true, earnedBadges.length <= 6 ? 'large' : 'default')}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               ) : (
@@ -280,33 +286,21 @@ export default function ShareSummary() {
             </div>
           </div>
 
-          {/* Footer - Signature with Logo */}
-          <div className="flex-shrink-0 px-6 py-3 border-t border-gray-100 flex items-center justify-between">
-            <div className="flex items-center gap-2">
+          {/* Footer - Signature Band */}
+          <div className="flex-shrink-0 w-full bg-gray-50 border-t border-gray-200 py-4 px-6">
+            <div className="flex items-center justify-center gap-2.5">
               <img 
                 src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                 alt="Bible Built"
-                className="w-7 h-7 rounded-lg"
+                className="w-8 h-8 rounded-lg"
               />
               <div className="flex flex-col gap-0.5">
-                <div className="text-[10px] font-bold text-gray-900 tracking-wider uppercase leading-none">
+                <div className="text-xs font-bold text-gray-900 tracking-widest uppercase leading-none">
                   Bible Built
                 </div>
-                <div className="text-[8px] text-gray-500 font-medium leading-none">Track what matters</div>
+                <div className="text-[9px] text-gray-500 font-medium leading-none">Track what matters</div>
               </div>
             </div>
-            <button
-              onClick={handleShare}
-              disabled={isExporting}
-              className="px-3 py-1.5 rounded-full bg-gray-900 text-white text-[10px] font-semibold uppercase tracking-wide flex items-center gap-1.5 hover:bg-gray-800 transition-colors"
-            >
-              {isExporting ? (
-                <Loader2 className="w-3 h-3 animate-spin" />
-              ) : (
-                <Share2 className="w-3 h-3" />
-              )}
-              Share
-            </button>
           </div>
         </div>
       </div>
