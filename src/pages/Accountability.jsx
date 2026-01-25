@@ -106,7 +106,7 @@ export default function Accountability() {
               {statsReceived}
             </p>
             <p className="text-xs text-center text-muted-foreground font-medium uppercase tracking-wide">
-              Accountability Received
+             Stats Received
             </p>
           </motion.div>
         </div>
