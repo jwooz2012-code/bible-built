@@ -33,7 +33,7 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
   
   switch(title) {
     case 'Battle':
-      return <Sword {...iconProps} />;
+      return <Sword {...iconProps} style={{ color: '#FFFFFF' }} />;
     case 'First Rep':
       return <Zap {...iconProps} style={{ color: battleColor }} />;
     case 'Locked In':
