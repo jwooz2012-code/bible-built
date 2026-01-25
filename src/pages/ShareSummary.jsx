@@ -7,7 +7,7 @@ import { Share2, Download, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, parse } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { getBadgesForRow } from '@/components/badges/badgeUtils';
+import { getBadgesForRow, defineBadges } from '@/components/badges/badgeUtils';
 import { getAchievementIcon } from '@/components/badges/badgeIcons';
 
 export default function ShareSummary() {
@@ -111,16 +111,22 @@ export default function ShareSummary() {
   });
 
   // Build badge list for BOTH monthly and yearly
-  const badges = getBadgesForRow({
-    totalChapters,
-    uniqueDays,
-    booksRead,
-    longestStreak,
-    otChapters,
-    ntChapters,
-  }) || [];
+  // Need to use defineBadges to create the badges first
+  const { defineBadges } = require('@/components/badges/badgeUtils');
+  
+  const allBadges = defineBadges({
+    totalChaptersRead: totalChapters,
+    daysWithReadingDistinct: uniqueDays,
+    totalBooksCompletedDistinct: booksRead,
+    lifetimeUniqueChapters: totalChapters,
+    ntReadThroughCount: Math.floor(ntChapters / 260),
+    otOrNtCompletedFlag: otChapters >= 929 || ntChapters >= 260,
+    mostCompletedBookCount: 0,
+    statsSharedCount: 0,
+    statsReceivedCount: 0
+  });
 
-  const earnedBadges = badges.filter((b) => b.achieved);
+  const earnedBadges = getBadgesForRow(allBadges, 'earned');
 
   // Stats for display - story-driven
   const statTiles = [
