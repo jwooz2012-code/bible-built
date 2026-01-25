@@ -3,12 +3,17 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { ChevronRight } from 'lucide-react';
 
 export default function StatsTopActions() {
   const [showShareSummary, setShowShareSummary] = useState(false);
   const [showSharePreview, setShowSharePreview] = useState(false);
   const [selectedMode, setSelectedMode] = useState(null);
   const navigate = useNavigate();
+
+  const handleOpenSheet = () => {
+    setShowShareSummary(true);
+  };
 
   const handleOpenPreview = (mode) => {
     setSelectedMode(mode);
@@ -27,14 +32,13 @@ export default function StatsTopActions() {
 
   return (
     <>
-      <div className="mb-8">
-        <Button
-          variant="outline"
-          onClick={() => setShowShareSummary(true)}
-          className="w-full h-10">
-          Share Summary
-        </Button>
-      </div>
+      <button
+        onClick={handleOpenSheet}
+        className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-4 h-10 hover:bg-accent transition-colors text-sm font-medium text-foreground w-full"
+      >
+        Share Summary
+        <ChevronRight className="w-4 h-4 text-muted-foreground" />
+      </button>
 
       {/* Share Summary Selection Sheet */}
       <Sheet open={showShareSummary} onOpenChange={setShowShareSummary}>
