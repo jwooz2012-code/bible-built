@@ -195,7 +195,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="mb-6"
+          className="mb-6 flex justify-center"
         >
           <div 
             className="inline-flex items-center gap-1.5 rounded-[14px] p-1.5"
@@ -204,7 +204,7 @@ export default function Stats() {
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-1.5 bg-white rounded-[10px] px-4 h-8 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap"
+              className="flex items-center justify-center gap-1.5 bg-white rounded-[10px] px-4 h-8 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px]"
             >
               Accountability
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
