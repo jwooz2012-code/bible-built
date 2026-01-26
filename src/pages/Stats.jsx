@@ -204,13 +204,12 @@ export default function Stats() {
           className="mb-7 flex justify-center"
         >
           <div 
-            className="inline-flex items-center gap-1 rounded-[12px] p-1"
-            style={{ backgroundColor: '#F2F2F7' }}
+            className="inline-flex items-center gap-1 rounded-[12px] bg-secondary p-1"
           >
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-1.5 bg-white rounded-[8px] px-3.5 h-7 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px]"
+              className="flex items-center justify-center gap-1.5 bg-card rounded-[8px] px-3.5 h-7 transition-colors hover:bg-accent text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               Accountability
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />

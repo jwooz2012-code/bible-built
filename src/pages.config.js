@@ -9,10 +9,10 @@ import PlanDetail from './pages/PlanDetail';
 import Plans from './pages/Plans';
 import Settings from './pages/Settings';
 import ShareSummary from './pages/ShareSummary';
-import Stats from './pages/Stats';
 import ThemeDetail from './pages/ThemeDetail';
 import ThemesLibrary from './pages/ThemesLibrary';
 import app from './pages/_app';
+import Stats from './pages/Stats';
 import __Layout from './Layout.jsx';
 
 
@@ -28,10 +28,10 @@ export const PAGES = {
     "Plans": Plans,
     "Settings": Settings,
     "ShareSummary": ShareSummary,
-    "Stats": Stats,
     "ThemeDetail": ThemeDetail,
     "ThemesLibrary": ThemesLibrary,
     "_app": app,
+    "Stats": Stats,
 }
 
 export const pagesConfig = {
