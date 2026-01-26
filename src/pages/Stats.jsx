@@ -212,7 +212,7 @@ export default function Stats() {
               to={createPageUrl('accountability')} 
               className="flex items-center justify-center gap-1.5 bg-white rounded-[8px] px-3.5 h-7 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px]"
             >
-              Share Log
+              Accountability
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             </Link>
           </div>
