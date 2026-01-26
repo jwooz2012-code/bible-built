@@ -188,23 +188,25 @@ export default function Stats() {
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-5 pt-6 pb-8">
-        <PageHeader title="Statistics" />
+        <div className="mb-3">
+          <PageHeader title="Statistics" />
+        </div>
 
         {/* Top Actions - Segmented Control */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="mb-6 flex justify-center"
+          className="mb-7 flex justify-center"
         >
           <div 
-            className="inline-flex items-center gap-1.5 rounded-[14px] p-1.5"
+            className="inline-flex items-center gap-1 rounded-[12px] p-1"
             style={{ backgroundColor: '#F2F2F7' }}
           >
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-1.5 bg-white rounded-[10px] px-4 h-8 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px]"
+              className="flex items-center justify-center gap-1.5 bg-white rounded-[8px] px-3.5 h-7 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap min-w-[120px]"
             >
               Accountability
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
