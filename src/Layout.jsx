@@ -39,20 +39,31 @@ export default function Layout({ children }) {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-background overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPath}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <div style={{ 
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingLeft: 'env(safe-area-inset-left)',
+          paddingRight: 'env(safe-area-inset-right)'
+        }}>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={currentPath}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2, ease: 'easeInOut' }}
+            >
+              {children}
+            </motion.div>
+          </AnimatePresence>
+        </div>
 
-        <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]">
-            <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
+        <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]" style={{
+          paddingBottom: 'env(safe-area-inset-bottom)'
+        }}>
+            <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6" style={{
+              paddingLeft: 'env(safe-area-inset-left)',
+              paddingRight: 'env(safe-area-inset-right)'
+            }}>
               {navItems.map((item) => {
                 const isActive = currentPath === item.path || 
                   (item.path === '/home' && (currentPath === '/' || currentPath === '/home'));
