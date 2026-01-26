@@ -190,18 +190,21 @@ export default function Stats() {
       <div className="max-w-2xl mx-auto px-5 pt-6 pb-8">
         <PageHeader title="Statistics" />
 
-        {/* Top Actions */}
+        {/* Top Actions - Segmented Control */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="mb-4"
+          className="mb-6"
         >
-          <div className="grid grid-cols-2 gap-2">
+          <div 
+            className="inline-flex items-center gap-1.5 rounded-[14px] p-1.5"
+            style={{ backgroundColor: '#F2F2F7' }}
+          >
             <StatsTopActions />
             <Link 
               to={createPageUrl('accountability')} 
-              className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-4 h-9 hover:bg-accent transition-colors text-xs font-semibold text-foreground"
+              className="flex items-center justify-center gap-1.5 bg-white rounded-[10px] px-4 h-8 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap"
             >
               Accountability
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />

@@ -34,7 +34,7 @@ export default function StatsTopActions() {
     <>
       <button
         onClick={handleOpenSheet}
-        className="flex items-center justify-center gap-2 bg-card border border-border rounded-xl px-4 h-9 hover:bg-accent transition-colors text-xs font-semibold text-foreground w-full"
+        className="flex items-center justify-center gap-1.5 bg-white rounded-[10px] px-4 h-8 transition-colors text-[14px] font-medium text-foreground whitespace-nowrap"
       >
         Share
         <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
