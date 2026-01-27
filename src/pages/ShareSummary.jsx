@@ -352,8 +352,8 @@ export default function ShareSummary() {
                             earnedBadges.length <= 9 ? 'w-11 h-11' :
                             earnedBadges.length <= 16 ? 'w-9 h-9' :
                             'w-7.5 h-7.5'
-                          } flex items-center justify-center rounded-full shadow-sm border border-border/30 ${
-                            isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${color}`
+                          } flex items-center justify-center rounded-full shadow-sm ${
+                            isBlackWhite ? 'bg-gray-900 border border-white/10' : `bg-gradient-to-br ${color} border border-black/5`
                           }`}
                         >
                           {getAchievementIcon(badge.title, true, earnedBadges.length <= 9 ? 'large' : 'default')}
