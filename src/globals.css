@@ -95,8 +95,23 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    @apply bg-background text-foreground;
+    background: #000;
+    @apply text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  :root {
+    --sat: env(safe-area-inset-top);
+    --sab: env(safe-area-inset-bottom);
+    --sal: env(safe-area-inset-left);
+    --sar: env(safe-area-inset-right);
+  }
+
+  .safe-area-shell {
+    padding-top: var(--sat);
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+    min-height: 100vh;
   }
 
   #root {
