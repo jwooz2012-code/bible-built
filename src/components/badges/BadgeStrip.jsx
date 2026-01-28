@@ -1,6 +1,7 @@
 import React, { useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { getAchievementIcon, getAchievementColor } from './badgeIcons';
+import { useTheme } from '@/components/ThemeProvider';
 
 /**
  * UNIFIED BADGE STRIP
@@ -16,6 +17,7 @@ import { getAchievementIcon, getAchievementColor } from './badgeIcons';
  */
 export default function BadgeStrip({ badges, showLabel = true }) {
   const scrollRef = useRef(null);
+  const { resolvedTheme } = useTheme();
 
   // Reset scroll position to start on mount or when badges change
   useEffect(() => {
@@ -56,6 +58,7 @@ export default function BadgeStrip({ badges, showLabel = true }) {
           {earnedBadges.map((badge, idx) => {
             const color = getAchievementColor(badge.title);
             const isBW = color === 'BLACK_WHITE';
+            const battleBorder = isBW ? (resolvedTheme === 'dark' ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.2)') : undefined;
             
             return (
               <motion.div
@@ -68,8 +71,7 @@ export default function BadgeStrip({ badges, showLabel = true }) {
                 }`}
                 style={{
                   boxShadow: '0 1px 3px rgba(0,0,0,0.1), inset 0 0.5px 0 rgba(255,255,255,0.1)',
-                  border: isBW ? '1.5px solid rgba(255,255,255,0.15)' : '1.5px solid rgba(0,0,0,0.08)',
-                  borderColor: isBW ? 'rgba(255,255,255,0.15)' : undefined
+                  border: isBW ? `1.5px solid ${battleBorder}` : '1.5px solid rgba(0,0,0,0.08)'
                 }}
                 title={badge.title}
               >
