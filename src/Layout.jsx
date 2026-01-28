@@ -85,7 +85,6 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-          </div>
           <Toaster 
           position="top-center"
           expand={false}
