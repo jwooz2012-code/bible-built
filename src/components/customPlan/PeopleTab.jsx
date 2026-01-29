@@ -32,8 +32,15 @@ const COLOR_MAP = {
   orange: 'bg-orange-500/10 text-orange-600 dark:text-orange-400',
 };
 
+const FEATURED_PLAN = {
+  id: 'TWELVE_VOICES_ONE_HOLY_GOD',
+  name: '12 Voices · 1 Holy God',
+  description: 'Minor Prophets',
+  iconKey: 'scroll',
+  colorKey: 'purple'
+};
+
 const PEOPLE_OPTIONS = [
-  { id: 'TWELVE_VOICES_ONE_HOLY_GOD', name: '12 Voices · 1 Holy God', description: 'Minor Prophets', iconKey: 'scroll', colorKey: 'purple' },
   { id: 'Abraham', name: 'Abraham', description: 'Father of faith', iconKey: 'stars', colorKey: 'blue' },
   { id: 'Job', name: 'Job', description: 'Patient in Suffering', iconKey: 'storm', colorKey: 'slate' },
   { id: 'Joseph', name: 'Joseph', description: 'From pit to palace', iconKey: 'coat', colorKey: 'emerald' },
@@ -51,12 +58,46 @@ const PEOPLE_OPTIONS = [
 ];
 
 export default function PeopleTab({ onPersonClick, selectedPerson }) {
+  const featuredIcon = ICON_MAP[FEATURED_PLAN.iconKey] || Sparkles;
+  const featuredColorClass = COLOR_MAP[FEATURED_PLAN.colorKey] || COLOR_MAP.blue;
+  const isFeaturedSelected = selectedPerson === FEATURED_PLAN.id;
+
   return (
-    <div className="grid grid-cols-2 gap-3">
-      {PEOPLE_OPTIONS.map((person) => {
-        const Icon = ICON_MAP[person.iconKey] || Sparkles;
-        const colorClass = COLOR_MAP[person.colorKey] || COLOR_MAP.blue;
-        const isSelected = selectedPerson === person.id;
+    <div className="space-y-3">
+      {/* Full-width featured plan */}
+      <button
+        onClick={() => onPersonClick(FEATURED_PLAN.id)}
+        className={cn(
+          "w-full text-left p-3 rounded-xl border-2 transition-all relative",
+          isFeaturedSelected 
+            ? "border-primary bg-primary/5 shadow-md" 
+            : "border-border bg-card hover:bg-accent/50"
+        )}
+      >
+        <div className="flex items-start gap-2">
+          <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${featuredColorClass}`}>
+            <featuredIcon className="w-5 h-5" strokeWidth={2.5} />
+          </div>
+          
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-foreground">{FEATURED_PLAN.name}</div>
+            <div className="text-xs text-muted-foreground mt-0.5">{FEATURED_PLAN.description}</div>
+          </div>
+          
+          {isFeaturedSelected && (
+            <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+              <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
+            </div>
+          )}
+        </div>
+      </button>
+
+      {/* Regular people grid */}
+      <div className="grid grid-cols-2 gap-3">
+        {PEOPLE_OPTIONS.map((person) => {
+          const Icon = ICON_MAP[person.iconKey] || Sparkles;
+          const colorClass = COLOR_MAP[person.colorKey] || COLOR_MAP.blue;
+          const isSelected = selectedPerson === person.id;
         
         return (
           <button
@@ -89,5 +130,6 @@ export default function PeopleTab({ onPersonClick, selectedPerson }) {
         );
       })}
       </div>
+    </div>
   );
 }
