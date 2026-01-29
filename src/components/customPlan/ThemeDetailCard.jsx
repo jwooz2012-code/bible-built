@@ -104,6 +104,13 @@ const THEME_INFO = {
     iconKey: 'compass',
     colorKey: 'cyan',
   },
+  TWELVE_VOICES_ONE_HOLY_GOD: {
+    name: '12 Voices · 1 Holy God',
+    hook: 'Minor Prophets with NT connections.',
+    description: 'Journey through all 12 Minor Prophets (Hosea through Malachi) paired with key New Testament passages that reveal how God\'s consistent voice speaks across centuries. Each day explores prophetic themes of judgment, mercy, and redemption—culminating in their fulfillment through Christ and the gospel.',
+    iconKey: 'heart',
+    colorKey: 'purple',
+  },
 };
 
 export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, onStartPlan }) {
