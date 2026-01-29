@@ -53,9 +53,9 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 40 }}
           transition={{ duration: 0.2, ease: 'easeInOut' }}
-          className="h-full flex flex-col overflow-y-auto"
+          className="h-full flex flex-col overflow-y-auto px-6 pt-6"
         >
-          <SheetHeader>
+          <SheetHeader className="px-0">
           <div className="flex items-center gap-3 mb-2">
             <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${colorClass}`}>
               <Icon className="w-6 h-6" strokeWidth={2.5} />
@@ -78,7 +78,7 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           </div>
           
           {/* Stats */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               {totalChapters} chapters
             </div>
@@ -91,7 +91,7 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           </div>
           
           {/* Sections */}
-          <div>
+          <div className="mt-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">Plan Structure</h3>
             <div className="space-y-2">
               {character.sections.map((section, idx) => (
@@ -111,8 +111,8 @@ export default function CharacterDetailCard({ open, onClose, characterKey, onCon
           </div>
           
           {/* CTA */}
-          <div className="p-4 bg-background border-t border-border rounded-lg">
-            <div className="max-w-lg mx-auto space-y-2">
+          <div className="p-4 bg-background border-t border-border rounded-lg -mx-6">
+            <div className="space-y-2">
               <Button 
                 onClick={() => {
                   if (onStartPlan) {

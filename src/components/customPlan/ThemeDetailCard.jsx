@@ -157,7 +157,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
           
           {/* Stats */}
-          <div className="flex items-center gap-3 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="px-3 py-1.5 rounded-lg bg-muted/50 text-xs font-medium text-muted-foreground">
               {totalChapters} chapters
             </div>
@@ -174,7 +174,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           
           {/* Plan Structure (if sections provided) */}
           {theme.sections && (
-            <div>
+            <div className="mt-4">
               <h3 className="text-sm font-semibold text-foreground mb-3">Plan Structure</h3>
               <div className="space-y-2">
                 {theme.sections.map((section, idx) => (
@@ -188,7 +188,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           )}
           
           {/* Preview of books included */}
-          <div>
+          <div className="mt-4">
             <h3 className="text-sm font-semibold text-foreground mb-3">Books Included</h3>
             <div className="flex flex-wrap gap-2">
               {Array.from(new Set(chapters.map(ch => ch.bookName))).map((bookName, idx) => (
@@ -200,7 +200,7 @@ export default function ThemeDetailCard({ open, onClose, themeKey, onConfirm, on
           </div>
           
           {/* CTA */}
-          <div className="p-4 bg-background border-t border-border rounded-lg mx-(-6) px-6">
+          <div className="p-4 bg-background border-t border-border rounded-lg -mx-6">
             <div className="space-y-2">
               <Button 
                 onClick={() => {
