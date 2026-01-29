@@ -30,15 +30,33 @@ export default function CustomPlanBuilder() {
   const presetId = new URLSearchParams(location.search).get('preset');
   const preset = presetId ? PLAN_PRESETS.find(p => p.id === presetId) : null;
 
+  // Map preset scope to correct theme key
+  const getThemeKeyFromPreset = (preset) => {
+    if (!preset) return null;
+    // Map lowercase preset IDs to uppercase theme keys
+    const scopeMap = {
+      'twelve_voices_one_holy_god': 'TWELVE_VOICES_ONE_HOLY_GOD',
+      'chronological_ot': 'CHRONOLOGICAL_OT_JOURNEY',
+      'chronological_nt': 'CHRONOLOGICAL_NT_JOURNEY',
+      'who_is_jesus': 'WHO_IS_JESUS',
+      'leadership_intensive': 'LEADERSHIP_INTENSIVE',
+      'wisdom_plunge': 'WISDOM_PLUNGE',
+      'intentional_motherhood': 'INTENTIONAL_MOTHERHOOD',
+      'godly_man': 'GODLY_MAN',
+      'live_with_purpose': 'LIVE_WITH_PURPOSE',
+      'know_king_david': 'KNOW_KING_DAVID',
+      'heart_of_god': 'HEART_OF_GOD',
+    };
+    return scopeMap[preset.id] || preset.scope;
+  };
+
   // Tab state
-  const [activeTab, setActiveTab] = useState(preset ? 'themes' : 'themes');
+  const [activeTab, setActiveTab] = useState('themes');
 
   // Selection state
   const [selectedBooks, setSelectedBooks] = useState([]);
-  const [selectedTheme, setSelectedTheme] = useState(preset?.scope || null);
-  const [selectedPerson, setSelectedPerson] = useState(
-    preset?.id === 'twelve_voices_one_holy_god' ? 'TWELVE_VOICES_ONE_HOLY_GOD' : null
-  );
+  const [selectedTheme, setSelectedTheme] = useState(() => getThemeKeyFromPreset(preset));
+  const [selectedPerson, setSelectedPerson] = useState(null);
   const [characterDetailOpen, setCharacterDetailOpen] = useState(false);
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
   const [themeDetailOpen, setThemeDetailOpen] = useState(false);
