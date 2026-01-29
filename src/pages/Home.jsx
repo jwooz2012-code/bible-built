@@ -40,6 +40,7 @@ export default function Home() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
     if (selectedBook) {
@@ -58,6 +59,14 @@ export default function Home() {
     }).
     catch(() => {if (mounted) setIsLoading(false);});
     return () => {mounted = false;};
+  }, []);
+
+  useEffect(() => {
+    const countKey = 'bb_app_open_count';
+    const currentCount = parseInt(localStorage.getItem(countKey) || '0', 10);
+    const newCount = currentCount + 1;
+    localStorage.setItem(countKey, String(newCount));
+    setShowWelcome(newCount <= 5);
   }, []);
 
   // DEV: Validate plans on mount
@@ -283,6 +292,12 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 py-8">
         {!selectedBook &&
         <>
+            {showWelcome && (
+              <p className="text-sm text-muted-foreground/70 text-center mb-6">
+                Track what matters.
+              </p>
+            )}
+
             {/* Today's Assignment Card */}
             <TodayAssignmentCard
               plan={plan}
