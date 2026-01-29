@@ -88,7 +88,7 @@ export default function PeopleTab({ onPersonClick, selectedPerson, onElitePlanCl
 
       {/* Regular People Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {PEOPLE_OPTIONS.map((person) => {
+      {PEOPLE_OPTIONS.map((person) => {
         const Icon = ICON_MAP[person.iconKey] || Sparkles;
         const colorClass = COLOR_MAP[person.colorKey] || COLOR_MAP.blue;
         const isSelected = selectedPerson === person.id;
@@ -122,7 +122,7 @@ export default function PeopleTab({ onPersonClick, selectedPerson, onElitePlanCl
             </div>
           </button>
         );
-      })}
-    </div>
+        })}
+        </div>
   );
 }
