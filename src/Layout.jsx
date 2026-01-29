@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
@@ -62,9 +62,9 @@ export default function Layout({ children }) {
                 const isActive = currentPath === item.path || 
                   (item.path === '/home' && (currentPath === '/' || currentPath === '/home'));
                 return (
-                  <Link
+                  <button
                     key={item.name}
-                    to={createPageUrl(item.pageName)}
+                    onClick={() => navigate(item.path, { replace: item.path === '/home' })}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
                     <item.icon 
@@ -80,7 +80,7 @@ export default function Layout({ children }) {
                         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-border"
                       />
                     )}
-                  </Link>
+                  </button>
                 );
               })}
             </div>

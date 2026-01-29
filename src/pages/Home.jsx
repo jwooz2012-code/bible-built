@@ -404,7 +404,10 @@ export default function Home() {
                 variant="ghost"
                 size="sm"
                 className="h-9 w-9 p-0 shrink-0"
-                onClick={() => setSelectedBook(null)}>
+                onClick={() => {
+                  setSelectedBook(null);
+                  window.scrollTo({ top: 0, behavior: 'instant' });
+                }}>
 
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
