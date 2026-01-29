@@ -241,13 +241,22 @@ export default function PlanDetail() {
           readingPreview={dayPreviews[0].chapters.length > 0 ? readingPreviewData : null}
         />
 
-        <Button
-          onClick={handleStartPlan}
-          disabled={isSaving}
-          className="w-full h-12 text-base font-semibold"
-        >
-          {isSaving ? 'Starting...' : 'Start This Plan'}
-        </Button>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={() => navigate(`/CustomPlanBuilder?preset=${preset.id}`)}
+            className="flex-1 h-12 text-base font-semibold"
+          >
+            Customize
+          </Button>
+          <Button
+            onClick={handleStartPlan}
+            disabled={isSaving}
+            className="flex-1 h-12 text-base font-semibold"
+          >
+            {isSaving ? 'Starting...' : 'Start This Plan'}
+          </Button>
+        </div>
       </div>
     </div>
   );
