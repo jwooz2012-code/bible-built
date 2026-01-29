@@ -337,6 +337,10 @@ export default function CustomPlanBuilder() {
                 setSelectedCharacterForDetail(characterKey);
                 setCharacterDetailOpen(true);
               }}
+              onElitePlanClick={(themeKey) => {
+                setSelectedThemeForDetail(themeKey);
+                setThemeDetailOpen(true);
+              }}
             />
           </TabsContent>
 
@@ -439,17 +443,18 @@ export default function CustomPlanBuilder() {
               });
 
               const themeName = {
-                 LEADERSHIP_INTENSIVE: 'Leadership Intensive',
-                 WISDOM_PLUNGE: 'Wisdom Plunge',
-                 INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
-                 GODLY_MAN: 'The Godly Man',
-                 LIVE_WITH_PURPOSE: 'Live With Purpose',
-                 KNOW_KING_DAVID: 'Know King David',
-                 HEART_OF_GOD: 'Heart of God',
-                 WHO_IS_JESUS: 'Who Is Jesus',
-                 CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
-                 CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
-               }[themeKey] || themeKey;
+                LEADERSHIP_INTENSIVE: 'Leadership Intensive',
+                WISDOM_PLUNGE: 'Wisdom Plunge',
+                INTENTIONAL_MOTHERHOOD: 'The Intentional Mom',
+                GODLY_MAN: 'The Godly Man',
+                LIVE_WITH_PURPOSE: 'Live With Purpose',
+                KNOW_KING_DAVID: 'Know King David',
+                HEART_OF_GOD: 'Heart of God',
+                WHO_IS_JESUS: 'Who Is Jesus',
+                CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
+                CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
+                TWELVE_VOICES_ONE_HOLY_GOD: '12 Voices · 1 Holy God',
+              }[themeKey] || themeKey;
 
               const plan = await base44.entities.ReadingPlan.create({
                 userId: user.id,
