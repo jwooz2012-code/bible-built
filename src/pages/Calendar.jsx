@@ -202,7 +202,7 @@ export default function Calendar() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 py-4">
+      <div className="max-w-2xl mx-auto px-4 py-4 page-safe-top">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
         {/* Momentum Stats */}
