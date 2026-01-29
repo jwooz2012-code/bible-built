@@ -172,8 +172,10 @@ export default function CustomPlanBuilder() {
               LIVE_WITH_PURPOSE: 'Live With Purpose',
               KNOW_KING_DAVID: 'Know King David',
               HEART_OF_GOD: 'Heart of God',
+              WHO_IS_JESUS: 'Who Is Jesus',
               CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
               CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
+              TWELVE_VOICES_ONE_HOLY_GOD: '12 Voices · 1 Holy God',
             }[selectedTheme];
             autoName = themeName || 'Theme Plan';
       } else if (activeTab === 'people') {
@@ -422,7 +424,9 @@ export default function CustomPlanBuilder() {
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
             const chapterList = CURATED_PLANS[themeKey] || [];
-            const recommendedDays = Math.ceil(chapterList.length / 2);
+            // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
+            const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;
+            const recommendedDays = Math.ceil(chapterList.length / chaptersPerDay);
             setFinishInDays(recommendedDays);
           }}
           onStartPlan={async (themeKey) => {
