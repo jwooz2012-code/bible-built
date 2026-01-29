@@ -105,6 +105,11 @@
     --sab: env(safe-area-inset-bottom);
     --sal: env(safe-area-inset-left);
     --sar: env(safe-area-inset-right);
+    --page-header-offset: 12px;
+  }
+
+  .page-safe-top {
+    padding-top: var(--page-header-offset);
   }
 
   .safe-area-shell {
