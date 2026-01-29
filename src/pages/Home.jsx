@@ -289,7 +289,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-6xl mx-auto px-5 py-8">
+      <div className="max-w-6xl mx-auto px-5 py-8 page-safe-top">
         {!selectedBook &&
         <>
             {showWelcome && (
