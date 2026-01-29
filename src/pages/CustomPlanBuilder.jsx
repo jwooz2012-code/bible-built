@@ -423,6 +423,10 @@ export default function CustomPlanBuilder() {
           themeKey={selectedThemeForDetail}
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
+            // If 12 Voices is being customized from People tab, also set selectedPerson
+            if (themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+              setSelectedPerson(themeKey);
+            }
             const chapterList = CURATED_PLANS[themeKey] || [];
             // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
             const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;
