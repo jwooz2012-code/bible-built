@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship, Check, Zap, Wheat, Heart } from 'lucide-react';
+import { Sparkles, Cloud, Shirt, Scroll as ScrollIcon, Sword, Music, Flame, Key, Ship, Check, Zap, Wheat, Heart, Megaphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const ICON_MAP = {
@@ -17,6 +17,7 @@ const ICON_MAP = {
   wheat: Wheat,
   prayer: Heart,
   crown: Sparkles,
+  megaphone: Megaphone,
 };
 
 const COLOR_MAP = {
@@ -36,7 +37,7 @@ const FEATURED_PLAN = {
   id: 'TWELVE_VOICES_ONE_HOLY_GOD',
   name: '12 Voices · 1 Holy God',
   description: 'Minor Prophets',
-  iconKey: 'scroll',
+  iconKey: 'megaphone',
   colorKey: 'purple'
 };
 
