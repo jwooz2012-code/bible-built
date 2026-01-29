@@ -36,7 +36,7 @@ const COLOR_MAP = {
 const FEATURED_PLAN = {
   id: 'TWELVE_VOICES_ONE_HOLY_GOD',
   name: '12 Voices · 1 Holy God',
-  description: 'Minor Prophets',
+  description: 'Hear the Prophets. Know the Holy God.',
   iconKey: 'megaphone',
   colorKey: 'purple'
 };
