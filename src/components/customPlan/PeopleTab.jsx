@@ -122,7 +122,8 @@ export default function PeopleTab({ onPersonClick, selectedPerson, onElitePlanCl
             </div>
           </button>
         );
-        })}
-        </div>
+      })}
+      </div>
+    </div>
   );
 }
