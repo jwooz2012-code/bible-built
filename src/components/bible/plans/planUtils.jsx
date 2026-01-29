@@ -74,8 +74,25 @@ export function buildScopeChapters(scope) {
         });
       }
     }
+  } else if (scope === 'LEADERSHIP_INTENSIVE' || scope === 'WISDOM_PLUNGE' || scope === 'INTENTIONAL_MOTHERHOOD' || scope === 'GODLY_MAN' || scope === 'LIVE_WITH_PURPOSE' || scope === 'KNOW_KING_DAVID' || scope === 'HEART_OF_GOD' || scope === 'WHO_IS_JESUS' || scope === 'CHRONOLOGICAL_OT_JOURNEY' || scope === 'CHRONOLOGICAL_NT_JOURNEY' || scope === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+    // Try curated plans
+    const curatedList = CURATED_PLANS[scope] || [];
+    const normalized = curatedList.map(normalizeChapter).filter(Boolean);
+    
+    normalized.forEach((entry) => {
+      const book = BIBLE_BOOKS.find((b) => b.name === entry.bookName);
+      if (book) {
+        chapters.push({
+          bookIndex: book.index,
+          book: book.name,
+          chapter: entry.chapter,
+          chapterId: generateChapterId(book.index, entry.chapter),
+          testament: book.testament,
+        });
+      }
+    });
   } else {
-    // Try curated plans for any other scope
+    // Try curated plans for any other scope (fallback)
     const curatedList = CURATED_PLANS[scope] || [];
     const normalized = curatedList.map(normalizeChapter).filter(Boolean);
     

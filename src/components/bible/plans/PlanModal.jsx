@@ -130,7 +130,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
             LIVE_WITH_PURPOSE: 'Live With Purpose',
             KNOW_KING_DAVID: 'Know King David',
             HEART_OF_GOD: 'Heart of God',
-            WHO_IS_JESUS: 'Who Is Jesus'
+            WHO_IS_JESUS: 'Who Is Jesus',
+            TWELVE_VOICES_ONE_HOLY_GOD: '12 Voices · 1 Holy God'
           }[existingPlan.scope] || 'My Reading Plan')
     };
   }, [existingPlan, logs, todayKey]);

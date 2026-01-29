@@ -148,4 +148,17 @@ export const PLAN_PRESETS = [
       endDate: addDaysKey(startDate, 89), // ~90 days at 3 chapters/day
     }),
   },
+  {
+    id: 'twelve_voices_one_holy_god',
+    name: '12 Voices · 1 Holy God',
+    subtitle: 'Hear the prophets. See the Holy God. Follow the Scripture to Christ.',
+    description: 'An elite run through the Minor Prophets—with Scripture\'s own NT anchors. The twelve prophets of Israel spoke in different centuries, yet proclaimed one relentless message: God is holy, His people have rebelled, and judgment is coming—but mercy endures. This 21-day plan takes you through all 67 chapters of the Minor Prophets, interwoven with 17 key New Testament passages that reveal how the prophets\' warnings find their fulfillment in Christ, His church, and the coming kingdom. You\'ll read 4 chapters per day—deliberately paced to sustain focus without burnout. You\'ll encounter God\'s jealous love, burning holiness, patient warnings, covenant faithfulness, and the hope of restoration. This is not a casual devotional. It\'s a sustained immersion in the voice of God through prophets who risked everything to speak His truth.',
+    shortHook: 'Minor Prophets + NT cross-refs in 21 days.',
+    scope: 'TWELVE_VOICES_ONE_HOLY_GOD',
+    chaptersPerDay: 4,
+    getDates: (startDate) => ({
+      startDate,
+      endDate: addDaysKey(startDate, 20), // 21 days
+    }),
+  },
 ];

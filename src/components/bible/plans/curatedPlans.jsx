@@ -1631,4 +1631,111 @@ export const CURATED_PLANS = {
     { bookName: 'Revelation', chapter: 21 },
     { bookName: 'Revelation', chapter: 22 },
   ],
+  TWELVE_VOICES_ONE_HOLY_GOD: [
+    // DAY 1: Hosea 1,2,3,4
+    { bookName: 'Hosea', chapter: 1 },
+    { bookName: 'Hosea', chapter: 2 },
+    { bookName: 'Hosea', chapter: 3 },
+    { bookName: 'Hosea', chapter: 4 },
+    // DAY 2: Hosea 5,6,7,8
+    { bookName: 'Hosea', chapter: 5 },
+    { bookName: 'Hosea', chapter: 6 },
+    { bookName: 'Hosea', chapter: 7 },
+    { bookName: 'Hosea', chapter: 8 },
+    // DAY 3: Hosea 9,10,11,12
+    { bookName: 'Hosea', chapter: 9 },
+    { bookName: 'Hosea', chapter: 10 },
+    { bookName: 'Hosea', chapter: 11 },
+    { bookName: 'Hosea', chapter: 12 },
+    // DAY 4: Hosea 13,14; Joel 1,2
+    { bookName: 'Hosea', chapter: 13 },
+    { bookName: 'Hosea', chapter: 14 },
+    { bookName: 'Joel', chapter: 1 },
+    { bookName: 'Joel', chapter: 2 },
+    // DAY 5: Joel 3; Amos 1,2,3
+    { bookName: 'Joel', chapter: 3 },
+    { bookName: 'Amos', chapter: 1 },
+    { bookName: 'Amos', chapter: 2 },
+    { bookName: 'Amos', chapter: 3 },
+    // DAY 6: Amos 4,5,6,7
+    { bookName: 'Amos', chapter: 4 },
+    { bookName: 'Amos', chapter: 5 },
+    { bookName: 'Amos', chapter: 6 },
+    { bookName: 'Amos', chapter: 7 },
+    // DAY 7: Amos 8,9; Obadiah 1; James 4
+    { bookName: 'Amos', chapter: 8 },
+    { bookName: 'Amos', chapter: 9 },
+    { bookName: 'Obadiah', chapter: 1 },
+    { bookName: 'James', chapter: 4 },
+    // DAY 8: Jonah 1,2,3,4
+    { bookName: 'Jonah', chapter: 1 },
+    { bookName: 'Jonah', chapter: 2 },
+    { bookName: 'Jonah', chapter: 3 },
+    { bookName: 'Jonah', chapter: 4 },
+    // DAY 9: Micah 1,2,3,4
+    { bookName: 'Micah', chapter: 1 },
+    { bookName: 'Micah', chapter: 2 },
+    { bookName: 'Micah', chapter: 3 },
+    { bookName: 'Micah', chapter: 4 },
+    // DAY 10: Micah 5,6,7; Matthew 2
+    { bookName: 'Micah', chapter: 5 },
+    { bookName: 'Micah', chapter: 6 },
+    { bookName: 'Micah', chapter: 7 },
+    { bookName: 'Matthew', chapter: 2 },
+    // DAY 11: Nahum 1,2,3; Romans 11
+    { bookName: 'Nahum', chapter: 1 },
+    { bookName: 'Nahum', chapter: 2 },
+    { bookName: 'Nahum', chapter: 3 },
+    { bookName: 'Romans', chapter: 11 },
+    // DAY 12: Habakkuk 1,2,3; Romans 1
+    { bookName: 'Habakkuk', chapter: 1 },
+    { bookName: 'Habakkuk', chapter: 2 },
+    { bookName: 'Habakkuk', chapter: 3 },
+    { bookName: 'Romans', chapter: 1 },
+    // DAY 13: Zephaniah 1,2,3; Hebrews 10
+    { bookName: 'Zephaniah', chapter: 1 },
+    { bookName: 'Zephaniah', chapter: 2 },
+    { bookName: 'Zephaniah', chapter: 3 },
+    { bookName: 'Hebrews', chapter: 10 },
+    // DAY 14: Haggai 1,2; Matthew 6; 1 Thessalonians 5
+    { bookName: 'Haggai', chapter: 1 },
+    { bookName: 'Haggai', chapter: 2 },
+    { bookName: 'Matthew', chapter: 6 },
+    { bookName: '1 Thessalonians', chapter: 5 },
+    // DAY 15: Zechariah 1,2,3,4
+    { bookName: 'Zechariah', chapter: 1 },
+    { bookName: 'Zechariah', chapter: 2 },
+    { bookName: 'Zechariah', chapter: 3 },
+    { bookName: 'Zechariah', chapter: 4 },
+    // DAY 16: Zechariah 5,6,7,8
+    { bookName: 'Zechariah', chapter: 5 },
+    { bookName: 'Zechariah', chapter: 6 },
+    { bookName: 'Zechariah', chapter: 7 },
+    { bookName: 'Zechariah', chapter: 8 },
+    // DAY 17: Zechariah 9,10,11; Matthew 21
+    { bookName: 'Zechariah', chapter: 9 },
+    { bookName: 'Zechariah', chapter: 10 },
+    { bookName: 'Zechariah', chapter: 11 },
+    { bookName: 'Matthew', chapter: 21 },
+    // DAY 18: Zechariah 12,13,14; Revelation 19
+    { bookName: 'Zechariah', chapter: 12 },
+    { bookName: 'Zechariah', chapter: 13 },
+    { bookName: 'Zechariah', chapter: 14 },
+    { bookName: 'Revelation', chapter: 19 },
+    // DAY 19: Malachi 1,2,3,4
+    { bookName: 'Malachi', chapter: 1 },
+    { bookName: 'Malachi', chapter: 2 },
+    { bookName: 'Malachi', chapter: 3 },
+    { bookName: 'Malachi', chapter: 4 },
+    // DAY 20: Acts 2; Romans 10; Acts 15; Matthew 12
+    { bookName: 'Acts', chapter: 2 },
+    { bookName: 'Romans', chapter: 10 },
+    { bookName: 'Acts', chapter: 15 },
+    { bookName: 'Matthew', chapter: 12 },
+    // DAY 21: Luke 15; Ephesians 2; Matthew 11; Luke 1
+    { bookName: 'Luke', chapter: 15 },
+    { bookName: 'Ephesians', chapter: 2 },
+    { bookName: 'Matthew', chapter: 11 },
+    { bookName: 'Luke', chapter: 1 },
+  ],
 };
