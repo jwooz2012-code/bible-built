@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -14,6 +14,7 @@ import { generatePlanSchedule } from '@/components/bible/plans/planGenerator';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 import { CHARACTER_LIBRARY, flattenCharacterSections } from '@/components/bible/plans/characterLibrary';
+import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import BooksTab from '@/components/customPlan/BooksTab';
 import ThemesTab from '@/components/customPlan/ThemesTab';
 import PeopleTab from '@/components/customPlan/PeopleTab';
@@ -22,15 +23,22 @@ import ThemeDetailCard from '@/components/customPlan/ThemeDetailCard';
 
 export default function CustomPlanBuilder() {
   const navigate = useNavigate();
+  const location = useLocation();
   const todayKey = getDateKey();
 
+  // Check if coming from PlanDetail with preset
+  const presetId = new URLSearchParams(location.search).get('preset');
+  const preset = presetId ? PLAN_PRESETS.find(p => p.id === presetId) : null;
+
   // Tab state
-  const [activeTab, setActiveTab] = useState('themes');
+  const [activeTab, setActiveTab] = useState(preset ? 'themes' : 'themes');
 
   // Selection state
   const [selectedBooks, setSelectedBooks] = useState([]);
-  const [selectedTheme, setSelectedTheme] = useState(null);
-  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [selectedTheme, setSelectedTheme] = useState(preset?.scope || null);
+  const [selectedPerson, setSelectedPerson] = useState(
+    preset?.id === 'twelve_voices_one_holy_god' ? 'TWELVE_VOICES_ONE_HOLY_GOD' : null
+  );
   const [characterDetailOpen, setCharacterDetailOpen] = useState(false);
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
   const [themeDetailOpen, setThemeDetailOpen] = useState(false);
@@ -38,7 +46,14 @@ export default function CustomPlanBuilder() {
 
   // Timeframe state
   const [timeframeMode, setTimeframeMode] = useState('finishIn'); // 'finishIn' or 'dateRange'
-  const [finishInDays, setFinishInDays] = useState(30);
+  const [finishInDays, setFinishInDays] = useState(() => {
+    if (preset && preset.scope) {
+      const chapterList = CURATED_PLANS[preset.scope] || [];
+      const chaptersPerDay = preset.chaptersPerDay || 2;
+      return Math.ceil(chapterList.length / chaptersPerDay);
+    }
+    return 30;
+  });
   const [startDate, setStartDate] = useState(todayKey);
   const [startTomorrow, setStartTomorrow] = useState(false);
   const [endDate, setEndDate] = useState(addDaysKey(todayKey, 30));
