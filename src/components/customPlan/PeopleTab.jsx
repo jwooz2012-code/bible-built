@@ -59,7 +59,7 @@ const PEOPLE_OPTIONS = [
 ];
 
 export default function PeopleTab({ onPersonClick, selectedPerson }) {
-  const featuredIcon = ICON_MAP[FEATURED_PLAN.iconKey] || Sparkles;
+  const FeaturedIcon = ICON_MAP[FEATURED_PLAN.iconKey] || Sparkles;
   const featuredColorClass = COLOR_MAP[FEATURED_PLAN.colorKey] || COLOR_MAP.blue;
   const isFeaturedSelected = selectedPerson === FEATURED_PLAN.id;
 
@@ -77,7 +77,7 @@ export default function PeopleTab({ onPersonClick, selectedPerson }) {
       >
         <div className="flex items-start gap-2">
           <div className={`flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center ${featuredColorClass}`}>
-            <featuredIcon className="w-5 h-5" strokeWidth={2.5} />
+            <FeaturedIcon className="w-5 h-5" strokeWidth={2.5} />
           </div>
           
           <div className="flex-1 min-w-0">
