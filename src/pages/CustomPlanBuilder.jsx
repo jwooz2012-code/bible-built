@@ -431,7 +431,9 @@ export default function CustomPlanBuilder() {
               const user = await base44.auth.me();
               const chapterList = CURATED_PLANS[themeKey] || [];
 
-              const recommendedDays = Math.ceil(chapterList.length / 2);
+              // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
+              const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;
+              const recommendedDays = Math.ceil(chapterList.length / chaptersPerDay);
               setFinishInDays(recommendedDays);
               const timeframe = { mode: 'finishIn', days: recommendedDays };
 
