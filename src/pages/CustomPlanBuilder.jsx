@@ -334,12 +334,13 @@ export default function CustomPlanBuilder() {
             <PeopleTab 
               selectedPerson={selectedPerson}
               onPersonClick={(characterKey) => {
-                setSelectedCharacterForDetail(characterKey);
-                setCharacterDetailOpen(true);
-              }}
-              onElitePlanClick={(themeKey) => {
-                setSelectedThemeForDetail(themeKey);
-                setThemeDetailOpen(true);
+                if (characterKey === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+                  setSelectedThemeForDetail(characterKey);
+                  setThemeDetailOpen(true);
+                } else {
+                  setSelectedCharacterForDetail(characterKey);
+                  setCharacterDetailOpen(true);
+                }
               }}
             />
           </TabsContent>
