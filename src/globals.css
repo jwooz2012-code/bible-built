@@ -105,16 +105,18 @@
     --sab: env(safe-area-inset-bottom);
     --sal: env(safe-area-inset-left);
     --sar: env(safe-area-inset-right);
+    --page-header-offset: 12px;
+  }
+
+  .page-safe-top {
+    padding-top: var(--page-header-offset);
   }
 
   .safe-area-shell {
+    padding-top: var(--sat);
     padding-left: var(--sal);
     padding-right: var(--sar);
     min-height: 100vh;
-  }
-
-  .page-content-wrapper {
-    padding-top: calc(env(safe-area-inset-top) + 16px);
   }
 
   #root {
