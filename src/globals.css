@@ -95,28 +95,14 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #000;
     @apply text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
   :root {
-    --sat: env(safe-area-inset-top);
     --sab: env(safe-area-inset-bottom);
     --sal: env(safe-area-inset-left);
     --sar: env(safe-area-inset-right);
-    --page-header-offset: 12px;
-  }
-
-  .page-safe-top {
-    padding-top: var(--page-header-offset);
-  }
-
-  .safe-area-shell {
-    padding-top: var(--sat);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-    min-height: 100vh;
   }
 
   #root {
@@ -126,7 +112,7 @@
   }
 
   [data-sonner-toaster] {
-    top: calc(env(safe-area-inset-top) + 12px) !important;
+    top: calc(env(safe-area-inset-top) + 16px) !important;
     bottom: auto !important;
     pointer-events: none !important;
   }
