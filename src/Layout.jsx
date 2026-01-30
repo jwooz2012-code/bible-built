@@ -102,6 +102,9 @@ export default function Layout({ children }) {
           pointerEvents: 'auto'
           }
           }}
+          style={{
+          zIndex: 9999
+          }}
           />
           </ThemeProvider>
           );
