@@ -36,10 +36,16 @@ export default function CustomPlanBuilder() {
     return preset.scope;
   };
 
-  // Tab state
-  const [activeTab, setActiveTab] = useState('themes');
+  // Tab state - preserve from navigation state or default to 'themes'
+  const [activeTab, setActiveTab] = useState(() => {
+    const savedTab = location.state?.activeTab;
+    return savedTab || 'themes';
+  });
 
-  // Selection state
+  // Selection state - preserve selectedPresetId for 12 Voices
+  const [selectedPresetId, setSelectedPresetId] = useState(() => {
+    return location.state?.selectedPresetId || null;
+  });
   const [selectedBooks, setSelectedBooks] = useState([]);
   const [selectedTheme, setSelectedTheme] = useState(() => getThemeKeyFromPreset(preset));
   const [selectedPerson, setSelectedPerson] = useState(null);
@@ -80,6 +86,11 @@ export default function CustomPlanBuilder() {
 
   // Build chapter list based on active tab
   const chapterList = useMemo(() => {
+    // Handle 12 Voices via selectedPresetId (treated as theme but selection persists in People)
+    if (selectedPresetId === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+      return CURATED_PLANS['TWELVE_VOICES_ONE_HOLY_GOD'] || [];
+    }
+
     if (activeTab === 'books') {
       if (selectedBooks.length === 0) return [];
       
@@ -105,7 +116,7 @@ export default function CustomPlanBuilder() {
     }
 
     return [];
-  }, [activeTab, selectedBooks, selectedTheme, selectedPerson]);
+  }, [activeTab, selectedBooks, selectedTheme, selectedPerson, selectedPresetId]);
 
   // Calculate live summary
   const liveSummary = useMemo(() => {
@@ -178,7 +189,9 @@ export default function CustomPlanBuilder() {
 
       // Auto-generate plan name
           let autoName = '';
-          if (activeTab === 'books') {
+          if (selectedPresetId === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+            autoName = '12 Voices · 1 Holy God';
+          } else if (activeTab === 'books') {
             autoName = selectedBooks.length === 1
               ? selectedBooks[0]
               : `${selectedBooks.length} Books`;
@@ -194,7 +207,6 @@ export default function CustomPlanBuilder() {
               WHO_IS_JESUS: 'Who Is Jesus',
               CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
               CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
-              TWELVE_VOICES_ONE_HOLY_GOD: '12 Voices · 1 Holy God',
             }[selectedTheme];
             autoName = themeName || 'Theme Plan';
       } else if (activeTab === 'people') {
@@ -353,7 +365,7 @@ export default function CustomPlanBuilder() {
 
           <TabsContent value="people" className="space-y-4">
             <PeopleTab 
-              selectedPerson={selectedPerson}
+              selectedPerson={selectedPresetId === 'TWELVE_VOICES_ONE_HOLY_GOD' ? 'TWELVE_VOICES_ONE_HOLY_GOD' : selectedPerson}
               onPersonClick={(characterKey) => {
                 if (characterKey === 'TWELVE_VOICES_ONE_HOLY_GOD') {
                   setSelectedThemeForDetail(characterKey);
@@ -441,8 +453,14 @@ export default function CustomPlanBuilder() {
           }}
           themeKey={selectedThemeForDetail}
           onConfirm={(themeKey) => {
-            setSelectedTheme(themeKey);
-            setActiveTab('themes'); // Ensure we're on themes tab
+            if (themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') {
+              // Special handling for 12 Voices - keep People tab active, set presetId
+              setSelectedPresetId('TWELVE_VOICES_ONE_HOLY_GOD');
+              setActiveTab('people');
+            } else {
+              setSelectedTheme(themeKey);
+              setActiveTab('themes'); // Ensure we're on themes tab
+            }
             const chapterList = CURATED_PLANS[themeKey] || [];
             // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
             const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;

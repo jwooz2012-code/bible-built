@@ -251,7 +251,15 @@ export default function PlanDetail() {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate(`/CustomPlanBuilder?preset=${preset.id}`)}
+            onClick={() => {
+              const isFromPeople = preset.id === 'twelve_voices_one_holy_god';
+              navigate('/CustomPlanBuilder', {
+                state: {
+                  selectedPresetId: isFromPeople ? 'TWELVE_VOICES_ONE_HOLY_GOD' : null,
+                  activeTab: isFromPeople ? 'people' : 'themes'
+                }
+              });
+            }}
             className="flex-1 h-12 text-base font-semibold"
           >
             Customize
