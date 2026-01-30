@@ -43,9 +43,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
-    if (selectedBook) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+    window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedBook]);
 
   useEffect(() => {
@@ -421,7 +419,6 @@ export default function Home() {
                 className="h-9 w-9 p-0 shrink-0"
                 onClick={() => {
                   setSelectedBook(null);
-                  window.scrollTo({ top: 0, behavior: 'instant' });
                 }}>
 
                   <ArrowLeft className="w-5 h-5" />

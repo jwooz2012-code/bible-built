@@ -64,7 +64,13 @@ export default function Layout({ children }) {
                 return (
                   <button
                     key={item.name}
-                    onClick={() => navigate(item.path, { replace: item.path === '/home' })}
+                    onClick={() => {
+                      if (item.path === '/home') {
+                        navigate('/home', { replace: true, state: { reset: Date.now() } });
+                      } else {
+                        navigate(item.path);
+                      }
+                    }}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
                     <item.icon 
