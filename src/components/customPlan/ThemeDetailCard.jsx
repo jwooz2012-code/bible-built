@@ -108,8 +108,18 @@ const THEME_INFO = {
     name: '12 Voices · 1 Holy God',
     hook: 'Hear the Prophets. Know the Holy God.',
     description: 'Journey through all 12 Minor Prophets (Hosea through Malachi) paired with key New Testament passages that reveal how God\'s consistent voice speaks across centuries. Each day explores prophetic themes of judgment, mercy, and redemption—culminating in their fulfillment through Christ and the gospel.',
-    iconKey: 'heart',
-    colorKey: 'purple',
+    iconKey: 'compass',
+    colorKey: 'gold',
+    sections: [
+      { title: 'Hosea: Covenant Love', count: 14 },
+      { title: 'Joel: Day of the Lord', count: 3 },
+      { title: 'Amos: Justice & Judgment', count: 9 },
+      { title: 'Obadiah & Jonah: Mercy to Nations', count: 5 },
+      { title: 'Micah: What God Requires', count: 7 },
+      { title: 'Nahum, Habakkuk, Zephaniah: Divine Judgment', count: 9 },
+      { title: 'Haggai & Zechariah: Rebuild & Restore', count: 16 },
+      { title: 'Malachi & NT Fulfillment', count: 21 },
+    ]
   },
 };
 
