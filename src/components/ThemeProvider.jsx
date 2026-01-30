@@ -68,6 +68,21 @@ export function ThemeProvider({ children }) {
 
     root.classList.add(effectiveTheme);
     setResolvedTheme(effectiveTheme);
+
+    // Update iOS status bar theme-color
+    let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = 'theme-color';
+      document.head.appendChild(metaThemeColor);
+    }
+    
+    // Set theme color based on effective theme
+    if (effectiveTheme === 'dark') {
+      metaThemeColor.content = '#0A0A0A'; // Dark background
+    } else {
+      metaThemeColor.content = '#F9FAFB'; // Light background
+    }
   }, [theme]);
 
   useEffect(() => {
@@ -76,10 +91,26 @@ export function ThemeProvider({ children }) {
       root.classList.add('energy');
       root.dataset.energyPalette = energyPalette;
       ensureEnergyStyleInjected(energyPalette);
+      
+      // Update theme-color for energy mode
+      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (!metaThemeColor) {
+        metaThemeColor = document.createElement('meta');
+        metaThemeColor.name = 'theme-color';
+        document.head.appendChild(metaThemeColor);
+      }
+      metaThemeColor.content = '#0E1117'; // Energy background
     } else {
       root.classList.remove('energy');
       delete root.dataset.energyPalette;
       removeEnergyStyle();
+      
+      // Restore theme-color based on current theme
+      let metaThemeColor = document.querySelector('meta[name="theme-color"]');
+      if (metaThemeColor) {
+        const isDark = root.classList.contains('dark');
+        metaThemeColor.content = isDark ? '#0A0A0A' : '#F9FAFB';
+      }
     }
   }, [energyMode, energyPalette]);
 
