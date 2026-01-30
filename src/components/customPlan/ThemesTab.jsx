@@ -95,13 +95,6 @@ const THEME_OPTIONS = [
     colorKey: 'rose',
     description: 'Understand God\'s character and love'
   },
-  {
-    id: 'TWELVE_VOICES_ONE_HOLY_GOD',
-    name: '12 Voices · 1 Holy God',
-    iconKey: 'compass',
-    colorKey: 'gold',
-    description: 'Minor Prophets + NT cross-refs in 21 days'
-  },
 ];
 
 export default function ThemesTab({ onThemeClick, selectedTheme }) {
