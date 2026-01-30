@@ -95,8 +95,7 @@
     height: 100%;
     margin: 0;
     padding: 0;
-    background: #000;
-    @apply text-foreground;
+    @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 
@@ -113,10 +112,11 @@
   }
 
   .safe-area-shell {
-    padding-top: var(--sat);
+    padding-top: calc(var(--sat) + 16px);
     padding-left: var(--sal);
     padding-right: var(--sar);
     min-height: 100vh;
+    @apply bg-background;
   }
 
   #root {
