@@ -18,8 +18,8 @@ const getShareSummaryTheme = (resolvedTheme, energyMode) => {
   
   if (resolvedTheme === 'dark') {
     return {
-      background: '#0A0A0A',
-      cardBg: '#1A1A1A',
+      background: '#000000',
+      cardBg: '#000000',
       heroBg: '#1F1F1F',
       heroText: '#FFFFFF',
       heroLabel: '#94A3B8',
