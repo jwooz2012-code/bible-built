@@ -16,7 +16,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
-export default function PlanModal({ open, onClose, userId, existingPlan, logs }) {
+export default function PlanModal({ open, onClose, userId, existingPlan, logs, editMode = false }) {
   const navigate = useNavigate();
   const todayKey = getDateKey();
   
@@ -274,13 +274,70 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>Set Reading Plan</SheetTitle>
+          <SheetTitle>{editMode ? 'Edit Reading Plan' : 'Set Reading Plan'}</SheetTitle>
           <SheetDescription>
-            Choose a preset or customize your own reading plan
+            {editMode ? 'Adjust your plan schedule while preserving progress' : 'Choose a preset or customize your own reading plan'}
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-4 pb-28">
+          {/* Edit Mode: Show Current Plan Details */}
+          {editMode && existingPlan && planDetails && !planDetails.isNoPlan && (
+            <div className="bg-primary/5 border-2 border-primary/20 rounded-2xl p-5 mb-4">
+              <div className="text-sm font-semibold text-muted-foreground mb-1">Current Plan</div>
+              <div className="text-xl font-bold text-foreground mb-2">{planDetails.scopeName}</div>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <div className="text-muted-foreground">Chapters/Day</div>
+                  <div className="font-semibold text-foreground">{planDetails.chaptersPerDay}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Days Left</div>
+                  <div className="font-semibold text-foreground">{planDetails.daysLeft}</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Remaining</div>
+                  <div className="font-semibold text-foreground">{planDetails.remaining} chapters</div>
+                </div>
+                <div>
+                  <div className="text-muted-foreground">Progress</div>
+                  <div className="font-semibold text-foreground">
+                    {Math.round(((1 - planDetails.remaining / (planDetails.remaining + logs.filter(l => 
+                      buildScopeChapters(existingPlan.scope).some(ch => ch.chapterId === l.chapterId)
+                    ).length)) * 100))}%
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Edit Mode: Quick Date Adjustments */}
+          {editMode && existingPlan && !planDetails?.isNoPlan && (
+            <div className="space-y-3 mb-4">
+              <div className="text-sm font-semibold text-foreground">Adjust Schedule</div>
+              <div className="space-y-2">
+                <div>
+                  <Label className="text-xs text-muted-foreground">End Date</Label>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full mt-1 px-3 py-2 rounded-lg border border-border bg-card text-foreground text-sm"
+                  />
+                </div>
+                {preview.perDay > 0 && (
+                  <div className="bg-muted/50 rounded-lg p-3 text-sm">
+                    <div className="text-muted-foreground mb-1">Updated Pace</div>
+                    <div className="text-lg font-bold text-foreground">{preview.perDay} chapters/day</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {preview.remaining} chapters in {preview.daysLeft} days
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {/* Upcoming Readings Modal */}
           {showUpcoming && (
             <Sheet open={showUpcoming} onOpenChange={setShowUpcoming}>
@@ -348,7 +405,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
             </Sheet>
           )}
 
-          {/* Options */}
+          {/* Options - Hide in Edit Mode */}
+          {!editMode && (
           <div>
             <div className="grid grid-cols-1 gap-2">
               <button
@@ -388,6 +446,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
               </button>
             </div>
           </div>
+          )}
 
           {/* Actions */}
           <div className="flex gap-2 pt-2">
@@ -395,7 +454,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
               Cancel
             </Button>
             <Button onClick={handleSave} className="flex-1" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Plan'}
+              {isPending ? 'Saving...' : (editMode ? 'Save Changes' : 'Save Plan')}
             </Button>
           </div>
         </div>

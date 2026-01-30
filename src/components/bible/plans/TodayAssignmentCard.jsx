@@ -195,7 +195,7 @@ export default function TodayAssignmentCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              onOpenPlanModal();
+              onOpenPlanModal(true); // Pass editMode=true
             }}
             className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted/50 transition-colors"
           >
