@@ -74,9 +74,10 @@ export default function PlanDetail() {
   const isHeartOfGod = preset.id === 'heart_of_god';
   const isChronoBible = preset.id === 'chronological_bible';
   const isChronoGospels = preset.id === 'chronological_gospels';
-  const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels;
+  const isTwelveVoices = preset.id === 'twelve_voices_one_holy_god';
+  const isCustomPlan = isLeadership || isWisdom || isMotherhood || isGodlyMan || isPurpose || isDavid || isHeartOfGod || isChronoBible || isChronoGospels || isTwelveVoices;
 
-  const Icon = isLeadership ? Shield : isWisdom ? Lamp : isMotherhood ? Leaf : isGodlyMan ? Shield : isPurpose ? Compass : isDavid ? Crown : isHeartOfGod ? Heart : isChronoBible ? Hourglass : isChronoGospels ? Scroll : null;
+  const Icon = isLeadership ? Shield : isWisdom ? Lamp : isMotherhood ? Leaf : isGodlyMan ? Shield : isPurpose ? Compass : isDavid ? Crown : isHeartOfGod ? Heart : isChronoBible ? Hourglass : isChronoGospels ? Scroll : isTwelveVoices ? Scroll : null;
   
   const accentColor = isLeadership 
     ? 'rgba(59, 130, 246, 0.1)' 
@@ -96,6 +97,8 @@ export default function PlanDetail() {
     ? 'rgba(168, 85, 247, 0.08)' 
     : isChronoGospels
     ? 'rgba(239, 68, 68, 0.08)' 
+    : isTwelveVoices
+    ? 'rgba(245, 158, 11, 0.08)'
     : null;
 
   const iconColor = isLeadership 
@@ -114,6 +117,8 @@ export default function PlanDetail() {
     ? 'bg-rose-500/10 text-rose-600 dark:text-rose-400'
     : isChronoBible
     ? 'bg-purple-500/10 text-purple-600 dark:text-purple-400'
+    : isTwelveVoices
+    ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400'
     : 'bg-red-500/10 text-red-600 dark:text-red-400';
 
   const badgeColor = isLeadership
@@ -132,6 +137,8 @@ export default function PlanDetail() {
     ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300'
     : isChronoBible
     ? 'bg-purple-500/15 text-purple-700 dark:text-purple-300'
+    : isTwelveVoices
+    ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
     : 'bg-red-500/15 text-red-700 dark:text-red-300';
 
   const startDate = getDateKey();
