@@ -14,6 +14,7 @@ export default function TodayAssignmentCard({
   allTimeLogs,
   todayKey,
   onOpenPlanModal,
+  onOpenPlanPreview,
   onDismissPrompt,
   showPrompt,
   userId
@@ -184,7 +185,7 @@ export default function TodayAssignmentCard({
 
       <div 
         className="cursor-pointer" 
-        onClick={onOpenPlanModal}>
+        onClick={onOpenPlanPreview}>
         
         {/* Date line */}
         <p className="text-xs text-muted-foreground mb-2">
@@ -205,6 +206,19 @@ export default function TodayAssignmentCard({
           </>
         )}
       </div>
+
+      {/* Edit Plan button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={(e) => {
+          e.stopPropagation();
+          onOpenPlanModal();
+        }}
+        className="mb-3 text-xs"
+      >
+        Edit Plan
+      </Button>
 
       {summary && (
         <Button

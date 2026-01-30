@@ -32,6 +32,7 @@ import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
+import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
 
 export default function Home() {
@@ -42,6 +43,7 @@ export default function Home() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
+  const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
   useEffect(() => {
@@ -318,6 +320,7 @@ export default function Home() {
               todayKey={today}
               userId={userId}
               onOpenPlanModal={() => setPlanOpen(true)}
+              onOpenPlanPreview={() => setPlanPreviewOpen(true)}
               onDismissPrompt={handleDismissPrompt}
               showPrompt={showPrompt}
             />
@@ -481,6 +484,20 @@ export default function Home() {
         userId={userId}
         existingPlan={plan}
         logs={allTimeLogs}
+        />
+
+        {/* Plan Preview Sheet */}
+        <PlanPreviewSheet
+        open={planPreviewOpen}
+        onClose={() => setPlanPreviewOpen(false)}
+        plan={plan}
+        userId={userId}
+        todayKey={today}
+        logs={allTimeLogs}
+        onOpenPlanModal={() => {
+          setPlanPreviewOpen(false);
+          setPlanOpen(true);
+        }}
         />
         </div>);
 
