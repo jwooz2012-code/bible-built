@@ -108,14 +108,13 @@
   }
 
   .safe-area-shell {
-    padding-top: var(--sat);
     padding-left: var(--sal);
     padding-right: var(--sar);
     min-height: 100vh;
   }
 
   .page-content-wrapper {
-    padding-top: 16px;
+    padding-top: calc(env(safe-area-inset-top) + 16px);
   }
 
   #root {
