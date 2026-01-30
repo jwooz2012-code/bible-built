@@ -38,7 +38,7 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+      <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 20px)' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
