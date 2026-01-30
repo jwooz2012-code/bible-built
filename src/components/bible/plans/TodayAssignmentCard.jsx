@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -184,18 +184,12 @@ export default function TodayAssignmentCard({
       } : undefined}>
 
       <div className="relative">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onOpenPlanModal();
-          }}
-          className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/50 transition-colors z-10"
-        >
-          <Pencil className="w-4 h-4 text-muted-foreground" />
-        </button>
+        <div className="absolute top-0 right-0 flex items-center justify-center pointer-events-none z-10">
+          <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        </div>
 
         <div 
-          className="cursor-pointer pr-10" 
+          className="cursor-pointer pr-8" 
           onClick={onOpenPlanPreview}>
           
           {/* Date line */}
