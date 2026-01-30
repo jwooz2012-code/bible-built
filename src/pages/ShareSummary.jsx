@@ -313,32 +313,18 @@ export default function ShareSummary() {
             ))}
           </div>
 
-          {/* Badges Section - All Earned Badges */}
+          {/* Badges Section - 5-across layout, max 10 badges */}
           <div className="flex flex-col">
             <div 
-              className="text-[9px] font-extrabold uppercase tracking-[0.2em] text-center mb-2.5"
+              className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2"
               style={{ color: theme.badgeSectionLabel }}
             >
               Badges Earned
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div 
-                className="flex items-start justify-center rounded-xl py-3 px-2"
-                style={{ backgroundColor: theme.badgeSectionBg }}
-              >
-                <div 
-                  className={`grid ${
-                    earnedBadges.length === 1 ? 'grid-cols-1' :
-                    earnedBadges.length === 2 ? 'grid-cols-2 gap-3' :
-                    earnedBadges.length <= 4 ? 'grid-cols-2 gap-2.5' :
-                    earnedBadges.length <= 6 ? 'grid-cols-3 gap-2.5' :
-                    earnedBadges.length <= 9 ? 'grid-cols-3 gap-2' :
-                    earnedBadges.length <= 12 ? 'grid-cols-4 gap-2' :
-                    earnedBadges.length <= 16 ? 'grid-cols-4 gap-1.5' :
-                    'grid-cols-5 gap-1.5'
-                  } max-w-full`}
-                >
-                  {earnedBadges.map((badge) => {
+              <div className="flex flex-col items-center gap-0.5">
+                <div className="grid grid-cols-5 gap-2">
+                  {earnedBadges.slice(0, 10).map((badge) => {
                     const color = getAchievementColor(badge.title);
                     const isBlackWhite = color === 'BLACK_WHITE';
                     return (
@@ -347,24 +333,27 @@ export default function ShareSummary() {
                         className="flex items-center justify-center"
                       >
                         <div 
-                          className={`${
-                            earnedBadges.length <= 4 ? 'w-13 h-13' :
-                            earnedBadges.length <= 9 ? 'w-11 h-11' :
-                            earnedBadges.length <= 16 ? 'w-9 h-9' :
-                            'w-7.5 h-7.5'
-                          } flex items-center justify-center rounded-full shadow-sm ${
+                          className={`w-10 h-10 flex items-center justify-center rounded-full shadow-sm ${
                             isBlackWhite ? 'bg-gray-900 border border-white/10' : `bg-gradient-to-br ${color} border border-black/5`
                           }`}
                         >
-                          {getAchievementIcon(badge.title, true, earnedBadges.length <= 9 ? 'large' : 'default')}
+                          {getAchievementIcon(badge.title, true, 'default')}
                         </div>
                       </div>
                     );
                   })}
                 </div>
+                {earnedBadges.length > 10 && (
+                  <div 
+                    className="text-[9px] font-medium mt-1.5"
+                    style={{ color: theme.secondaryText }}
+                  >
+                    +{earnedBadges.length - 10} more
+                  </div>
+                )}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center">
+              <div className="flex-1 flex items-center justify-center py-4">
                 <p 
                   className="text-xs font-medium"
                   style={{ color: theme.secondaryText }}
