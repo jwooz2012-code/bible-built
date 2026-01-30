@@ -43,7 +43,6 @@ export default function Home() {
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
   const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
 
@@ -320,10 +319,7 @@ export default function Home() {
               allTimeLogs={allTimeLogs}
               todayKey={today}
               userId={userId}
-              onOpenPlanModal={(isEditMode = false) => {
-                setEditMode(isEditMode);
-                setPlanOpen(true);
-              }}
+              onOpenPlanModal={() => setPlanOpen(true)}
               onOpenPlanPreview={() => setPlanPreviewOpen(true)}
               onDismissPrompt={handleDismissPrompt}
               showPrompt={showPrompt}
@@ -484,14 +480,10 @@ export default function Home() {
         {/* Plan Modal */}
         <PlanModal
         open={planOpen}
-        onClose={() => {
-          setPlanOpen(false);
-          setEditMode(false);
-        }}
+        onClose={() => setPlanOpen(false)}
         userId={userId}
         existingPlan={plan}
         logs={allTimeLogs}
-        editMode={editMode}
         />
 
         {/* Plan Preview Sheet */}
