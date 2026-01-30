@@ -18,8 +18,8 @@ const getShareSummaryTheme = (resolvedTheme, energyMode) => {
   
   if (resolvedTheme === 'dark') {
     return {
-      background: '#000000',
-      cardBg: '#000000',
+      background: '#0A0A0A',
+      cardBg: '#1A1A1A',
       heroBg: '#1F1F1F',
       heroText: '#FFFFFF',
       heroLabel: '#94A3B8',
@@ -289,22 +289,22 @@ export default function ShareSummary() {
             </div>
           </div>
 
-          {/* Key Stats - 2x2 Grid */}
-          <div className="grid grid-cols-2 gap-3 flex-shrink-0 mb-5">
+          {/* Key Stats Row - 4 Even Stats */}
+          <div className="grid grid-cols-4 gap-2.5 flex-shrink-0 mb-5">
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
-                className="flex flex-col items-center justify-center p-4 rounded-xl"
+                className="flex flex-col items-center justify-center p-2.5 rounded-xl"
                 style={{ backgroundColor: theme.statBg }}
               >
                 <div 
-                  className="text-3xl font-bold"
+                  className="text-xl font-bold"
                   style={{ color: theme.statValue }}
                 >
                   {stat.value}
                 </div>
                 <div 
-                  className="text-[8px] text-center font-semibold uppercase tracking-wide mt-1 leading-tight"
+                  className="text-[8px] text-center font-semibold uppercase tracking-wide mt-0.5 leading-tight"
                   style={{ color: theme.statLabel }}
                 >
                   {stat.label.replace(' ', '\n')}

@@ -49,12 +49,10 @@
  */
 import Accountability from './pages/Accountability';
 import Calendar from './pages/Calendar';
-import CustomPlanBuilder from './pages/CustomPlanBuilder';
 import Home from './pages/Home';
 import Index from './pages/Index';
 import PeopleLibrary from './pages/PeopleLibrary';
 import PersonDetail from './pages/PersonDetail';
-import PlanDetail from './pages/PlanDetail';
 import Plans from './pages/Plans';
 import Settings from './pages/Settings';
 import ShareSummary from './pages/ShareSummary';
@@ -62,18 +60,18 @@ import Stats from './pages/Stats';
 import ThemeDetail from './pages/ThemeDetail';
 import ThemesLibrary from './pages/ThemesLibrary';
 import app from './pages/_app';
+import CustomPlanBuilder from './pages/CustomPlanBuilder';
+import PlanDetail from './pages/PlanDetail';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "Accountability": Accountability,
     "Calendar": Calendar,
-    "CustomPlanBuilder": CustomPlanBuilder,
     "Home": Home,
     "Index": Index,
     "PeopleLibrary": PeopleLibrary,
     "PersonDetail": PersonDetail,
-    "PlanDetail": PlanDetail,
     "Plans": Plans,
     "Settings": Settings,
     "ShareSummary": ShareSummary,
@@ -81,6 +79,8 @@ export const PAGES = {
     "ThemeDetail": ThemeDetail,
     "ThemesLibrary": ThemesLibrary,
     "_app": app,
+    "CustomPlanBuilder": CustomPlanBuilder,
+    "PlanDetail": PlanDetail,
 }
 
 export const pagesConfig = {
