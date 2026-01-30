@@ -177,14 +177,18 @@ export default function TodayAssignmentCard({
       animate={{ opacity: 1, y: 0 }}
       whileTap={{ scale: 0.98 }}
       transition={{ duration: 0.1 }}
-      className="mb-6 bb-card bb-glow px-6 py-5 cursor-pointer"
+      className="mb-6 px-7 py-6 cursor-pointer rounded-[18px]"
       onClick={onOpenPlanPreview}
       style={isComplete ? {
         background: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border))',
         borderLeft: `3px solid color-mix(in srgb, ${successBg} 55%, transparent)`,
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
-      } : undefined}>
+      } : {
+        background: 'color-mix(in srgb, hsl(var(--card)) 60%, hsl(var(--background)) 40%)',
+        border: '1px solid color-mix(in srgb, hsl(var(--border)) 40%, transparent)',
+        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
+      }}>
 
       <div>
         
