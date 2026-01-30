@@ -142,7 +142,13 @@ export default function PlanPreviewSheet({
           </div>
 
           {/* Scrollable Content */}
-          <div className="overflow-y-auto px-6 py-4" style={{ maxHeight: 'calc(85vh - 80px)' }}>
+          <div 
+            className="overflow-y-auto px-6 py-4" 
+            style={{ 
+              maxHeight: 'calc(85vh - 80px)',
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)'
+            }}
+          >
             {!hasPlan ? (
               <div className="py-8 text-center">
                 <p className="text-muted-foreground mb-4">No reading plan selected</p>
