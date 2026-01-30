@@ -186,7 +186,7 @@ export default function TodayAssignmentCard({
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : {
         background: 'color-mix(in srgb, hsl(var(--card)) 60%, hsl(var(--background)) 40%)',
-        border: '1px solid color-mix(in srgb, hsl(var(--border)) 40%, transparent)',
+        border: '1px solid color-mix(in srgb, hsl(var(--foreground)) 8%, transparent)',
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
       }}>
 
