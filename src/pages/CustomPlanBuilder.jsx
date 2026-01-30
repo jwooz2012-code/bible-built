@@ -30,24 +30,10 @@ export default function CustomPlanBuilder() {
   const presetId = new URLSearchParams(location.search).get('preset');
   const preset = presetId ? PLAN_PRESETS.find(p => p.id === presetId) : null;
 
-  // Map preset scope to correct theme key
+  // Map preset to theme key - use scope directly (already uppercase)
   const getThemeKeyFromPreset = (preset) => {
     if (!preset) return null;
-    // Map lowercase preset IDs to uppercase theme keys
-    const scopeMap = {
-      'twelve_voices_one_holy_god': 'TWELVE_VOICES_ONE_HOLY_GOD',
-      'chronological_ot': 'CHRONOLOGICAL_OT_JOURNEY',
-      'chronological_nt': 'CHRONOLOGICAL_NT_JOURNEY',
-      'who_is_jesus': 'WHO_IS_JESUS',
-      'leadership_intensive': 'LEADERSHIP_INTENSIVE',
-      'wisdom_plunge': 'WISDOM_PLUNGE',
-      'intentional_motherhood': 'INTENTIONAL_MOTHERHOOD',
-      'godly_man': 'GODLY_MAN',
-      'live_with_purpose': 'LIVE_WITH_PURPOSE',
-      'know_king_david': 'KNOW_KING_DAVID',
-      'heart_of_god': 'HEART_OF_GOD',
-    };
-    return scopeMap[preset.id] || preset.scope;
+    return preset.scope;
   };
 
   // Tab state
@@ -67,7 +53,7 @@ export default function CustomPlanBuilder() {
   const [finishInDays, setFinishInDays] = useState(() => {
     if (preset && preset.scope) {
       const chapterList = CURATED_PLANS[preset.scope] || [];
-      const chaptersPerDay = preset.chaptersPerDay || 2;
+      const chaptersPerDay = preset.chaptersPerDay || 4;
       return Math.ceil(chapterList.length / chaptersPerDay);
     }
     return 30;
@@ -456,10 +442,7 @@ export default function CustomPlanBuilder() {
           themeKey={selectedThemeForDetail}
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
-            // If 12 Voices is being customized from People tab, also set selectedPerson
-            if (themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') {
-              setSelectedPerson(themeKey);
-            }
+            setActiveTab('themes'); // Ensure we're on themes tab
             const chapterList = CURATED_PLANS[themeKey] || [];
             // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
             const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;
