@@ -108,7 +108,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 py-8 page-safe-top">
+      <div className="max-w-2xl mx-auto px-5 pb-8">
         <PageHeader title="Settings" subtitle="Manage your account" />
 
         <motion.div
