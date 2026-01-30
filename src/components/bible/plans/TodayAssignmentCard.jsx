@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -187,10 +187,21 @@ export default function TodayAssignmentCard({
         className="cursor-pointer" 
         onClick={onOpenPlanPreview}>
         
-        {/* Date line */}
-        <p className="text-xs text-muted-foreground mb-2">
-          Today · {formatDateKey(todayKey)}
-        </p>
+        {/* Header row with date and edit icon */}
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-muted-foreground">
+            Today · {formatDateKey(todayKey)}
+          </p>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpenPlanModal();
+            }}
+            className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-muted/50 transition-colors"
+          >
+            <Settings className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
 
         {/* Reading reference - large and bold */}
         {summary && (
@@ -206,19 +217,6 @@ export default function TodayAssignmentCard({
           </>
         )}
       </div>
-
-      {/* Edit Plan button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpenPlanModal();
-        }}
-        className="mb-3 text-xs"
-      >
-        Edit Plan
-      </Button>
 
       {summary && (
         <Button
