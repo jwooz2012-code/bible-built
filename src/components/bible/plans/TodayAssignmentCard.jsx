@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp, Settings } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp, Pencil } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -191,7 +191,7 @@ export default function TodayAssignmentCard({
           }}
           className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/50 transition-colors z-10"
         >
-          <Settings className="w-4 h-4 text-muted-foreground" />
+          <Pencil className="w-4 h-4 text-muted-foreground" />
         </button>
 
         <div 
