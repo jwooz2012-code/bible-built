@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
@@ -34,6 +35,7 @@ import PlanModal from '@/components/bible/plans/PlanModal';
 import { runValidation } from '@/components/bible/plans/validatePlans';
 
 export default function Home() {
+  const navigate = useNavigate();
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,6 +46,19 @@ export default function Home() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [selectedBook]);
+
+  // Listen for Home tab taps when on Book → Chapters view
+  useEffect(() => {
+    if (!selectedBook) return;
+    
+    const onHomeTap = () => {
+      setSelectedBook(null);
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    };
+    
+    window.addEventListener('biblebuilt:homeTap', onHomeTap);
+    return () => window.removeEventListener('biblebuilt:homeTap', onHomeTap);
   }, [selectedBook]);
 
   useEffect(() => {

@@ -66,6 +66,7 @@ export default function Layout({ children }) {
                     key={item.name}
                     onClick={() => {
                       if (item.path === '/home') {
+                        window.dispatchEvent(new Event('biblebuilt:homeTap'));
                         navigate('/home', { replace: true, state: { reset: Date.now() } });
                       } else {
                         navigate(item.path);
