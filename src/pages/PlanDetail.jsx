@@ -251,7 +251,11 @@ export default function PlanDetail() {
         <div className="flex gap-3">
           <Button
             variant="outline"
-            onClick={() => navigate(`/CustomPlanBuilder?preset=${preset.id}`)}
+            onClick={() => {
+              // Preserve origin tab when navigating to Customize
+              const tab = isTwelveVoices ? 'people' : 'themes';
+              navigate(`/CustomPlanBuilder?preset=${preset.id}&tab=${tab}`);
+            }}
             className="flex-1 h-12 text-base font-semibold"
           >
             Customize
