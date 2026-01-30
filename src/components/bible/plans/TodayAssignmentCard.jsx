@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp, Settings } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -183,42 +183,41 @@ export default function TodayAssignmentCard({
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : undefined}>
 
-      <div 
-        className="cursor-pointer" 
-        onClick={onOpenPlanPreview}>
-        
-        {/* Date line */}
-        <p className="text-xs text-muted-foreground mb-2">
-          Today · {formatDateKey(todayKey)}
-        </p>
+      <div className="relative">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onOpenPlanModal();
+          }}
+          className="absolute top-0 right-0 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted/50 transition-colors z-10"
+        >
+          <Settings className="w-4 h-4 text-muted-foreground" />
+        </button>
 
-        {/* Reading reference - large and bold */}
-        {summary && (
-          <>
-            <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
-              {summary}
-            </h3>
-            
-            {/* Context line */}
-            <p className="text-sm text-muted-foreground mb-4">
-              {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
-            </p>
-          </>
-        )}
+        <div 
+          className="cursor-pointer pr-10" 
+          onClick={onOpenPlanPreview}>
+          
+          {/* Date line */}
+          <p className="text-xs text-muted-foreground mb-2">
+            Today · {formatDateKey(todayKey)}
+          </p>
+
+          {/* Reading reference - large and bold */}
+          {summary && (
+            <>
+              <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+                {summary}
+              </h3>
+              
+              {/* Context line */}
+              <p className="text-sm text-muted-foreground mb-4">
+                {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
+              </p>
+            </>
+          )}
+        </div>
       </div>
-
-      {/* Edit Plan button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={(e) => {
-          e.stopPropagation();
-          onOpenPlanModal();
-        }}
-        className="mb-3 text-xs"
-      >
-        Edit Plan
-      </Button>
 
       {summary && (
         <Button
