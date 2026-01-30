@@ -313,17 +313,17 @@ export default function ShareSummary() {
             ))}
           </div>
 
-          {/* Badges Section - 5-across layout, max 10 badges */}
-          <div className="flex flex-col">
+          {/* Badges Section - Clean 5-across layout */}
+          <div className="flex flex-col items-center">
             <div 
-              className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2"
+              className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2.5 text-center"
               style={{ color: theme.badgeSectionLabel }}
             >
               Badges Earned
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div className="flex flex-col items-center gap-0.5">
-                <div className="grid grid-cols-5 gap-2">
+              <div className="flex flex-col items-center gap-1">
+                <div className="grid grid-cols-5 gap-2.5">
                   {earnedBadges.slice(0, 10).map((badge) => {
                     const color = getAchievementColor(badge.title);
                     const isBlackWhite = color === 'BLACK_WHITE';
@@ -345,7 +345,7 @@ export default function ShareSummary() {
                 </div>
                 {earnedBadges.length > 10 && (
                   <div 
-                    className="text-[9px] font-medium mt-1.5"
+                    className="text-[9px] font-medium mt-0.5"
                     style={{ color: theme.secondaryText }}
                   >
                     +{earnedBadges.length - 10} more
@@ -353,7 +353,7 @@ export default function ShareSummary() {
                 )}
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-center py-4">
+              <div className="py-4">
                 <p 
                   className="text-xs font-medium"
                   style={{ color: theme.secondaryText }}
