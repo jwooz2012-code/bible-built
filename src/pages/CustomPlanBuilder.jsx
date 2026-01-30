@@ -36,9 +36,8 @@ export default function CustomPlanBuilder() {
     return preset.scope;
   };
 
-  // Tab state - preserve origin tab from URL or default to themes
-  const originTab = new URLSearchParams(location.search).get('tab') || 'themes';
-  const [activeTab, setActiveTab] = useState(originTab);
+  // Tab state
+  const [activeTab, setActiveTab] = useState('themes');
 
   // Selection state
   const [selectedBooks, setSelectedBooks] = useState([]);
@@ -329,10 +328,7 @@ export default function CustomPlanBuilder() {
     <div className="min-h-screen bg-background p-6 pb-32">
       <div className="max-w-lg mx-auto">
         <div className="flex items-center gap-3 mb-6">
-          <button 
-            onClick={() => navigate(-1)} 
-            className="text-muted-foreground"
-          >
+          <button onClick={() => navigate(-1)} className="text-muted-foreground">
             <ChevronLeft className="w-6 h-6" />
           </button>
           <h1 className="text-2xl font-bold text-foreground">Custom Plan Builder</h1>
@@ -446,7 +442,7 @@ export default function CustomPlanBuilder() {
           themeKey={selectedThemeForDetail}
           onConfirm={(themeKey) => {
             setSelectedTheme(themeKey);
-            // Stay on current tab (themes or people) - don't force switch
+            setActiveTab('themes'); // Ensure we're on themes tab
             const chapterList = CURATED_PLANS[themeKey] || [];
             // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
             const chaptersPerDay = (themeKey === 'CHRONOLOGICAL_OT_JOURNEY' || themeKey === 'CHRONOLOGICAL_NT_JOURNEY' || themeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') ? 4 : 2;
