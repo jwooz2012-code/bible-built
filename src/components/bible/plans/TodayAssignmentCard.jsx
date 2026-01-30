@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp, ChevronRight } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -175,7 +175,10 @@ export default function TodayAssignmentCard({
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="mb-6 bb-card bb-glow px-6 py-5"
+      whileTap={{ scale: 0.98 }}
+      transition={{ duration: 0.1 }}
+      className="mb-6 bb-card bb-glow px-6 py-5 cursor-pointer"
+      onClick={onOpenPlanPreview}
       style={isComplete ? {
         background: 'hsl(var(--card))',
         border: '1px solid hsl(var(--border))',
@@ -183,34 +186,26 @@ export default function TodayAssignmentCard({
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : undefined}>
 
-      <div className="relative">
-        <div className="absolute top-0 right-0 flex items-center justify-center pointer-events-none z-10">
-          <ChevronRight className="w-5 h-5 text-muted-foreground" />
-        </div>
+      <div>
+        
+        {/* Date line */}
+        <p className="text-xs text-muted-foreground mb-2">
+          Today · {formatDateKey(todayKey)}
+        </p>
 
-        <div 
-          className="cursor-pointer pr-8" 
-          onClick={onOpenPlanPreview}>
-          
-          {/* Date line */}
-          <p className="text-xs text-muted-foreground mb-2">
-            Today · {formatDateKey(todayKey)}
-          </p>
-
-          {/* Reading reference - large and bold */}
-          {summary && (
-            <>
-              <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
-                {summary}
-              </h3>
-              
-              {/* Context line */}
-              <p className="text-sm text-muted-foreground mb-4">
-                {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
-              </p>
-            </>
-          )}
-        </div>
+        {/* Reading reference - large and bold */}
+        {summary && (
+          <>
+            <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+              {summary}
+            </h3>
+            
+            {/* Context line */}
+            <p className="text-sm text-muted-foreground mb-4">
+              {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
+            </p>
+          </>
+        )}
       </div>
 
       {summary && (
