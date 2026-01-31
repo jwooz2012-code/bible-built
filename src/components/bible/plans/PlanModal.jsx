@@ -356,7 +356,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-base text-foreground mb-1">
-                    Reading Plan
+                    Reading Plans
                   </div>
                   <div className="text-sm text-muted-foreground">
                     Choose books and pace.
