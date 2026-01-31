@@ -292,17 +292,14 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
         <div className="flex flex-col items-center justify-center pt-12 pb-6">
           <h1 className="text-2xl font-bold text-foreground text-center">
-            Let's Build Your Bible Rhythm
+            Build Your Bible Rhythm
           </h1>
-          <p className="text-sm text-muted-foreground mt-2 text-center">
-            Track what matters—one day at a time.
-          </p>
         </div>
 
         <div className="mt-10 space-y-4 pb-32 px-1">
           {/* Options */}
           <div className="grid grid-cols-1 gap-4">
-            {/* Manual Reading (Secondary) */}
+            {/* Manual Reading */}
             <button
               onClick={() => {
                 setScope('NONE');
@@ -311,7 +308,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 handleSelectMode('NONE');
               }}
               className={cn(
-                "text-left p-5 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
+                "text-left p-4 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
                 selectedMode === 'NONE'
                   ? "border-primary bg-primary/5 shadow-lg scale-[1.01]"
                   : "border-border bg-card hover:bg-accent hover:border-muted-foreground/30"
@@ -325,8 +322,8 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                   <div className="font-semibold text-base text-foreground mb-1">
                     Manual Reading
                   </div>
-                  <div className="text-sm text-muted-foreground leading-relaxed">
-                    Read freely. Track chapters as you go.
+                  <div className="text-sm text-muted-foreground">
+                    Read freely. Track chapters.
                   </div>
                 </div>
                 {selectedMode === 'NONE' && (
@@ -337,7 +334,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
               </div>
             </button>
 
-            {/* Build a Reading Plan (Primary) */}
+            {/* Build a Reading Plan */}
             <button
               onClick={() => {
                 handleSelectMode('PLAN');
@@ -347,33 +344,29 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 }, 150);
               }}
               className={cn(
-                "text-left p-6 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
+                "text-left p-4 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
                 selectedMode === 'PLAN'
-                  ? "border-primary/60 bg-primary/10 shadow-lg scale-[1.01]"
-                  : "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-lg"
+                  ? "border-primary bg-primary/5 shadow-lg scale-[1.01]"
+                  : "border-border bg-card hover:bg-accent hover:border-muted-foreground/30"
               )}
             >
               <div className="flex items-start gap-4">
-                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-primary" />
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="font-semibold text-base text-foreground">
-                      Build a Reading Plan
-                    </div>
-                    <span className="text-[10px] font-semibold text-primary uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15">
-                      Most popular
-                    </span>
+                  <div className="font-semibold text-base text-foreground mb-1">
+                    Reading Plan
                   </div>
-                  <div className="text-sm text-muted-foreground leading-relaxed">
-                    Choose books, set a pace, and finish strong.
+                  <div className="text-sm text-muted-foreground">
+                    Choose books and pace.
                   </div>
                 </div>
-                <ChevronRight className={cn(
-                  "w-5 h-5 transition-colors",
-                  selectedMode === 'PLAN' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
-                )} />
+                {selectedMode === 'PLAN' && (
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+                  </div>
+                )}
               </div>
             </button>
           </div>
