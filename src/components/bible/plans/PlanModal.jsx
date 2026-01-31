@@ -292,7 +292,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
         <div className="flex flex-col items-center justify-center pt-12 pb-6">
           <h1 className="text-2xl font-bold text-foreground text-center">
-            Build Your Bible Rhythm
+            How do you want to read?
           </h1>
         </div>
 
