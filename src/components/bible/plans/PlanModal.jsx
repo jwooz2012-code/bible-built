@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight, Check, Loader2, BookOpen, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
@@ -270,10 +271,26 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
     );
   };
 
+  const [selectedMode, setSelectedMode] = useState(existingPlan?.scope || null);
+
+  useEffect(() => {
+    if (existingPlan?.scope) {
+      setSelectedMode(existingPlan.scope);
+    }
+  }, [existingPlan]);
+
+  const handleSelectMode = (mode) => {
+    setSelectedMode(mode);
+    // Haptic feedback
+    if (window.navigator && window.navigator.vibrate) {
+      window.navigator.vibrate(10);
+    }
+  };
+
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <div className="flex flex-col items-center justify-center pt-8 pb-4">
+        <div className="flex flex-col items-center justify-center pt-12 pb-6">
           <h1 className="text-2xl font-bold text-foreground text-center">
             Let's Build Your Bible Rhythm
           </h1>
@@ -282,7 +299,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
           </p>
         </div>
 
-        <div className="mt-8 space-y-4 pb-32 px-1">
+        <div className="mt-10 space-y-4 pb-32 px-1">
           {/* Options */}
           <div className="grid grid-cols-1 gap-4">
             {/* Manual Reading (Secondary) */}
@@ -291,11 +308,12 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 setScope('NONE');
                 setStartDate(todayKey);
                 setEndDate(todayKey);
+                handleSelectMode('NONE');
               }}
               className={cn(
-                "text-left p-5 rounded-2xl border-2 transition-all relative group",
-                scope === 'NONE'
-                  ? "border-primary bg-primary/5 shadow-lg"
+                "text-left p-5 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
+                selectedMode === 'NONE'
+                  ? "border-primary bg-primary/5 shadow-lg scale-[1.01]"
                   : "border-border bg-card hover:bg-accent hover:border-muted-foreground/30"
               )}
             >
@@ -308,10 +326,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     Manual Reading
                   </div>
                   <div className="text-sm text-muted-foreground leading-relaxed">
-                    Read freely and track chapters as you go.
+                    Read freely. Track chapters as you go.
                   </div>
                 </div>
-                {scope === 'NONE' && (
+                {selectedMode === 'NONE' && (
                   <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
                     <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
                   </div>
@@ -322,12 +340,17 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
             {/* Build a Reading Plan (Primary) */}
             <button
               onClick={() => {
-                onClose();
-                navigate(createPageUrl('CustomPlanBuilder'));
+                handleSelectMode('PLAN');
+                setTimeout(() => {
+                  onClose();
+                  navigate(createPageUrl('CustomPlanBuilder'));
+                }, 150);
               }}
               className={cn(
-                "text-left p-6 rounded-2xl border-2 transition-all relative group",
-                "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-lg"
+                "text-left p-6 rounded-2xl border-2 transition-all relative group active:scale-[0.98]",
+                selectedMode === 'PLAN'
+                  ? "border-primary/60 bg-primary/10 shadow-lg scale-[1.01]"
+                  : "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-lg"
               )}
             >
               <div className="flex items-start gap-4">
@@ -344,26 +367,38 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     </span>
                   </div>
                   <div className="text-sm text-muted-foreground leading-relaxed">
-                    Choose books, pace, and finish strong.
+                    Choose books, set a pace, and finish strong.
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                <ChevronRight className={cn(
+                  "w-5 h-5 transition-colors",
+                  selectedMode === 'PLAN' ? "text-foreground" : "text-muted-foreground group-hover:text-foreground"
+                )} />
               </div>
             </button>
           </div>
 
           {/* Actions */}
           <div className="flex flex-col items-center gap-3 pt-6">
-            <Button 
-              onClick={handleSave} 
-              className="w-full max-w-md h-12 text-base font-semibold rounded-xl" 
-              disabled={isPending}
-            >
-              {isPending ? 'Setting up...' : 'Continue →'}
-            </Button>
+            {selectedMode && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="w-full"
+              >
+                <Button 
+                  onClick={handleSave} 
+                  className="w-full max-w-md h-12 text-base font-semibold rounded-xl mx-auto block" 
+                  disabled={isPending || !selectedMode}
+                >
+                  {isPending ? 'Setting up...' : 'Continue →'}
+                </Button>
+              </motion.div>
+            )}
             <button
               onClick={onClose}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+              className="text-sm text-muted-foreground/60 hover:text-muted-foreground transition-colors font-medium"
             >
               Not now
             </button>
