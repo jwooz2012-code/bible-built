@@ -156,10 +156,10 @@ export default function TodayAssignmentCard({
             className="mb-5">
 
         <Button 
-          onClick={onOpenPlanModal} 
-          className="w-full h-14 text-base font-semibold rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-sm">
-          <Calendar className="w-5 h-5 mr-2" />
-          Start Reading Plan
+          onClick={onOpenPlanModal}
+          variant="ghost"
+          className="w-full h-12 text-sm font-medium rounded-xl text-muted-foreground hover:text-foreground hover:bg-accent">
+          Explore Reading Plans
         </Button>
       </motion.div>);
 
