@@ -158,7 +158,7 @@ export default function TodayAssignmentCard({
         <motion.button
           onClick={onOpenPlanModal}
           whileTap={{ scale: 0.98, opacity: 0.85 }}
-          className="w-full px-5 py-3.5 rounded-full border-2 border-border/40 bg-card/30 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card/50 hover:border-border/60 transition-all">
+          className="w-full px-5 py-3.5 rounded-full border-[2.5px] border-border/40 bg-card/30 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card/50 hover:border-border/60 transition-all">
           Explore Reading Plans
         </motion.button>
       </motion.div>);
