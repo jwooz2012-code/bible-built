@@ -359,7 +359,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     Reading Plans
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Choose books and pace.
+                    Build around what matters to you.
                   </div>
                 </div>
                 {selectedMode === 'PLAN' && (
