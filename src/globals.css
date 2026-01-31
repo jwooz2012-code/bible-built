@@ -113,9 +113,10 @@
   }
 
   [data-sonner-toaster] {
-    top: calc(env(safe-area-inset-top) + 64px) !important;
+    top: calc(env(safe-area-inset-top) + 28px) !important;
     bottom: auto !important;
     pointer-events: none !important;
+    z-index: 99999 !important;
   }
 
   [data-sonner-toast] {
