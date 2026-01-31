@@ -119,8 +119,8 @@
     left: 0 !important;
     right: 0 !important;
     bottom: auto !important;
-    pointer-events: none !important;
     z-index: 99999 !important;
+    pointer-events: none !important;
   }
 
   [data-sonner-toast] {
