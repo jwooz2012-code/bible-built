@@ -50,13 +50,15 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedBook]);
 
-  // Listen for Home tab taps when on Book → Chapters view
+  // Listen for Home tab taps for scroll-to-top behavior
   useEffect(() => {
-    if (!selectedBook) return;
-    
     const onHomeTap = () => {
-      setSelectedBook(null);
-      window.scrollTo({ top: 0, behavior: 'instant' });
+      if (selectedBook) {
+        // If viewing a book, go back to main view
+        setSelectedBook(null);
+      }
+      // Always scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     };
     
     window.addEventListener('biblebuilt:homeTap', onHomeTap);
