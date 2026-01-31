@@ -118,7 +118,7 @@
     top: auto !important;
     left: 0 !important;
     right: 0 !important;
-    bottom: calc(env(safe-area-inset-bottom) + 84px) !important;
+    bottom: calc(env(safe-area-inset-bottom) + 96px) !important;
     z-index: 99999 !important;
     pointer-events: none !important;
   }
