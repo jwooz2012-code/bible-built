@@ -93,7 +93,7 @@ export default function Layout({ children }) {
             </div>
           </nav>
           <Toaster 
-          position="top-center"
+          position="bottom-center"
           expand={false}
           closeButton={false}
           toastOptions={{
