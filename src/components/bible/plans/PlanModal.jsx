@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll, ChevronRight, Check, Loader2, BookOpen, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { getDateKey, formatDateKey, addDaysKey, formatDateRange } from '@/components/bible/utils/dateUtils';
 import { computeTodayAssignment, buildScopeChapters, getAssignmentForDate } from '@/components/bible/plans/planUtils';
@@ -273,130 +273,100 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
   return (
     <Sheet open={open} onOpenChange={onClose}>
       <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle>Set Reading Plan</SheetTitle>
-          <SheetDescription>
-            Choose a preset or customize your own reading plan
-          </SheetDescription>
-        </SheetHeader>
+        <div className="flex flex-col items-center justify-center pt-8 pb-4">
+          <h1 className="text-2xl font-bold text-foreground text-center">
+            Let's Build Your Bible Rhythm
+          </h1>
+          <p className="text-sm text-muted-foreground mt-2 text-center">
+            Track what matters—one day at a time.
+          </p>
+        </div>
 
-        <div className="mt-6 space-y-4 pb-28">
-          {/* Upcoming Readings Modal */}
-          {showUpcoming && (
-            <Sheet open={showUpcoming} onOpenChange={setShowUpcoming}>
-              <SheetContent side="bottom" className="h-[70vh]">
-                <SheetHeader>
-                  <SheetTitle>Upcoming Readings</SheetTitle>
-                  <SheetDescription>
-                    Next 7 days in your current plan
-                  </SheetDescription>
-                </SheetHeader>
-                
-                <div className="mt-6 space-y-3 pb-8 overflow-y-auto max-h-[calc(70vh-120px)]">
-                  {isLoadingPlanDays ? (
-                    <div className="flex items-center justify-center py-8 text-muted-foreground">
-                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                      <span className="text-sm">Loading upcoming readings…</span>
-                    </div>
-                  ) : upcomingReadings.length === 0 ? (
-                    <div className="text-center py-8 text-sm text-muted-foreground">
-                      No upcoming readings found for this plan.
-                    </div>
-                  ) : (
-                    upcomingReadings.map((day, idx) => (
-                      <div 
-                        key={day.dateKey}
-                        className={cn(
-                          "p-4 rounded-lg border",
-                          day.isToday 
-                            ? "border-primary bg-primary/5" 
-                            : "border-border bg-card"
-                        )}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="text-sm font-semibold text-foreground">
-                            {day.isToday ? 'Today' : formatDateKey(day.dateKey)}
-                          </div>
-                          {day.completed === day.total && day.total > 0 && (
-                            <div className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-                              <Check className="w-3 h-3" />
-                              <span>Done</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-base text-foreground mb-1">
-                          {day.summary}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {day.completed}/{day.total} chapters read
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                <div className="pt-4 border-t">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => setShowUpcoming(false)}
-                    className="w-full"
-                  >
-                    Close
-                  </Button>
-                </div>
-              </SheetContent>
-            </Sheet>
-          )}
-
+        <div className="mt-8 space-y-4 pb-32 px-1">
           {/* Options */}
-          <div>
-            <div className="grid grid-cols-1 gap-2">
-              <button
-                onClick={() => {
-                  setScope('NONE');
-                  setStartDate(todayKey);
-                  setEndDate(todayKey);
-                }}
-                className={cn(
-                  "text-left p-3 rounded-lg border-2 transition-all relative",
-                  scope === 'NONE'
-                    ? "border-primary bg-primary/5 shadow-md"
-                    : "border-border bg-card hover:bg-accent"
-                )}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="flex-1">
-                    <div className="font-medium text-sm text-foreground">No Plan (Manual Tracking)</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">Track your reading without a plan</div>
-                  </div>
-                  {scope === 'NONE' && (
-                    <div className="flex-shrink-0 w-5 h-5 rounded-full bg-primary flex items-center justify-center">
-                      <Check className="w-3 h-3 text-primary-foreground" strokeWidth={3} />
-                    </div>
-                  )}
+          <div className="grid grid-cols-1 gap-4">
+            {/* Manual Reading (Secondary) */}
+            <button
+              onClick={() => {
+                setScope('NONE');
+                setStartDate(todayKey);
+                setEndDate(todayKey);
+              }}
+              className={cn(
+                "text-left p-5 rounded-2xl border-2 transition-all relative group",
+                scope === 'NONE'
+                  ? "border-primary bg-primary/5 shadow-lg"
+                  : "border-border bg-card hover:bg-accent hover:border-muted-foreground/30"
+              )}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-muted flex items-center justify-center">
+                  <BookOpen className="w-6 h-6 text-foreground" />
                 </div>
-              </button>
-              <button
-                onClick={() => {
-                  onClose();
-                  navigate(createPageUrl('CustomPlanBuilder'));
-                }}
-                className="text-left p-3 rounded-lg border border-border bg-card hover:bg-accent transition-colors"
-              >
-                <div className="font-medium text-sm text-foreground">Custom Plan Builder</div>
-                <div className="text-xs text-muted-foreground mt-0.5">Choose themes, books, or people to build your plan.</div>
-              </button>
-            </div>
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-base text-foreground mb-1">
+                    Manual Reading
+                  </div>
+                  <div className="text-sm text-muted-foreground leading-relaxed">
+                    Read freely and track chapters as you go.
+                  </div>
+                </div>
+                {scope === 'NONE' && (
+                  <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                    <Check className="w-4 h-4 text-primary-foreground" strokeWidth={3} />
+                  </div>
+                )}
+              </div>
+            </button>
+
+            {/* Build a Reading Plan (Primary) */}
+            <button
+              onClick={() => {
+                onClose();
+                navigate(createPageUrl('CustomPlanBuilder'));
+              }}
+              className={cn(
+                "text-left p-6 rounded-2xl border-2 transition-all relative group",
+                "border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary/60 shadow-lg"
+              )}
+            >
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                  <Zap className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="font-semibold text-base text-foreground">
+                      Build a Reading Plan
+                    </div>
+                    <span className="text-[10px] font-semibold text-primary uppercase tracking-wider px-2 py-0.5 rounded-full bg-primary/15">
+                      Most popular
+                    </span>
+                  </div>
+                  <div className="text-sm text-muted-foreground leading-relaxed">
+                    Choose books, pace, and finish strong.
+                  </div>
+                </div>
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+              </div>
+            </button>
           </div>
 
           {/* Actions */}
-          <div className="flex gap-2 pt-2">
-            <Button variant="outline" onClick={onClose} className="flex-1" disabled={isPending}>
-              Cancel
+          <div className="flex flex-col items-center gap-3 pt-6">
+            <Button 
+              onClick={handleSave} 
+              className="w-full max-w-md h-12 text-base font-semibold rounded-xl" 
+              disabled={isPending}
+            >
+              {isPending ? 'Setting up...' : 'Continue →'}
             </Button>
-            <Button onClick={handleSave} className="flex-1" disabled={isPending}>
-              {isPending ? 'Saving...' : 'Save Plan'}
-            </Button>
+            <button
+              onClick={onClose}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              Not now
+            </button>
           </div>
         </div>
       </SheetContent>
