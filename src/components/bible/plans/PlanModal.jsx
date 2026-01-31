@@ -320,10 +320,10 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-semibold text-base text-foreground mb-1">
-                    Manual Reading
+                    Read Freely
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Read freely. Track chapters.
+                    Track chapters as you go.
                   </div>
                 </div>
                 {selectedMode === 'NONE' && (
@@ -359,7 +359,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
                     Reading Plans
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Build around what matters to you.
+                    Read with intention.
                   </div>
                 </div>
                 {selectedMode === 'PLAN' && (
