@@ -67,6 +67,7 @@ export default function ShareSummary() {
   const navigate = useNavigate();
   const screenshotRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [isShareCaptureMode, setIsShareCaptureMode] = useState(false);
 
   const mode = searchParams.get('mode') || 'yearly'; // 'monthly' or 'yearly'
   const yearParam = searchParams.get('year') || new Date().getFullYear().toString();
@@ -228,6 +229,11 @@ export default function ShareSummary() {
   // Share/Export handler
   const handleShare = async () => {
     setIsExporting(true);
+    setIsShareCaptureMode(true);
+    
+    // Wait for UI to update before capturing
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
     try {
       const canvas = await html2canvas(screenshotRef.current, {
         backgroundColor: theme.cardBg,
@@ -261,6 +267,7 @@ export default function ShareSummary() {
       console.error('Export failed:', err);
     } finally {
       setIsExporting(false);
+      setIsShareCaptureMode(false);
     }
   };
 
@@ -269,46 +276,11 @@ export default function ShareSummary() {
       className="min-h-screen flex items-center justify-center p-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
       style={{ backgroundColor: theme.background }}
     >
-      {/* Month Navigation - Only visible for monthly mode, outside screenshot */}
-      {mode === 'monthly' && (
-        <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-50 px-6 py-3" style={{ backgroundColor: theme.background }}>
-          <div className="max-w-md mx-auto flex items-center justify-center gap-4">
-            <button
-              onClick={handlePrevMonth}
-              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
-              style={{ color: theme.primaryText }}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-            <div 
-              className="text-base font-semibold px-4 py-2 rounded-full"
-              style={{ 
-                color: theme.primaryText,
-                backgroundColor: theme.statBg
-              }}
-            >
-              {format(selectedMonthDate, 'MMMM yyyy')}
-            </div>
-            <button
-              onClick={handleNextMonth}
-              disabled={isCurrentMonthSelected}
-              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
-              style={{ color: theme.primaryText }}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
-          </div>
-        </div>
-      )}
-
       {/* Screenshot-ready content - designed to fit in ONE viewport */}
       <div
         ref={screenshotRef}
         className="w-full h-[calc(100vh-5rem-env(safe-area-inset-bottom))] max-w-md relative"
-        style={{ 
-          backgroundColor: theme.cardBg,
-          marginTop: mode === 'monthly' ? '3.5rem' : '0'
-        }}
+        style={{ backgroundColor: theme.cardBg }}
       >
         {/* Container that fits ALL content in one viewport without scrolling */}
         <div 
@@ -453,6 +425,36 @@ export default function ShareSummary() {
                 Track what matters
               </div>
             </div>
+
+            {/* Month Navigation - Only visible in Monthly mode and not during capture */}
+            {mode === 'monthly' && !isShareCaptureMode && (
+              <div className="flex items-center justify-center gap-3 pt-4">
+                <button
+                  onClick={handlePrevMonth}
+                  className="p-1.5 rounded-full hover:bg-accent/50 transition-colors active:scale-95"
+                  style={{ color: theme.secondaryText }}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <div 
+                  className="text-[10px] font-semibold px-3 py-1.5 rounded-full"
+                  style={{ 
+                    color: theme.secondaryText,
+                    backgroundColor: theme.statBg
+                  }}
+                >
+                  {format(selectedMonthDate, 'MMMM yyyy')}
+                </div>
+                <button
+                  onClick={handleNextMonth}
+                  disabled={isCurrentMonthSelected}
+                  className="p-1.5 rounded-full hover:bg-accent/50 transition-colors active:scale-95 disabled:opacity-20 disabled:pointer-events-none"
+                  style={{ color: theme.secondaryText }}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
