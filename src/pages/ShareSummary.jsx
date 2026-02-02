@@ -1,11 +1,11 @@
-import React, { useRef, useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useRef, useState, useMemo } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import html2canvas from 'html2canvas';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format, parse } from 'date-fns';
+import { format, parse, startOfMonth, endOfMonth, subMonths, addMonths, isSameMonth } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getBadgesForRow } from '@/components/badges/badgeUtils';
@@ -64,6 +64,7 @@ const getShareSummaryTheme = (resolvedTheme, energyMode) => {
 
 export default function ShareSummary() {
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const screenshotRef = useRef(null);
   const [isExporting, setIsExporting] = useState(false);
 
@@ -74,11 +75,33 @@ export default function ShareSummary() {
   const year = parseInt(yearParam);
   const month = monthParam ? parseInt(monthParam) : null;
 
+  // Selected month state for navigation
+  const [selectedMonthDate, setSelectedMonthDate] = useState(() => {
+    if (mode === 'monthly' && month) {
+      return new Date(year, month - 1, 1);
+    }
+    return new Date();
+  });
+
+  const currentMonth = new Date();
+  const isCurrentMonthSelected = isSameMonth(selectedMonthDate, currentMonth);
+
+  // Month navigation handlers
+  const handlePrevMonth = () => {
+    setSelectedMonthDate(prev => subMonths(prev, 1));
+  };
+
+  const handleNextMonth = () => {
+    if (!isCurrentMonthSelected) {
+      setSelectedMonthDate(prev => addMonths(prev, 1));
+    }
+  };
+
   // Determine date range
   let startDate, endDate, displayTitle, displaySubtitle;
-  if (mode === 'monthly' && month) {
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0);
+  if (mode === 'monthly') {
+    const firstDay = startOfMonth(selectedMonthDate);
+    const lastDay = endOfMonth(selectedMonthDate);
     startDate = getDateKey(firstDay);
     endDate = getDateKey(lastDay);
     displayTitle = format(firstDay, 'MMMM yyyy');
@@ -173,13 +196,22 @@ export default function ShareSummary() {
     },
   });
 
-  // Use centralized badge engine with timeframe logs
-  // This ensures consistency with Stats page
-  const badgeState = computeBadgeState(readingLogs, user, { debug: false });
+  // For monthly view, badges are LIFETIME (not filtered by month)
+  // For yearly view, badges are still based on timeframe logs
+  const badgeDataForCalculation = mode === 'monthly' ? lifetimeLogs : readingLogs;
+  const badgeState = computeBadgeState(badgeDataForCalculation, user, { debug: false });
   const badges = badgeState.badges;
 
   // Get ONLY earned badges - strict filter to match app state
-  const earnedBadges = badges.filter(b => b.achieved === true);
+  // Sort by earnedAt (most recent first) if available
+  const earnedBadges = badges
+    .filter(b => b.achieved === true)
+    .sort((a, b) => {
+      if (a.earnedAt && b.earnedAt) {
+        return new Date(b.earnedAt) - new Date(a.earnedAt);
+      }
+      return 0;
+    });
 
   // Secondary stats - only 4 for spacious layout
   const secondaryStats = [
@@ -234,14 +266,49 @@ export default function ShareSummary() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-0 pb-[calc(5rem+env(safe-area-inset-bottom))]"
+      className="min-h-screen flex items-center justify-center p-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
       style={{ backgroundColor: theme.background }}
     >
+      {/* Month Navigation - Only visible for monthly mode, outside screenshot */}
+      {mode === 'monthly' && (
+        <div className="fixed top-[calc(env(safe-area-inset-top)+56px)] left-0 right-0 z-50 px-6 py-3" style={{ backgroundColor: theme.background }}>
+          <div className="max-w-md mx-auto flex items-center justify-center gap-4">
+            <button
+              onClick={handlePrevMonth}
+              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
+              style={{ color: theme.primaryText }}
+            >
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+            <div 
+              className="text-base font-semibold px-4 py-2 rounded-full"
+              style={{ 
+                color: theme.primaryText,
+                backgroundColor: theme.statBg
+              }}
+            >
+              {format(selectedMonthDate, 'MMMM yyyy')}
+            </div>
+            <button
+              onClick={handleNextMonth}
+              disabled={isCurrentMonthSelected}
+              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+              style={{ color: theme.primaryText }}
+            >
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Screenshot-ready content - designed to fit in ONE viewport */}
       <div
         ref={screenshotRef}
         className="w-full h-[calc(100vh-5rem-env(safe-area-inset-bottom))] max-w-md relative"
-        style={{ backgroundColor: theme.cardBg }}
+        style={{ 
+          backgroundColor: theme.cardBg,
+          marginTop: mode === 'monthly' ? '3.5rem' : '0'
+        }}
       >
         {/* Container that fits ALL content in one viewport without scrolling */}
         <div 
@@ -319,17 +386,17 @@ export default function ShareSummary() {
               className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2.5 text-center"
               style={{ color: theme.badgeSectionLabel }}
             >
-              Badges Earned
+              {mode === 'monthly' ? 'Earned Badges' : 'Badges Earned'}
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
               <div className="flex flex-col items-center gap-1">
                 <div className="grid grid-cols-5 gap-2.5">
-                  {earnedBadges.slice(0, 10).map((badge) => {
+                  {earnedBadges.slice(0, 10).map((badge, idx) => {
                     const color = getAchievementColor(badge.title);
                     const isBlackWhite = color === 'BLACK_WHITE';
                     return (
                       <div
-                        key={badge.id}
+                        key={badge.id || idx}
                         className="flex items-center justify-center"
                       >
                         <div 
@@ -358,7 +425,7 @@ export default function ShareSummary() {
                   className="text-xs font-medium"
                   style={{ color: theme.secondaryText }}
                 >
-                  No badges earned yet
+                  No badges earned yet.
                 </p>
               </div>
             )}
