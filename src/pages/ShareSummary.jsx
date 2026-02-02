@@ -307,26 +307,18 @@ export default function ShareSummary() {
               </p>
             )}
             {mode === 'monthly' && (
-              <div className="flex flex-col items-center justify-center gap-1 mt-3">
-                <div className="flex items-center gap-1.5">
-                  <img 
-                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-                    alt="Bible Built"
-                    className="w-4 h-4 rounded-[4px]"
-                    style={{ opacity: 0.85 }}
-                  />
-                  <div 
-                    className="text-[10px] font-semibold tracking-wide"
-                    style={{ color: theme.primaryText, opacity: 0.85 }}
-                  >
-                    Bible Built
-                  </div>
-                </div>
+              <div className="flex items-center justify-center gap-1.5 mt-3">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                  alt="Bible Built"
+                  className="w-4 h-4 rounded-[4px]"
+                  style={{ opacity: 0.85 }}
+                />
                 <div 
-                  className="text-[8px] font-medium tracking-wide"
-                  style={{ color: theme.secondaryText, opacity: 0.75 }}
+                  className="text-[10px] font-semibold tracking-wide"
+                  style={{ color: theme.primaryText, opacity: 0.85 }}
                 >
-                  Track what matters
+                  Bible Built
                 </div>
               </div>
             )}
