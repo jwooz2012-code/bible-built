@@ -298,12 +298,38 @@ export default function ShareSummary() {
             >
               {displayTitle}
             </h1>
-            <p 
-              className="text-[10px] text-center mt-1 font-semibold uppercase tracking-wider"
-              style={{ color: theme.secondaryText }}
-            >
-              {displaySubtitle}
-            </p>
+            {mode !== 'monthly' && (
+              <p 
+                className="text-[10px] text-center mt-1 font-semibold uppercase tracking-wider"
+                style={{ color: theme.secondaryText }}
+              >
+                {displaySubtitle}
+              </p>
+            )}
+            {mode === 'monthly' && (
+              <div className="flex flex-col items-center justify-center gap-1 mt-3">
+                <div className="flex items-center gap-1.5">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                    alt="Bible Built"
+                    className="w-4 h-4 rounded-[4px]"
+                    style={{ opacity: 0.85 }}
+                  />
+                  <div 
+                    className="text-[10px] font-semibold tracking-wide"
+                    style={{ color: theme.primaryText, opacity: 0.85 }}
+                  >
+                    Bible Built
+                  </div>
+                </div>
+                <div 
+                  className="text-[8px] font-medium tracking-wide"
+                  style={{ color: theme.secondaryText, opacity: 0.75 }}
+                >
+                  Track what matters
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Hero Stat - Anchor */}
@@ -402,29 +428,31 @@ export default function ShareSummary() {
               </div>
             )}
             
-            {/* Achievement Signature Line */}
-            <div className="flex flex-col items-center justify-center gap-1 pt-4">
-              <div className="flex items-center gap-1.5">
-                <img 
-                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-                  alt="Bible Built"
-                  className="w-5 h-5 rounded-md"
-                  style={{ opacity: theme.logoOpacity }}
-                />
+            {/* Achievement Signature Line - Only show in yearly mode */}
+            {mode !== 'monthly' && (
+              <div className="flex flex-col items-center justify-center gap-1 pt-4">
+                <div className="flex items-center gap-1.5">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                    alt="Bible Built"
+                    className="w-5 h-5 rounded-md"
+                    style={{ opacity: theme.logoOpacity }}
+                  />
+                  <div 
+                    className="text-xs font-semibold tracking-wide"
+                    style={{ color: theme.brandingText }}
+                  >
+                    Bible Built
+                  </div>
+                </div>
                 <div 
-                  className="text-xs font-semibold tracking-wide"
-                  style={{ color: theme.brandingText }}
+                  className="text-[9px] font-medium tracking-wide"
+                  style={{ color: theme.brandingTagline }}
                 >
-                  Bible Built
+                  Track what matters
                 </div>
               </div>
-              <div 
-                className="text-[9px] font-medium tracking-wide"
-                style={{ color: theme.brandingTagline }}
-              >
-                Track what matters
-              </div>
-            </div>
+            )}
 
             {/* Month Navigation - Only visible in Monthly mode and not during capture */}
             {mode === 'monthly' && !isShareCaptureMode && (
