@@ -273,23 +273,24 @@ export default function ShareSummary() {
 
   return (
     <div 
-      className="min-h-screen overflow-y-auto flex items-center justify-center p-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
+      className="min-h-screen overflow-y-auto pb-[calc(8rem+env(safe-area-inset-bottom))]"
       style={{ backgroundColor: theme.background }}
     >
-      {/* Screenshot-ready content - designed to fit in ONE viewport */}
-      <div
-        ref={screenshotRef}
-        className="w-full max-w-md relative"
-        style={{ backgroundColor: theme.cardBg }}
-      >
-        {/* Container that fits ALL content in one viewport without scrolling */}
-        <div 
-          className="w-full h-full flex flex-col px-6 py-6"
-          style={{ 
-            backgroundColor: theme.cardBg,
-            backgroundImage: theme.energyAccent
-          }}
+      <div className="flex flex-col items-center justify-center py-6 gap-8">
+        {/* Screenshot-ready content - ONLY this section is captured */}
+        <div
+          ref={screenshotRef}
+          className="w-full max-w-md"
+          style={{ backgroundColor: theme.cardBg }}
         >
+          {/* Share Content - Everything visible in screenshot */}
+          <div 
+            className="w-full flex flex-col px-6 py-6"
+            style={{ 
+              backgroundColor: theme.cardBg,
+              backgroundImage: theme.energyAccent
+            }}
+          >
           {/* Header - Compact */}
           <div className="flex-shrink-0 mb-4">
             <h1 
