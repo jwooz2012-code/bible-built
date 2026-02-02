@@ -274,7 +274,7 @@ export default function ShareSummary() {
   return (
     <div 
       className="min-h-screen overflow-y-auto pb-[calc(8rem+env(safe-area-inset-bottom))]"
-      style={{ backgroundColor: theme.background }}
+      style={{ backgroundColor: theme.cardBg }}
     >
       <div className="flex flex-col items-center justify-center py-6 gap-8">
         {/* Screenshot-ready content - ONLY this section is captured */}
