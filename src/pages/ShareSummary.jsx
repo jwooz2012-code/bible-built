@@ -450,37 +450,44 @@ export default function ShareSummary() {
         </div>
       </div>
 
-      {/* Month Navigation - Outside share content area */}
-      {mode === 'monthly' && (
-        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-0 right-0 flex items-center justify-center px-6">
-          <div className="flex items-center gap-3">
-            <button
-              onClick={handlePrevMonth}
-              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
-              style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
+        {/* Month Navigation - Controls section (below screenshot area, requires scroll) */}
+        {mode === 'monthly' && (
+          <div className="w-full max-w-md px-6">
             <div 
-              className="text-sm font-semibold px-4 py-2 rounded-full shadow-sm"
-              style={{ 
-                color: theme.primaryText,
-                backgroundColor: theme.cardBg
-              }}
-            >
-              {format(selectedMonthDate, 'MMMM yyyy')}
+              className="h-px w-full mb-6"
+              style={{ backgroundColor: theme.divider }}
+            />
+            <div className="flex items-center justify-center pb-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handlePrevMonth}
+                  className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div 
+                  className="text-sm font-semibold px-4 py-2 rounded-full shadow-sm"
+                  style={{ 
+                    color: theme.primaryText,
+                    backgroundColor: theme.cardBg
+                  }}
+                >
+                  {format(selectedMonthDate, 'MMMM yyyy')}
+                </div>
+                <button
+                  onClick={handleNextMonth}
+                  disabled={isCurrentMonthSelected}
+                  className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-            <button
-              onClick={handleNextMonth}
-              disabled={isCurrentMonthSelected}
-              className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
-              style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
-            >
-              <ChevronRight className="w-5 h-5" />
-            </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
