@@ -447,8 +447,8 @@ export default function ShareSummary() {
               </div>
             )}
           </div>
+          </div>
         </div>
-      </div>
 
         {/* Month Navigation - Controls section (below screenshot area, requires scroll) */}
         {mode === 'monthly' && (
