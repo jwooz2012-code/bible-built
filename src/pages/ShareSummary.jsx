@@ -451,7 +451,7 @@ export default function ShareSummary() {
 
       {/* Month Navigation - Outside share content area */}
       {mode === 'monthly' && (
-        <div className="fixed bottom-[calc(9rem+env(safe-area-inset-bottom))] left-0 right-0 flex items-center justify-center px-6">
+        <div className="fixed bottom-[calc(5.5rem+env(safe-area-inset-bottom))] left-0 right-0 flex items-center justify-center px-6">
           <div className="flex items-center gap-3">
             <button
               onClick={handlePrevMonth}
