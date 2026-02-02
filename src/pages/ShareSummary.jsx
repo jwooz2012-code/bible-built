@@ -273,13 +273,13 @@ export default function ShareSummary() {
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
+      className="min-h-screen overflow-y-auto flex items-center justify-center p-0 pb-[calc(8rem+env(safe-area-inset-bottom))]"
       style={{ backgroundColor: theme.background }}
     >
       {/* Screenshot-ready content - designed to fit in ONE viewport */}
       <div
         ref={screenshotRef}
-        className="w-full h-[calc(100vh-5rem-env(safe-area-inset-bottom))] max-w-md relative"
+        className="w-full max-w-md relative"
         style={{ backgroundColor: theme.cardBg }}
       >
         {/* Container that fits ALL content in one viewport without scrolling */}
