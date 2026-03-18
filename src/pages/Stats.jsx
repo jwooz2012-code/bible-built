@@ -387,67 +387,44 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.18 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-6">
+          className="bg-card border border-border/60 rounded-2xl p-5 mb-6 relative"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
 
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground mb-1">Lifetime</h2>
-            <p className="text-sm text-muted-foreground">All-time reading history</p>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleEditBaseline}
+            className="absolute top-3 right-3 h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg"
+          >
+            <Pencil className="w-3.5 h-3.5" />
+          </Button>
+
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
+              <RefreshCw className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">Times Through the Bible</p>
           </div>
 
           {lifetimeLoading ?
           <div className="flex justify-center py-12">
               <LoadingSpinner />
             </div> :
-
-          <div className="space-y-4">
-              <div className="text-center rounded-xl p-4 relative" style={{
-              background: 'linear-gradient(135deg, rgba(249, 115, 22, 0.12) 0%, rgba(250, 204, 21, 0.12) 100%)',
-              boxShadow: '0 0 16px var(--energy-glow)'
-            }}>
-                <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleEditBaseline} className="text-muted-foreground text-xs font-medium opacity-100 rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent absolute top-2 right-2 h-8 w-8 p-0 hover:text-foreground">
-
-
-                  <Pencil className="w-3.5 h-3.5" />
-                </Button>
-                <p className="text-xs text-muted-foreground mb-1.5">Times Through the Bible</p>
-                <p className="text-5xl font-bold mb-2" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
-                <div className="space-y-1.5 mt-3">
-                  <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                    <span>{lifetimeStats.progressToNext} / {TOTAL_CHAPTERS}</span>
-                    <span>•</span>
-                    <span>{lifetimeStats.percentToNext}% to next</span>
-                  </div>
-                  <div className="relative w-full h-1 bg-background/50 rounded-full overflow-hidden">
-                    <div
-                      className="h-full rounded-full transition-all duration-500"
-                      style={{
-                        width: `${lifetimeStats.percentToNext}%`,
-                        background: 'linear-gradient(90deg, #F97316 0%, #FACC15 100%)'
-                      }}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Total Chapters Read</p>
-                <p className="text-3xl font-semibold text-foreground mb-3">{lifetimeStats.totalCount}</p>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-secondary rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1.5">Old Testament</p>
-                    <p className="text-xl font-semibold text-foreground">{lifetimeStats.otCount}</p>
-                  </div>
-                  <div className="bg-secondary rounded-lg p-3">
-                    <p className="text-xs text-muted-foreground mb-1.5">New Testament</p>
-                    <p className="text-xl font-semibold text-foreground">{lifetimeStats.ntCount}</p>
-                  </div>
-                </div>
-              </div>
+          <div>
+            <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-4" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
+            <p className="text-xs text-muted-foreground/70 mb-3">
+              {lifetimeStats.progressToNext} / {TOTAL_CHAPTERS} · {lifetimeStats.percentToNext}% toward next completion
+            </p>
+            <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-500"
+                style={{
+                  width: `${lifetimeStats.percentToNext}%`,
+                  background: 'linear-gradient(90deg, #F97316 0%, #FACC15 100%)'
+                }}
+              />
             </div>
+          </div>
           }
         </motion.div>
             </div>
