@@ -33,7 +33,8 @@ import {
   Hammer,
   Circle,
   Sword,
-  Swords
+  Swords,
+  BarChart2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
