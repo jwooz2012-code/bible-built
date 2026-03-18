@@ -39,7 +39,23 @@ export default function Calendar() {
   useEffect(() => {
     let mounted = true;
     base44.auth.me()
-      .then(u => { if (mounted) { setUser(u); setIsLoading(false); } })
+      .then(u => {
+        if (mounted) {
+          setUser(u);
+          setIsLoading(false);
+          // Show hint logic: within first 14 days AND tap count < 3, and not dismissed
+          const dismissed = localStorage.getItem('cal_hint_dismissed');
+          if (!dismissed) {
+            const tapCount = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10);
+            const accountAge = u?.created_date
+              ? (Date.now() - new Date(u.created_date).getTime()) / (1000 * 60 * 60 * 24)
+              : 999;
+            if (tapCount < 3 && accountAge <= 14) {
+              setShowCalendarHint(true);
+            }
+          }
+        }
+      })
       .catch(() => { if (mounted) setIsLoading(false); });
     return () => { mounted = false; };
   }, []);
