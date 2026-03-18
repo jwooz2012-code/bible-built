@@ -53,6 +53,7 @@ export function useToggleChapterRead() {
       });
       
       toast.success('Chapter marked as read');
+      window.dispatchEvent(new Event('biblebuilt:chapterMarkedRead'));
     },
     onError: (error) => {
       console.error('[markRead] Error:', error);

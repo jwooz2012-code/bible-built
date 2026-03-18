@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import CalendarCoachmark from '@/components/shared/CalendarCoachmark';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 
