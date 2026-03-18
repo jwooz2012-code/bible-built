@@ -244,6 +244,9 @@ export default function Stats() {
                   <span className="text-xs text-muted-foreground">•</span>
                   <span className="text-xs text-muted-foreground font-medium">{yearStats.totalPercent}%</span>
                 </div>
+                <p className="text-[10px] text-muted-foreground/60 text-center mt-1 mb-1">
+                  Counts each chapter once this year toward reading the Bible through.
+                </p>
                 <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
                   <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
