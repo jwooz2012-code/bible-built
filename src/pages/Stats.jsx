@@ -237,7 +237,7 @@ export default function Stats() {
 
           <div className="space-y-4">
               <div className="text-center pb-4 border-b border-border">
-                <p className="text-sm text-muted-foreground mb-2">Chapters Read</p>
+                <p className="text-sm text-muted-foreground mb-2">Unique Chapters Read</p>
                 <p className="text-5xl font-bold text-foreground mb-3">{yearStats.totalCount}</p>
                 <div className="flex items-center justify-center gap-2 mb-2">
                   <span className="text-xs text-muted-foreground font-medium">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
