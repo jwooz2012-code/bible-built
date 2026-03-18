@@ -46,12 +46,18 @@ export default function Calendar() {
           // Show hint logic: within first 14 days AND tap count < 3, and not dismissed
           const dismissed = localStorage.getItem('cal_hint_dismissed');
           if (!dismissed) {
+            // Initialize hintStartDate for new and existing users on first visit
+            if (!localStorage.getItem('cal_hint_start')) {
+              localStorage.setItem('cal_hint_start', String(Date.now()));
+            }
+            const hintStart = parseInt(localStorage.getItem('cal_hint_start'), 10);
+            const daysSinceStart = (Date.now() - hintStart) / (1000 * 60 * 60 * 24);
             const tapCount = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10);
-            const accountAge = u?.created_date
-              ? (Date.now() - new Date(u.created_date).getTime()) / (1000 * 60 * 60 * 24)
-              : 999;
-            if (tapCount < 3 && accountAge <= 14) {
+            if (tapCount < 3 && daysSinceStart < 14) {
               setShowCalendarHint(true);
+            } else {
+              // Auto-dismiss if conditions no longer met
+              localStorage.setItem('cal_hint_dismissed', '1');
             }
           }
         }
