@@ -287,11 +287,25 @@ export default function Stats() {
           }
         </motion.div>
 
-        {/* Reading Velocity Section */}
+        {/* Total Chapters Read Card */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.05 }}
+          className="bg-card border border-border rounded-2xl p-5 mb-6">
+          <div className="flex items-start justify-between mb-3">
+            <h2 className="text-xl font-semibold text-foreground">Total Chapters Read</h2>
+            <BarChart2 className="w-5 h-5 text-muted-foreground mt-0.5" />
+          </div>
+          <p className="text-5xl font-bold text-foreground mb-2">{lifetimeStats.totalCount}</p>
+          <p className="text-xs text-muted-foreground">Includes every chapter logged, including repeated readings.</p>
+        </motion.div>
+
+        {/* Reading Velocity Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.08 }}
           className="mb-8">
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
