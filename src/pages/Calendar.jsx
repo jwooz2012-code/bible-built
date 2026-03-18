@@ -278,6 +278,23 @@ export default function Calendar() {
             </Button>
           </div>
 
+          {showCalendarHint && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex items-center justify-between mb-3 -mt-1"
+            >
+              <p className="text-xs text-muted-foreground/60">Tap a day to add or edit readings</p>
+              <button
+                onClick={dismissHint}
+                className="text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors ml-2 flex-shrink-0"
+                aria-label="Dismiss hint"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </motion.div>
+          )}
+
           <div className="grid grid-cols-7 gap-2 mb-2">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
               <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
