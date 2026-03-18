@@ -32,6 +32,7 @@ export default function Calendar() {
   const [isClearingDay, setIsClearingDay] = useState(false);
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
+  const [showCalendarHint, setShowCalendarHint] = useState(false);
   
   const queryClient = useQueryClient();
 
