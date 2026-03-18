@@ -292,13 +292,15 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.05 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-6">
-          <div className="flex items-start justify-between mb-3">
-            <h2 className="text-xl font-semibold text-foreground">Total Chapters Read</h2>
-            <BarChart2 className="w-5 h-5 text-muted-foreground mt-0.5" />
+          className="bg-card border border-border rounded-xl p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-base font-semibold text-foreground">Total Chapters Read</h3>
+            <BarChart2 className="w-4 h-4 text-muted-foreground" />
           </div>
-          <p className="text-5xl font-bold text-foreground mb-2">{lifetimeLogs.length}</p>
-          <p className="text-xs text-muted-foreground">Includes every chapter logged, including repeated readings.</p>
+          <div className="flex items-baseline gap-2">
+            <span className="text-4xl font-bold text-foreground">{lifetimeLogs.length}</span>
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">Includes every chapter logged, including repeated readings.</div>
         </motion.div>
 
         {/* Reading Velocity Section */}
