@@ -292,15 +292,16 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.05 }}
-          className="bg-card border border-border rounded-xl p-4 mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-base font-semibold text-foreground">Total Chapters Read</h3>
-            <BarChart2 className="w-4 h-4 text-muted-foreground" />
+          className="bg-card border border-border/60 rounded-2xl p-5 mb-4"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)', backgroundColor: 'hsl(var(--primary)/0.025)' }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
+              <BarChart2 className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">Total Chapters Read</p>
           </div>
-          <div className="flex items-baseline gap-2">
-            <span className="text-4xl font-bold text-foreground">{lifetimeLogs.length}</span>
-          </div>
-          <div className="text-xs text-muted-foreground mt-1">Includes every chapter logged, including repeated readings.</div>
+          <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none">{lifetimeLogs.length}</p>
+          <p className="text-[10px] font-medium text-muted-foreground/60 mt-2">Includes every chapter logged, including repeated readings.</p>
         </motion.div>
 
         {/* Reading Velocity Section */}
