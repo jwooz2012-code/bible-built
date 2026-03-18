@@ -104,10 +104,23 @@ export default function Calendar() {
     days.push(i);
   }
 
+  const dismissHint = () => {
+    localStorage.setItem('cal_hint_dismissed', '1');
+    setShowCalendarHint(false);
+  };
+
   const handleDayClick = (day) => {
     if (!day) return;
     const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     setSelectedDay(dateKey);
+    // Track taps for hint dismissal
+    if (showCalendarHint) {
+      const taps = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10) + 1;
+      localStorage.setItem('cal_hint_taps', String(taps));
+      if (taps >= 3) {
+        setShowCalendarHint(false);
+      }
+    }
   };
 
   const handleDeleteLog = async (logId) => {
