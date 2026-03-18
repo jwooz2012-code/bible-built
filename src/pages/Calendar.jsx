@@ -44,19 +44,26 @@ export default function Calendar() {
           setUser(u);
           setIsLoading(false);
           // Show hint logic: within first 14 days AND tap count < 3, and not dismissed
+          // Migrate: if dismissed flag was set before hintStartDate existed, clear it
+          // so the hint gets a proper 14-day window from today
+          if (localStorage.getItem('cal_hint_dismissed') && !localStorage.getItem('cal_hint_start')) {
+            localStorage.removeItem('cal_hint_dismissed');
+            localStorage.removeItem('cal_hint_taps');
+          }
+
+          // Initialize hintStartDate on first visit (new and existing users)
+          if (!localStorage.getItem('cal_hint_start')) {
+            localStorage.setItem('cal_hint_start', String(Date.now()));
+          }
+
           const dismissed = localStorage.getItem('cal_hint_dismissed');
           if (!dismissed) {
-            // Initialize hintStartDate for new and existing users on first visit
-            if (!localStorage.getItem('cal_hint_start')) {
-              localStorage.setItem('cal_hint_start', String(Date.now()));
-            }
             const hintStart = parseInt(localStorage.getItem('cal_hint_start'), 10);
             const daysSinceStart = (Date.now() - hintStart) / (1000 * 60 * 60 * 24);
             const tapCount = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10);
             if (tapCount < 3 && daysSinceStart < 14) {
               setShowCalendarHint(true);
             } else {
-              // Auto-dismiss if conditions no longer met
               localStorage.setItem('cal_hint_dismissed', '1');
             }
           }
