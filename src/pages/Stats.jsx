@@ -297,7 +297,7 @@ export default function Stats() {
             <h2 className="text-xl font-semibold text-foreground">Total Chapters Read</h2>
             <BarChart2 className="w-5 h-5 text-muted-foreground mt-0.5" />
           </div>
-          <p className="text-5xl font-bold text-foreground mb-2">{lifetimeStats.totalCount}</p>
+          <p className="text-5xl font-bold text-foreground mb-2">{lifetimeLogs.length}</p>
           <p className="text-xs text-muted-foreground">Includes every chapter logged, including repeated readings.</p>
         </motion.div>
 
