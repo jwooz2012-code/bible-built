@@ -222,12 +222,14 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15 }}
-          className="bg-card border border-border rounded-2xl p-5 mb-6">
+          className="bg-card border border-border/60 rounded-2xl p-5 mb-4"
+          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
 
-          <div className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground">
-              This Year ({currentYear})
-            </h2>
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
+              <CalendarCheck className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
+            </div>
+            <p className="text-sm font-medium text-muted-foreground">This Year ({currentYear})</p>
           </div>
 
           {yearLoading ?
@@ -235,39 +237,38 @@ export default function Stats() {
               <LoadingSpinner />
             </div> :
 
-          <div className="space-y-4">
-              <div className="text-center pb-4 border-b border-border">
-                <p className="text-sm text-muted-foreground mb-2">Unique Chapters Read</p>
-                <p className="text-5xl font-bold text-foreground mb-3">{yearStats.totalCount}</p>
-                <div className="flex items-center justify-center gap-2 mb-2">
-                  <span className="text-xs text-muted-foreground font-medium">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
-                  <span className="text-xs text-muted-foreground">•</span>
-                  <span className="text-xs text-muted-foreground font-medium">{yearStats.totalPercent}%</span>
+          <div className="space-y-5">
+              <div className="pb-5 border-b border-border/60">
+                <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Unique Chapters Read</p>
+                <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-3">{yearStats.totalCount}</p>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-xs text-muted-foreground/70">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
+                  <span className="text-xs text-muted-foreground/40">·</span>
+                  <span className="text-xs text-muted-foreground/70">{yearStats.totalPercent}%</span>
                 </div>
-                <p className="text-[10px] text-muted-foreground/60 text-center mt-1 mb-1">
-                  Counts each chapter once this year toward reading the Bible through.
-                </p>
                 <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
                   <div
                   className="h-full rounded-full transition-all duration-500 ease-out"
                   style={{
                     width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%`,
                     background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)',
-                    boxShadow: '0 0 8px var(--energy-glow)'
                   }} />
                 </div>
+                <p className="text-[10px] text-muted-foreground/50 mt-2">
+                  Counts each chapter once this year toward reading the Bible through.
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-secondary rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1.5">Old Testament</p>
-                  <p className="text-xl font-semibold text-foreground">{yearStats.otCount}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{yearStats.otPercent}%</p>
+                <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
+                  <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Old Testament</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.otCount}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">{yearStats.otPercent}%</p>
                 </div>
-                <div className="bg-secondary rounded-lg p-3">
-                  <p className="text-xs text-muted-foreground mb-1.5">New Testament</p>
-                  <p className="text-xl font-semibold text-foreground">{yearStats.ntCount}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{yearStats.ntPercent}%</p>
+                <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
+                  <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">New Testament</p>
+                  <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.ntCount}</p>
+                  <p className="text-xs text-muted-foreground/60 mt-1">{yearStats.ntPercent}%</p>
                 </div>
               </div>
 
@@ -278,10 +279,9 @@ export default function Stats() {
               const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
               const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
               return (
-                <p className="text-xs text-muted-foreground/80 text-center pt-1">
+                <p className="text-xs text-muted-foreground/60 text-center pt-1">
                     At this pace: ~{estimatedDays} days to finish
                   </p>);
-
             })()}
             </div>
           }
