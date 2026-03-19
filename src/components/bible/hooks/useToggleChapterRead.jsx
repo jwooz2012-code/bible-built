@@ -52,6 +52,16 @@ export function useToggleChapterRead() {
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
       
+      base44.analytics.track({
+        eventName: 'chapter_read_completed',
+        properties: {
+          book: variables.book,
+          chapter: variables.chapter,
+          testament: variables.testament,
+          bookIndex: variables.bookIndex,
+          chapterId: variables.chapterId,
+        }
+      });
       toast.success('Chapter marked as read');
     },
     onError: (error) => {
