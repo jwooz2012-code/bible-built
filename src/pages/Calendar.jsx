@@ -258,7 +258,7 @@ export default function Calendar() {
           <div className="flex items-center gap-2">
             <span className="text-base">📅</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">This Month</span>
+              <span className="text-[13px] font-medium text-muted-foreground">This Month</span>
               <span className="text-xs font-medium text-muted-foreground">•</span>
               <span className="text-base font-bold text-foreground">{thisMonthTotal}</span>
             </div>
@@ -267,7 +267,7 @@ export default function Calendar() {
           <div className="flex items-center gap-2">
             <span className="text-base">⚔️</span>
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-medium text-muted-foreground">This Year</span>
+              <span className="text-[13px] font-medium text-muted-foreground">This Year</span>
               <span className="text-xs font-medium text-muted-foreground">•</span>
               <span className="text-base font-bold text-foreground">{thisYearTotal}</span>
             </div>
@@ -297,7 +297,7 @@ export default function Calendar() {
               animate={{ opacity: 1 }}
               className="flex items-center justify-between mb-3 -mt-1"
             >
-              <p className="text-xs text-muted-foreground/60">Tap a day to add or edit readings</p>
+              <p className="text-[13px] text-muted-foreground/60">Tap a day to add or edit readings</p>
               <button
                 onClick={dismissHint}
                 className="text-muted-foreground/40 hover:text-muted-foreground/70 transition-colors ml-2 flex-shrink-0"
@@ -429,7 +429,7 @@ export default function Calendar() {
           transition={{ delay: 0.3 }}
           className="text-center mt-6"
         >
-          <p className="text-xs text-muted-foreground opacity-60 italic">
+          <p className="text-[13px] text-muted-foreground opacity-60 italic">
             {getWeeklyQuote()}
           </p>
         </motion.div>

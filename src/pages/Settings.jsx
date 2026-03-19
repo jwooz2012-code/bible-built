@@ -127,7 +127,7 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <p className="text-xs text-muted-foreground mb-2">Display Name</p>
+                <p className="text-[13px] text-muted-foreground mb-2">Display Name</p>
                 {!isEditingName ? (
                   <div className="flex items-center justify-between">
                     <p className="text-sm font-medium text-foreground">
@@ -175,11 +175,11 @@ export default function Settings() {
                 )}
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Email</p>
+                <p className="text-[13px] text-muted-foreground mb-1">Email</p>
                 <p className="text-sm font-medium text-foreground">{user.email}</p>
               </div>
               <div>
-                <p className="text-xs text-muted-foreground mb-1">Timezone</p>
+                <p className="text-[13px] text-muted-foreground mb-1">Timezone</p>
                 <p className="text-sm font-medium text-foreground">{timezone}</p>
               </div>
             </CardContent>
@@ -238,11 +238,11 @@ export default function Settings() {
                     </div>
                     <div>
                       <p className="text-sm font-medium text-foreground">Energy Mode</p>
-                      <p className="text-xs text-muted-foreground">Arcade-style visuals</p>
+                      <p className="text-[13px] text-muted-foreground">Arcade-style visuals</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">{energyMode ? 'On' : 'Off'}</span>
+                    <span className="text-[13px] text-muted-foreground">{energyMode ? 'On' : 'Off'}</span>
                     <Switch 
                       checked={energyMode} 
                       onCheckedChange={setEnergyMode}
