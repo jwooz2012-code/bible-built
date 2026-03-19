@@ -30,6 +30,15 @@ export function useToggleChapterRead() {
       return result;
     },
     onSuccess: (createdLog, variables) => {
+      base44.analytics.track({
+        eventName: 'chapter_read',
+        properties: {
+          book: variables.book,
+          chapter: variables.chapter,
+          testament: variables.testament,
+          chapterId: variables.chapterId,
+        }
+      });
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
         if (prev.some(x => x.id === createdLog.id)) return prev;
