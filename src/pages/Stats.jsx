@@ -239,12 +239,12 @@ export default function Stats() {
 
           <div className="space-y-5">
               <div className="pb-5 border-b border-border/60">
-                <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Unique Chapters Read</p>
+                <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Unique Chapters Read</p>
                 <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-3">{yearStats.totalCount}</p>
                 <div className="flex items-center gap-2 mb-3">
-                  <span className="text-xs text-muted-foreground/70">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
-                  <span className="text-xs text-muted-foreground/40">·</span>
-                  <span className="text-xs text-muted-foreground/70">{yearStats.totalPercent}%</span>
+                  <span className="text-[13px] text-muted-foreground/70">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
+                  <span className="text-[13px] text-muted-foreground/40">·</span>
+                  <span className="text-[13px] text-muted-foreground/70">{yearStats.totalPercent}%</span>
                 </div>
                 <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
                   <div
@@ -254,21 +254,21 @@ export default function Stats() {
                     background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)',
                   }} />
                 </div>
-                <p className="text-[10px] text-muted-foreground/50 mt-2">
+                <p className="text-[11px] text-muted-foreground/50 mt-2">
                   Counts each chapter once this year toward reading the Bible through.
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
-                  <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Old Testament</p>
+                  <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Old Testament</p>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.otCount}</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">{yearStats.otPercent}%</p>
-                </div>
-                <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
-                  <p className="text-[10px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">New Testament</p>
+                  <p className="text-[13px] text-muted-foreground/60 mt-1">{yearStats.otPercent}%</p>
+                  </div>
+                  <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
+                  <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">New Testament</p>
                   <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.ntCount}</p>
-                  <p className="text-xs text-muted-foreground/60 mt-1">{yearStats.ntPercent}%</p>
+                  <p className="text-[13px] text-muted-foreground/60 mt-1">{yearStats.ntPercent}%</p>
                 </div>
               </div>
 
@@ -279,7 +279,7 @@ export default function Stats() {
               const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
               const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
               return (
-                <p className="text-xs text-muted-foreground/60 text-center pt-1">
+                <p className="text-[13px] text-muted-foreground/60 text-center pt-1">
                     At this pace: ~{estimatedDays} days to finish
                   </p>);
             })()}
@@ -301,7 +301,7 @@ export default function Stats() {
             <p className="text-sm font-medium text-muted-foreground">Total Chapters Read</p>
           </div>
           <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none">{lifetimeLogs.length}</p>
-          <p className="text-[10px] font-medium text-muted-foreground/60 mt-2">Includes every chapter logged, including repeated readings.</p>
+          <p className="text-[11px] font-medium text-muted-foreground/60 mt-2">Includes every chapter logged, including repeated readings.</p>
         </motion.div>
 
         {/* Reading Velocity Section */}
@@ -412,7 +412,7 @@ export default function Stats() {
             </div> :
           <div>
             <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-4" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
-            <p className="text-xs text-muted-foreground/70 mb-3">
+            <p className="text-[13px] text-muted-foreground/70 mb-3">
               {lifetimeStats.progressToNext} / {TOTAL_CHAPTERS} · {lifetimeStats.percentToNext}% toward next completion
             </p>
             <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
