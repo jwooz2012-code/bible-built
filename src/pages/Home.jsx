@@ -250,6 +250,15 @@ export default function Home() {
       return;
     }
 
+    base44.analytics.track({
+      eventName: 'chapter_completion_clicked',
+      properties: {
+        book: book.name,
+        chapter,
+        testament: book.testament,
+      }
+    });
+
     try {
       const now = new Date();
       await markRead({
