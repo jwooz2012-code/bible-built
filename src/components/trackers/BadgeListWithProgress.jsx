@@ -63,9 +63,9 @@ export default function BadgeListWithProgress({ achievements, getAchievementColo
             }>
                   {achievement.title}
                 </h3>
-                <p className="text-xs text-muted-foreground mt-1">{achievement.subtitle.split('.')[0]}.</p>
+                <p className="text-[13px] text-muted-foreground mt-1">{achievement.subtitle.split('.')[0]}.</p>
                 {!achievement.achieved &&
-            <p className="text-xs text-muted-foreground mt-1.5 font-medium">
+            <p className="text-[13px] text-muted-foreground mt-1.5 font-medium">
                     {achievement.current} / {achievement.target}
                   </p>
             }
@@ -85,7 +85,7 @@ export default function BadgeListWithProgress({ achievements, getAchievementColo
       {achievements.length > displayCount && (
         <button
           onClick={() => setIsExpanded(!isExpanded)}
-          className="w-full mt-4 pt-3 border-t border-border flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          className="w-full mt-4 pt-3 border-t border-border flex items-center justify-center gap-1.5 text-[13px] text-muted-foreground hover:text-foreground transition-colors"
         >
           <span>{isExpanded ? 'Hide badges' : 'View all badges'}</span>
           <ChevronDown 

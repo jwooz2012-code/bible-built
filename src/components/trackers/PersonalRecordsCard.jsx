@@ -17,9 +17,9 @@ export default function PersonalRecordsCard({ records, currentStreak, showTitle 
           <div key={i} className="bg-secondary rounded-lg p-3">
             <div className="flex items-center gap-2 mb-2">
               <item.icon className="w-4 h-4" style={{ color: item.color }} />
-              <span className="text-xs text-muted-foreground">{item.label}</span>
+              <span className="text-[13px] text-muted-foreground">{item.label}</span>
             </div>
-            <div className="text-sm font-semibold text-foreground">{item.value}</div>
+            <div className="text-[13px] font-semibold text-foreground">{item.value}</div>
           </div>
         ))}
       </div>

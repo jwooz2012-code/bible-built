@@ -60,7 +60,7 @@ export default function WeekView({ logs = [] }) {
               }}>
 
               <span
-                className="text-[11px] font-medium tracking-wide"
+                className="text-xs font-medium tracking-wide"
                 style={{ color: isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}>
 
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}

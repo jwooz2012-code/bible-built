@@ -40,7 +40,7 @@ export default function VelocityMeter({ avg7, trend }) {
       <div className="flex items-end justify-between gap-3">
         <div>
           <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none">{avg7.toFixed(1)}</p>
-          <p className="text-[10px] font-medium text-muted-foreground/60 mt-2">ch/day avg (7 days)</p>
+          <p className="text-[11px] font-medium text-muted-foreground/60 mt-2">ch/day avg (7 days)</p>
         </div>
 
         <div className="flex items-end gap-1 h-12 pb-1">

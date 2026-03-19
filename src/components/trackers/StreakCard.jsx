@@ -9,7 +9,7 @@ export default function StreakCard({ currentStreak, longestStreak }) {
         <span className="text-sm font-medium text-foreground">Streak</span>
       </div>
       <div className="text-2xl font-bold text-foreground">{currentStreak}</div>
-      <div className="text-xs text-muted-foreground mt-1">
+      <div className="text-[13px] text-muted-foreground mt-1">
         Best: {longestStreak} days
       </div>
     </div>
