@@ -95,6 +95,16 @@ export const AuthProvider = ({ children }) => {
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+
+      // Track new user registration (fires once on first ever login)
+      const registeredKey = `bb_user_registered_tracked_${currentUser.id}`;
+      if (!localStorage.getItem(registeredKey)) {
+        localStorage.setItem(registeredKey, '1');
+        base44.analytics.track({
+          eventName: 'user_registered',
+          properties: { user_id: currentUser.id }
+        });
+      }
     } catch (error) {
       console.error('User auth check failed:', error);
       setIsLoadingAuth(false);
