@@ -91,6 +91,15 @@ export default function Home() {
     runValidation();
   }, []);
 
+  // Track app_open for every authenticated user session (used to count DAU in analytics)
+  useEffect(() => {
+    if (!user) return;
+    base44.analytics.track({
+      eventName: 'app_open',
+      properties: { user_id: user.id }
+    });
+  }, [user]);
+
   const userId = user?.id;
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
