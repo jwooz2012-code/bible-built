@@ -29,7 +29,8 @@ function Sheet({ onClose, children }) {
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="relative w-full bg-card rounded-t-3xl pb-10 max-w-lg mx-auto"
+        className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}
         onClick={e => e.stopPropagation()}
       >
         {children}
