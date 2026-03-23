@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
@@ -9,7 +9,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { createPageUrl } from '@/utils';
-import { ChevronRight } from 'lucide-react';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
