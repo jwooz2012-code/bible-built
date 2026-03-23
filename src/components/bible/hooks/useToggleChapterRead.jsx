@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient, useQueryClient as _qc } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
