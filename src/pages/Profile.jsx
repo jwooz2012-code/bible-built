@@ -101,7 +101,8 @@ function ShareSheet({ onClose, onSelect }) {
       <motion.div
         initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-        className="relative w-full bg-card rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
+        className="relative w-full bg-card rounded-t-3xl p-6 max-w-lg mx-auto"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">

@@ -125,7 +125,7 @@ export default function PlanPreviewSheet({
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           className="fixed bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-xl overflow-hidden"
           style={{ 
-            maxHeight: '85vh',
+            maxHeight: 'calc(85vh - 80px)',
             paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)'
           }}
           onClick={(e) => e.stopPropagation()}

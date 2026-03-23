@@ -289,7 +289,7 @@ export default function PlanModal({ open, onClose, userId, existingPlan, logs })
 
   return (
     <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto">
+      <SheetContent side="bottom" className="h-[90vh] overflow-y-auto" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 80px)' }}>
         <div className="flex flex-col items-center justify-center pt-12 pb-6">
           <h1 className="text-2xl font-bold text-foreground text-center">
             How do you want to read?
