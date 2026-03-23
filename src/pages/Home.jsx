@@ -186,7 +186,7 @@ export default function Home() {
   const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
 
-  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead();
+  const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead({ user, allLogs: allTimeLogs });
   const { markAllRead, isMarkingAll } = useMarkAllRead();
 
   const recentBooks = useMostRecentBooks(allTimeLogs);
