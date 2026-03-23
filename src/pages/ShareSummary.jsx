@@ -404,7 +404,7 @@ export default function ShareSummary() {
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
-                className="flex flex-col items-center justify-center py-4 px-3 rounded-xl"
+                className="flex flex-col items-center justify-between py-4 px-3 rounded-xl min-h-[80px]"
                 style={{ backgroundColor: theme.statBg }}
               >
                 <div 
