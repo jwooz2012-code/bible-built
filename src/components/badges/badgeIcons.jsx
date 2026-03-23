@@ -20,7 +20,8 @@ import {
   DoorOpen,
   Users,
   Heart,
-  Handshake
+  Handshake,
+  ArrowUpFromLine
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
@@ -73,7 +74,7 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
     case 'Living Examined':
       return <Heart {...iconProps} style={{ color }} />;
     case 'Lifted a Brother':
-      return <DoorOpen {...iconProps} style={{ color }} />;
+      return <ArrowUpFromLine {...iconProps} style={{ color }} />;
     case 'Faithful Encourager':
       return <Users {...iconProps} style={{ color }} />;
     case 'Strengthened Many':
@@ -106,7 +107,7 @@ export const getAchievementColor = (title) => {
     case 'Opened the Door': return 'from-[#9CA3AF] to-[#78716C]'; // Muted gray-brown — quiet beginning
     case 'Walking Accountably': return 'from-[#A1A1AA] to-[#71717A]'; // Soft gray — steady presence
     case 'Living Examined': return 'from-[#B4B4B8] to-[#6B7280]'; // Light gray-blue — depth, reflection
-    case 'Lifted a Brother': return 'from-[#9CA3AF] to-[#6B7280]'; // Muted gray — humble encouragement
+    case 'Lifted a Brother': return 'from-[#2563EB] to-[#1D4ED8]'; // Blue — lifting, upward, support
     case 'Faithful Encourager': return 'from-[#A1A1AA] to-[#75838A]'; // Soft gray-blue — steady faith
     case 'Strengthened Many': return 'from-[#B4B4B8] to-[#7C8A99]'; // Light gray-blue — broad impact
     default: return 'from-[#F59E0B] to-[#D97706]';
