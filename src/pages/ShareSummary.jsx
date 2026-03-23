@@ -226,7 +226,7 @@ export default function ShareSummary() {
 
   // Weekly: Most Read Book
   const mostReadBook = useMemo(() => {
-    if (mode !== 'weekly' || readingLogs.length === 0) return null;
+    if (readingLogs.length === 0) return null;
     const bookCounts = {};
     const bookLatest = {};
     readingLogs.forEach((log) => {
@@ -239,9 +239,8 @@ export default function ShareSummary() {
     const maxCount = Math.max(...Object.values(bookCounts));
     const tied = Object.keys(bookCounts).filter(b => bookCounts[b] === maxCount);
     if (tied.length === 1) return tied[0];
-    // Tie-break: most recently read
     return tied.reduce((a, b) => bookLatest[a] >= bookLatest[b] ? a : b);
-  }, [readingLogs, mode]);
+  }, [readingLogs]);
 
   // For monthly/weekly view, badges are LIFETIME; for yearly, filtered by timeframe
   const badgeDataForCalculation = (mode === 'monthly' || mode === 'weekly') ? lifetimeLogs : readingLogs;
@@ -260,17 +259,10 @@ export default function ShareSummary() {
     });
 
   // Secondary stats - only 4 for spacious layout
-  const secondaryStats = mode === 'weekly'
-    ? [
+  const secondaryStats = [
         { label: 'Days', value: uniqueDays },
         { label: 'Books', value: booksRead },
         { label: 'Most Read Book', value: mostReadBook || '—', isText: true },
-        { label: 'Best Day', value: bestDay },
-      ]
-    : [
-        { label: 'Days', value: uniqueDays },
-        { label: 'Books', value: booksRead },
-        { label: 'Best Streak', value: longestStreak },
         { label: 'Best Day', value: bestDay },
       ];
 
