@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import html2canvas from 'html2canvas';
-import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { format, startOfMonth, endOfMonth, subMonths, addMonths, isSameMonth } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -578,6 +578,21 @@ export default function ShareSummary() {
             </div>
           </div>
         )}
+      {/* Share Button */}
+      <div className="w-full max-w-md px-6 pb-8">
+        <Button
+          onClick={handleShare}
+          disabled={isExporting}
+          className="w-full h-12 text-base font-semibold rounded-2xl"
+        >
+          {isExporting ? (
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+          ) : (
+            <Share2 className="w-5 h-5 mr-2" />
+          )}
+          {isExporting ? 'Preparing...' : 'Share Summary'}
+        </Button>
+      </div>
       </div>
     </div>
   );
