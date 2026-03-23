@@ -12,7 +12,6 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import {
   ChevronRight, Share2, UserPlus, Settings,
   Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
