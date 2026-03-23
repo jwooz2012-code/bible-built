@@ -16,18 +16,12 @@ export default function StatsTopActions() {
   };
 
   const handleOpenPreview = (mode) => {
-    setSelectedMode(mode);
     setShowShareSummary(false);
-    setShowSharePreview(true);
-  };
-
-  const handleProceedToSummary = () => {
-    setShowSharePreview(false);
     const now = new Date();
     let params;
-    if (selectedMode === 'monthly') {
+    if (mode === 'monthly') {
       params = `?mode=monthly&year=${now.getFullYear()}&month=${now.getMonth() + 1}`;
-    } else if (selectedMode === 'weekly') {
+    } else if (mode === 'weekly') {
       params = `?mode=weekly`;
     } else {
       params = `?mode=yearly&year=${now.getFullYear()}`;
@@ -74,22 +68,6 @@ export default function StatsTopActions() {
         </SheetContent>
       </Sheet>
 
-      {/* Share Preview/Explainer Sheet */}
-      <Sheet open={showSharePreview} onOpenChange={setShowSharePreview}>
-        <SheetContent side="bottom" className="max-w-md mx-auto pb-[calc(6.5rem+env(safe-area-inset-bottom))]">
-          <SheetHeader className="mb-6">
-            <SheetTitle>Screenshot & Share</SheetTitle>
-            <SheetDescription className="text-sm text-muted-foreground pt-2">
-              This summary is designed to be screenshotted and shared.
-            </SheetDescription>
-          </SheetHeader>
-          <Button
-            onClick={handleProceedToSummary}
-            className="w-full">
-            View Summary
-          </Button>
-        </SheetContent>
-      </Sheet>
     </>
   );
 }
