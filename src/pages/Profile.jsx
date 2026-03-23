@@ -180,7 +180,10 @@ export default function Profile() {
   const nextBadge = useMemo(() => badgeState.badges.find(b => !b.achieved), [badgeState]);
 
   const displayName = user?.displayName || user?.full_name || user?.email?.split('@')[0] || 'Friend';
-  const initials = displayName.slice(0, 2).toUpperCase();
+  const nameParts = displayName.trim().split(/\s+/);
+  const initials = nameParts.length >= 2
+    ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
+    : displayName.slice(0, 2).toUpperCase();
 
   const navigateToSummary = (mode) => {
     const params = mode === 'monthly'
