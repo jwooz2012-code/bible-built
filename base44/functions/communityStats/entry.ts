@@ -10,16 +10,11 @@ Deno.serve(async (req) => {
 
     const now = new Date();
     const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-    const nextMonth = now.getMonth() === 11
-      ? `${now.getFullYear() + 1}-01-01`
-      : `${now.getFullYear()}-${String(now.getMonth() + 2).padStart(2, '0')}-01`;
 
-    // Use service role to count all users' reading logs for this month
-    const logs = await base44.asServiceRole.entities.ReadingLog.filter({
-      dateKey: { $gte: monthStart, $lt: nextMonth }
-    });
+    const allLogs = await base44.asServiceRole.entities.ReadingLog.list('-created_date', 5000);
+    const monthLogs = allLogs.filter(log => log.dateKey >= monthStart);
 
-    return Response.json({ chaptersThisMonth: logs.length });
+    return Response.json({ chaptersThisMonth: monthLogs.length });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
