@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
+import CelebrationManager from '@/components/celebration/CelebrationManager';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -94,7 +95,8 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-          <Toaster 
+          <CelebrationManager />
+      <Toaster 
           position="bottom-center"
           expand={false}
           closeButton={false}
