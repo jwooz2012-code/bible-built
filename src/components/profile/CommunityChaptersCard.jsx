@@ -9,8 +9,7 @@ export default function CommunityChaptersCard() {
       const res = await base44.functions.invoke('communityStats', {});
       return res.data;
     },
-    staleTime: 0,
-    gcTime: 0,
+    staleTime: 24 * 60 * 60 * 1000,
   });
 
   const count = data?.chaptersThisMonth ?? 0;
