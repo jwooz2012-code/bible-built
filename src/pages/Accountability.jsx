@@ -50,6 +50,26 @@ export default function Accountability() {
   const statsShared = user?.statsSharedCount || 0;
   const statsReceived = user?.statsReceivedCount || 0;
 
+  const handleShareApp = async () => {
+    const appStoreLink = 'https://apps.apple.com/us/app/bible-built/id6757266415';
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: 'Bible Built',
+          text: 'Check out Bible Built - an app to help you read the Bible consistently!',
+          url: appStoreLink,
+        });
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          toast.error('Failed to share');
+        }
+      }
+    } else {
+      // Fallback for browsers without native share
+      window.open(appStoreLink, '_blank');
+    }
+  };
+
   // Use badge engine for accountability badges
   const badgeState = computeBadgeState([], user, { debug: false });
   const accountabilityBadges = badgeState.badges.filter(b => b.isAccountability);
@@ -171,6 +191,21 @@ export default function Accountability() {
           <p className="text-xs text-muted-foreground mt-3 text-center">
             Accountability is about honesty, not performance
           </p>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15, delay: 0.15 }}
+          className="w-full"
+        >
+          <Button
+            onClick={handleShareApp}
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          >
+            <Share2 className="w-4 h-4 mr-2" />
+            Refer a Friend
+          </Button>
         </motion.div>
 
         <motion.div
