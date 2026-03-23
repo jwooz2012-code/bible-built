@@ -24,9 +24,14 @@ export default function StatsTopActions() {
   const handleProceedToSummary = () => {
     setShowSharePreview(false);
     const now = new Date();
-    const params = selectedMode === 'monthly' 
-      ? `?mode=monthly&year=${now.getFullYear()}&month=${now.getMonth() + 1}`
-      : `?mode=yearly&year=${now.getFullYear()}`;
+    let params;
+    if (selectedMode === 'monthly') {
+      params = `?mode=monthly&year=${now.getFullYear()}&month=${now.getMonth() + 1}`;
+    } else if (selectedMode === 'weekly') {
+      params = `?mode=weekly`;
+    } else {
+      params = `?mode=yearly&year=${now.getFullYear()}`;
+    }
     navigate(createPageUrl('ShareSummary') + params);
   };
 
@@ -52,6 +57,12 @@ export default function StatsTopActions() {
               onClick={() => handleOpenPreview('monthly')}
               className="w-full justify-start">
               Share Monthly Summary
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleOpenPreview('weekly')}
+              className="w-full justify-start">
+              Share Weekly Summary
             </Button>
             <Button
               variant="outline"

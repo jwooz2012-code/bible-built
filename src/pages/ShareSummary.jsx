@@ -5,7 +5,7 @@ import { base44 } from '@/api/base44Client';
 import html2canvas from 'html2canvas';
 import { Loader2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { format, parse, startOfMonth, endOfMonth, subMonths, addMonths, isSameMonth } from 'date-fns';
+import { format, startOfMonth, endOfMonth, subMonths, addMonths, isSameMonth } from 'date-fns';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getBadgesForRow } from '@/components/badges/badgeUtils';
@@ -69,7 +69,7 @@ export default function ShareSummary() {
   const [isExporting, setIsExporting] = useState(false);
   const [isShareCaptureMode, setIsShareCaptureMode] = useState(false);
 
-  const mode = searchParams.get('mode') || 'yearly'; // 'monthly' or 'yearly'
+  const mode = searchParams.get('mode') || 'yearly'; // 'monthly', 'yearly', or 'weekly'
   const yearParam = searchParams.get('year') || new Date().getFullYear().toString();
   const monthParam = searchParams.get('month'); // 1-12 for monthly view
 
@@ -98,6 +98,25 @@ export default function ShareSummary() {
     }
   };
 
+  // Weekly date range: previous completed Sunday–Saturday
+  const weeklyRange = useMemo(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay();
+    const sundayOfCurrentWeek = new Date(today);
+    sundayOfCurrentWeek.setDate(today.getDate() - dayOfWeek);
+    sundayOfCurrentWeek.setHours(0, 0, 0, 0);
+    const lastSunday = new Date(sundayOfCurrentWeek);
+    lastSunday.setDate(sundayOfCurrentWeek.getDate() - 7);
+    const lastSaturday = new Date(sundayOfCurrentWeek);
+    lastSaturday.setDate(sundayOfCurrentWeek.getDate() - 1);
+    const pad = (n) => String(n).padStart(2, '0');
+    const toKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const startKey = toKey(lastSunday);
+    const endKey = toKey(lastSaturday);
+    const label = `${format(lastSunday, 'MMM d')} – ${format(lastSaturday, 'MMM d')}`;
+    return { startKey, endKey, label };
+  }, []);
+
   // Determine date range
   let startDate, endDate, displayTitle, displaySubtitle;
   if (mode === 'monthly') {
@@ -107,6 +126,11 @@ export default function ShareSummary() {
     endDate = getDateKey(lastDay);
     displayTitle = format(firstDay, 'MMMM yyyy');
     displaySubtitle = 'Reading Summary';
+  } else if (mode === 'weekly') {
+    startDate = weeklyRange.startKey;
+    endDate = weeklyRange.endKey;
+    displayTitle = 'Last Week';
+    displaySubtitle = weeklyRange.label;
   } else {
     const firstDay = new Date(year, 0, 1);
     const lastDay = new Date(year, 11, 31);
@@ -197,9 +221,27 @@ export default function ShareSummary() {
     },
   });
 
-  // For monthly view, badges are LIFETIME (not filtered by month)
-  // For yearly view, badges are still based on timeframe logs
-  const badgeDataForCalculation = mode === 'monthly' ? lifetimeLogs : readingLogs;
+  // Weekly: Most Read Book
+  const mostReadBook = useMemo(() => {
+    if (mode !== 'weekly' || readingLogs.length === 0) return null;
+    const bookCounts = {};
+    const bookLatest = {};
+    readingLogs.forEach((log) => {
+      bookCounts[log.book] = (bookCounts[log.book] || 0) + 1;
+      const ts = log.timestamp || log.dateKey;
+      if (!bookLatest[log.book] || ts > bookLatest[log.book]) {
+        bookLatest[log.book] = ts;
+      }
+    });
+    const maxCount = Math.max(...Object.values(bookCounts));
+    const tied = Object.keys(bookCounts).filter(b => bookCounts[b] === maxCount);
+    if (tied.length === 1) return tied[0];
+    // Tie-break: most recently read
+    return tied.reduce((a, b) => bookLatest[a] >= bookLatest[b] ? a : b);
+  }, [readingLogs, mode]);
+
+  // For monthly/weekly view, badges are LIFETIME; for yearly, filtered by timeframe
+  const badgeDataForCalculation = (mode === 'monthly' || mode === 'weekly') ? lifetimeLogs : readingLogs;
   const badgeState = computeBadgeState(badgeDataForCalculation, user, { debug: false });
   const badges = badgeState.badges;
 
@@ -215,12 +257,19 @@ export default function ShareSummary() {
     });
 
   // Secondary stats - only 4 for spacious layout
-  const secondaryStats = [
-    { label: 'Days', value: uniqueDays },
-    { label: 'Books', value: booksRead },
-    { label: 'Best Streak', value: longestStreak },
-    { label: 'Best Day', value: bestDay },
-  ];
+  const secondaryStats = mode === 'weekly'
+    ? [
+        { label: 'Days', value: uniqueDays },
+        { label: 'Books', value: booksRead },
+        { label: 'Most Read Book', value: mostReadBook || '—', isText: true },
+        { label: 'Best Day', value: bestDay },
+      ]
+    : [
+        { label: 'Days', value: uniqueDays },
+        { label: 'Books', value: booksRead },
+        { label: 'Best Streak', value: longestStreak },
+        { label: 'Best Day', value: bestDay },
+      ];
 
   // Theme support
   const { resolvedTheme, energyMode } = useTheme();
@@ -299,7 +348,7 @@ export default function ShareSummary() {
             >
               {displayTitle}
             </h1>
-            {mode !== 'monthly' && (
+            {(mode !== 'monthly') && (
               <p 
                 className="text-[10px] text-center mt-1 font-semibold uppercase tracking-wider"
                 style={{ color: theme.secondaryText }}
@@ -356,7 +405,7 @@ export default function ShareSummary() {
                 style={{ backgroundColor: theme.statBg }}
               >
                 <div 
-                  className="text-3xl font-bold"
+                  className={stat.isText ? 'text-base font-bold text-center leading-tight' : 'text-3xl font-bold'}
                   style={{ color: theme.statValue }}
                 >
                   {stat.value}
@@ -377,7 +426,7 @@ export default function ShareSummary() {
               className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2.5 text-center"
               style={{ color: theme.badgeSectionLabel }}
             >
-              {mode === 'monthly' ? 'Earned Badges' : 'Badges Earned'}
+              {mode === 'monthly' || mode === 'weekly' ? 'Earned Badges' : 'Badges Earned'}
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
               <div className="flex flex-col items-center gap-1">
@@ -421,7 +470,7 @@ export default function ShareSummary() {
               </div>
             )}
             
-            {/* Achievement Signature Line - Only show in yearly mode */}
+            {/* Achievement Signature Line - Only show in yearly/weekly mode */}
             {mode !== 'monthly' && (
               <div className="flex flex-col items-center justify-center gap-1 pt-4">
                 <div className="flex items-center gap-1.5">
