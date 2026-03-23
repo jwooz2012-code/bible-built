@@ -2,8 +2,6 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { triggerCelebration } from '@/lib/celebrationBus';
-import { checkCelebrations } from '@/lib/checkCelebrations';
 
 export function useToggleChapterRead() {
   const queryClient = useQueryClient();
@@ -31,18 +29,13 @@ export function useToggleChapterRead() {
       
       return result;
     },
-    onSuccess: async (createdLog, variables) => {
-      // Snapshot prev logs before update for celebration diff
-      const prevAllLogs = queryClient.getQueryData(
-        ['readingLogs', variables.userId]
-      ) || queryClient.getQueriesData({ predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId })?.[0]?.[1] || [];
-
+    onSuccess: (createdLog, variables) => {
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
         if (prev.some(x => x.id === createdLog.id)) return prev;
         return [createdLog, ...prev];
       });
-
+      
       queryClient.setQueriesData(
         { 
           predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
@@ -53,30 +46,12 @@ export function useToggleChapterRead() {
           return [createdLog, ...prev];
         }
       );
-
+      
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
       queryClient.invalidateQueries({ 
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
-
-      // Celebration checks
-      try {
-        const user = await base44.auth.me();
-        const nextLogs = Array.isArray(prevAllLogs) ? [createdLog, ...prevAllLogs] : [createdLog];
-        const celebrations = checkCelebrations({
-          prevLogs: Array.isArray(prevAllLogs) ? prevAllLogs : [],
-          nextLogs,
-          newEntry: createdLog,
-          user,
-        });
-        // Fire in priority order with small delay between
-        celebrations.forEach((cel, i) => {
-          setTimeout(() => triggerCelebration(cel.type, cel.data, cel.options), i * 600);
-        });
-      } catch (e) {
-        // celebrations are non-critical, swallow errors
-      }
-
+      
       base44.analytics.track({
         eventName: 'chapter_read_completed',
         properties: {
