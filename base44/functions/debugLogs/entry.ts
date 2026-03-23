@@ -7,11 +7,13 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  const allLogs = await base44.asServiceRole.entities.ReadingLog.list('-created_date', 10);
-  const sample = allLogs.slice(0, 3);
+  // Try different approaches to read logs
+  const byList = await base44.asServiceRole.entities.ReadingLog.list('-created_date', 5);
+  const byFilter = await base44.asServiceRole.entities.ReadingLog.filter({}, '-created_date', 5);
 
   return Response.json({
-    totalFetched: allLogs.length,
-    sample,
+    byListCount: byList.length,
+    byFilterCount: byFilter.length,
+    sampleByFilter: byFilter.slice(0, 2),
   });
 });
