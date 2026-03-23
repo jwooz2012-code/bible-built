@@ -76,13 +76,17 @@ export default function Profile() {
     navigate(createPageUrl('ShareSummary') + params);
   };
 
-  const handleInvite = () => {
+  const handleInvite = async () => {
     const message = 'Join me on Bible Built — track what matters. 📖';
     const url = window.location.origin;
-    if (navigator.share) {
-      navigator.share({ title: 'Bible Built', text: message, url });
-    } else {
-      navigator.clipboard?.writeText(`${message} ${url}`);
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: 'Bible Built', text: message, url });
+      } else {
+        await navigator.clipboard?.writeText(`${message} ${url}`);
+      }
+    } catch (e) {
+      // Share not available (e.g. iframe) — silently ignore
     }
   };
 
