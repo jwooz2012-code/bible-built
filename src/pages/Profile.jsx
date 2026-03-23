@@ -12,7 +12,6 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
-import CommunityChaptersCard from '@/components/profile/CommunityChaptersCard';
 import {
   ChevronRight, Share2, UserPlus, Settings,
   Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
@@ -344,7 +343,6 @@ export default function Profile() {
             <SectionHeader title="Community" />
             <div className="space-y-2">
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
-              <CommunityChaptersCard />
             </div>
 
             {/* ── Settings ── */}
