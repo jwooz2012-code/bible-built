@@ -1,10 +1,13 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient, useQueryClient as _qc } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { useCelebration } from '@/components/celebration/CelebrationContext';
+import { detectNewCelebrations } from '@/components/celebration/useCelebrationTrigger';
 
-export function useToggleChapterRead() {
+export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
+  const { triggerCelebration } = useCelebration();
 
   const markRead = useMutation({
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
@@ -52,6 +55,21 @@ export function useToggleChapterRead() {
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
       
+      // Celebration checks — after successful persistence
+      if (allLogs && createdLog) {
+        const prevLogs = allLogs.filter(l => l.id !== createdLog.id);
+        const newLogs = [...prevLogs, createdLog];
+        const celebrations = detectNewCelebrations({
+          prevLogs,
+          newLogs,
+          newLog: createdLog,
+          user: user || null,
+        });
+        for (const c of celebrations) {
+          triggerCelebration(c.type, c.data, { dedupKey: c.dedupKey });
+        }
+      }
+
       base44.analytics.track({
         eventName: 'chapter_read_completed',
         properties: {

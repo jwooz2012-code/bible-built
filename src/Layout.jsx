@@ -5,6 +5,7 @@ import { Home, Calendar, BarChart3, Settings } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
+import CelebrationRenderer from '@/components/celebration/CelebrationRenderer';
 
 export default function Layout({ children }) {
   const location = useLocation();
@@ -94,7 +95,8 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-          <Toaster 
+          <CelebrationRenderer />
+          <Toaster
           position="bottom-center"
           expand={false}
           closeButton={false}
