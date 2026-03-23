@@ -11,9 +11,11 @@ import { getAchievementIcon, getAchievementColor } from '@/components/badges/bad
 import { triggerHaptic } from '@/components/utils/haptics';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import AvatarPicker from '@/components/profile/AvatarPicker';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
 } from 'lucide-react';
 
 // ── Streak Ring ───────────────────────────────────────────────────────────────
@@ -314,17 +316,29 @@ export default function Profile() {
               </div>
             </TapRow>
 
-            {/* ── Share My Progress ── */}
-            <SectionHeader title="Share" />
-            <TapRow onPress={() => setShowShareSheet(true)}
-              className="w-full flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <Share2 className="text-muted-foreground" style={{ width: 18, height: 18 }} />
-                <span className="text-[15px] font-medium text-foreground">Share My Progress</span>
-              </div>
-              <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-            </TapRow>
+            {/* ── Accountability ── */}
+            <SectionHeader title="Accountability" />
+            <div className="space-y-2">
+              <TapRow onPress={() => setShowShareSheet(true)}
+                className="w-full flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Share2 className="text-muted-foreground" style={{ width: 18, height: 18 }} />
+                  <span className="text-[15px] font-medium text-foreground">Share My Progress</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+              </TapRow>
+              <Link
+                to={createPageUrl('accountability')}
+                className="flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="text-muted-foreground" style={{ width: 18, height: 18 }} />
+                  <span className="text-[15px] font-medium text-foreground">Accountability</span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
+              </Link>
+            </div>
 
             {/* ── Community ── */}
             <SectionHeader title="Community" />
