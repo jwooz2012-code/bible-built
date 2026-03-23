@@ -409,14 +409,14 @@ export default function ShareSummary() {
               >
                 <div 
                   className={stat.isText
-                    ? `font-bold text-center leading-tight ${
+                    ? `font-bold text-center leading-tight flex items-center justify-center flex-1 w-full ${
                         (stat.value || '').length > 14
                           ? 'text-sm'
                           : (stat.value || '').length > 10
                           ? 'text-base'
                           : 'text-xl'
                       }`
-                    : 'text-3xl font-bold'}
+                    : 'text-3xl font-bold flex items-center justify-center flex-1'}
                   style={{ color: theme.statValue }}
                 >
                   {stat.value}
