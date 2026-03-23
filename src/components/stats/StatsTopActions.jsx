@@ -54,15 +54,15 @@ export default function StatsTopActions() {
           <div className="space-y-2">
             <Button
               variant="outline"
-              onClick={() => handleOpenPreview('monthly')}
-              className="w-full justify-start">
-              Share Monthly Summary
-            </Button>
-            <Button
-              variant="outline"
               onClick={() => handleOpenPreview('weekly')}
               className="w-full justify-start">
               Share Weekly Summary
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => handleOpenPreview('monthly')}
+              className="w-full justify-start">
+              Share Monthly Summary
             </Button>
             <Button
               variant="outline"

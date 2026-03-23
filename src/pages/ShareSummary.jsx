@@ -84,6 +84,9 @@ export default function ShareSummary() {
     return new Date();
   });
 
+  // Weekly navigation: 0 = current week, -1 = last week, etc.
+  const [weekOffset, setWeekOffset] = useState(0);
+
   const currentMonth = new Date();
   const isCurrentMonthSelected = isSameMonth(selectedMonthDate, currentMonth);
 
@@ -98,24 +101,24 @@ export default function ShareSummary() {
     }
   };
 
-  // Weekly date range: previous completed Sunday–Saturday
+  // Weekly date range based on offset (0 = current week, -1 = last week, etc.)
   const weeklyRange = useMemo(() => {
     const today = new Date();
     const dayOfWeek = today.getDay();
     const sundayOfCurrentWeek = new Date(today);
     sundayOfCurrentWeek.setDate(today.getDate() - dayOfWeek);
     sundayOfCurrentWeek.setHours(0, 0, 0, 0);
-    const lastSunday = new Date(sundayOfCurrentWeek);
-    lastSunday.setDate(sundayOfCurrentWeek.getDate() - 7);
-    const lastSaturday = new Date(sundayOfCurrentWeek);
-    lastSaturday.setDate(sundayOfCurrentWeek.getDate() - 1);
+    const sunday = new Date(sundayOfCurrentWeek);
+    sunday.setDate(sundayOfCurrentWeek.getDate() + weekOffset * 7);
+    const saturday = new Date(sunday);
+    saturday.setDate(sunday.getDate() + 6);
     const pad = (n) => String(n).padStart(2, '0');
     const toKey = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-    const startKey = toKey(lastSunday);
-    const endKey = toKey(lastSaturday);
-    const label = `${format(lastSunday, 'MMM d')} – ${format(lastSaturday, 'MMM d')}`;
-    return { startKey, endKey, label };
-  }, []);
+    const startKey = toKey(sunday);
+    const endKey = toKey(saturday);
+    const label = `${format(sunday, 'MMM d')} – ${format(saturday, 'MMM d')}`;
+    return { startKey, endKey, label, sunday, saturday };
+  }, [weekOffset]);
 
   // Determine date range
   let startDate, endDate, displayTitle, displaySubtitle;
@@ -129,8 +132,8 @@ export default function ShareSummary() {
   } else if (mode === 'weekly') {
     startDate = weeklyRange.startKey;
     endDate = weeklyRange.endKey;
-    displayTitle = 'Last Week';
-    displaySubtitle = weeklyRange.label;
+    displayTitle = weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weeklyRange.label;
+    displaySubtitle = weekOffset <= -1 ? weeklyRange.label : weeklyRange.label;
   } else {
     const firstDay = new Date(year, 0, 1);
     const lastDay = new Date(year, 11, 31);
@@ -499,7 +502,7 @@ export default function ShareSummary() {
           </div>
         </div>
 
-        {/* Month Navigation - Controls section (below screenshot area, requires scroll) */}
+        {/* Month Navigation */}
         {mode === 'monthly' && (
           <div className="w-full max-w-md px-6">
             <div 
@@ -527,6 +530,45 @@ export default function ShareSummary() {
                 <button
                   onClick={handleNextMonth}
                   disabled={isCurrentMonthSelected}
+                  className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
+                >
+                  <ChevronRight className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Week Navigation */}
+        {mode === 'weekly' && (
+          <div className="w-full max-w-md px-6">
+            <div 
+              className="h-px w-full mb-6"
+              style={{ backgroundColor: theme.divider }}
+            />
+            <div className="flex items-center justify-center pb-4">
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setWeekOffset(prev => prev - 1)}
+                  className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
+                >
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+                <div 
+                  className="text-sm font-semibold px-4 py-2 rounded-full shadow-sm text-center"
+                  style={{ 
+                    color: theme.primaryText,
+                    backgroundColor: theme.cardBg,
+                    minWidth: '160px'
+                  }}
+                >
+                  {weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weeklyRange.label}
+                </div>
+                <button
+                  onClick={() => setWeekOffset(prev => prev + 1)}
+                  disabled={weekOffset >= 0}
                   className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
                   style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
                 >
