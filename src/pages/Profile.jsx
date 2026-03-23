@@ -10,62 +10,30 @@ import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
+import AvatarPicker from '@/components/profile/AvatarPicker';
 import {
-  ChevronRight,
-  Share2,
-  UserPlus,
-  Settings,
-  Flame,
-  BookOpen,
-  CalendarDays,
-  CalendarRange,
-  Calendar,
-  X,
+  ChevronRight, Share2, UserPlus, Settings,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X,
 } from 'lucide-react';
 
-// ── Level System ─────────────────────────────────────────────────────────────
-const LEVEL_THRESHOLDS = [0, 1, 10, 25, 50, 100, 200, 350, 500, 750, 1000, 1500, 2000];
-function getLevel(chapters) {
-  let level = 0;
-  for (let i = 0; i < LEVEL_THRESHOLDS.length; i++) {
-    if (chapters >= LEVEL_THRESHOLDS[i]) level = i;
-    else break;
-  }
-  return level;
-}
-function getLevelProgress(chapters) {
-  const level = getLevel(chapters);
-  const current = LEVEL_THRESHOLDS[level] ?? 0;
-  const next = LEVEL_THRESHOLDS[level + 1];
-  if (!next) return { level, pct: 1, chaptersIntoLevel: chapters - current, chaptersNeeded: 0 };
-  const pct = Math.min((chapters - current) / (next - current), 1);
-  return { level, pct, chaptersIntoLevel: chapters - current, chaptersNeeded: next - chapters };
-}
-
 // ── Streak Ring ───────────────────────────────────────────────────────────────
-const RING_R = 38;
+const RING_R = 42;
 const RING_CIRC = 2 * Math.PI * RING_R;
 function StreakRing({ streak, children }) {
-  const MAX = 30;
-  const fill = Math.min(streak / MAX, 1);
+  const fill = Math.min(streak / 30, 1);
   const dash = fill * RING_CIRC;
   return (
-    <div className="relative" style={{ width: 88, height: 88 }}>
-      <svg width={88} height={88} className="absolute inset-0 -rotate-90">
-        <circle cx={44} cy={44} r={RING_R} fill="none" stroke="currentColor" strokeWidth={3} className="text-border" />
+    <div className="relative" style={{ width: 104, height: 104 }}>
+      <svg width={104} height={104} className="absolute inset-0 -rotate-90">
+        <circle cx={52} cy={52} r={RING_R} fill="none" stroke="currentColor" strokeWidth={3} className="text-border" />
         {streak > 0 && (
-          <circle
-            cx={44} cy={44} r={RING_R} fill="none"
-            stroke="rgb(251,146,60)"
-            strokeWidth={3}
-            strokeDasharray={`${dash} ${RING_CIRC}`}
-            strokeLinecap="round"
+          <circle cx={52} cy={52} r={RING_R} fill="none"
+            stroke="rgb(251,146,60)" strokeWidth={3}
+            strokeDasharray={`${dash} ${RING_CIRC}`} strokeLinecap="round"
           />
         )}
       </svg>
-      <div className="absolute inset-0 flex items-center justify-center">
-        {children}
-      </div>
+      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
     </div>
   );
 }
@@ -73,8 +41,7 @@ function StreakRing({ streak, children }) {
 // ── Tap-animated row ──────────────────────────────────────────────────────────
 function TapRow({ children, onPress, className = '' }) {
   return (
-    <motion.button
-      whileTap={{ scale: 0.97 }}
+    <motion.button whileTap={{ scale: 0.97 }}
       onClick={() => { triggerHaptic(); onPress(); }}
       className={`w-full text-left ${className}`}
     >
@@ -127,18 +94,12 @@ function ProfileRow({ icon: Icon, label, onPress }) {
 // ── Share Sheet ───────────────────────────────────────────────────────────────
 function ShareSheet({ onClose, onSelect }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 z-50 flex items-end"
-      onClick={onClose}
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-end" onClick={onClose}
     >
       <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
       <motion.div
-        initial={{ y: '100%' }}
-        animate={{ y: 0 }}
-        exit={{ y: '100%' }}
+        initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
         transition={{ type: 'spring', damping: 28, stiffness: 300 }}
         className="relative w-full bg-card rounded-t-3xl p-6 pb-10 max-w-lg mx-auto"
         onClick={e => e.stopPropagation()}
@@ -155,7 +116,9 @@ function ShareSheet({ onClose, onSelect }) {
             { icon: CalendarRange, label: 'This Month', mode: 'monthly' },
             { icon: Calendar, label: 'This Year', mode: 'yearly' },
           ].map(({ icon: Icon, label, mode }) => (
-            <TapRow key={mode} onPress={() => onSelect(mode)} className="flex items-center gap-3 px-4 py-3.5 bg-secondary rounded-xl hover:bg-accent/40 transition-colors">
+            <TapRow key={mode} onPress={() => onSelect(mode)}
+              className="flex items-center gap-3 px-4 py-3.5 bg-secondary rounded-xl hover:bg-accent/40 transition-colors"
+            >
               <Icon className="text-muted-foreground" style={{ width: 18, height: 18 }} />
               <span className="text-[15px] font-medium text-foreground">{label}</span>
             </TapRow>
@@ -169,6 +132,7 @@ function ShareSheet({ onClose, onSelect }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Profile() {
   const [user, setUser] = useState(null);
+  const [avatarData, setAvatarData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const navigate = useNavigate();
@@ -176,7 +140,18 @@ export default function Profile() {
   useEffect(() => {
     let mounted = true;
     base44.auth.me()
-      .then(u => { if (mounted) { setUser(u); setIsLoading(false); } })
+      .then(u => {
+        if (mounted) {
+          setUser(u);
+          setAvatarData({
+            avatarType: u?.avatarType,
+            avatarPhotoUrl: u?.avatarPhotoUrl,
+            avatarEmoji: u?.avatarEmoji,
+            avatarDefaultId: u?.avatarDefaultId,
+          });
+          setIsLoading(false);
+        }
+      })
       .catch(() => { if (mounted) setIsLoading(false); });
     return () => { mounted = false; };
   }, []);
@@ -184,33 +159,20 @@ export default function Profile() {
   const userId = user?.id;
   const { data: lifetimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const currentStreak = useCurrentStreak(lifetimeLogs);
-
-  // Date ranges
-  const todayKey = getDateKey();
   const now = new Date();
+  const todayKey = getDateKey();
 
   const weekStart = useMemo(() => {
-    const d = new Date(now);
-    d.setDate(d.getDate() - d.getDay());
-    return getDateKey(d);
+    const d = new Date(now); d.setDate(d.getDate() - d.getDay()); return getDateKey(d);
   }, []);
-
-  const monthStart = useMemo(() => {
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-  }, []);
-
+  const monthStart = useMemo(() => `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`, []);
   const yearStart = `${now.getFullYear()}-01-01`;
 
-  // Chapter counts per period
   const weekChapters = useMemo(() => lifetimeLogs.filter(l => l.dateKey >= weekStart && l.dateKey <= todayKey).length, [lifetimeLogs, weekStart, todayKey]);
   const monthChapters = useMemo(() => lifetimeLogs.filter(l => l.dateKey >= monthStart && l.dateKey <= todayKey).length, [lifetimeLogs, monthStart, todayKey]);
   const yearChapters = useMemo(() => lifetimeLogs.filter(l => l.dateKey >= yearStart && l.dateKey <= todayKey).length, [lifetimeLogs, yearStart, todayKey]);
-
-  // Level
   const totalChapters = lifetimeLogs.length;
-  const { level, pct, chaptersNeeded } = getLevelProgress(totalChapters);
 
-  // Badges
   const badgeState = useMemo(() => computeBadgeState(lifetimeLogs, user), [lifetimeLogs, user]);
   const earnedBadges = useMemo(() => badgeState.badges.filter(b => b.achieved), [badgeState]);
   const lastEarned = earnedBadges[earnedBadges.length - 1];
@@ -222,8 +184,7 @@ export default function Profile() {
   const navigateToSummary = (mode) => {
     const params = mode === 'monthly'
       ? `?mode=monthly&year=${now.getFullYear()}&month=${now.getMonth() + 1}`
-      : mode === 'weekly'
-      ? `?mode=weekly`
+      : mode === 'weekly' ? `?mode=weekly`
       : `?mode=yearly&year=${now.getFullYear()}`;
     navigate(createPageUrl('ShareSummary') + params);
   };
@@ -232,26 +193,18 @@ export default function Profile() {
     const message = 'Join me on Bible Built — track what matters. 📖';
     const url = window.location.origin;
     try {
-      if (navigator.share) {
-        await navigator.share({ title: 'Bible Built', text: message, url });
-      } else {
-        await navigator.clipboard?.writeText(`${message} ${url}`);
-      }
+      if (navigator.share) await navigator.share({ title: 'Bible Built', text: message, url });
+      else await navigator.clipboard?.writeText(`${message} ${url}`);
     } catch (e) { /* iframe — ignore */ }
   };
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
+  if (isLoading) return (
+    <div className="min-h-screen bg-background flex items-center justify-center">
+      <LoadingSpinner />
+    </div>
+  );
 
-  const nextBadgePct = nextBadge && nextBadge.target > 0
-    ? Math.min(nextBadge.current / nextBadge.target, 1)
-    : 0;
-
+  const nextBadgePct = nextBadge && nextBadge.target > 0 ? Math.min(nextBadge.current / nextBadge.target, 1) : 0;
   const lastEarnedColor = lastEarned ? getAchievementColor(lastEarned.title) : null;
   const isBlackWhite = lastEarnedColor === 'BLACK_WHITE';
 
@@ -271,38 +224,19 @@ export default function Profile() {
               border: '1px solid hsl(var(--border))',
             }}
           >
-            {/* Decorative blur orb */}
             <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
 
-            <div className="flex flex-col items-center pt-2 pb-1">
-              {/* Avatar with streak ring */}
+            <div className="flex flex-col items-center pt-2 pb-2">
               <StreakRing streak={currentStreak}>
-                <div className="w-16 h-16 rounded-full bg-secondary border border-border flex items-center justify-center">
-                  <span className="text-xl font-bold text-foreground">{initials}</span>
-                </div>
+                <AvatarPicker
+                  initials={initials}
+                  avatarData={avatarData}
+                  onUpdate={(data) => setAvatarData(prev => ({ ...prev, ...data }))}
+                />
               </StreakRing>
 
-              <h1 className="text-[22px] font-bold text-foreground mt-3 mb-0.5">{displayName}</h1>
+              <h1 className="text-[22px] font-bold text-foreground mt-4 mb-4">{displayName}</h1>
 
-              {/* Level */}
-              <div className="flex items-center gap-1.5 mb-3">
-                <span className="text-[12px] font-semibold text-muted-foreground uppercase tracking-wider">Level {level}</span>
-                {chaptersNeeded > 0 && (
-                  <span className="text-[11px] text-muted-foreground/60">· {chaptersNeeded} ch to next</span>
-                )}
-              </div>
-
-              {/* Level Progress Bar */}
-              <div className="w-full max-w-[180px] h-1.5 bg-border rounded-full overflow-hidden mb-4">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${pct * 100}%` }}
-                  transition={{ duration: 0.6, delay: 0.2 }}
-                  className="h-full bg-orange-400 rounded-full"
-                />
-              </div>
-
-              {/* Quick Stats */}
               <div className="flex items-center gap-8">
                 <div className="flex flex-col items-center gap-0.5">
                   <div className="flex items-center gap-1">
@@ -333,7 +267,6 @@ export default function Profile() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25, delay: 0.08 }}
           >
-
             {/* ── Progress Summaries ── */}
             <SectionHeader title="Progress" />
             <div className="space-y-2">
@@ -345,13 +278,7 @@ export default function Profile() {
             {/* ── Badges Preview ── */}
             <SectionHeader title="Badges" />
             <TapRow
-              onPress={() => {
-                navigate('/stats');
-                setTimeout(() => {
-                  const el = document.getElementById('badges-section');
-                  if (el) el.scrollIntoView({ behavior: 'smooth' });
-                }, 400);
-              }}
+              onPress={() => { navigate('/stats'); setTimeout(() => document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' }), 400); }}
               className="w-full px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
             >
               <div className="flex items-center justify-between">
@@ -372,14 +299,9 @@ export default function Profile() {
                     {nextBadge && (
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <div className="w-16 h-1 bg-border rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-blue-400 rounded-full transition-all"
-                            style={{ width: `${nextBadgePct * 100}%` }}
-                          />
+                          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${nextBadgePct * 100}%` }} />
                         </div>
-                        <span className="text-[11px] text-muted-foreground">
-                          {nextBadge.current}/{nextBadge.target} → {nextBadge.title}
-                        </span>
+                        <span className="text-[11px] text-muted-foreground">{nextBadge.current}/{nextBadge.target} → {nextBadge.title}</span>
                       </div>
                     )}
                   </div>
@@ -390,8 +312,7 @@ export default function Profile() {
 
             {/* ── Share My Progress ── */}
             <SectionHeader title="Share" />
-            <TapRow
-              onPress={() => setShowShareSheet(true)}
+            <TapRow onPress={() => setShowShareSheet(true)}
               className="w-full flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
             >
               <div className="flex items-center gap-3">
@@ -401,7 +322,7 @@ export default function Profile() {
               <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
             </TapRow>
 
-            {/* ── Grow Together ── */}
+            {/* ── Community ── */}
             <SectionHeader title="Community" />
             <div className="space-y-2">
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
@@ -412,20 +333,15 @@ export default function Profile() {
             <div className="space-y-2">
               <ProfileRow icon={Settings} label="Preferences" onPress={() => navigate('/settings')} />
             </div>
-
           </motion.div>
         </div>
       </div>
 
-      {/* ── Share Sheet ── */}
       <AnimatePresence>
         {showShareSheet && (
           <ShareSheet
             onClose={() => setShowShareSheet(false)}
-            onSelect={(mode) => {
-              setShowShareSheet(false);
-              navigateToSummary(mode);
-            }}
+            onSelect={(mode) => { setShowShareSheet(false); navigateToSummary(mode); }}
           />
         )}
       </AnimatePresence>
