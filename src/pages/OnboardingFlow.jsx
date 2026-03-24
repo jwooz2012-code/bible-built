@@ -60,28 +60,16 @@ export default function OnboardingFlow() {
     setShowTransition(true);
 
     try {
-      // Ensure motivation is a clean array of strings
-      const cleanMotivation = Array.isArray(responses.motivation) 
-        ? responses.motivation.filter(m => typeof m === 'string')
-        : [];
+      // Mark onboarding complete
+      await base44.auth.updateMe({ onboardingComplete: true });
 
-      // Save all onboarding data to user profile
-      await base44.auth.updateMe({
-        displayName: responses.displayName || '',
-        motivation: cleanMotivation,
-        habitLevel: responses.habitLevel || '',
-        experienceType: responses.experienceType || '',
-        goal: responses.goal || '',
-        dailyCommitment: responses.dailyCommitment || '',
-        onboardingComplete: true
-      });
-
-      // Trigger Battle badge celebration and navigate immediately
+      // Trigger Battle badge celebration
       triggerCelebration(CELEBRATION_TYPES.BADGE, {
         title: 'Battle',
         description: 'First step taken. Keep building.'
       }, { dedupKey: 'battle-onboarding' });
       
+      // Navigate to home
       navigate('/home', { replace: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
