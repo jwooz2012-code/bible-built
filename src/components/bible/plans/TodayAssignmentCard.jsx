@@ -172,20 +172,12 @@ export default function TodayAssignmentCard({
         className="mb-5">
         <motion.button
           onClick={() => { triggerHaptic(); onOpenPlanModal(); }}
-          whileTap={{ scale: 0.97, opacity: 0.9 }}
-          className="w-full text-left rounded-2xl bg-card border border-border px-5 py-4 flex items-center gap-4"
-          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
-          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
-            <BookOpen className="w-5 h-5 text-muted-foreground" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-[15px] font-semibold text-foreground">Explore Reading Plans</p>
-            <p className="text-[12px] text-muted-foreground mt-0.5">Stay consistent with a guided path through Scripture</p>
-          </div>
-          <div className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground flex-shrink-0">
-            <span>Browse</span>
-            <ChevronRight className="w-4 h-4" />
-          </div>
+          whileTap={{ scale: 0.97, opacity: 0.85 }}
+          className="w-full text-left rounded-xl bg-card border border-border/60 px-4 py-3 flex items-center gap-3"
+          style={{ boxShadow: '0 1px 3px rgba(0,0,0,0.05)' }}>
+          <BookOpen className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+          <span className="flex-1 text-[14px] font-medium text-foreground">Explore Reading Plans</span>
+          <ChevronRight className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
         </motion.button>
       </motion.div>);
 
