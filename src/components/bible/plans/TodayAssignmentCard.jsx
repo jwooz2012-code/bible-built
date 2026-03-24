@@ -245,29 +245,32 @@ export default function TodayAssignmentCard({
       </div>
 
       {summary && (
-        <Button
-          onClick={(e) => {
-            e.stopPropagation();
-            handleComplete();
-          }}
-          disabled={isComplete || isCompleting || isMarkingToday}
-          className="w-full"
-          style={isComplete ? {
-            background: successBg,
-            color: successFg,
-            opacity: 1,
-            cursor: 'default'
-          } : undefined}>
-          {(isCompleting || isMarkingToday) ? 
-            'Saving...' : 
-            isComplete ? 
-              <>
-                <CheckCircle2 className="w-4 h-4 mr-2" />
-                Completed Today
-              </> : 
-              'Mark Today Complete'
-          }
-        </Button>
+        <motion.div whileTap={!isComplete ? { scale: 0.97 } : {}}>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              handleComplete();
+            }}
+            disabled={isComplete || isCompleting || isMarkingToday}
+            className="w-full transition-all duration-200"
+            style={isComplete ? {
+              background: successBg,
+              color: successFg,
+              opacity: 1,
+              cursor: 'default'
+            } : {
+              background: 'hsl(25 95% 53%)',
+              color: '#fff',
+              boxShadow: '0 2px 8px hsl(25 95% 53% / 0.35)'
+            }}>
+            {(isCompleting || isMarkingToday) ?
+              'Saving...' :
+              isComplete ?
+                <><CheckCircle2 className="w-4 h-4 mr-2" />Completed Today</> :
+                'Mark Today Complete'
+            }
+          </Button>
+        </motion.div>
       )}
 
     </motion.div>);
