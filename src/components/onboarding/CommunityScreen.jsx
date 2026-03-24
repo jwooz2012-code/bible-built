@@ -53,9 +53,9 @@ export default function CommunityScreen({ onContinue }) {
         </div>
 
         {/* Description */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Invite friends to join your journey. When you're accountable to others, consistency becomes easier and joy becomes shared.
+            Invite friends and grow stronger together.
           </p>
 
           {/* Profile Preview */}
@@ -63,33 +63,18 @@ export default function CommunityScreen({ onContinue }) {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.4 }}
-            className="bg-card border-2 border-primary/30 rounded-xl p-4 space-y-3"
+            className="bg-card border-2 border-primary/30 rounded-xl p-4"
           >
-            <p className="text-xs font-semibold text-primary/80 uppercase tracking-wide">On your Profile page:</p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-3 py-2.5 bg-accent/50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <UserPlus className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Invite a Friend</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </div>
-              <p className="text-xs text-muted-foreground/70 pl-3">
-                Found in the <span className="font-semibold">Community</span> section
-              </p>
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-primary" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide">Community</span>
             </div>
+            <p className="text-sm font-medium">Invite a Friend</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">On your Profile page →</p>
           </motion.div>
         </div>
 
-        {/* Motivational Quote */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-xs text-muted-foreground italic text-center"
-        >
-          "Two are better than one… if either of them falls down… — Ecclesiastes 4:9-10"
-        </motion.p>
+
       </motion.div>
 
       {/* CTA Button */}
