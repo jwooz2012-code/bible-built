@@ -66,8 +66,8 @@ export default function ReminderSettings() {
       await disableReminders();
       setDraft(s => ({ ...s, enabled: false }));
     } else {
-      const success = await enableReminders(draft);
-      if (success) setDraft(s => ({ ...s, enabled: true }));
+      await enableReminders(draft);
+      setDraft(s => ({ ...s, enabled: true }));
     }
   };
 
