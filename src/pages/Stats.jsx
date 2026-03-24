@@ -322,7 +322,6 @@ export default function Stats() {
           </div>
           <BibleCoverageCard
             sectionData={trackerStats.sectionCoverage}
-            bookProgressYear={trackerStats.bookProgressYear}
             bookProgressLifetime={trackerStats.bookProgressLifetime} />
         </motion.div>
 
