@@ -312,9 +312,33 @@ export default function Stats() {
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
 
+        <motion.div
+          custom={3} variants={cardVariants} initial="hidden" animate="visible">
+          <div id="badges-section" className="mb-4">
+            <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Badges</h2>
+            <p className="text-[13px] text-muted-foreground">Milestones you've earned</p>
+          </div>
+
+          <div className="bg-card border border-border/70 rounded-2xl p-5 mb-8" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <div className="mb-5 flex items-center gap-3">
+              <Award className="w-5 h-5" style={{ color: '#FACC15' }} />
+              <p className="text-sm font-semibold text-foreground">
+                {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
+                <span className="font-normal text-muted-foreground"> — {achievements.length - achievements.filter((a) => a.achieved).length} to go</span>
+              </p>
+            </div>
+
+            {lifetimeLoading ? (
+              <div className="flex justify-center py-12"><LoadingSpinner /></div>
+            ) : (
+              <BadgeGrid achievements={achievements} />
+            )}
+          </div>
+        </motion.div>
+
         {/* Bible Coverage + Books (unified) */}
         <motion.div
-          custom={3} variants={cardVariants} initial="hidden" animate="visible"
+          custom={4} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <div className="mb-4">
             <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Bible Coverage</h2>
@@ -330,30 +354,6 @@ export default function Stats() {
           custom={5} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} />
-        </motion.div>
-
-        <motion.div
-          custom={6} variants={cardVariants} initial="hidden" animate="visible">
-          <div id="badges-section" className="mb-4">
-            <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Badges</h2>
-            <p className="text-[13px] text-muted-foreground">Milestones you've earned</p>
-          </div>
-
-          <div className="bg-card border border-border/70 rounded-2xl p-5" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <div className="mb-5 flex items-center gap-3">
-              <Award className="w-5 h-5" style={{ color: '#FACC15' }} />
-              <p className="text-sm font-semibold text-foreground">
-                {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
-                <span className="font-normal text-muted-foreground"> — {achievements.length - achievements.filter((a) => a.achieved).length} to go</span>
-              </p>
-            </div>
-
-            {lifetimeLoading ? (
-              <div className="flex justify-center py-12"><LoadingSpinner /></div>
-            ) : (
-              <BadgeGrid achievements={achievements} />
-            )}
-          </div>
         </motion.div>
 
         <motion.div
