@@ -26,9 +26,12 @@ export default function DailyCommitmentScreen({ onContinue, initialValue = '' })
         <p className="text-xs text-muted-foreground mb-8">A little every day adds up. 🚀</p>
 
         <div className="grid grid-cols-2 gap-3">
-          {COMMITMENTS.map((commitment) => (
+          {COMMITMENTS.map((commitment, idx) => (
             <motion.button
               key={commitment.value}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
               onClick={() => setSelected(commitment.value)}
               className={`p-4 rounded-2xl border-2 transition-all text-center font-bold ${
                 selected === commitment.value
@@ -44,14 +47,16 @@ export default function DailyCommitmentScreen({ onContinue, initialValue = '' })
         </div>
       </div>
 
-      <Button
-        onClick={() => onContinue(selected)}
-        disabled={!selected}
-        size="lg"
-        className="w-full h-12 rounded-full font-bold"
-      >
-        Continue
-      </Button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={() => onContinue(selected)}
+          disabled={!selected}
+          size="lg"
+          className="w-full h-12 rounded-full font-bold transition-all"
+        >
+          Continue
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }
