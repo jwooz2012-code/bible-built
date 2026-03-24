@@ -137,6 +137,7 @@ export default function Profile() {
   const [avatarData, setAvatarData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showShareSheet, setShowShareSheet] = useState(false);
+  const [selectedBadge, setSelectedBadge] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
