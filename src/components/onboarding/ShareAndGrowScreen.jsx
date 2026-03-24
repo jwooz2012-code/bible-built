@@ -6,16 +6,16 @@ import { Share2, Users, CalendarDays, CalendarRange } from 'lucide-react';
 export default function ShareAndGrowScreen({ onContinue }) {
   const sections = [
     {
-      title: 'Share Your Progress',
+      title: 'Accountability',
       icon: Share2,
-      description: 'Show off your weekly, monthly, and yearly stats',
-      example: 'Weekly • Monthly • Yearly'
+      description: 'Share your weekly, monthly, and yearly progress',
+      example: 'Transparency builds consistency'
     },
     {
-      title: 'Invite Friends',
+      title: 'Community',
       icon: Users,
-      description: 'Build community with those on the same journey',
-      example: 'Stay consistent together'
+      description: 'Invite friends to grow together',
+      example: 'Stay accountable with others'
     }
   ];
 
@@ -30,7 +30,7 @@ export default function ShareAndGrowScreen({ onContinue }) {
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">Track it. Share it. Build together.</h1>
         <p className="text-sm text-muted-foreground mb-10">
-          Your profile unlocks two powerful ways to grow:
+          Your profile has two sections to deepen your journey:
         </p>
 
         {/* Feature Cards */}
@@ -65,7 +65,7 @@ export default function ShareAndGrowScreen({ onContinue }) {
           transition={{ delay: 0.3 }}
           className="text-xs text-muted-foreground/60 text-center"
         >
-          Access both features anytime from your Profile page.
+          Find both sections in your Profile page.
         </motion.p>
       </div>
 
