@@ -21,8 +21,8 @@ export default function DisplayNameScreen({ onContinue, initialValue = '' }) {
       className="min-h-screen flex flex-col justify-between px-6 pt-12 pb-20"
     >
       <div>
-        <h1 className="text-3xl font-black mb-2 text-foreground">What should we call you?</h1>
-        <p className="text-sm text-muted-foreground mb-8">This helps us personalize your experience.</p>
+        <h1 className="text-3xl font-black mb-2 text-foreground">First—what should we call you?</h1>
+        <p className="text-sm text-muted-foreground mb-8">Let's personalize this.</p>
 
         <Input
           type="text"
@@ -34,7 +34,7 @@ export default function DisplayNameScreen({ onContinue, initialValue = '' }) {
               handleContinue();
             }
           }}
-          className="h-12 rounded-xl text-base mb-6"
+          className="h-12 rounded-xl text-base mb-6 font-semibold"
           autoFocus
         />
 
@@ -44,7 +44,7 @@ export default function DisplayNameScreen({ onContinue, initialValue = '' }) {
             animate={{ opacity: 1 }}
             className="text-sm text-muted-foreground italic"
           >
-            Let's build something strong, <span className="text-foreground font-semibold">{name}</span>.
+            Alright <span className="text-foreground font-bold">{name}</span>… let's get to work. 💪
           </motion.p>
         )}
       </div>
@@ -53,7 +53,7 @@ export default function DisplayNameScreen({ onContinue, initialValue = '' }) {
         onClick={handleContinue}
         disabled={!name.trim()}
         size="lg"
-        className="w-full h-12 rounded-full font-semibold"
+        className="w-full h-12 rounded-full font-bold"
       >
         Continue
       </Button>

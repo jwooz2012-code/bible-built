@@ -43,10 +43,10 @@ export default function ExperienceTypeScreen({ onContinue, initialValue = '' }) 
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
             >
-              <div className={`font-semibold ${selected === exp.value ? 'text-background' : 'text-foreground'}`}>
+              <div className={`font-bold text-lg ${selected === exp.value ? 'text-background' : 'text-foreground'}`}>
                 {exp.label}
               </div>
-              <div className={`text-sm ${selected === exp.value ? 'text-background/70' : 'text-muted-foreground'}`}>
+              <div className={`text-sm mt-1 ${selected === exp.value ? 'text-background/70' : 'text-muted-foreground'}`}>
                 {exp.description}
               </div>
             </motion.button>
@@ -58,7 +58,7 @@ export default function ExperienceTypeScreen({ onContinue, initialValue = '' }) 
         onClick={() => onContinue(selected)}
         disabled={!selected}
         size="lg"
-        className="w-full h-12 rounded-full font-semibold"
+        className="w-full h-12 rounded-full font-bold"
       >
         Continue
       </Button>

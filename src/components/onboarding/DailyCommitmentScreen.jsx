@@ -21,16 +21,16 @@ export default function DailyCommitmentScreen({ onContinue, initialValue = '' })
       className="min-h-screen flex flex-col justify-between px-6 pt-12 pb-20"
     >
       <div>
-        <h1 className="text-3xl font-black mb-2 text-foreground">Let's set your foundation</h1>
+        <h1 className="text-3xl font-black mb-2 text-foreground">Let's lock it in</h1>
         <p className="text-sm text-muted-foreground mb-3">How much time can you commit daily?</p>
-        <p className="text-xs text-muted-foreground mb-8">Daily time in the Word builds a strong life.</p>
+        <p className="text-xs text-muted-foreground mb-8">A little every day adds up. 🚀</p>
 
         <div className="grid grid-cols-2 gap-3">
           {COMMITMENTS.map((commitment) => (
             <motion.button
               key={commitment.value}
               onClick={() => setSelected(commitment.value)}
-              className={`p-4 rounded-2xl border-2 transition-all text-center font-semibold ${
+              className={`p-4 rounded-2xl border-2 transition-all text-center font-bold ${
                 selected === commitment.value
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border bg-background text-foreground hover:border-foreground/50'
@@ -48,7 +48,7 @@ export default function DailyCommitmentScreen({ onContinue, initialValue = '' })
         onClick={() => onContinue(selected)}
         disabled={!selected}
         size="lg"
-        className="w-full h-12 rounded-full font-semibold"
+        className="w-full h-12 rounded-full font-bold"
       >
         Continue
       </Button>

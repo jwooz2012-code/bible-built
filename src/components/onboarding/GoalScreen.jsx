@@ -4,9 +4,9 @@ import { Button } from '@/components/ui/button';
 
 const GOALS = [
   { value: 'consistency', label: 'Consistency' },
+  { value: 'discipline', label: 'Discipline' },
   { value: 'bible_knowledge', label: 'Bible knowledge' },
-  { value: 'stronger_walk', label: 'Stronger walk with God' },
-  { value: 'discipline', label: 'Discipline' }
+  { value: 'stronger_walk', label: 'A stronger walk with God' }
 ];
 
 export default function GoalScreen({ onContinue, initialValue = '' }) {
@@ -21,7 +21,7 @@ export default function GoalScreen({ onContinue, initialValue = '' }) {
       className="min-h-screen flex flex-col justify-between px-6 pt-12 pb-20"
     >
       <div>
-        <h1 className="text-3xl font-black mb-2 text-foreground">What do you want to build?</h1>
+        <h1 className="text-3xl font-black mb-2 text-foreground">What are you building?</h1>
         <p className="text-sm text-muted-foreground mb-8">This shapes your journey.</p>
 
         <div className="space-y-3">
@@ -29,7 +29,7 @@ export default function GoalScreen({ onContinue, initialValue = '' }) {
             <motion.button
               key={goal.value}
               onClick={() => setSelected(goal.value)}
-              className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-medium ${
+              className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-semibold ${
                 selected === goal.value
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border bg-background text-foreground hover:border-foreground/50'
@@ -47,7 +47,7 @@ export default function GoalScreen({ onContinue, initialValue = '' }) {
         onClick={() => onContinue(selected)}
         disabled={!selected}
         size="lg"
-        className="w-full h-12 rounded-full font-semibold"
+        className="w-full h-12 rounded-full font-bold"
       >
         Continue
       </Button>

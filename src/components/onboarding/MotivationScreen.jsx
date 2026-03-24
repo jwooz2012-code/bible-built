@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 
 const MOTIVATIONS = [
-  'Build a daily Bible habit',
-  'Grow closer to God',
-  'Stay consistent',
-  'Track my progress',
-  'Start fresh'
+  'I want to stay consistent',
+  'I need a fresh start',
+  'I want to grow closer to God',
+  'I like tracking progress',
+  'I\'ve been off track lately'
 ];
 
 export default function MotivationScreen({ onContinue, initialValue = [] }) {
@@ -30,7 +30,7 @@ export default function MotivationScreen({ onContinue, initialValue = [] }) {
       className="min-h-screen flex flex-col justify-between px-6 pt-12 pb-20"
     >
       <div>
-        <h1 className="text-3xl font-black mb-2 text-foreground">What brings you here?</h1>
+        <h1 className="text-3xl font-black mb-2 text-foreground">What's your reason?</h1>
         <p className="text-sm text-muted-foreground mb-8">Choose all that apply.</p>
 
         <div className="space-y-3">
@@ -38,7 +38,7 @@ export default function MotivationScreen({ onContinue, initialValue = [] }) {
             <motion.button
               key={motivation}
               onClick={() => toggleMotivation(motivation)}
-              className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-medium ${
+              className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-semibold ${
                 selected.includes(motivation)
                   ? 'border-foreground bg-foreground text-background'
                   : 'border-border bg-background text-foreground hover:border-foreground/50'
@@ -56,7 +56,7 @@ export default function MotivationScreen({ onContinue, initialValue = [] }) {
         onClick={() => onContinue(selected)}
         disabled={selected.length === 0}
         size="lg"
-        className="w-full h-12 rounded-full font-semibold"
+        className="w-full h-12 rounded-full font-bold"
       >
         Continue
       </Button>

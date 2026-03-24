@@ -9,12 +9,16 @@ import DisplayNameScreen from '@/components/onboarding/DisplayNameScreen';
 import MotivationScreen from '@/components/onboarding/MotivationScreen';
 import HabitLevelScreen from '@/components/onboarding/HabitLevelScreen';
 import ExperienceTypeScreen from '@/components/onboarding/ExperienceTypeScreen';
+import PlanGuidanceScreen from '@/components/onboarding/PlanGuidanceScreen';
 import GoalScreen from '@/components/onboarding/GoalScreen';
 import DailyCommitmentScreen from '@/components/onboarding/DailyCommitmentScreen';
 import InviteScreen from '@/components/onboarding/InviteScreen';
 import FinalScreen from '@/components/onboarding/FinalScreen';
 
-const TOTAL_SCREENS = 9;
+// TOTAL_SCREENS varies: 9-10 depending on whether plan guidance is shown
+const getTotalScreens = (experienceType) => {
+  return experienceType === 'follow_plan' ? 10 : 9;
+};
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
@@ -90,13 +94,28 @@ export default function OnboardingFlow() {
         return <HabitLevelScreen {...commonProps} initialValue={responses.habitLevel} />;
       case 4:
         return <ExperienceTypeScreen {...commonProps} initialValue={responses.experienceType} />;
+      // Screen 5A: Plan guidance (only if follow_plan selected)
       case 5:
+        if (responses.experienceType === 'follow_plan') {
+          return <PlanGuidanceScreen {...commonProps} />;
+        }
         return <GoalScreen {...commonProps} initialValue={responses.goal} />;
       case 6:
+        if (responses.experienceType === 'follow_plan') {
+          return <GoalScreen {...commonProps} initialValue={responses.goal} />;
+        }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
       case 7:
+        if (responses.experienceType === 'follow_plan') {
+          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
+        }
         return <InviteScreen {...commonProps} />;
       case 8:
+        if (responses.experienceType === 'follow_plan') {
+          return <InviteScreen {...commonProps} />;
+        }
+        return <FinalScreen onContinue={handleFinish} />;
+      case 9:
         return <FinalScreen onContinue={handleFinish} />;
       default:
         return null;
@@ -106,8 +125,8 @@ export default function OnboardingFlow() {
   return (
     <div className="min-h-screen bg-background overflow-hidden">
       {/* Progress indicator - hidden on welcome and final screens */}
-      {currentStep > 0 && currentStep < TOTAL_SCREENS - 1 && (
-        <ProgressIndicator currentStep={currentStep} totalSteps={TOTAL_SCREENS} />
+      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
+        <ProgressIndicator currentStep={currentStep} totalSteps={getTotalScreens(responses.experienceType)} />
       )}
 
       {/* Screen container */}
