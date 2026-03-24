@@ -27,11 +27,11 @@ export function CelebrationProvider({ children }) {
 
   const triggerCelebration = useCallback((type, data = {}, options = {}) => {
     const { dedupKey } = options;
-    notificationSuccess();
     if (dedupKey) {
       if (celebratedThisSession.has(dedupKey)) return;
       celebratedThisSession.add(dedupKey);
     }
+    notificationSuccess();
 
     const item = {
       type,
