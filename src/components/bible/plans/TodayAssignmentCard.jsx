@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
+import { Calendar, CheckCircle2, ChevronDown, ChevronUp, BookOpen, ChevronRight } from 'lucide-react';
+import { triggerHaptic } from '@/components/utils/haptics';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
@@ -148,24 +149,53 @@ export default function TodayAssignmentCard({
     }
   };
 
+  // Compute plan progress for active plan
+  const planDayNumber = useMemo(() => {
+    if (!hasPlan || !plan?.startDate) return null;
+    const start = new Date(plan.startDate);
+    const today = new Date(todayKey);
+    return Math.max(1, Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1);
+  }, [hasPlan, plan, todayKey]);
+
+  const planTotalDays = useMemo(() => {
+    if (!hasPlan || !plan?.startDate || !plan?.endDate) return null;
+    const start = new Date(plan.startDate);
+    const end = new Date(plan.endDate);
+    return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
+  }, [hasPlan, plan]);
+
   if (!hasPlan) {
     return (
       <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-5">
-
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-5">
         <motion.button
-          onClick={onOpenPlanModal}
-          whileTap={{ scale: 0.98, opacity: 0.85 }}
-          className="w-full px-5 py-3.5 rounded-full border-[2.5px] border-border/40 bg-card/30 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-card/50 hover:border-border/60 transition-all">
-          Explore Reading Plans
+          onClick={() => { triggerHaptic(); onOpenPlanModal(); }}
+          whileTap={{ scale: 0.97, opacity: 0.9 }}
+          className="w-full text-left rounded-2xl bg-card border border-border px-5 py-4 flex items-center gap-4"
+          style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+          <div className="w-10 h-10 rounded-full bg-secondary flex items-center justify-center flex-shrink-0">
+            <BookOpen className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[15px] font-semibold text-foreground">Explore Reading Plans</p>
+            <p className="text-[12px] text-muted-foreground mt-0.5">Stay consistent with a guided path through Scripture</p>
+          </div>
+          <div className="flex items-center gap-1 text-[13px] font-medium text-muted-foreground flex-shrink-0">
+            <span>Browse</span>
+            <ChevronRight className="w-4 h-4" />
+          </div>
         </motion.button>
       </motion.div>);
 
   }
 
   if (!assignment) return null;
+
+  const planProgressLine = planDayNumber && planTotalDays
+    ? `Current plan: Day ${planDayNumber} of ${planTotalDays}`
+    : null;
 
   // Success color for completed state (theme-safe green)
   const successBg = 'hsl(142 70% 35%)';
@@ -236,6 +266,20 @@ export default function TodayAssignmentCard({
               'Mark Today Complete'
           }
         </Button>
+      )}
+
+      {planProgressLine && (
+        <motion.button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic(); onOpenPlanModal(); }}
+          whileTap={{ scale: 0.97 }}
+          className="w-full mt-3 flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors"
+        >
+          <div className="flex items-center gap-2">
+            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-[12px] font-medium text-muted-foreground">Explore Reading Plans</span>
+          </div>
+          <span className="text-[11px] text-muted-foreground/70">{planProgressLine} →</span>
+        </motion.button>
       )}
     </motion.div>);
 
