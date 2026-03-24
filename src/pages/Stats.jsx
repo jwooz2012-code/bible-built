@@ -389,10 +389,9 @@ export default function Stats() {
                 }}
               />
             </div>
-          </div>
           }
         </motion.div>
-            </div>
+      </div>
 
             <Dialog open={showBaselineDialog} onOpenChange={setShowBaselineDialog}>
         <DialogContent className="max-w-sm">
