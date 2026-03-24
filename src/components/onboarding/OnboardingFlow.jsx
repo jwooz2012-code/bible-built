@@ -6,7 +6,7 @@ import { useReminders } from '@/components/reminders/useReminders';
 
 const TIME_PRESETS = [
   { label: 'Early Morning', sublabel: '6:00 AM', value: '06:00' },
-  { label: 'Midday', sublabel: '12:00 PM', value: '12:00' },
+  { label: 'Noon', sublabel: '12:00 PM', value: '12:00' },
   { label: 'Evening', sublabel: '7:00 PM', value: '19:00' },
 ];
 
