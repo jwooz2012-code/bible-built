@@ -61,7 +61,7 @@ export default function TodayAssignmentCard({
     return getAssignmentForDate({ plan, dateKey: todayKey });
   }, [hasPlan, plan, todayKey, isCustomPlan, todayPlanDay]);
 
-  const { summary, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
+  const { summary, parts, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
     if (!assignedToday.length) {
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
@@ -235,9 +235,13 @@ export default function TodayAssignmentCard({
               <BookOpen className="w-3 h-3 flex-shrink-0" style={{ color: 'hsl(25 95% 53%)' }} />
               <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'hsl(25 95% 53%)' }}>Today's Reading</span>
             </div>
-            <h3 className="text-[26px] font-bold text-foreground mb-2 leading-tight tracking-tight">
-              {summary}
-            </h3>
+            <div className="mb-2 flex flex-col gap-0.5">
+              {(parts && parts.length > 0 ? parts : [summary]).map((line, i) => (
+                <span key={i} className="text-[22px] font-semibold text-foreground leading-snug tracking-tight block">
+                  {line}
+                </span>
+              ))}
+            </div>
             <p className="text-sm text-muted-foreground mb-5">
               {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
             </p>
