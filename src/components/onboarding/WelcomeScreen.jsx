@@ -46,13 +46,15 @@ export default function WelcomeScreen({ onContinue }) {
         transition={{ delay: 0.4, duration: 0.3 }}
         className="mt-12 w-full max-w-sm"
       >
-        <Button
-          onClick={onContinue}
-          size="lg"
-          className="w-full h-14 rounded-full text-base font-bold"
-        >
-          Let's Go 🚀
-        </Button>
+        <motion.div whileTap={{ scale: 0.98 }}>
+          <Button
+            onClick={onContinue}
+            size="lg"
+            className="w-full h-14 rounded-full text-base font-bold transition-all"
+          >
+            Let's Go 🚀
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
