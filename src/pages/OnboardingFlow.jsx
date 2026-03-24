@@ -33,7 +33,6 @@ export default function OnboardingFlow() {
     dailyCommitment: ''
   });
   const [isSaving, setIsSaving] = useState(false);
-  const [showTransition, setShowTransition] = useState(false);
 
   const handleNext = (value) => {
     triggerHaptic();
@@ -57,24 +56,13 @@ export default function OnboardingFlow() {
   const handleFinish = async () => {
     triggerHaptic();
     setIsSaving(true);
-    setShowTransition(true);
 
     try {
-      // Mark onboarding complete
       await base44.auth.updateMe({ onboardingComplete: true });
-
-      // Trigger Battle badge celebration
-      triggerCelebration(CELEBRATION_TYPES.BADGE, {
-        title: 'Battle',
-        description: 'First step taken. Keep building.'
-      }, { dedupKey: 'battle-onboarding' });
-      
-      // Navigate to home
       navigate('/home', { replace: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
       setIsSaving(false);
-      setShowTransition(false);
     }
   };
 
@@ -119,16 +107,14 @@ export default function OnboardingFlow() {
     <div className="min-h-screen bg-background overflow-hidden">
 
       {/* Progress indicator - hidden on welcome and final screens */}
-      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && !showTransition && (
+      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
         <ProgressIndicator currentStep={currentStep} totalSteps={getTotalScreens(responses.experienceType)} />
       )}
 
       {/* Screen container */}
-      {!showTransition && (
-        <AnimatePresence mode="wait">
-          <div key={currentStep}>{renderScreen()}</div>
-        </AnimatePresence>
-      )}
+      <AnimatePresence mode="wait">
+        <div key={currentStep}>{renderScreen()}</div>
+      </AnimatePresence>
     </div>
   );
 }
