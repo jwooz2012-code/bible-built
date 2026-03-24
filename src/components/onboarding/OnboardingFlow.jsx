@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X, Bell, BellOff } from 'lucide-react';
+import { X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useReminders } from '@/components/reminders/useReminders';
+
+const LOGO_URL = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png';
 
 const TIME_PRESETS = [
   { label: 'Early Morning', sublabel: '6:00 AM', value: '06:00' },
@@ -24,8 +26,6 @@ const variants = {
   exit: (dir) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
 };
 
-const LOGO_URL = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png';
-
 function LogoMark({ size = 'sm' }) {
   const cls = size === 'lg' ? 'w-24 h-24 rounded-[28px] shadow-xl' : 'w-12 h-12 rounded-2xl shadow-md';
   return <img src={LOGO_URL} alt="Bible Built" className={`${cls} mx-auto object-cover`} />;
@@ -37,7 +37,25 @@ function StepWelcome({ onNext, onSkip }) {
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
         <div className="mb-8">
           <LogoMark size="lg" />
-        </div>({ user, onNext, onSkip }) {
+        </div>
+        <h1 className="text-[34px] font-bold text-foreground tracking-tight mb-2">Bible Built</h1>
+        <p className="text-[18px] font-medium text-muted-foreground mb-2">Track what matters.</p>
+        <p className="text-[15px] text-muted-foreground/70 mb-12">Build a daily habit in God's Word.</p>
+        <button
+          onClick={onNext}
+          className="w-full max-w-xs py-4 rounded-2xl bg-foreground text-background text-[17px] font-semibold shadow-lg active:scale-95 transition-transform"
+        >
+          Get Started
+        </button>
+        <button onClick={onSkip} className="mt-4 text-[14px] text-muted-foreground/60 py-2">
+          Finish Later
+        </button>
+      </motion.div>
+    </div>
+  );
+}
+
+function StepName({ user, onNext, onSkip }) {
   const [name, setName] = useState(user?.displayName || user?.full_name?.split(' ')[0] || '');
 
   const handleNext = async () => {
@@ -135,15 +153,12 @@ function StepReminderSetup({ existingSettings, onConfirm, onSkip }) {
     onConfirm();
   };
 
-  const matchedPreset = TIME_PRESETS.find(p => p.value === selectedTime);
-
   return (
     <div className="flex flex-col flex-1 px-6 pt-6 pb-6 overflow-y-auto">
       <div className="mb-5"><LogoMark /></div>
       <h2 className="text-[24px] font-bold text-foreground mb-1">Set your reminder</h2>
       <p className="text-[14px] text-muted-foreground mb-6">Pick a time that fits your routine.</p>
 
-      {/* Time presets */}
       <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">When</p>
       <div className="space-y-2 mb-4">
         {TIME_PRESETS.map(preset => (
@@ -173,7 +188,6 @@ function StepReminderSetup({ existingSettings, onConfirm, onSkip }) {
         </button>
       </div>
 
-      {/* Days */}
       <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest mb-2">Days</p>
       <div className="flex gap-2 mb-3">
         {DAY_OPTIONS.map(opt => (
@@ -244,7 +258,6 @@ function StepComplete({ displayName, onEnter }) {
   );
 }
 
-// ── Dots ──────────────────────────────────────────────────────────────────────
 function Dots({ total, current }) {
   return (
     <div className="flex gap-1.5 justify-center">
@@ -255,7 +268,6 @@ function Dots({ total, current }) {
   );
 }
 
-// ── Main ──────────────────────────────────────────────────────────────────────
 export default function OnboardingFlow({ user, onComplete }) {
   const [step, setStep] = useState(0);
   const [dir, setDir] = useState(1);
@@ -263,9 +275,7 @@ export default function OnboardingFlow({ user, onComplete }) {
   const [displayName, setDisplayName] = useState(user?.displayName || user?.full_name?.split(' ')[0] || '');
   const { settings: existingReminder } = useReminders();
 
-  // Steps: 0=welcome, 1=name, 2=vision, 3=reminderIntro, [3.5=reminderSetup], 4=complete
   const TOTAL_DOTS = 5;
-  const dotIndex = step <= 3 ? step : step + 1 > 4 ? 4 : step;
 
   const go = (n) => { setDir(n > step ? 1 : -1); setStep(n); };
   const next = () => go(step + 1);
@@ -277,7 +287,6 @@ export default function OnboardingFlow({ user, onComplete }) {
 
   return (
     <div className="fixed inset-0 z-[200] bg-background flex flex-col" style={{ paddingTop: 'env(safe-area-inset-top)', paddingBottom: 'env(safe-area-inset-bottom)' }}>
-      {/* Header */}
       <div className="flex items-center justify-between px-5 pt-4 pb-2">
         <div className="w-8" />
         <Dots total={TOTAL_DOTS} current={step > 3 ? 4 : step} />
@@ -286,7 +295,6 @@ export default function OnboardingFlow({ user, onComplete }) {
         </button>
       </div>
 
-      {/* Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <AnimatePresence custom={dir} mode="wait">
           <motion.div
@@ -299,15 +307,9 @@ export default function OnboardingFlow({ user, onComplete }) {
             transition={{ duration: 0.22, ease: 'easeInOut' }}
             className="flex flex-col flex-1"
           >
-            {step === 0 && (
-              <StepWelcome onNext={next} onSkip={markComplete} />
-            )}
-            {step === 1 && (
-              <StepName user={user} onNext={(data) => { setDisplayName(data.displayName); next(); }} onSkip={next} />
-            )}
-            {step === 2 && (
-              <StepVision onNext={next} />
-            )}
+            {step === 0 && <StepWelcome onNext={next} onSkip={markComplete} />}
+            {step === 1 && <StepName user={user} onNext={(data) => { setDisplayName(data.displayName); next(); }} onSkip={next} />}
+            {step === 2 && <StepVision onNext={next} />}
             {step === 3 && !showReminderSetup && (
               <StepReminderIntro
                 onSetReminder={() => { setDir(1); setShowReminderSetup(true); }}
@@ -321,9 +323,7 @@ export default function OnboardingFlow({ user, onComplete }) {
                 onSkip={() => go(4)}
               />
             )}
-            {step === 4 && (
-              <StepComplete displayName={displayName} onEnter={markComplete} />
-            )}
+            {step === 4 && <StepComplete displayName={displayName} onEnter={markComplete} />}
           </motion.div>
         </AnimatePresence>
       </div>
