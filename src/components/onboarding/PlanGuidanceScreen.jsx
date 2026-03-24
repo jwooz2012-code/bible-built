@@ -53,13 +53,15 @@ export default function PlanGuidanceScreen({ onContinue }) {
         </div>
       </div>
 
-      <Button
-        onClick={onContinue}
-        size="lg"
-        className="w-full h-12 rounded-full font-bold"
-      >
-        Got it
-      </Button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={onContinue}
+          size="lg"
+          className="w-full h-12 rounded-full font-bold transition-all"
+        >
+          Got it
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }
