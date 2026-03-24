@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { triggerHaptic } from '@/components/utils/haptics';
+import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import ProgressIndicator from '@/components/onboarding/ProgressIndicator';
 import WelcomeScreen from '@/components/onboarding/WelcomeScreen';
 import DisplayNameScreen from '@/components/onboarding/DisplayNameScreen';
@@ -21,6 +22,7 @@ const getTotalScreens = (experienceType) => {
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
+  const { triggerCelebration } = useCelebration();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState({
     displayName: '',
@@ -31,6 +33,7 @@ export default function OnboardingFlow() {
     dailyCommitment: ''
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [showTransition, setShowTransition] = useState(false);
 
   const handleNext = (value) => {
     triggerHaptic();
@@ -54,6 +57,7 @@ export default function OnboardingFlow() {
   const handleFinish = async () => {
     triggerHaptic();
     setIsSaving(true);
+    setShowTransition(true);
 
     try {
       // Save all onboarding data to user profile
@@ -67,11 +71,20 @@ export default function OnboardingFlow() {
         onboardingComplete: true
       });
 
-      // Navigate to home
-      navigate('/home', { replace: true });
+      // Trigger battle badge celebration
+      triggerCelebration(CELEBRATION_TYPES.BADGE, {
+        title: 'Battle Badge Earned! 🎖️',
+        description: 'You\'ve started your journey. Now build it day by day.'
+      });
+
+      // Navigate to home after a brief delay
+      setTimeout(() => {
+        navigate('/home', { replace: true });
+      }, 1500);
     } catch (error) {
       console.error('Failed to save onboarding:', error);
       setIsSaving(false);
+      setShowTransition(false);
     }
   };
 
@@ -114,6 +127,51 @@ export default function OnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
+      {/* Transition overlay */}
+      <AnimatePresence>
+        {showTransition && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-gradient-to-b from-background via-primary/5 to-background z-40"
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+              className="absolute inset-0 flex items-center justify-center"
+            >
+              <div className="text-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1.5, ease: 'easeInOut' }}
+                  className="text-6xl mb-4"
+                >
+                  🎖️
+                </motion.div>
+                <motion.h2
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="text-2xl font-bold text-foreground mb-2"
+                >
+                  Journey Started
+                </motion.h2>
+                <motion.p
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="text-muted-foreground text-sm"
+                >
+                  Welcome to Bible Built
+                </motion.p>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Progress indicator - hidden on welcome and final screens */}
       {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
         <ProgressIndicator currentStep={currentStep} totalSteps={getTotalScreens(responses.experienceType)} />
@@ -121,7 +179,7 @@ export default function OnboardingFlow() {
 
       {/* Screen container */}
       <AnimatePresence mode="wait">
-        <div key={currentStep}>{renderScreen()}</div>
+        {!showTransition && <div key={currentStep}>{renderScreen()}</div>}
       </AnimatePresence>
     </div>
   );
