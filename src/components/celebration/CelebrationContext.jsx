@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
-import { notificationSuccess } from '@/components/utils/haptics';
 
 export const CELEBRATION_TYPES = {
   BADGE: 'badge',
@@ -31,7 +30,6 @@ export function CelebrationProvider({ children }) {
       if (celebratedThisSession.has(dedupKey)) return;
       celebratedThisSession.add(dedupKey);
     }
-    notificationSuccess();
 
     const item = {
       type,
