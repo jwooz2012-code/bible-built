@@ -348,10 +348,7 @@ export default function Profile() {
               >
                 <div className="flex items-center gap-3">
                   <Share2 className="text-muted-foreground" style={{ width: 18, height: 18 }} />
-                  <div>
-                    <span className="text-[15px] font-medium text-foreground block">Share Your Progress</span>
-                    <span className="text-[12px] text-muted-foreground">Show off your stats</span>
-                  </div>
+                  <span className="text-[15px] font-medium text-foreground">Share Your Progress</span>
                 </div>
                 <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
               </TapRow>
