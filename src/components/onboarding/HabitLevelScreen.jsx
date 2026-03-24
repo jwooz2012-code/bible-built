@@ -25,9 +25,12 @@ export default function HabitLevelScreen({ onContinue, initialValue = '' }) {
         <p className="text-sm text-muted-foreground mb-8">No pressure. Just honesty.</p>
 
         <div className="space-y-3">
-          {HABITS.map((habit) => (
+          {HABITS.map((habit, idx) => (
             <motion.button
               key={habit.value}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
               onClick={() => setSelected(habit.value)}
               className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-semibold ${
                 selected === habit.value
@@ -43,14 +46,16 @@ export default function HabitLevelScreen({ onContinue, initialValue = '' }) {
         </div>
       </div>
 
-      <Button
-        onClick={() => onContinue(selected)}
-        disabled={!selected}
-        size="lg"
-        className="w-full h-12 rounded-full font-bold"
-      >
-        Continue
-      </Button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={() => onContinue(selected)}
+          disabled={!selected}
+          size="lg"
+          className="w-full h-12 rounded-full font-bold transition-all"
+        >
+          Continue
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }
