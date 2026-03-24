@@ -11,7 +11,8 @@ function BadgeModal({ badge, onClose }) {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-6 sm:pb-0"
+        className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -19,7 +20,8 @@ function BadgeModal({ badge, onClose }) {
       >
         <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
         <motion.div
-          className="relative w-full max-w-xs rounded-3xl p-6 z-10"
+          className="relative w-full max-w-xs rounded-3xl p-6 z-10 overflow-y-auto"
+          style={{ maxHeight: 'calc(100vh - env(safe-area-inset-bottom) - 120px)' }}
           style={{
             background: 'hsl(var(--card))',
             border: '1px solid hsl(var(--border)/0.8)',
