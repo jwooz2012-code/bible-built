@@ -156,6 +156,13 @@ export default function ReminderSettings() {
               <p className="text-[12px] text-destructive">Notifications are blocked. Enable them in your device settings.</p>
             </div>
           )}
+          
+          {/* iOS PWA note */}
+          {settings.enabled && permissionStatus === 'granted' && (
+            <div className="px-4 py-3 bg-blue-50 dark:bg-blue-950">
+              <p className="text-[12px] text-blue-700 dark:text-blue-300">💡 For reliable notifications on iOS, add Bible Built to your home screen.</p>
+            </div>
+          )}
 
           {/* Save */}
           {isDirty && (
