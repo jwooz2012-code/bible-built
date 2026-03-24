@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
-import { triggerHaptic } from '@/components/utils/haptics';
+import { impactLight } from '@/components/utils/haptics';
 import { useTheme } from '@/components/ThemeProvider';
 
 export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
@@ -9,7 +9,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
 
   const handleClick = () => {
     if (!disabled) {
-      triggerHaptic();
+      impactLight();
       onClick();
     }
   };

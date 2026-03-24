@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef } from 'react';
+import { notificationSuccess } from '@/components/utils/haptics';
 
 export const CELEBRATION_TYPES = {
   BADGE: 'badge',
@@ -26,6 +27,7 @@ export function CelebrationProvider({ children }) {
 
   const triggerCelebration = useCallback((type, data = {}, options = {}) => {
     const { dedupKey } = options;
+    notificationSuccess();
     if (dedupKey) {
       if (celebratedThisSession.has(dedupKey)) return;
       celebratedThisSession.add(dedupKey);
