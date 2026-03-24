@@ -330,7 +330,7 @@ export default function Stats() {
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.15, delay: 0.16 }}>
-          <div className="mb-4">
+          <div id="badges-section" className="mb-4">
             <h2 className="text-xl font-semibold text-foreground mb-1">Badges</h2>
             <p className="text-sm text-muted-foreground">Milestones you've earned</p>
           </div>
