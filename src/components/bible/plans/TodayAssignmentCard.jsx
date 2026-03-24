@@ -243,7 +243,7 @@ export default function TodayAssignmentCard({
               ))}
             </div>
             <p className="text-sm text-muted-foreground mb-5">
-              {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
+              {plan.name || 'My Reading Plan'}
             </p>
           </>
         )}
