@@ -5,30 +5,29 @@ const TOTAL_BIBLE_CHAPTERS = 1189;
 const GREEN = 'rgb(34,197,94)';
 const GREEN_TRACK = 'rgba(34,197,94,0.12)';
 
-const OT_SECTIONS = ['Law', 'History', 'Wisdom', 'Prophets'];
-const NT_SECTIONS = ['Gospels', 'Acts', 'Epistles', 'Revelation'];
+// Maps display label -> one or more actual section keys from sectionData
+const SECTION_MERGE = [
+  // OT
+  { label: 'Law',      keys: ['Law'],                                    testament: 'OT' },
+  { label: 'History',  keys: ['History'],                                testament: 'OT' },
+  { label: 'Wisdom',   keys: ['Poetry/Wisdom'],                          testament: 'OT' },
+  { label: 'Prophets', keys: ['Major Prophets', 'Minor Prophets'],       testament: 'OT' },
+  // NT
+  { label: 'Gospels',  keys: ['Gospels'],                                testament: 'NT' },
+  { label: 'Acts',     keys: ['Acts'],                                   testament: 'NT' },
+  { label: 'Epistles', keys: ['Pauline Epistles', 'General Epistles'],   testament: 'NT' },
+  { label: 'Revelation', keys: ['Revelation'],                           testament: 'NT' },
+];
 
-function SectionRow({ label, percent, delay = 0 }) {
-  const pct = Math.round(percent);
-  return (
-    <div className="space-y-1.5">
-      <div className="flex items-center justify-between">
-        <span className="text-[13px] font-medium text-foreground/80">{label}</span>
-        <span className="text-[12px] font-bold tabular-nums" style={{ color: pct > 0 ? GREEN : 'hsl(var(--muted-foreground)/0.4)' }}>
-          {pct === 0 ? '—' : `${pct}%`}
-        </span>
-      </div>
-      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: GREEN_TRACK }}>
-        <motion.div
-          initial={{ width: 0 }}
-          animate={{ width: `${pct}%` }}
-          transition={{ duration: 0.6, ease: 'easeOut', delay }}
-          className="h-full rounded-full"
-          style={{ background: pct > 0 ? `linear-gradient(90deg, ${GREEN}, rgb(74,222,128))` : 'transparent' }}
-        />
-      </div>
-    </div>
-  );
+function mergedPercent(keys, sectionData) {
+  let totalChapters = 0, totalRead = 0;
+  for (const s of sectionData) {
+    if (keys.includes(s.section)) {
+      totalChapters += s.total;
+      totalRead += s.completedDistinct;
+    }
+  }
+  return totalChapters > 0 ? (totalRead / totalChapters) * 100 : 0;
 }
 
 export default function BibleCoverageCard({ sectionData, bookProgressLifetime }) {
