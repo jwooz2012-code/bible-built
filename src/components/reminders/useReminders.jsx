@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 
 const STORAGE_KEY = 'bb_reminder_settings';
+const REMINDER_INTERVAL = 60000; // Check every minute
 
 export const DEFAULT_REMINDER = {
   enabled: false,
@@ -48,34 +49,61 @@ export function getReminderStatusText(settings) {
   return `${daysStr} at ${timeStr}`;
 }
 
-// Schedule a check: on app load, if today is a reminder day and we're past the time, show notification
-export function checkAndShowReminder(settings) {
-  if (!settings?.enabled) return;
+// Check reminders and trigger notification if time matches
+function checkAndTriggerNotification() {
   if (!('Notification' in window) || Notification.permission !== 'granted') return;
 
   const now = new Date();
-  const todayDay = now.getDay();
-  const activeDays = getActiveDays(settings);
-  if (!activeDays.includes(todayDay)) return;
+  const currentDay = now.getDay();
 
-  const [h, m] = settings.time.split(':').map(Number);
-  const reminderTime = new Date();
-  reminderTime.setHours(h, m, 0, 0);
+  try {
+    const settings = loadLocal() || DEFAULT_REMINDER;
+    if (!settings.enabled) return;
 
-  // Show if within 30 min window after reminder time (and not shown today)
-  const diffMs = now - reminderTime;
-  if (diffMs < 0 || diffMs > 30 * 60 * 1000) return;
+    const activeDays = getActiveDays(settings);
+    if (!activeDays.includes(currentDay)) return;
 
-  const shownKey = `bb_notif_shown_${now.toISOString().slice(0, 10)}`;
-  if (localStorage.getItem(shownKey)) return;
-  localStorage.setItem(shownKey, '1');
+    // Check if current time matches scheduled time (within 1 minute window)
+    const [scheduledH, scheduledM] = settings.time.split(':').map(Number);
+    const scheduledTime = new Date();
+    scheduledTime.setHours(scheduledH, scheduledM, 0, 0);
 
-  new Notification('Bible Built', {
-    body: 'Time to build in the Word.',
-    icon: '/icons/icon-192.png',
-    badge: '/icons/icon-192.png',
-    tag: 'bb-daily-reminder',
-  });
+    const diffMs = Math.abs(now - scheduledTime);
+    const diffMinutes = Math.floor(diffMs / 60000);
+
+    if (diffMinutes <= 1) {
+      const shownKey = `bb_notif_shown_${now.toISOString().slice(0, 10)}`;
+      if (!localStorage.getItem(shownKey)) {
+        localStorage.setItem(shownKey, '1');
+        new Notification('Bible Built', {
+          body: 'Time to build in the Word.',
+          icon: '/icons/icon-192.png',
+          badge: '/icons/icon-192.png',
+          tag: 'bb-daily-reminder',
+          requireInteraction: false,
+        });
+      }
+    }
+  } catch (error) {
+    console.error('[Reminder] Error checking notification:', error);
+  }
+}
+
+// Clear all scheduled notifications
+function clearAllNotifications() {
+  try {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(reg => {
+          reg.getNotifications({ tag: 'bb-daily-reminder' }).then(notifications => {
+            notifications.forEach(n => n.close());
+          }).catch(() => {});
+        });
+      }).catch(() => {});
+    }
+  } catch (error) {
+    console.error('[Reminder] Error clearing notifications:', error);
+  }
 }
 
 export function useReminders() {
@@ -84,6 +112,26 @@ export function useReminders() {
     typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
   );
   const [isSaving, setIsSaving] = useState(false);
+
+  // Register Service Worker on mount (only once)
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').catch(err => {
+        console.warn('[Reminder] SW registration failed:', err);
+      });
+    }
+  }, []);
+
+  // Start background check interval when enabled
+  useEffect(() => {
+    if (settings.enabled) {
+      // Check immediately
+      checkAndTriggerNotification();
+      // Then check every minute
+      const interval = setInterval(checkAndTriggerNotification, REMINDER_INTERVAL);
+      return () => clearInterval(interval);
+    }
+  }, [settings.enabled, settings.time, settings.days, settings.customDays]);
 
   // Load from user profile on mount
   useEffect(() => {
@@ -114,12 +162,16 @@ export function useReminders() {
     // Then request permission (best-effort)
     const perm = await requestPermission();
     setPermissionStatus(perm);
+    // Trigger check immediately
+    checkAndTriggerNotification();
     return true;
   }, [saveSettings]);
 
   const disableReminders = useCallback(async () => {
-    await saveSettings({ ...settings, enabled: false });
-  }, [settings, saveSettings]);
+    // Clear any pending notifications
+    clearAllNotifications();
+    await saveSettings({ enabled: false });
+  }, [saveSettings]);
 
   const updateSettings = useCallback(async (partial) => {
     await saveSettings({ ...settings, ...partial });
