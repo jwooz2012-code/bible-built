@@ -195,132 +195,133 @@ export default function Stats() {
     }
   };
 
+  const cardVariants = {
+    hidden: { opacity: 0, y: 16 },
+    visible: (i) => ({ opacity: 1, y: 0, transition: { duration: 0.32, delay: i * 0.07, ease: [0.25, 0.46, 0.45, 0.94] } })
+  };
+
   return (
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-5 pb-8">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-3"
+          className="mb-5"
         >
-          <h1 className="text-3xl font-semibold text-foreground">Statistics</h1>
+          <h1 className="text-3xl font-bold text-foreground tracking-tight">Statistics</h1>
         </motion.div>
 
 
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15 }}
-          className="bg-card border border-border/60 rounded-2xl p-5 mb-4"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+          custom={0} variants={cardVariants} initial="hidden" animate="visible"
+          className="rounded-2xl p-5 mb-4 overflow-hidden relative"
+          style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
+        >
+          {/* blue glow accent */}
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(96,165,250,0.08) 0%, transparent 70%)' }} />
 
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
-              <CalendarCheck className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(96,165,250,0.12)' }}>
+              <CalendarCheck className="w-4 h-4" style={{ color: 'rgb(96,165,250)' }} />
             </div>
-            <p className="text-sm font-medium text-muted-foreground">This Year ({currentYear})</p>
+            <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">This Year · {currentYear}</p>
           </div>
 
           {yearLoading ?
-          <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div> :
+          <div className="flex justify-center py-12"><LoadingSpinner /></div> :
 
           <div className="space-y-5">
               <div className="pb-5 border-b border-border/60">
-                <p className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Unique Chapters Read</p>
-                <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-3">{yearStats.totalCount}</p>
-                <div className="flex items-center gap-2 mb-3">
+                <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-1">Unique Chapters</p>
+                <p className="text-[3.5rem] font-black text-foreground tracking-tight leading-none mb-3" style={{ textShadow: '0 0 40px rgba(96,165,250,0.15)' }}>{yearStats.totalCount}</p>
+                <div className="flex items-center gap-2 mb-2.5">
                   <span className="text-[13px] text-muted-foreground/70">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
-                  <span className="text-[13px] text-muted-foreground/40">·</span>
-                  <span className="text-[13px] text-muted-foreground/70">{yearStats.totalPercent}%</span>
+                  <span className="text-[13px] text-muted-foreground/30">·</span>
+                  <span className="text-[13px] font-semibold" style={{ color: 'rgb(96,165,250)' }}>{yearStats.totalPercent}%</span>
                 </div>
-                <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
-                  <div
-                  className="h-full rounded-full transition-all duration-500 ease-out"
-                  style={{
-                    width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%`,
-                    background: 'linear-gradient(90deg, #F97316 0%, #FACC15 50%, #FB923C 100%)',
-                  }} />
+                <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }} animate={{ width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%` }}
+                    transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, rgb(96,165,250) 0%, rgb(147,197,253) 100%)' }}
+                  />
                 </div>
-                <p className="text-[11px] text-muted-foreground/50 mt-2">
-                  Counts each chapter once this year toward reading the Bible through.
-                </p>
+                {(() => {
+                  const uniqueReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
+                  if (uniqueReadingDays === 0) return null;
+                  const avgChaptersPerDay = yearStats.totalCount / uniqueReadingDays;
+                  const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
+                  const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
+                  return (
+                    <p className="text-[12px] text-muted-foreground/50 mt-2">At this pace: ~{estimatedDays} days to finish</p>
+                  );
+                })()}
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
-                  <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">Old Testament</p>
-                  <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.otCount}</p>
-                  <p className="text-[13px] text-muted-foreground/60 mt-1">{yearStats.otPercent}%</p>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.15)' }}>
+                  <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">Old Testament</p>
+                  <p className="text-2xl font-black text-foreground tracking-tight">{yearStats.otCount}</p>
+                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(96,165,250,0.15)' }}>
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${yearStats.otPercent}%` }} transition={{ duration: 0.7, delay: 0.4 }}
+                      className="h-full rounded-full" style={{ background: 'rgb(96,165,250)' }} />
                   </div>
-                  <div className="bg-secondary/60 border border-border/40 rounded-xl p-4">
-                  <p className="text-[11px] font-medium text-muted-foreground/70 uppercase tracking-wide mb-2">New Testament</p>
-                  <p className="text-2xl font-bold text-foreground tracking-tight">{yearStats.ntCount}</p>
-                  <p className="text-[13px] text-muted-foreground/60 mt-1">{yearStats.ntPercent}%</p>
+                  <p className="text-[12px] mt-1" style={{ color: 'rgba(96,165,250,0.8)' }}>{yearStats.otPercent}%</p>
+                </div>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.15)' }}>
+                  <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">New Testament</p>
+                  <p className="text-2xl font-black text-foreground tracking-tight">{yearStats.ntCount}</p>
+                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(96,165,250,0.15)' }}>
+                    <motion.div initial={{ width: 0 }} animate={{ width: `${yearStats.ntPercent}%` }} transition={{ duration: 0.7, delay: 0.5 }}
+                      className="h-full rounded-full" style={{ background: 'rgb(96,165,250)' }} />
+                  </div>
+                  <p className="text-[12px] mt-1" style={{ color: 'rgba(96,165,250,0.8)' }}>{yearStats.ntPercent}%</p>
                 </div>
               </div>
-
-              {(() => {
-              const uniqueReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
-              if (uniqueReadingDays === 0) return null;
-              const avgChaptersPerDay = yearStats.totalCount / uniqueReadingDays;
-              const remainingChapters = TOTAL_CHAPTERS - yearStats.totalCount;
-              const estimatedDays = Math.ceil(remainingChapters / avgChaptersPerDay);
-              return (
-                <p className="text-[13px] text-muted-foreground/60 text-center pt-1">
-                    At this pace: ~{estimatedDays} days to finish
-                  </p>);
-            })()}
             </div>
           }
         </motion.div>
 
         {/* Total Chapters Read Card */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.05 }}
-          className="bg-card border border-border/60 rounded-2xl p-5 mb-4"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)', backgroundColor: 'hsl(var(--primary)/0.025)' }}>
+          custom={1} variants={cardVariants} initial="hidden" animate="visible"
+          className="rounded-2xl p-5 mb-4 relative overflow-hidden"
+          style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
+        >
+          <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(251,146,60,0.07) 0%, transparent 70%)' }} />
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
-              <BarChart2 className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(251,146,60,0.12)' }}>
+              <BarChart2 className="w-4 h-4" style={{ color: 'rgb(251,146,60)' }} />
             </div>
-            <p className="text-sm font-medium text-muted-foreground">Total Chapters Read</p>
+            <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">Total Chapters Read</p>
           </div>
-          <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none">{lifetimeLogs.length}</p>
-          <p className="text-[11px] font-medium text-muted-foreground/60 mt-2">Includes every chapter logged, including repeated readings.</p>
+          <p className="text-[3.5rem] font-black text-foreground tracking-tight leading-none" style={{ textShadow: '0 0 40px rgba(251,146,60,0.12)' }}>{lifetimeLogs.length}</p>
+          <p className="text-[12px] text-muted-foreground/50 mt-2">Includes every chapter logged, including repeated readings.</p>
         </motion.div>
 
         {/* Reading Velocity Section */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.08 }}
+          custom={2} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
 
         {/* Bible Coverage Section */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.1 }}
+          custom={3} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground mb-1">Bible Coverage</h2>
-            <p className="text-sm text-muted-foreground">Where you've spent time in Scripture</p>
+            <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Bible Coverage</h2>
+            <p className="text-[13px] text-muted-foreground">Where you've spent time in Scripture</p>
           </div>
           <CoverageRadar sectionData={trackerStats.sectionCoverage} />
         </motion.div>
 
         {/* Books Section */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.12 }}
+          custom={4} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <BookCompletionBars
             bookProgressYear={trackerStats.bookProgressYear}
@@ -329,20 +330,16 @@ export default function Stats() {
 
         {/* Records Section */}
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.14 }}
+          custom={5} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} />
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.16 }}>
+          custom={6} variants={cardVariants} initial="hidden" animate="visible">
           <div id="badges-section" className="mb-4">
-            <h2 className="text-xl font-semibold text-foreground mb-1">Badges</h2>
-            <p className="text-sm text-muted-foreground">Milestones you've earned</p>
+            <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Badges</h2>
+            <p className="text-[13px] text-muted-foreground">Milestones you've earned</p>
           </div>
 
           <div className="bg-card border border-border rounded-2xl p-5">
@@ -374,34 +371,12 @@ export default function Stats() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.15, delay: 0.18 }}
-          className="bg-card border border-border/60 rounded-2xl p-5 mb-6 relative"
-          style={{ boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleEditBaseline}
-            className="absolute top-3 right-3 h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-accent rounded-lg"
-          >
-            <Pencil className="w-3.5 h-3.5" />
-          </Button>
-
-          <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'hsl(var(--primary)/0.07)' }}>
-              <RefreshCw className="w-4 h-4" style={{ color: 'hsl(var(--muted-foreground))' }} />
-            </div>
-            <p className="text-sm font-medium text-muted-foreground">Times Through the Bible</p>
-          </div>
-
-          {lifetimeLoading ?
-          <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div> :
-          <div>
-            <p className="text-[3.25rem] font-bold text-foreground tracking-tight leading-none mb-4" style={{ color: '#F97316' }}>{lifetimeTotal}</p>
+          custom={7} variants={cardVariants} initial="hidden" animate="visible"
+          className="rounded-2xl p-5 mb-6 relative overflow-hidden"
+          style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
+        >
+          <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)' }} />
+          <p className="text-[3.5rem] font-black tracking-tight leading-none mb-4" style={{ color: '#F97316', textShadow: '0 0 40px rgba(249,115,22,0.25)' }}>{lifetimeTotal}</p>
             <p className="text-[13px] text-muted-foreground/70 mb-3">
               {lifetimeStats.progressToNext} / {TOTAL_CHAPTERS} · {lifetimeStats.percentToNext}% toward next completion
             </p>
