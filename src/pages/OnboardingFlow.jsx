@@ -50,7 +50,10 @@ export default function OnboardingFlow() {
       setResponses((prev) => ({ ...prev, ...stepUpdates[currentStep] }));
     }
 
-    setCurrentStep((prev) => prev + 1);
+    // Prevent double-tap during transition
+    if (!isSaving) {
+      setCurrentStep((prev) => prev + 1);
+    }
   };
 
   const handleFinish = async () => {
@@ -58,7 +61,11 @@ export default function OnboardingFlow() {
     setIsSaving(true);
 
     try {
-      await base44.auth.updateMe({ onboardingComplete: true });
+      // Save display name and mark onboarding complete
+      await base44.auth.updateMe({ 
+        full_name: responses.displayName,
+        onboardingComplete: true 
+      });
       navigate('/home', { replace: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
@@ -112,7 +119,7 @@ export default function OnboardingFlow() {
       )}
 
       {/* Screen container */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" onExitComplete={() => {}}>
         <div key={currentStep}>{renderScreen()}</div>
       </AnimatePresence>
     </div>
