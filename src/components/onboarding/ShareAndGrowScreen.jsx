@@ -1,13 +1,22 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BarChart3, Share2, Users } from 'lucide-react';
+import { Share2, Users, CalendarDays, CalendarRange } from 'lucide-react';
 
 export default function ShareAndGrowScreen({ onContinue }) {
-  const features = [
-    { icon: BarChart3, label: 'Progress summaries', emoji: '📊' },
-    { icon: Share2, label: 'Share', emoji: '📲' },
-    { icon: Users, label: 'Invite friends', emoji: '👥' }
+  const sections = [
+    {
+      title: 'Share Your Progress',
+      icon: Share2,
+      description: 'Show off your weekly, monthly, and yearly stats',
+      example: 'Weekly • Monthly • Yearly'
+    },
+    {
+      title: 'Invite Friends',
+      icon: Users,
+      description: 'Build community with those on the same journey',
+      example: 'Stay consistent together'
+    }
   ];
 
   return (
@@ -20,28 +29,33 @@ export default function ShareAndGrowScreen({ onContinue }) {
     >
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">Track it. Share it. Build together.</h1>
-        <p className="text-sm text-muted-foreground mb-8">
-          You can share your weekly, monthly, and yearly progress…
-        </p>
-
-        <p className="text-sm text-muted-foreground mb-12 font-medium">
-          And invite friends to stay consistent with you.
+        <p className="text-sm text-muted-foreground mb-10">
+          Your profile unlocks two powerful ways to grow:
         </p>
 
         {/* Feature Cards */}
-        <div className="space-y-3 mb-12">
-          {features.map((feature, idx) => (
-            <motion.div
-              key={idx}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.08 }}
-              className="flex items-center gap-3 p-4 rounded-2xl bg-secondary/40 border border-border/40"
-            >
-              <span className="text-xl">{feature.emoji}</span>
-              <span className="text-sm font-semibold text-foreground">{feature.label}</span>
-            </motion.div>
-          ))}
+        <div className="space-y-4 mb-12">
+          {sections.map((section, idx) => {
+            const Icon = section.icon;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: idx * 0.1 }}
+                className="flex gap-4 p-4 rounded-2xl bg-card border border-border/60 hover:bg-accent/20 transition-colors"
+              >
+                <div className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-lg bg-secondary">
+                  <Icon className="w-5 h-5 text-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-[15px] font-semibold text-foreground mb-1">{section.title}</h3>
+                  <p className="text-[13px] text-muted-foreground mb-2">{section.description}</p>
+                  <p className="text-[11px] text-muted-foreground/60 italic">{section.example}</p>
+                </div>
+              </motion.div>
+            );
+          })}
         </div>
 
         {/* Helper Text */}
@@ -49,9 +63,9 @@ export default function ShareAndGrowScreen({ onContinue }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="text-xs text-muted-foreground/60 italic text-center"
+          className="text-xs text-muted-foreground/60 text-center"
         >
-          All of this is available anytime in your Profile page.
+          Access both features anytime from your Profile page.
         </motion.p>
       </div>
 
