@@ -242,33 +242,33 @@ export default function Profile() {
 
               <h1 className="text-[22px] font-bold text-foreground mt-4 mb-3">{displayName}</h1>
 
-              {/* ── Badges Row ── */}
-              {earnedBadges.length > 0 ? (
-                <div className="w-full mb-4">
-                  <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest text-center mb-2">Badges</p>
-                  <div className="flex gap-3 overflow-x-auto pb-1 justify-center flex-wrap">
-                    {earnedBadges.map((badge, i) => {
-                      const color = getAchievementColor(badge.title);
-                      const isBlack = color === 'BLACK_WHITE';
-                      return (
-                        <motion.div
-                          key={badge.title}
-                          initial={{ opacity: 0, scale: 0.7 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: i * 0.04 }}
-                          whileTap={{ scale: 1.15 }}
-                          className={`w-10 h-10 flex items-center justify-center rounded-full flex-shrink-0 cursor-pointer ${isBlack ? 'bg-gray-900' : `bg-gradient-to-br ${color}`}`}
-                          title={badge.title}
-                        >
-                          {getAchievementIcon(badge.title, true, 'default')}
-                        </motion.div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ) : (
-                <div className="mb-4">
-                  <p className="text-[11px] text-muted-foreground/60">No badges yet — keep reading!</p>
+              {/* ── Trophy Case ── */}
+              {earnedBadges.length > 0 && (
+                <div className="flex items-center gap-3 mb-4">
+                  {earnedBadges.slice(-6).map((badge, i) => {
+                    const color = getAchievementColor(badge.title);
+                    const isBlack = color === 'BLACK_WHITE';
+                    return (
+                      <motion.div
+                        key={badge.title}
+                        initial={{ opacity: 0, scale: 0.75 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: i * 0.05 }}
+                        whileTap={{ scale: 0.93 }}
+                        onClick={() => setSelectedBadge(badge)}
+                        className={`w-11 h-11 flex items-center justify-center rounded-full flex-shrink-0 cursor-pointer ${isBlack ? 'bg-gray-900' : `bg-gradient-to-br ${color}`}`}
+                        style={{ boxShadow: '0 2px 8px rgba(0,0,0,0.18), 0 0 0 2px rgba(255,255,255,0.08)' }}
+                        title={badge.title}
+                      >
+                        {getAchievementIcon(badge.title, true, 'default')}
+                      </motion.div>
+                    );
+                  })}
+                  {earnedBadges.length > 6 && (
+                    <div className="w-11 h-11 flex items-center justify-center rounded-full bg-secondary flex-shrink-0">
+                      <span className="text-[11px] font-semibold text-muted-foreground">+{earnedBadges.length - 6}</span>
+                    </div>
+                  )}
                 </div>
               )}
 
