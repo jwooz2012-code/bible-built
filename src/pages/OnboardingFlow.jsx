@@ -11,7 +11,7 @@ import MotivationScreen from '@/components/onboarding/MotivationScreen';
 import HabitLevelScreen from '@/components/onboarding/HabitLevelScreen';
 import ExperienceTypeScreen from '@/components/onboarding/ExperienceTypeScreen';
 import PlanGuidanceScreen from '@/components/onboarding/PlanGuidanceScreen';
-import GoalScreen from '@/components/onboarding/GoalScreen';
+import ShareAndGrowScreen from '@/components/onboarding/ShareAndGrowScreen';
 import DailyCommitmentScreen from '@/components/onboarding/DailyCommitmentScreen';
 import FinalScreen from '@/components/onboarding/FinalScreen';
 
@@ -29,7 +29,6 @@ export default function OnboardingFlow() {
     motivation: [],
     habitLevel: '',
     experienceType: '',
-    goal: '',
     dailyCommitment: ''
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -42,8 +41,7 @@ export default function OnboardingFlow() {
       2: { motivation: value },
       3: { habitLevel: value },
       4: { experienceType: value },
-      5: { goal: value },
-      6: { dailyCommitment: value }
+      5: { dailyCommitment: value }
     };
 
     if (stepUpdates[currentStep]) {
@@ -92,10 +90,10 @@ export default function OnboardingFlow() {
         if (responses.experienceType === 'follow_plan') {
           return <PlanGuidanceScreen {...commonProps} />;
         }
-        return <GoalScreen {...commonProps} initialValue={responses.goal} />;
+        return <ShareAndGrowScreen {...commonProps} />;
       case 6:
         if (responses.experienceType === 'follow_plan') {
-          return <GoalScreen {...commonProps} initialValue={responses.goal} />;
+          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
         }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
       case 7:
