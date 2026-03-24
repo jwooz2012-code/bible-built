@@ -11,13 +11,14 @@ import MotivationScreen from '@/components/onboarding/MotivationScreen';
 import HabitLevelScreen from '@/components/onboarding/HabitLevelScreen';
 import ExperienceTypeScreen from '@/components/onboarding/ExperienceTypeScreen';
 import PlanGuidanceScreen from '@/components/onboarding/PlanGuidanceScreen';
-import ShareAndGrowScreen from '@/components/onboarding/ShareAndGrowScreen';
+import AccountabilityScreen from '@/components/onboarding/AccountabilityScreen';
+import CommunityScreen from '@/components/onboarding/CommunityScreen';
 import DailyCommitmentScreen from '@/components/onboarding/DailyCommitmentScreen';
 import FinalScreen from '@/components/onboarding/FinalScreen';
 
-// TOTAL_SCREENS varies: 8-9 depending on whether plan guidance is shown
+// TOTAL_SCREENS varies: 10-11 depending on whether plan guidance is shown
 const getTotalScreens = (experienceType) => {
-  return experienceType === 'follow_plan' ? 9 : 8;
+  return experienceType === 'follow_plan' ? 11 : 10;
 };
 
 export default function OnboardingFlow() {
@@ -90,18 +91,28 @@ export default function OnboardingFlow() {
         if (responses.experienceType === 'follow_plan') {
           return <PlanGuidanceScreen {...commonProps} />;
         }
-        return <ShareAndGrowScreen {...commonProps} />;
+        return <AccountabilityScreen {...commonProps} />;
       case 6:
         if (responses.experienceType === 'follow_plan') {
-          return <ShareAndGrowScreen {...commonProps} />;
+          return <AccountabilityScreen {...commonProps} />;
+        }
+        return <CommunityScreen {...commonProps} />;
+      case 7:
+        if (responses.experienceType === 'follow_plan') {
+          return <CommunityScreen {...commonProps} />;
         }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
-      case 7:
+      case 8:
         if (responses.experienceType === 'follow_plan') {
           return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
         }
         return <FinalScreen onContinue={handleFinish} />;
-      case 8:
+      case 9:
+        if (responses.experienceType === 'follow_plan') {
+          return <FinalScreen onContinue={handleFinish} />;
+        }
+        return null;
+      case 10:
         return <FinalScreen onContinue={handleFinish} />;
       default:
         return null;
