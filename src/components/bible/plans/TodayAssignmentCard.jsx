@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Calendar, CheckCircle2, ChevronDown, ChevronUp, BookOpen, ChevronRight } from 'lucide-react';
+import { CheckCircle2, BookOpen, ChevronRight, Pencil } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
@@ -212,22 +212,27 @@ export default function TodayAssignmentCard({
         boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
       }}>
 
-      <div>
-        
-        {/* Date line */}
-        <p className="text-xs text-muted-foreground mb-2">
+      <div className="flex items-start justify-between mb-2">
+        <p className="text-xs text-muted-foreground">
           Today · {formatDateKey(todayKey)}
         </p>
+        <motion.button
+          onClick={(e) => { e.stopPropagation(); triggerHaptic(); onOpenPlanModal(); }}
+          whileTap={{ scale: 0.85, opacity: 0.6 }}
+          className="p-1 -mt-0.5 -mr-1 rounded-md text-muted-foreground/60 hover:text-muted-foreground transition-colors"
+        >
+          <Pencil className="w-3.5 h-3.5" />
+        </motion.button>
+      </div>
 
-        {/* Reading reference - large and bold */}
+      <div>
+
         {summary && (
           <>
             <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
               {summary}
             </h3>
-            
-            {/* Context line */}
-            <p className="text-sm text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-5">
               {plan.name || 'My Reading Plan'} · {totalCount} {totalCount === 1 ? 'chapter' : 'chapters'}
             </p>
           </>
@@ -260,19 +265,6 @@ export default function TodayAssignmentCard({
         </Button>
       )}
 
-      {planProgressLine && (
-        <motion.button
-          onClick={(e) => { e.stopPropagation(); triggerHaptic(); onOpenPlanModal(); }}
-          whileTap={{ scale: 0.97 }}
-          className="w-full mt-3 flex items-center justify-between px-3 py-2 rounded-xl bg-secondary/60 hover:bg-secondary transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <BookOpen className="w-3.5 h-3.5 text-muted-foreground" />
-            <span className="text-[12px] font-medium text-muted-foreground">Explore Reading Plans</span>
-          </div>
-          <span className="text-[11px] text-muted-foreground/70">{planProgressLine} →</span>
-        </motion.button>
-      )}
     </motion.div>);
 
 }
