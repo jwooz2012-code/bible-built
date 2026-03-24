@@ -109,13 +109,12 @@ export function useReminders() {
   }, []);
 
   const enableReminders = useCallback(async (settingsToSave) => {
+    // Save the setting first, regardless of permission
+    await saveSettings({ ...settingsToSave, enabled: true });
+    // Then request permission (best-effort)
     const perm = await requestPermission();
     setPermissionStatus(perm);
-    if (perm === 'granted') {
-      await saveSettings({ ...settingsToSave, enabled: true });
-      return true;
-    }
-    return false;
+    return true;
   }, [saveSettings]);
 
   const disableReminders = useCallback(async () => {
