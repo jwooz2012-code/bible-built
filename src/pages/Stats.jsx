@@ -41,7 +41,7 @@ import VelocityMeter from '@/components/trackers/VelocityMeter';
 import BibleCoverageCard from '@/components/trackers/BibleCoverageCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import BadgeGrid from '@/components/badges/BadgeGrid';
-import BadgeListWithProgress from '@/components/trackers/BadgeListWithProgress';
+
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
