@@ -5,58 +5,72 @@ const TOTAL_BIBLE_CHAPTERS = 1189;
 const GREEN = 'rgb(34,197,94)';
 const GREEN_TRACK = 'rgba(34,197,94,0.12)';
 
-// Maps display label -> one or more actual section keys from sectionData
+// Maps display label -> exact section keys used in sectionData (from bibleSections.js)
 const SECTION_MERGE = [
-  // OT
-  { label: 'Law',      keys: ['Law'],                                    testament: 'OT' },
-  { label: 'History',  keys: ['History'],                                testament: 'OT' },
-  { label: 'Wisdom',   keys: ['Poetry/Wisdom'],                          testament: 'OT' },
-  { label: 'Prophets', keys: ['Major Prophets', 'Minor Prophets'],       testament: 'OT' },
-  // NT
-  { label: 'Gospels',  keys: ['Gospels'],                                testament: 'NT' },
-  { label: 'Acts',     keys: ['Acts'],                                   testament: 'NT' },
-  { label: 'Epistles', keys: ['Pauline Epistles', 'General Epistles'],   testament: 'NT' },
+  { label: 'Law',        keys: ['Law'],                                  testament: 'OT' },
+  { label: 'History',    keys: ['History'],                              testament: 'OT' },
+  { label: 'Wisdom',     keys: ['Poetry/Wisdom'],                        testament: 'OT' },
+  { label: 'Prophets',   keys: ['Major Prophets', 'Minor Prophets'],     testament: 'OT' },
+  { label: 'Gospels',    keys: ['Gospels'],                              testament: 'NT' },
+  { label: 'Acts',       keys: ['Acts'],                                 testament: 'NT' },
+  { label: 'Epistles',   keys: ['Pauline Epistles', 'General Epistles'], testament: 'NT' },
   { label: 'Revelation', keys: ['Revelation'],                           testament: 'NT' },
 ];
 
-function mergedPercent(keys, sectionData) {
-  let totalChapters = 0, totalRead = 0;
+// Merge multiple raw sections into one accurate percent using chapter counts
+function mergedSection(keys, sectionData) {
+  let total = 0, read = 0;
   for (const s of sectionData) {
     if (keys.includes(s.section)) {
-      totalChapters += s.total;
-      totalRead += s.completedDistinct;
+      total += s.total ?? 0;
+      read += s.completedDistinct ?? 0;
     }
   }
-  return totalChapters > 0 ? (totalRead / totalChapters) * 100 : 0;
+  return { percent: total > 0 ? (read / total) * 100 : 0, read, total };
+}
+
+function SectionRow({ label, percent, delay = 0 }) {
+  const pct = Math.round(percent);
+  return (
+    <div className="space-y-1.5">
+      <div className="flex items-center justify-between">
+        <span className="text-[13px] font-medium text-foreground/80">{label}</span>
+        <span className="text-[12px] font-bold tabular-nums"
+          style={{ color: pct > 0 ? GREEN : 'hsl(var(--muted-foreground)/0.4)' }}>
+          {pct === 0 ? '0%' : `${pct}%`}
+        </span>
+      </div>
+      <div className="w-full h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: GREEN_TRACK }}>
+        <motion.div
+          initial={{ width: 0 }}
+          animate={{ width: `${pct}%` }}
+          transition={{ duration: 0.6, ease: 'easeOut', delay }}
+          className="h-full rounded-full"
+          style={{ background: pct > 0 ? `linear-gradient(90deg, ${GREEN}, rgb(74,222,128))` : 'transparent' }}
+        />
+      </div>
+    </div>
+  );
 }
 
 export default function BibleCoverageCard({ sectionData, bookProgressLifetime }) {
-  // Hero: overall progress
+  // Hero: sum of distinct chapters per book across lifetime
   const totalRead = bookProgressLifetime.reduce((sum, b) => sum + b.completedDistinct, 0);
   const overallPercent = Math.round((totalRead / TOTAL_BIBLE_CHAPTERS) * 100);
 
-  // Map sectionData by name for quick lookup (handles partial matches)
-  const sectionMap = {};
-  sectionData.forEach(s => {
-    const key = s.section.split('/')[0].trim();
-    sectionMap[key] = s.percent ?? 0;
-  });
+  // Build merged sections
+  const sections = SECTION_MERGE.map(s => ({
+    ...s,
+    ...mergedSection(s.keys, sectionData),
+  }));
 
-  const getSectionPercent = (name) => {
-    // Try exact match first, then partial
-    if (sectionMap[name] !== undefined) return sectionMap[name];
-    const found = Object.keys(sectionMap).find(k => k.toLowerCase().includes(name.toLowerCase()) || name.toLowerCase().includes(k.toLowerCase()));
-    return found ? sectionMap[found] : 0;
-  };
+  const otSections = sections.filter(s => s.testament === 'OT');
+  const ntSections = sections.filter(s => s.testament === 'NT');
 
-  const otSections = OT_SECTIONS.map(name => ({ name, percent: getSectionPercent(name) }));
-  const ntSections = NT_SECTIONS.map(name => ({ name, percent: getSectionPercent(name) }));
-
-  // Insight: most and least read section (exclude 0% for most, include 0% for least)
-  const allSections = [...otSections, ...ntSections];
-  const nonZero = allSections.filter(s => s.percent > 0);
+  // Insights
+  const nonZero = sections.filter(s => s.percent > 0);
   const mostRead = nonZero.length > 0 ? nonZero.reduce((a, b) => a.percent > b.percent ? a : b) : null;
-  const leastExplored = allSections.reduce((a, b) => a.percent < b.percent ? a : b);
+  const leastExplored = sections.reduce((a, b) => a.percent < b.percent ? a : b);
 
   return (
     <div
@@ -98,7 +112,7 @@ export default function BibleCoverageCard({ sectionData, bookProgressLifetime })
         <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-3">Old Testament</p>
         <div className="space-y-3">
           {otSections.map((s, i) => (
-            <SectionRow key={s.name} label={s.name} percent={s.percent} delay={0.15 + i * 0.05} />
+            <SectionRow key={s.label} label={s.label} percent={s.percent} delay={0.15 + i * 0.05} />
           ))}
         </div>
       </div>
@@ -108,7 +122,7 @@ export default function BibleCoverageCard({ sectionData, bookProgressLifetime })
         <p className="text-[11px] font-bold text-muted-foreground/50 uppercase tracking-widest mb-3">New Testament</p>
         <div className="space-y-3">
           {ntSections.map((s, i) => (
-            <SectionRow key={s.name} label={s.name} percent={s.percent} delay={0.35 + i * 0.05} />
+            <SectionRow key={s.label} label={s.label} percent={s.percent} delay={0.35 + i * 0.05} />
           ))}
         </div>
       </div>
@@ -118,12 +132,12 @@ export default function BibleCoverageCard({ sectionData, bookProgressLifetime })
         <div className="pt-3 border-t border-border/40 flex flex-wrap gap-x-4 gap-y-1">
           {mostRead && (
             <p className="text-[12px] text-muted-foreground/60">
-              Most read: <span className="font-semibold" style={{ color: GREEN }}>{mostRead.name}</span>
+              Most read: <span className="font-semibold" style={{ color: GREEN }}>{mostRead.label}</span>
             </p>
           )}
           {leastExplored && leastExplored.percent < 10 && (
             <p className="text-[12px] text-muted-foreground/60">
-              Least explored: <span className="font-semibold text-foreground/60">{leastExplored.name}</span>
+              Least explored: <span className="font-semibold text-foreground/60">{leastExplored.label}</span>
             </p>
           )}
         </div>
