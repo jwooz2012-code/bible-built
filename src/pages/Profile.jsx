@@ -14,8 +14,9 @@ import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Bell,
 } from 'lucide-react';
+import ReminderSettings from '@/components/reminders/ReminderSettings';
 
 // ── Streak Ring ───────────────────────────────────────────────────────────────
 const RING_R = 42;
@@ -345,6 +346,10 @@ export default function Profile() {
             <div className="space-y-2">
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
             </div>
+
+            {/* ── Reminders ── */}
+            <SectionHeader title="Reminders" />
+            <ReminderSettings />
 
             {/* ── Settings ── */}
             <SectionHeader title="Settings" />
