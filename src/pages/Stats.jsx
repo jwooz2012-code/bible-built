@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -50,14 +51,15 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
+  const location = useLocation();
 
   useEffect(() => {
-    if (!isLoading && !lifetimeLoading && window.location.hash === '#badges-section') {
+    if (!isLoading && !lifetimeLoading && location.hash === '#badges-section') {
       setTimeout(() => {
         document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 300);
     }
-  }, [isLoading, lifetimeLoading]);
+  }, [isLoading, lifetimeLoading, location.hash]);
   const [isLoading, setIsLoading] = useState(true);
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
