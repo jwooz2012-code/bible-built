@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
-import { triggerHapticFeedback } from '@/components/utils/haptics';
+import { triggerHaptic } from '@/components/utils/haptics';
 import ProgressIndicator from '@/components/onboarding/ProgressIndicator';
 import WelcomeScreen from '@/components/onboarding/WelcomeScreen';
 import DisplayNameScreen from '@/components/onboarding/DisplayNameScreen';
@@ -30,7 +30,7 @@ export default function OnboardingFlow() {
   const [isSaving, setIsSaving] = useState(false);
 
   const handleNext = (value) => {
-    triggerHapticFeedback();
+    triggerHaptic();
     
     const stepUpdates = {
       1: { displayName: value },
@@ -49,7 +49,7 @@ export default function OnboardingFlow() {
   };
 
   const handleFinish = async () => {
-    triggerHapticFeedback();
+    triggerHaptic();
     setIsSaving(true);
 
     try {
