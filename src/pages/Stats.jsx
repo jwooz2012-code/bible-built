@@ -289,15 +289,21 @@ export default function Stats() {
           className="rounded-2xl p-5 mb-4 relative overflow-hidden"
           style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
         >
-          <div className="absolute -bottom-8 -left-8 w-36 h-36 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(251,146,60,0.07) 0%, transparent 70%)' }} />
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(251,146,60,0.12)' }}>
-              <BarChart2 className="w-4 h-4" style={{ color: 'rgb(251,146,60)' }} />
+          <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
+              <BarChart2 className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
             </div>
             <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">Total Chapters Read</p>
           </div>
-          <p className="text-[3.5rem] font-black text-foreground tracking-tight leading-none" style={{ textShadow: '0 0 40px rgba(251,146,60,0.12)' }}>{lifetimeLogs.length}</p>
-          <p className="text-[12px] text-muted-foreground/50 mt-2">Includes every chapter logged, including repeated readings.</p>
+          <motion.p
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4, ease: 'easeOut', delay: 0.1 }}
+            className="text-[3.5rem] font-black text-foreground tracking-tight leading-none"
+            style={{ textShadow: '0 0 30px rgba(34,197,94,0.15)' }}
+          >{lifetimeLogs.length}</motion.p>
+          <p className="text-[13px] font-medium mt-2" style={{ color: 'hsl(var(--muted-foreground))' }}>Includes every chapter logged, including repeated readings.</p>
         </motion.div>
 
         {/* Reading Velocity Section */}
