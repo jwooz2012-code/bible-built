@@ -11,3 +11,7 @@ Deno.serve(async (req) => {
       date: '2026-03-23',
       sampleDates: logs.slice(0, 10).map(l => l.dateKey)
     });
+  } catch (error) {
+    return Response.json({ error: error.message }, { status: 500 });
+  }
+});
