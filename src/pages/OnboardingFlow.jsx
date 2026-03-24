@@ -60,14 +60,19 @@ export default function OnboardingFlow() {
     setShowTransition(true);
 
     try {
+      // Ensure motivation is a clean array of strings
+      const cleanMotivation = Array.isArray(responses.motivation) 
+        ? responses.motivation.filter(m => typeof m === 'string')
+        : [];
+
       // Save all onboarding data to user profile
       await base44.auth.updateMe({
-        displayName: responses.displayName,
-        motivation: responses.motivation,
-        habitLevel: responses.habitLevel,
-        experienceType: responses.experienceType,
-        goal: responses.goal,
-        dailyCommitment: responses.dailyCommitment,
+        displayName: responses.displayName || '',
+        motivation: cleanMotivation,
+        habitLevel: responses.habitLevel || '',
+        experienceType: responses.experienceType || '',
+        goal: responses.goal || '',
+        dailyCommitment: responses.dailyCommitment || '',
         onboardingComplete: true
       });
 
