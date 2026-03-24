@@ -38,8 +38,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
-import CoverageRadar from '@/components/trackers/CoverageRadar';
-import BookCompletionBars from '@/components/trackers/BookCompletionBars';
+import BibleCoverageCard from '@/components/trackers/BibleCoverageCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import BadgeStrip from '@/components/badges/BadgeStrip';
 import BadgeListWithProgress from '@/components/trackers/BadgeListWithProgress';
@@ -313,22 +312,16 @@ export default function Stats() {
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
 
-        {/* Bible Coverage Section */}
+        {/* Bible Coverage + Books (unified) */}
         <motion.div
           custom={3} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <div className="mb-4">
             <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Bible Coverage</h2>
-            <p className="text-[13px] text-muted-foreground">Where you've spent time in Scripture</p>
+            <p className="text-[13px] text-muted-foreground">Your progress across Scripture</p>
           </div>
-          <CoverageRadar sectionData={trackerStats.sectionCoverage} />
-        </motion.div>
-
-        {/* Books Section */}
-        <motion.div
-          custom={4} variants={cardVariants} initial="hidden" animate="visible"
-          className="mb-8">
-          <BookCompletionBars
+          <BibleCoverageCard
+            sectionData={trackerStats.sectionCoverage}
             bookProgressYear={trackerStats.bookProgressYear}
             bookProgressLifetime={trackerStats.bookProgressLifetime} />
         </motion.div>
