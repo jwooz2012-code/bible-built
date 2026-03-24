@@ -218,12 +218,11 @@ export default function Stats() {
           className="rounded-2xl p-5 mb-4 overflow-hidden relative"
           style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
         >
-          {/* blue glow accent */}
-          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(96,165,250,0.08) 0%, transparent 70%)' }} />
+          <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
 
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(96,165,250,0.12)' }}>
-              <CalendarCheck className="w-4 h-4" style={{ color: 'rgb(96,165,250)' }} />
+            <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
+              <CalendarCheck className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
             </div>
             <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">This Year · {currentYear}</p>
           </div>
@@ -234,18 +233,18 @@ export default function Stats() {
           <div className="space-y-5">
               <div className="pb-5 border-b border-border/60">
                 <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-1">Unique Chapters</p>
-                <p className="text-[3.5rem] font-black text-foreground tracking-tight leading-none mb-3" style={{ textShadow: '0 0 40px rgba(96,165,250,0.15)' }}>{yearStats.totalCount}</p>
+                <p className="text-[3.5rem] font-black text-foreground tracking-tight leading-none mb-3">{yearStats.totalCount}</p>
                 <div className="flex items-center gap-2 mb-2.5">
                   <span className="text-[13px] text-muted-foreground/70">{yearStats.totalCount} / {TOTAL_CHAPTERS}</span>
                   <span className="text-[13px] text-muted-foreground/30">·</span>
-                  <span className="text-[13px] font-semibold" style={{ color: 'rgb(96,165,250)' }}>{yearStats.totalPercent}%</span>
+                  <span className="text-[13px] font-semibold" style={{ color: 'rgb(34,197,94)' }}>{yearStats.totalPercent}%</span>
                 </div>
                 <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
                   <motion.div
                     initial={{ width: 0 }} animate={{ width: `${Math.max(0, Math.min(100, yearStats.totalPercent || 0))}%` }}
                     transition={{ duration: 0.8, ease: 'easeOut', delay: 0.3 }}
                     className="h-full rounded-full"
-                    style={{ background: 'linear-gradient(90deg, rgb(96,165,250) 0%, rgb(147,197,253) 100%)' }}
+                    style={{ background: 'linear-gradient(90deg, rgb(34,197,94) 0%, rgb(74,222,128) 100%)' }}
                   />
                 </div>
                 {(() => {
@@ -261,23 +260,23 @@ export default function Stats() {
               </div>
 
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl p-4" style={{ background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.15)' }}>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
                   <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">Old Testament</p>
                   <p className="text-2xl font-black text-foreground tracking-tight">{yearStats.otCount}</p>
-                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(96,165,250,0.15)' }}>
+                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,197,94,0.12)' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${yearStats.otPercent}%` }} transition={{ duration: 0.7, delay: 0.4 }}
-                      className="h-full rounded-full" style={{ background: 'rgb(96,165,250)' }} />
+                      className="h-full rounded-full" style={{ background: 'rgb(34,197,94)' }} />
                   </div>
-                  <p className="text-[12px] mt-1" style={{ color: 'rgba(96,165,250,0.8)' }}>{yearStats.otPercent}%</p>
+                  <p className="text-[12px] mt-1" style={{ color: 'rgba(34,197,94,0.85)' }}>{yearStats.otPercent}%</p>
                 </div>
-                <div className="rounded-xl p-4" style={{ background: 'rgba(96,165,250,0.06)', border: '1px solid rgba(96,165,250,0.15)' }}>
+                <div className="rounded-xl p-4" style={{ background: 'rgba(34,197,94,0.05)', border: '1px solid rgba(34,197,94,0.15)' }}>
                   <p className="text-[11px] font-semibold text-muted-foreground/60 uppercase tracking-widest mb-2">New Testament</p>
                   <p className="text-2xl font-black text-foreground tracking-tight">{yearStats.ntCount}</p>
-                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(96,165,250,0.15)' }}>
+                  <div className="mt-2 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(34,197,94,0.12)' }}>
                     <motion.div initial={{ width: 0 }} animate={{ width: `${yearStats.ntPercent}%` }} transition={{ duration: 0.7, delay: 0.5 }}
-                      className="h-full rounded-full" style={{ background: 'rgb(96,165,250)' }} />
+                      className="h-full rounded-full" style={{ background: 'rgb(34,197,94)' }} />
                   </div>
-                  <p className="text-[12px] mt-1" style={{ color: 'rgba(96,165,250,0.8)' }}>{yearStats.ntPercent}%</p>
+                  <p className="text-[12px] mt-1" style={{ color: 'rgba(34,197,94,0.85)' }}>{yearStats.ntPercent}%</p>
                 </div>
               </div>
             </div>
@@ -375,21 +374,48 @@ export default function Stats() {
           className="rounded-2xl p-5 mb-6 relative overflow-hidden"
           style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
         >
-          <div className="absolute -top-8 -right-8 w-36 h-36 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(249,115,22,0.1) 0%, transparent 70%)' }} />
-          <p className="text-[3.5rem] font-black tracking-tight leading-none mb-4" style={{ color: '#F97316', textShadow: '0 0 40px rgba(249,115,22,0.25)' }}>{lifetimeTotal}</p>
-            <p className="text-[13px] text-muted-foreground/70 mb-3">
-              {lifetimeStats.progressToNext} / {TOTAL_CHAPTERS} · {lifetimeStats.percentToNext}% toward next completion
-            </p>
-            <div className="relative w-full h-1 bg-secondary rounded-full overflow-hidden">
-              <div
-                className="h-full rounded-full transition-all duration-500"
-                style={{
-                  width: `${lifetimeStats.percentToNext}%`,
-                  background: 'linear-gradient(90deg, #F97316 0%, #FACC15 100%)'
-                }}
-              />
+          <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
+
+          <div className="flex items-center justify-between mb-5">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
+                <RefreshCw className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
+              </div>
+              <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">Through the Bible</p>
             </div>
-          }
+            <button
+              onClick={handleEditBaseline}
+              className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-muted-foreground transition-colors"
+            >
+              <Pencil className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {lifetimeLoading ? (
+            <div className="flex justify-center py-8"><LoadingSpinner /></div>
+          ) : (
+            <>
+              <p className="text-[3.5rem] font-black tracking-tight leading-none mb-1" style={{ color: 'rgb(34,197,94)' }}>{lifetimeTotal}x</p>
+              <p className="text-[13px] text-muted-foreground/60 mb-4">complete read-throughs</p>
+
+              <div className="pt-4 border-t border-border/50">
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[12px] text-muted-foreground/70">{lifetimeStats.progressToNext} / {TOTAL_CHAPTERS} chapters</p>
+                  <p className="text-[12px] font-semibold" style={{ color: 'rgb(34,197,94)' }}>{lifetimeStats.percentToNext}%</p>
+                </div>
+                <div className="relative w-full h-1.5 bg-secondary rounded-full overflow-hidden">
+                  <motion.div
+                    initial={{ width: 0 }}
+                    animate={{ width: `${lifetimeStats.percentToNext}%` }}
+                    transition={{ duration: 0.9, ease: 'easeOut', delay: 0.4 }}
+                    className="h-full rounded-full"
+                    style={{ background: 'linear-gradient(90deg, rgb(34,197,94) 0%, rgb(74,222,128) 100%)' }}
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground/40 mt-2">toward next completion</p>
+              </div>
+            </>
+          )}
         </motion.div>
       </div>
 
