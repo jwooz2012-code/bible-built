@@ -329,39 +329,39 @@ export default function ShareSummary() {
         >
           {/* Share Content - Everything visible in screenshot */}
           <div 
-            className="w-full flex flex-col px-6 py-6"
+            className="w-full flex flex-col px-6 py-8"
             style={{ 
               backgroundColor: theme.cardBg,
               backgroundImage: theme.energyAccent
             }}
           >
-          {/* Header - Compact */}
-          <div className="flex-shrink-0 mb-4">
+          {/* Header - Refined */}
+          <div className="flex-shrink-0 mb-6">
             <h1 
-              className="text-2xl font-bold text-center leading-tight"
+              className="text-3xl font-black text-center leading-tight tracking-tight"
               style={{ color: theme.primaryText }}
             >
               {displayTitle}
             </h1>
             {(mode !== 'monthly') && (
               <p 
-                className="text-[10px] text-center mt-1 font-semibold uppercase tracking-wider"
+                className="text-xs text-center mt-2 font-bold uppercase tracking-widest"
                 style={{ color: theme.secondaryText }}
               >
                 {displaySubtitle}
               </p>
             )}
             {mode === 'monthly' && (
-              <div className="flex items-center justify-center gap-1.5 mt-3">
+              <div className="flex items-center justify-center gap-2 mt-4">
                 <img 
                   src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                   alt="Bible Built"
-                  className="w-4 h-4 rounded-[4px]"
-                  style={{ opacity: 0.85 }}
+                  className="w-4 h-4 rounded-sm"
+                  style={{ opacity: 0.9 }}
                 />
                 <div 
-                  className="text-[10px] font-semibold tracking-wide"
-                  style={{ color: theme.primaryText, opacity: 0.85 }}
+                  className="text-xs font-bold tracking-wide"
+                  style={{ color: theme.primaryText, opacity: 0.9 }}
                 >
                   Bible Built
                 </div>
@@ -369,52 +369,56 @@ export default function ShareSummary() {
             )}
           </div>
 
-          {/* Hero Stat - Anchor */}
+          {/* Hero Stat - Elite Design */}
           <div 
-            className="flex flex-col items-center justify-center rounded-2xl p-5 flex-shrink-0 mb-3"
+            className="flex flex-col items-center justify-center rounded-3xl p-8 flex-shrink-0 mb-6"
             style={{ 
               backgroundColor: theme.heroBg,
-              boxShadow: theme.energyGlow
+              boxShadow: theme.energyGlow || '0 6px 24px rgba(0, 0, 0, 0.14)'
             }}
           >
             <div 
-              className="text-6xl font-bold mb-1 tracking-tight"
+              className="text-7xl font-black mb-2 tracking-tight"
               style={{ color: theme.heroText }}
             >
               {totalChapters}
             </div>
             <div 
-              className="text-[10px] font-semibold uppercase tracking-wider"
+              className="text-xs font-bold uppercase tracking-widest"
               style={{ color: theme.heroLabel }}
             >
               Chapters Read
             </div>
           </div>
 
-          {/* Key Stats Grid - 2x2 Layout */}
-          <div className="grid grid-cols-2 gap-3 flex-shrink-0 mb-5">
+          {/* Key Stats Grid - Refined 2x2 */}
+          <div className="grid grid-cols-2 gap-4 flex-shrink-0 mb-7">
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
-                className="flex flex-col items-center justify-between py-4 px-3 rounded-xl min-h-[80px]"
-                style={{ backgroundColor: theme.statBg }}
+                className="flex flex-col items-center justify-center py-5 px-4 rounded-2xl min-h-[100px]"
+                style={{ 
+                  backgroundColor: theme.statBg,
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+                  border: `1px solid rgba(0, 0, 0, 0.04)`
+                }}
               >
                 <div 
                   className={stat.isText
-                    ? `font-bold text-center leading-tight flex items-center justify-center flex-1 w-full ${
+                    ? `font-bold text-center leading-snug flex items-center justify-center flex-1 w-full ${
                         (stat.value || '').length > 14
                           ? 'text-sm'
                           : (stat.value || '').length > 10
                           ? 'text-base'
-                          : 'text-xl'
+                          : 'text-2xl'
                       }`
-                    : 'text-3xl font-bold flex items-center justify-center flex-1'}
+                    : 'text-4xl font-black flex items-center justify-center flex-1'}
                   style={{ color: theme.statValue }}
                 >
                   {stat.value}
                 </div>
                 <div 
-                  className="text-[8px] text-center font-semibold uppercase tracking-wide mt-1 leading-tight"
+                  className="text-[9px] text-center font-bold uppercase tracking-wider mt-2 leading-tight"
                   style={{ color: theme.statLabel }}
                 >
                   {stat.label}
@@ -423,17 +427,17 @@ export default function ShareSummary() {
             ))}
           </div>
 
-          {/* Badges Section - Clean 5-across layout */}
-          <div className="flex flex-col items-center">
+          {/* Badges Section - Premium Display */}
+          <div className="flex flex-col items-center w-full">
             <div 
-              className="text-[9px] font-extrabold uppercase tracking-[0.15em] mb-2.5 text-center"
+              className="text-[11px] font-black uppercase tracking-[0.15em] mb-4 text-center"
               style={{ color: theme.badgeSectionLabel }}
             >
-              {mode === 'monthly' || mode === 'weekly' ? 'Earned Badges' : 'Badges Earned'}
+              {mode === 'monthly' || mode === 'weekly' ? 'EARNED BADGES' : 'BADGES EARNED'}
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div className="flex flex-col items-center gap-1">
-                <div className="grid grid-cols-5 gap-2.5">
+              <div className="flex flex-col items-center gap-2">
+                <div className="grid grid-cols-5 gap-3.5">
                   {earnedBadges.slice(0, 10).map((badge, idx) => {
                     const color = getAchievementColor(badge.title);
                     const isBlackWhite = color === 'BLACK_WHITE';
@@ -443,9 +447,12 @@ export default function ShareSummary() {
                         className="flex items-center justify-center"
                       >
                         <div 
-                          className={`w-10 h-10 flex items-center justify-center rounded-full shadow-sm ${
-                            isBlackWhite ? 'bg-gray-900 border border-white/10' : `bg-gradient-to-br ${color} border border-black/5`
+                          className={`w-12 h-12 flex items-center justify-center rounded-full ${
+                            isBlackWhite ? 'bg-gray-900 border border-white/20' : `bg-gradient-to-br ${color}`
                           }`}
+                          style={{
+                            boxShadow: isBlackWhite ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'
+                          }}
                         >
                           {getAchievementIcon(badge.title, true, 'default')}
                         </div>
@@ -455,17 +462,17 @@ export default function ShareSummary() {
                 </div>
                 {earnedBadges.length > 10 && (
                   <div 
-                    className="text-[9px] font-medium mt-0.5"
+                    className="text-[10px] font-semibold mt-1.5"
                     style={{ color: theme.secondaryText }}
                   >
-                    +{earnedBadges.length - 10} more
+                    +{earnedBadges.length - 10} more badges
                   </div>
                 )}
               </div>
             ) : (
-              <div className="py-4">
+              <div className="py-6">
                 <p 
-                  className="text-xs font-medium"
+                  className="text-sm font-medium"
                   style={{ color: theme.secondaryText }}
                 >
                   No badges earned yet.
@@ -475,8 +482,8 @@ export default function ShareSummary() {
             
             {/* Achievement Signature Line - Only show in yearly/weekly mode */}
             {mode !== 'monthly' && (
-              <div className="flex flex-col items-center justify-center gap-1 pt-4">
-                <div className="flex items-center gap-1.5">
+              <div className="flex flex-col items-center justify-center gap-1.5 pt-5 mt-3">
+                <div className="flex items-center gap-2">
                   <img 
                     src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
                     alt="Bible Built"
@@ -484,14 +491,14 @@ export default function ShareSummary() {
                     style={{ opacity: theme.logoOpacity }}
                   />
                   <div 
-                    className="text-xs font-semibold tracking-wide"
+                    className="text-sm font-bold tracking-wide"
                     style={{ color: theme.brandingText }}
                   >
                     Bible Built
                   </div>
                 </div>
                 <div 
-                  className="text-[9px] font-medium tracking-wide"
+                  className="text-[10px] font-semibold tracking-wide"
                   style={{ color: theme.brandingTagline }}
                 >
                   Track what matters
