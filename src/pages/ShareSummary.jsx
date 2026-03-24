@@ -378,7 +378,7 @@ export default function ShareSummary() {
             }}
           >
             <div 
-              className="text-7xl font-black mb-2 tracking-tight"
+              className="text-7xl font-black mb-6 tracking-tight leading-none"
               style={{ color: theme.heroText }}
             >
               {totalChapters}
