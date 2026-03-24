@@ -6,7 +6,7 @@ const MOTIVATIONS = [
   'I want to stay consistent',
   'I need a fresh start',
   'I want to grow closer to God',
-  'I like tracking progress',
+  'I want to track what matters',
   'I\'ve been off track lately'
 ];
 
