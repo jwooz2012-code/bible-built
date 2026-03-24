@@ -344,6 +344,7 @@ export default function Stats() {
               <Award className="w-5 h-5" style={{ color: '#FACC15' }} />
               <p className="text-sm font-semibold text-foreground">
                 {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
+                <span className="font-normal text-muted-foreground"> — {achievements.length - achievements.filter((a) => a.achieved).length} to go</span>
               </p>
             </div>
 
