@@ -24,31 +24,20 @@ const variants = {
   exit: (dir) => ({ opacity: 0, x: dir > 0 ? -40 : 40 }),
 };
 
+const LOGO_URL = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png';
+
+function LogoMark({ size = 'sm' }) {
+  const cls = size === 'lg' ? 'w-24 h-24 rounded-[28px] shadow-xl' : 'w-12 h-12 rounded-2xl shadow-md';
+  return <img src={LOGO_URL} alt="Bible Built" className={`${cls} mx-auto object-cover`} />;
+}
+
 function StepWelcome({ onNext, onSkip }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-8 text-center">
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.4 }}>
-        <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center mb-8 mx-auto shadow-xl">
-          <span className="text-3xl">📖</span>
-        </div>
-        <h1 className="text-[34px] font-bold text-foreground tracking-tight mb-2">Bible Built</h1>
-        <p className="text-[18px] font-medium text-muted-foreground mb-2">Track what matters.</p>
-        <p className="text-[15px] text-muted-foreground/70 mb-12">Build a daily habit in God's Word.</p>
-        <button
-          onClick={onNext}
-          className="w-full max-w-xs py-4 rounded-2xl bg-foreground text-background text-[17px] font-semibold shadow-lg active:scale-95 transition-transform"
-        >
-          Get Started
-        </button>
-        <button onClick={onSkip} className="mt-4 text-[14px] text-muted-foreground/60 py-2">
-          Finish Later
-        </button>
-      </motion.div>
-    </div>
-  );
-}
-
-function StepName({ user, onNext, onSkip }) {
+        <div className="mb-8">
+          <LogoMark size="lg" />
+        </div>({ user, onNext, onSkip }) {
   const [name, setName] = useState(user?.displayName || user?.full_name?.split(' ')[0] || '');
 
   const handleNext = async () => {
@@ -60,7 +49,8 @@ function StepName({ user, onNext, onSkip }) {
   };
 
   return (
-    <div className="flex flex-col flex-1 px-8 pt-16">
+    <div className="flex flex-col flex-1 px-8 pt-10">
+      <div className="mb-8"><LogoMark /></div>
       <h2 className="text-[28px] font-bold text-foreground mb-2">What should we call you?</h2>
       <p className="text-[15px] text-muted-foreground mb-8">We'll use this throughout the app.</p>
       <input
@@ -90,7 +80,8 @@ function StepName({ user, onNext, onSkip }) {
 function StepVision({ onNext }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-8 text-center">
-      <div className="text-5xl mb-8">🌱</div>
+      <div className="mb-6"><LogoMark /></div>
+      <div className="text-5xl mb-6">🌱</div>
       <h2 className="text-[28px] font-bold text-foreground tracking-tight mb-4">Consistency changes everything</h2>
       <p className="text-[16px] text-muted-foreground leading-relaxed mb-12 max-w-xs">
         Small, daily time in Scripture leads to lasting spiritual growth.
@@ -108,7 +99,8 @@ function StepVision({ onNext }) {
 function StepReminderIntro({ onSetReminder, onSkip }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-8 text-center">
-      <div className="text-5xl mb-8">🔔</div>
+      <div className="mb-6"><LogoMark /></div>
+      <div className="text-5xl mb-6">🔔</div>
       <h2 className="text-[28px] font-bold text-foreground tracking-tight mb-4">Stay consistent in God's Word</h2>
       <p className="text-[16px] text-muted-foreground leading-relaxed mb-12 max-w-xs">
         Set a daily reminder so you never miss your time in Scripture.
@@ -146,7 +138,8 @@ function StepReminderSetup({ existingSettings, onConfirm, onSkip }) {
   const matchedPreset = TIME_PRESETS.find(p => p.value === selectedTime);
 
   return (
-    <div className="flex flex-col flex-1 px-6 pt-10 pb-6 overflow-y-auto">
+    <div className="flex flex-col flex-1 px-6 pt-6 pb-6 overflow-y-auto">
+      <div className="mb-5"><LogoMark /></div>
       <h2 className="text-[24px] font-bold text-foreground mb-1">Set your reminder</h2>
       <p className="text-[14px] text-muted-foreground mb-6">Pick a time that fits your routine.</p>
 
@@ -234,7 +227,7 @@ function StepComplete({ displayName, onEnter }) {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', damping: 20, stiffness: 250 }}
       >
-        <div className="text-6xl mb-8">✝️</div>
+        <div className="mb-8"><LogoMark size="lg" /></div>
         <h2 className="text-[32px] font-bold text-foreground tracking-tight mb-3">You're ready</h2>
         <p className="text-[16px] text-muted-foreground mb-2">
           {displayName ? `Welcome, ${displayName}.` : 'Welcome.'}
