@@ -25,8 +25,7 @@ import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
-import BadgeStrip from '@/components/badges/BadgeStrip';
-import { computeBadgeState } from '@/components/badges/badgeEngine';
+
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
 import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
@@ -215,9 +214,7 @@ export default function Home() {
     }
   });
 
-  // Use centralized badge engine
-  const badgeState = computeBadgeState(allTimeLogs, user, { debug: false });
-  const achievements = badgeState.badges;
+
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
@@ -363,9 +360,7 @@ export default function Home() {
 
               <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} showTitle={false} />
               
-              <div className="mt-3 mb-1">
-                <BadgeStrip badges={achievements} showLabel={true} />
-              </div>
+
             </motion.div>
 
             {energyMode &&
