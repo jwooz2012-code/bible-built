@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import OnboardingFlow from '@/components/onboarding/OnboardingFlow';
-import { base44 } from '@/api/base44Client';
+import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, User } from 'lucide-react';
@@ -13,17 +11,6 @@ export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const [showOnboarding, setShowOnboarding] = useState(false);
-  const [onboardingUser, setOnboardingUser] = useState(null);
-
-  useEffect(() => {
-    base44.auth.me().then(u => {
-      if (!u?.hasCompletedNewOnboarding) {
-        setOnboardingUser(u);
-        setShowOnboarding(true);
-      }
-    }).catch(() => {});
-  }, []);
 
   useEffect(() => {
     // Root-only landing fix. Do not affect deep links.
@@ -108,13 +95,7 @@ export default function Layout({ children }) {
               })}
             </div>
           </nav>
-          {showOnboarding && (
-        <OnboardingFlow
-          user={onboardingUser}
-          onComplete={() => setShowOnboarding(false)}
-        />
-      )}
-      <CelebrationRenderer />
+          <CelebrationRenderer />
           <Toaster
           position="bottom-center"
           expand={false}

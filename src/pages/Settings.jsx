@@ -74,18 +74,6 @@ export default function Settings() {
     }
   };
 
-  const handleRestartOnboarding = async () => {
-    setIsSaving(true);
-    try {
-      await base44.auth.updateMe({ hasCompletedNewOnboarding: false });
-      toast.success('Onboarding reset—refresh to start over');
-    } catch (error) {
-      toast.error(error?.message || 'Failed to reset');
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
@@ -265,18 +253,6 @@ export default function Settings() {
 
 
               </div>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Onboarding</CardTitle>
-              <CardDescription>Walk through the setup flow again</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleRestartOnboarding} disabled={isSaving} variant="outline" className="w-full">
-                {isSaving ? 'Resetting...' : 'Restart Onboarding'}
-              </Button>
             </CardContent>
           </Card>
 
