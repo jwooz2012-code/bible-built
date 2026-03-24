@@ -1,8 +1,23 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { triggerHaptic } from '@/components/utils/haptics';
 
 export default function FinalScreen({ onContinue }) {
+  const [isActivating, setIsActivating] = useState(false);
+
+  const handleEnterApp = async () => {
+    if (isActivating) return; // Prevent double-tap
+    
+    setIsActivating(true);
+    triggerHaptic();
+    
+    // Let the button animation play for 300ms, then call onContinue
+    setTimeout(() => {
+      onContinue();
+    }, 300);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -41,13 +56,19 @@ export default function FinalScreen({ onContinue }) {
         transition={{ delay: 0.4, duration: 0.4 }}
         className="mt-12 w-full max-w-sm"
       >
-        <Button
-          onClick={onContinue}
-          size="lg"
-          className="w-full h-14 rounded-full text-base font-bold"
+        <motion.div
+          whileTap={{ scale: 0.95 }}
+          transition={{ duration: 0.1 }}
         >
-          Enter App
-        </Button>
+          <Button
+            onClick={handleEnterApp}
+            disabled={isActivating}
+            size="lg"
+            className="w-full h-14 rounded-full text-base font-bold"
+          >
+            {isActivating ? 'Loading...' : 'Enter App'}
+          </Button>
+        </motion.div>
       </motion.div>
     </motion.div>
   );
