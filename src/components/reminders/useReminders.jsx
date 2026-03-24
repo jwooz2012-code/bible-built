@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
+import { isIOS, isPWAInstalled, canRequestNotificationPermission } from '@/utils/platformDetection';
 
 const STORAGE_KEY = 'bb_reminder_settings';
 const REMINDER_INTERVAL = 60000; // Check every minute
@@ -23,11 +24,34 @@ function saveLocal(settings) {
 }
 
 async function requestPermission() {
-  if (!('Notification' in window)) return 'unsupported';
-  if (Notification.permission === 'granted') return 'granted';
-  if (Notification.permission === 'denied') return 'denied';
-  const result = await Notification.requestPermission();
-  return result;
+  // Check if browser supports notifications
+  if (!('Notification' in window)) {
+    return 'unsupported';
+  }
+  
+  // Check if environment allows requesting (PWA on iOS, browser on Android/Web)
+  if (!canRequestNotificationPermission()) {
+    console.warn('[Reminders] Cannot request notification permission in this environment');
+    return 'needs_pwa';
+  }
+  
+  // Return current permission if already granted/denied
+  if (Notification.permission === 'granted') {
+    return 'granted';
+  }
+  if (Notification.permission === 'denied') {
+    return 'denied';
+  }
+  
+  // Request permission (this only works in PWA on iOS or browser on Android/Web)
+  try {
+    const result = await Notification.requestPermission();
+    console.log('[Reminders] Permission request result:', result);
+    return result;
+  } catch (error) {
+    console.error('[Reminders] Permission request failed:', error);
+    return 'error';
+  }
 }
 
 export function getActiveDays(settings) {
@@ -112,6 +136,11 @@ export function useReminders() {
     typeof Notification !== 'undefined' ? Notification.permission : 'unsupported'
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [platformInfo] = useState(() => ({
+    isIOS: isIOS(),
+    isPWA: isPWAInstalled(),
+    canRequest: canRequestNotificationPermission(),
+  }));
 
   // Register Service Worker on mount (only once)
   useEffect(() => {
@@ -157,15 +186,34 @@ export function useReminders() {
   }, []);
 
   const enableReminders = useCallback(async (settingsToSave) => {
-    // Save the setting first, regardless of permission
+    // On iOS: Check if running as PWA
+    if (platformInfo.isIOS && !platformInfo.isPWA) {
+      console.warn('[Reminders] iOS detected but not a PWA. User needs to install app.');
+      setPermissionStatus('needs_pwa');
+      // Still save the setting, but don't request permission
+      await saveSettings({ ...settingsToSave, enabled: true });
+      return false;
+    }
+    
+    // Save the setting first
     await saveSettings({ ...settingsToSave, enabled: true });
-    // Then request permission (best-effort)
-    const perm = await requestPermission();
-    setPermissionStatus(perm);
-    // Trigger check immediately
-    checkAndTriggerNotification();
+    
+    // Request permission (only if environment supports it)
+    if (platformInfo.canRequest) {
+      const perm = await requestPermission();
+      setPermissionStatus(perm);
+      console.log('[Reminders] Permission status after request:', perm);
+    } else {
+      setPermissionStatus('needs_pwa');
+    }
+    
+    // Trigger check immediately if permission granted
+    if (Notification.permission === 'granted') {
+      checkAndTriggerNotification();
+    }
+    
     return true;
-  }, [saveSettings]);
+  }, [saveSettings, platformInfo]);
 
   const disableReminders = useCallback(async () => {
     // Clear any pending notifications
@@ -185,5 +233,6 @@ export function useReminders() {
     disableReminders,
     updateSettings,
     saveSettings,
+    platformInfo,
   };
 }
