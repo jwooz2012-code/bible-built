@@ -340,18 +340,9 @@ export default function Profile() {
               </Link>
             </div>
 
-            {/* ── Share & Connect ── */}
-            <SectionHeader title="Share & Connect" />
+            {/* ── Community ── */}
+            <SectionHeader title="Community" />
             <div className="space-y-2">
-              <TapRow onPress={() => setShowShareSheet(true)}
-                className="w-full flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Share2 className="text-muted-foreground" style={{ width: 18, height: 18 }} />
-                  <span className="text-[15px] font-medium text-foreground">Share Your Progress</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </TapRow>
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
             </div>
 
