@@ -195,10 +195,10 @@ export default function TodayAssignmentCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       whileTap={{ scale: 0.98 }}
-      transition={{ duration: 0.1 }}
+      transition={{ duration: 0.35, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="mb-6 px-7 py-6 cursor-pointer rounded-[18px]"
       onClick={onOpenPlanPreview}
       style={isComplete ? {
@@ -208,8 +208,9 @@ export default function TodayAssignmentCard({
         boxShadow: '0 0 0 1px hsl(var(--border)) inset'
       } : {
         background: 'color-mix(in srgb, hsl(var(--card)) 60%, hsl(var(--background)) 40%)',
-        border: '1px solid color-mix(in srgb, hsl(var(--foreground)) 8%, transparent)',
-        boxShadow: '0 1px 2px rgba(0, 0, 0, 0.02)'
+        border: '1px solid color-mix(in srgb, hsl(25 95% 53%) 22%, hsl(var(--border)) 78%)',
+        borderLeft: '3px solid hsl(25 95% 53% / 0.55)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.06), 0 1px 3px rgba(0,0,0,0.04)'
       }}>
 
       <div className="flex items-start justify-between mb-2">
