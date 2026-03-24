@@ -52,11 +52,12 @@ export default function Stats() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    if (window.location.hash === '#badges-section') {
-      const el = document.getElementById('badges-section');
-      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    if (!isLoading && !lifetimeLoading && window.location.hash === '#badges-section') {
+      setTimeout(() => {
+        document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
     }
-  }, []);
+  }, [isLoading, lifetimeLoading]);
   const [isLoading, setIsLoading] = useState(true);
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
