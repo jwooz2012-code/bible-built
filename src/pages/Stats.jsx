@@ -52,14 +52,6 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 export default function Stats() {
   const [user, setUser] = useState(null);
   const location = useLocation();
-
-  useEffect(() => {
-    if (!isLoading && !lifetimeLoading && location.hash === '#badges-section') {
-      setTimeout(() => {
-        document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' });
-      }, 300);
-    }
-  }, [isLoading, lifetimeLoading, location.hash]);
   const [isLoading, setIsLoading] = useState(true);
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
@@ -80,6 +72,14 @@ export default function Stats() {
 
   const { data: yearLogs = [], isLoading: yearLoading } = useReadingLogsRange(userId, yearStart, yearEnd);
   const { data: lifetimeLogs = [], isLoading: lifetimeLoading } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+
+  useEffect(() => {
+    if (!isLoading && !lifetimeLoading && location.hash === '#badges-section') {
+      setTimeout(() => {
+        document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+  }, [isLoading, lifetimeLoading, location.hash]);
 
   const yearStats = useReadingStats(yearLogs);
   const lifetimeStats = useReadingStats(lifetimeLogs);
