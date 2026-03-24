@@ -79,13 +79,15 @@ function App() {
   return (
     <AuthProvider>
       <QueryClientProvider client={queryClientInstance}>
-        <CelebrationProvider>
-          <Router>
-            <NavigationTracker />
-            <AuthenticatedApp />
-          </Router>
-          <Toaster />
-        </CelebrationProvider>
+        <OnboardingProvider>
+          <CelebrationProvider>
+            <Router>
+              <NavigationTracker />
+              <AuthenticatedApp />
+            </Router>
+            <Toaster />
+          </CelebrationProvider>
+        </OnboardingProvider>
       </QueryClientProvider>
     </AuthProvider>
   );
