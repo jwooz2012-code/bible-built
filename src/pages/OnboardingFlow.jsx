@@ -71,16 +71,13 @@ export default function OnboardingFlow() {
         onboardingComplete: true
       });
 
-      // Trigger battle badge celebration
+      // Trigger Battle badge celebration and navigate immediately
       triggerCelebration(CELEBRATION_TYPES.BADGE, {
-        title: 'Battle Badge Earned! 🎖️',
-        description: 'You\'ve started your journey. Now build it day by day.'
-      });
-
-      // Navigate to home after a brief delay
-      setTimeout(() => {
-        navigate('/home', { replace: true });
-      }, 1500);
+        title: 'Battle',
+        description: 'First step taken. Keep building.'
+      }, { dedupKey: 'battle-onboarding' });
+      
+      navigate('/home', { replace: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
       setIsSaving(false);
@@ -127,60 +124,18 @@ export default function OnboardingFlow() {
 
   return (
     <div className="min-h-screen bg-background overflow-hidden">
-      {/* Transition overlay */}
-      <AnimatePresence>
-        {showTransition && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-gradient-to-b from-background via-primary/5 to-background z-40"
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2, duration: 0.5 }}
-              className="absolute inset-0 flex items-center justify-center"
-            >
-              <div className="text-center">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 1.5, ease: 'easeInOut' }}
-                  className="text-6xl mb-4"
-                >
-                  🎖️
-                </motion.div>
-                <motion.h2
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="text-2xl font-bold text-foreground mb-2"
-                >
-                  Journey Started
-                </motion.h2>
-                <motion.p
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="text-muted-foreground text-sm"
-                >
-                  Welcome to Bible Built
-                </motion.p>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       {/* Progress indicator - hidden on welcome and final screens */}
-      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
+      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && !showTransition && (
         <ProgressIndicator currentStep={currentStep} totalSteps={getTotalScreens(responses.experienceType)} />
       )}
 
       {/* Screen container */}
-      <AnimatePresence mode="wait">
-        {!showTransition && <div key={currentStep}>{renderScreen()}</div>}
-      </AnimatePresence>
+      {!showTransition && (
+        <AnimatePresence mode="wait">
+          <div key={currentStep}>{renderScreen()}</div>
+        </AnimatePresence>
+      )}
     </div>
   );
 }
