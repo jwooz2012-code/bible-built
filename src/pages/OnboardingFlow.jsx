@@ -69,11 +69,13 @@ export default function OnboardingFlow() {
       });
 
       // Route based on experience type
-      if (responses.experienceType === 'follow_plan') {
-        navigate('/plans');
-      } else {
-        navigate('/home');
-      }
+      setTimeout(() => {
+        if (responses.experienceType === 'follow_plan') {
+          navigate('/home');
+        } else {
+          navigate('/home');
+        }
+      }, 300);
     } catch (error) {
       console.error('Failed to save onboarding:', error);
       setIsSaving(false);
