@@ -53,9 +53,9 @@ export default function AccountabilityScreen({ onContinue }) {
         </div>
 
         {/* Description */}
-        <div className="space-y-4">
+        <div className="space-y-6">
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Show off your weekly, monthly, and yearly stats. Transparency builds consistency and celebrates your commitment to staying in the Word.
+            Share your stats and show your commitment.
           </p>
 
           {/* Profile Preview */}
@@ -63,21 +63,14 @@ export default function AccountabilityScreen({ onContinue }) {
             initial={{ scale: 0.95, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.4 }}
-            className="bg-card border-2 border-primary/30 rounded-xl p-4 space-y-3"
+            className="bg-card border-2 border-primary/30 rounded-xl p-4"
           >
-            <p className="text-xs font-semibold text-primary/80 uppercase tracking-wide">On your Profile page:</p>
-            <div className="space-y-2">
-              <div className="flex items-center justify-between px-3 py-2.5 bg-accent/50 rounded-lg">
-                <div className="flex items-center gap-2">
-                  <Share2 className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium">Share Your Progress</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </div>
-              <p className="text-xs text-muted-foreground/70 pl-3">
-                Found in the <span className="font-semibold">Accountability</span> section
-              </p>
+            <div className="flex items-center gap-2 mb-2">
+              <Share2 className="w-4 h-4 text-primary" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide">Accountability</span>
             </div>
+            <p className="text-sm font-medium">Share Your Progress</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">On your Profile page →</p>
           </motion.div>
         </div>
 
