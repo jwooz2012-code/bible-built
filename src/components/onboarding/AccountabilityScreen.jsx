@@ -74,15 +74,7 @@ export default function AccountabilityScreen({ onContinue }) {
           </motion.div>
         </div>
 
-        {/* Motivational Quote */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-xs text-muted-foreground italic text-center"
-        >
-          "Therefore confess your sins to each other and pray for each other… — James 5:16"
-        </motion.p>
+
       </motion.div>
 
       {/* CTA Button */}
