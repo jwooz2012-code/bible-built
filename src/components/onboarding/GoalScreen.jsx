@@ -25,9 +25,12 @@ export default function GoalScreen({ onContinue, initialValue = '' }) {
         <p className="text-sm text-muted-foreground mb-8">This shapes your journey.</p>
 
         <div className="space-y-3">
-          {GOALS.map((goal) => (
+          {GOALS.map((goal, idx) => (
             <motion.button
               key={goal.value}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.05 }}
               onClick={() => setSelected(goal.value)}
               className={`w-full p-4 rounded-2xl border-2 transition-all text-left font-semibold ${
                 selected === goal.value
@@ -43,14 +46,16 @@ export default function GoalScreen({ onContinue, initialValue = '' }) {
         </div>
       </div>
 
-      <Button
-        onClick={() => onContinue(selected)}
-        disabled={!selected}
-        size="lg"
-        className="w-full h-12 rounded-full font-bold"
-      >
-        Continue
-      </Button>
+      <motion.div whileTap={{ scale: 0.98 }}>
+        <Button
+          onClick={() => onContinue(selected)}
+          disabled={!selected}
+          size="lg"
+          className="w-full h-12 rounded-full font-bold transition-all"
+        >
+          Continue
+        </Button>
+      </motion.div>
     </motion.div>
   );
 }
