@@ -93,7 +93,7 @@ export default function OnboardingFlow() {
         return <ShareAndGrowScreen {...commonProps} />;
       case 6:
         if (responses.experienceType === 'follow_plan') {
-          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
+          return <ShareAndGrowScreen {...commonProps} />;
         }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
       case 7:
