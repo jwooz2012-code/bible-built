@@ -98,7 +98,6 @@ function StepName({ user, onNext, onSkip }) {
 function StepVision({ onNext }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-8 text-center">
-      <div className="mb-6"><LogoMark /></div>
       <div className="text-5xl mb-6">🌱</div>
       <h2 className="text-[28px] font-bold text-foreground tracking-tight mb-4">Consistency changes everything</h2>
       <p className="text-[16px] text-muted-foreground leading-relaxed mb-12 max-w-xs">
@@ -117,7 +116,6 @@ function StepVision({ onNext }) {
 function StepReminderIntro({ onSetReminder, onSkip }) {
   return (
     <div className="flex flex-col items-center justify-center flex-1 px-8 text-center">
-      <div className="mb-6"><LogoMark /></div>
       <div className="text-5xl mb-6">🔔</div>
       <h2 className="text-[28px] font-bold text-foreground tracking-tight mb-4">Stay consistent in God's Word</h2>
       <p className="text-[16px] text-muted-foreground leading-relaxed mb-12 max-w-xs">
@@ -155,7 +153,6 @@ function StepReminderSetup({ existingSettings, onConfirm, onSkip }) {
 
   return (
     <div className="flex flex-col flex-1 px-6 pt-6 pb-6 overflow-y-auto">
-      <div className="mb-5"><LogoMark /></div>
       <h2 className="text-[24px] font-bold text-foreground mb-1">Set your reminder</h2>
       <p className="text-[14px] text-muted-foreground mb-6">Pick a time that fits your routine.</p>
 
