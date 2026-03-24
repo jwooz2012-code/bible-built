@@ -50,6 +50,13 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Stats() {
   const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    if (window.location.hash === '#badges-section') {
+      const el = document.getElementById('badges-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, []);
   const [isLoading, setIsLoading] = useState(true);
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
