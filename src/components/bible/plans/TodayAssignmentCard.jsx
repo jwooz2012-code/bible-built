@@ -230,7 +230,11 @@ export default function TodayAssignmentCard({
 
         {summary && (
           <>
-            <h3 className="text-2xl font-bold text-foreground mb-2 leading-tight">
+            <div className="flex items-center gap-1.5 mb-2">
+              <BookOpen className="w-3 h-3 flex-shrink-0" style={{ color: 'hsl(25 95% 53%)' }} />
+              <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'hsl(25 95% 53%)' }}>Today's Reading</span>
+            </div>
+            <h3 className="text-[26px] font-bold text-foreground mb-2 leading-tight tracking-tight">
               {summary}
             </h3>
             <p className="text-sm text-muted-foreground mb-5">
