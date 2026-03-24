@@ -392,6 +392,37 @@ export default function Profile() {
             onSelect={(mode) => { setShowShareSheet(false); navigateToSummary(mode); }}
           />
         )}
+        {selectedBadge && (() => {
+          const color = getAchievementColor(selectedBadge.title);
+          const isBlack = color === 'BLACK_WHITE';
+          return (
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-center justify-center px-6"
+              onClick={() => setSelectedBadge(null)}
+            >
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+              <motion.div
+                initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.85, opacity: 0 }}
+                transition={{ type: 'spring', damping: 22, stiffness: 280 }}
+                className="relative bg-card border border-border rounded-3xl p-8 max-w-xs w-full flex flex-col items-center gap-4"
+                onClick={e => e.stopPropagation()}
+              >
+                <div className={`w-16 h-16 flex items-center justify-center rounded-full ${isBlack ? 'bg-gray-900' : `bg-gradient-to-br ${color}`}`}
+                  style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.25)' }}>
+                  {getAchievementIcon(selectedBadge.title, true, 'default')}
+                </div>
+                <div className="text-center">
+                  <h3 className="text-[18px] font-bold text-foreground mb-1">{selectedBadge.title}</h3>
+                  <p className="text-sm text-muted-foreground">{selectedBadge.description || 'Achievement unlocked'}</p>
+                </div>
+                <button onClick={() => setSelectedBadge(null)}
+                  className="mt-2 px-6 py-2 rounded-full bg-secondary text-[14px] font-medium text-foreground">
+                  Done
+                </button>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
       </AnimatePresence>
     </>
   );
