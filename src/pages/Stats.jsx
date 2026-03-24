@@ -40,7 +40,7 @@ import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
 import BibleCoverageCard from '@/components/trackers/BibleCoverageCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
-import BadgeStrip from '@/components/badges/BadgeStrip';
+import BadgeGrid from '@/components/badges/BadgeGrid';
 import BadgeListWithProgress from '@/components/trackers/BadgeListWithProgress';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
@@ -339,32 +339,20 @@ export default function Stats() {
             <p className="text-[13px] text-muted-foreground">Milestones you've earned</p>
           </div>
 
-          <div className="bg-card border border-border rounded-2xl p-5">
-            <div className="mb-4 flex items-center gap-3">
-              <Award className="w-6 h-6" style={{ color: '#FACC15' }} />
-              <div>
-                <p className="text-sm font-semibold text-foreground">
-                  {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
-                </p>
-              </div>
+          <div className="bg-card border border-border/70 rounded-2xl p-5" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
+            <div className="mb-5 flex items-center gap-3">
+              <Award className="w-5 h-5" style={{ color: '#FACC15' }} />
+              <p className="text-sm font-semibold text-foreground">
+                {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
+              </p>
             </div>
 
-            {!lifetimeLoading && achievements.filter((a) => a.achieved).length > 0 && (
-              <div className="mb-6 pb-5 border-b border-border">
-                <BadgeStrip badges={achievements} showLabel={false} />
-              </div>
+            {lifetimeLoading ? (
+              <div className="flex justify-center py-12"><LoadingSpinner /></div>
+            ) : (
+              <BadgeGrid achievements={achievements} />
             )}
-
-          {lifetimeLoading ?
-          <div className="flex justify-center py-12">
-              <LoadingSpinner />
-            </div> :
-
-          <>
-            <BadgeListWithProgress achievements={achievements} getAchievementColor={getAchievementColor} getAchievementIcon={getAchievementIcon} />
-          </>
-            }
-            </div>
+          </div>
         </motion.div>
 
         <motion.div
