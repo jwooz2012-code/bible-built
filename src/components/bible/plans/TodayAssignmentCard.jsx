@@ -86,11 +86,12 @@ export default function TodayAssignmentCard({
     const parts = Object.entries(grouped).map(([book, chapters]) => {
       if (chapters.length === 1) return `${book} ${chapters[0]}`;
       const sorted = chapters.sort((a, b) => a - b);
-      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+      return `${book} ${sorted[0]}\u2013${sorted[sorted.length - 1]}`;
     });
 
     return {
       summary: parts.join(' • '),
+      parts,
       doneCount: done,
       totalCount: total,
       isComplete: done === total,
