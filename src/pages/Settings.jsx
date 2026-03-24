@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +22,8 @@ export default function Settings() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isRestarting, setIsRestarting] = useState(false);
+  const navigate = useNavigate();
   const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
   useEffect(() => {
@@ -71,6 +74,19 @@ export default function Settings() {
       toast.success('Verification email sent');
     } catch (error) {
       toast.error(error?.message || 'Failed to resend');
+    }
+  };
+
+  const handleRestartOnboarding = async () => {
+    setIsRestarting(true);
+    try {
+      // Reset onboarding flag
+      await base44.auth.updateMe({ onboardingComplete: false });
+      // Redirect to onboarding
+      navigate('/onboarding');
+    } catch (error) {
+      toast.error('Failed to restart onboarding');
+      setIsRestarting(false);
     }
   };
 
@@ -253,6 +269,23 @@ export default function Settings() {
 
 
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Onboarding</CardTitle>
+              <CardDescription>Restart the welcome flow</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={handleRestartOnboarding} 
+                variant="outline" 
+                disabled={isRestarting}
+                className="w-full"
+              >
+                {isRestarting ? 'Restarting...' : 'Restart Onboarding'}
+              </Button>
             </CardContent>
           </Card>
 
