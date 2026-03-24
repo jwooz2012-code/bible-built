@@ -40,34 +40,53 @@ export default function WeekView({ logs = [] }) {
           const count = logsGrouped[dateKey] || 0;
           const isToday = getDateKey(today) === dateKey;
 
+          // Match Calendar's dark tile styling
+          const getTilestyle = () => {
+            if (isToday) {
+              return count > 0 
+                ? {
+                    background: 'hsl(var(--accent))',
+                    borderColor: 'hsl(var(--primary))',
+                    borderWidth: '2px',
+                    boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
+                  }
+                : {
+                    background: 'hsla(var(--accent) / 0.08)',
+                    borderColor: 'hsl(var(--primary))',
+                    borderWidth: '2px',
+                    boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
+                  };
+            }
+            if (count > 0) {
+              return {
+                background: 'hsl(var(--accent))',
+                borderWidth: '1.5px',
+                borderColor: 'hsl(var(--accent))'
+              };
+            }
+            return {
+              background: 'hsl(var(--card))',
+              borderColor: 'hsl(var(--border))'
+            };
+          };
+
           return (
             <motion.button
               key={i}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleDayClick(date)}
-              className="py-3 rounded-xl aspect-square flex flex-col items-center justify-center gap-0.5 transition-all border"
-              style={isToday ? {
-                background: 'color-mix(in srgb, hsl(var(--primary)) 15%, transparent)',
-                borderColor: 'hsl(var(--primary))',
-                borderWidth: '2px'
-              } : count > 0 ? {
-                background: 'color-mix(in srgb, hsl(var(--primary)) 8%, transparent)',
-                borderColor: 'color-mix(in srgb, hsl(var(--primary)) 35%, transparent)',
-                borderWidth: '1.5px'
-              } : {
-                background: 'hsl(var(--muted))',
-                borderColor: 'hsl(var(--border))'
-              }}>
+              className="aspect-square rounded-xl p-2.5 flex flex-col items-center justify-center gap-1 transition-all text-sm font-medium hover:opacity-80 border"
+              style={getTilestyle()}>
 
               <span
                 className="text-xs font-medium tracking-wide"
-                style={{ color: isToday ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))' }}>
+                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
 
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
               </span>
               <span
-                className="text-lg font-semibold my-0.5"
-                style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))' }}>
+                className="text-base font-semibold"
+                style={{ color: isToday || count > 0 ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))' }}>
 
                 {date.getDate()}
               </span>
@@ -75,7 +94,7 @@ export default function WeekView({ logs = [] }) {
                 {count > 0 &&
                 <span
                   className="text-xs font-bold"
-                  style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))' }}>
+                  style={{ color: '#10B981' }}>
 
                     {count}
                   </span>
