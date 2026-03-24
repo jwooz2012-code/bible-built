@@ -283,7 +283,7 @@ export default function Profile() {
             {/* ── Badges Preview ── */}
             <SectionHeader title="Badges" />
             <TapRow
-              onPress={() => { navigate('/stats'); setTimeout(() => document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' }), 400); }}
+              onPress={() => navigate('/stats#badges-section')}
               className="w-full px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
             >
               <div className="flex items-center justify-between">
