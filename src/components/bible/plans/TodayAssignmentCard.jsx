@@ -196,8 +196,6 @@ export default function TodayAssignmentCard({
 
   }
 
-  }
-
   if (!assignment) return null;
 
   const planProgressLine = planDayNumber && planTotalDays
