@@ -56,17 +56,18 @@ export default function OnboardingFlow() {
     }
   };
 
-  const handleFinish = () => {
+  const handleFinish = async () => {
     triggerHaptic();
     setIsSaving(true);
-    // Navigate immediately for a snappy feel, save in the background
-    navigate('/home', { replace: true });
-    base44.auth.updateMe({ 
-      full_name: responses.displayName,
-      onboardingComplete: true 
-    }).catch((error) => {
+    try {
+      await base44.auth.updateMe({ 
+        full_name: responses.displayName,
+        onboardingComplete: true 
+      });
+    } catch (error) {
       console.error('Failed to save onboarding:', error);
-    });
+    }
+    navigate('/home', { replace: true });
   };
 
   const renderScreen = () => {
