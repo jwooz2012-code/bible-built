@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Share2, TrendingUp } from 'lucide-react';
+import { Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
+
+// Mock badge colors matching the real app badge colors
+const MOCK_BADGES = [
+  { bg: '#1a1a2e' },   // dark/black
+  { bg: '#0ea5e9' },   // blue
+  { bg: '#10b981' },   // green
+  { bg: '#f59e0b' },   // amber
+  { bg: '#f97316' },   // orange
+  { bg: '#8b5cf6' },   // purple
+  { bg: '#ef4444' },   // red
+  { bg: '#059669' },   // emerald
+  { bg: '#6b7280' },   // gray
+  { bg: '#3b82f6' },   // blue2
+];
 
 export default function AccountabilityScreen({ onContinue }) {
   const [isActivating, setIsActivating] = useState(false);
 
-  const handleContinue = async () => {
+  const handleContinue = () => {
     if (isActivating) return;
     setIsActivating(true);
     triggerHaptic();
@@ -25,64 +39,132 @@ export default function AccountabilityScreen({ onContinue }) {
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2, duration: 0.4 }}
-        className="w-full max-w-sm flex flex-col items-center space-y-8"
+        transition={{ delay: 0.15, duration: 0.4 }}
+        className="w-full max-w-sm flex flex-col items-center space-y-6"
       >
-        {/* Icon */}
-        <motion.div
-          animate={{ scale: [1, 1.15, 1] }}
-          transition={{ duration: 2.5, repeat: Infinity }}
-          className="w-20 h-20 bg-gradient-to-br from-blue-100 to-blue-200 dark:from-blue-900/40 dark:to-blue-800/40 rounded-full flex items-center justify-center shadow-lg"
-        >
-          <Share2 className="w-10 h-10 text-blue-600 dark:text-blue-400" />
-        </motion.div>
-
         {/* Heading */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-black text-foreground">Accountability</h1>
           <p className="text-sm text-muted-foreground">
-            Share your weekly progress and inspire others
+            Share your progress and inspire others
           </p>
         </div>
 
-        {/* Real WeeklySummaryCard mockup */}
+        {/* Share Card — mirrors the real ShareSummary weekly card */}
         <motion.div
-          initial={{ scale: 0.9, opacity: 0 }}
+          initial={{ scale: 0.92, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.4, duration: 0.5 }}
-          className="w-full"
+          transition={{ delay: 0.35, duration: 0.45 }}
+          className="w-full rounded-3xl overflow-hidden"
+          style={{ backgroundColor: '#0A0A0A' }}
         >
-          {/* Mirrors WeeklySummaryCard exactly */}
-          <div className="bg-card border border-border rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-foreground">This Week</span>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-3.5 h-3.5" style={{ color: 'hsl(var(--chart-3))' }} />
-                <span className="text-[13px] font-medium" style={{ color: 'hsl(var(--chart-3))' }}>
-                  +5
-                </span>
+          <div className="flex flex-col px-6 py-8 gap-5">
+
+            {/* Header */}
+            <div className="text-center">
+              <h2 className="text-2xl font-black tracking-tight" style={{ color: '#FAFAFA' }}>
+                This Week
+              </h2>
+              <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: '#A1A1AA' }}>
+                Mar 22 – Mar 28
+              </p>
+            </div>
+
+            {/* Hero stat */}
+            <div
+              className="flex flex-col items-center justify-center rounded-3xl py-7"
+              style={{ backgroundColor: '#1F1F1F', boxShadow: '0 6px 24px rgba(0,0,0,0.4)' }}
+            >
+              <div className="text-7xl font-black leading-none mb-3" style={{ color: '#FFFFFF' }}>
+                8
+              </div>
+              <div className="text-xs font-bold uppercase tracking-widest" style={{ color: '#94A3B8' }}>
+                Chapters Read
               </div>
             </div>
-            <div className="text-2xl font-bold text-foreground">12</div>
-            <div className="text-[13px] text-muted-foreground mt-1">
-              5 active days
+
+            {/* 2×2 stats grid */}
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { label: 'DAYS', value: '3', isText: false },
+                { label: 'BOOKS', value: '3', isText: false },
+                { label: 'MOST READ BOOK', value: 'Acts', isText: true },
+                { label: 'BEST DAY', value: '4', isText: false },
+              ].map((stat) => (
+                <div
+                  key={stat.label}
+                  className="flex flex-col items-center justify-center py-5 px-3 rounded-2xl min-h-[90px]"
+                  style={{ backgroundColor: '#171717' }}
+                >
+                  <div
+                    className={`font-black leading-none ${stat.isText ? 'text-2xl' : 'text-4xl'}`}
+                    style={{ color: '#FFFFFF' }}
+                  >
+                    {stat.value}
+                  </div>
+                  <div
+                    className="text-[9px] font-bold uppercase tracking-wider mt-2 text-center"
+                    style={{ color: '#71717A' }}
+                  >
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Badges */}
+            <div className="flex flex-col items-center gap-3">
+              <div className="text-[11px] font-black uppercase tracking-[0.15em]" style={{ color: '#94A3B8' }}>
+                Earned Badges
+              </div>
+              <div className="grid grid-cols-5 gap-3">
+                {MOCK_BADGES.map((badge, i) => (
+                  <div
+                    key={i}
+                    className="w-11 h-11 rounded-full flex items-center justify-center"
+                    style={{
+                      backgroundColor: badge.bg,
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      border: badge.bg === '#1a1a2e' ? '1px solid rgba(255,255,255,0.15)' : 'none'
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Branding */}
+            <div className="flex flex-col items-center gap-1 pt-1">
+              <div className="flex items-center gap-2">
+                <img
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                  alt="Bible Built"
+                  className="w-5 h-5 rounded-md"
+                  style={{ opacity: 0.85 }}
+                />
+                <span className="text-sm font-bold tracking-wide" style={{ color: '#D4D4D8' }}>
+                  Bible Built
+                </span>
+              </div>
+              <span className="text-[10px] font-semibold tracking-wide" style={{ color: '#71717A' }}>
+                Track what matters
+              </span>
             </div>
           </div>
-
-          <p className="text-center text-xs text-muted-foreground mt-3 opacity-70">
-            Tap Share on the Stats page to send this to a friend
-          </p>
         </motion.div>
+
+        <p className="text-xs text-center text-muted-foreground opacity-60">
+          Found on your Profile page → Share Summary
+        </p>
       </motion.div>
 
-      {/* CTA Button */}
+      {/* CTA */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.6, duration: 0.4 }}
-        className="mt-12 w-full max-w-sm"
+        transition={{ delay: 0.7, duration: 0.4 }}
+        className="mt-8 w-full max-w-sm"
       >
-        <motion.div whileTap={{ scale: 0.95 }} transition={{ duration: 0.1 }}>
+        <motion.div whileTap={{ scale: 0.96 }} transition={{ duration: 0.1 }}>
           <Button
             onClick={handleContinue}
             disabled={isActivating}
