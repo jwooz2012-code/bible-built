@@ -51,8 +51,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
   };
 
   return (
-    <div className="relative">
-      <motion.button
+    <motion.button
       whileTap={{ scale: disabled ? 1 : 0.95 }}
       transition={{ duration: 0.15 }}
       onClick={handleClick}
@@ -72,7 +71,6 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
           <span
           className="text-[9px] font-bold leading-none"
           style={{ color: '#1a1a1a' }}>
-
             {timesRead}
           </span>
         </div>
@@ -87,23 +85,22 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         }}>
         {chapter}
       </span>
-    </motion.button>
 
-    {/* Floating +1 animation */}
-    <AnimatePresence>
-      {floaters.map(id => (
-        <motion.div
-          key={id}
-          initial={{ opacity: 1, y: 0, scale: 1 }}
-          animate={{ opacity: 0, y: -28, scale: 1.3 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-500 pointer-events-none z-20"
-        >
-          +1
-        </motion.div>
-      ))}
-    </AnimatePresence>
-  </div>);
+      {/* Floating +1 animation */}
+      <AnimatePresence>
+        {floaters.map(id => (
+          <motion.div
+            key={id}
+            initial={{ opacity: 1, y: 0, scale: 1 }}
+            animate={{ opacity: 0, y: -28, scale: 1.3 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-500 pointer-events-none z-20"
+          >
+            +1
+          </motion.div>
+        ))}
+      </AnimatePresence>
+    </motion.button>);
 
 }
