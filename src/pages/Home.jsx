@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
 import BookCard from '@/components/shared/BookCard';
 import ChapterTile from '@/components/shared/ChapterTile';
