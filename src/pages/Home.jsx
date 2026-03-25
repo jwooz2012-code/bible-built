@@ -263,20 +263,12 @@ export default function Home() {
 
 
 
-  if (isLoading) {
+  if (isLoadingAuth || !user || !userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
-      </div>);
-
-  }
-
-  if (!user || !userId) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <LoadingSpinner />
-      </div>);
-
+      </div>
+    );
   }
 
   const weeklyQuotes = [
