@@ -58,33 +58,33 @@ export default function AccountabilityScreen({ onContinue }) {
           className="w-full rounded-3xl overflow-hidden"
           style={{ backgroundColor: '#0A0A0A' }}
         >
-          <div className="flex flex-col px-6 py-8 gap-5">
+          <div className="flex flex-col px-5 py-5 gap-3">
 
             {/* Header */}
             <div className="text-center">
-              <h2 className="text-2xl font-black tracking-tight" style={{ color: '#FAFAFA' }}>
+              <h2 className="text-xl font-black tracking-tight" style={{ color: '#FAFAFA' }}>
                 This Week
               </h2>
-              <p className="text-xs font-bold uppercase tracking-widest mt-1" style={{ color: '#A1A1AA' }}>
+              <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5" style={{ color: '#A1A1AA' }}>
                 Mar 22 – Mar 28
               </p>
             </div>
 
             {/* Hero stat */}
             <div
-              className="flex flex-col items-center justify-center rounded-3xl py-7"
+              className="flex flex-col items-center justify-center rounded-2xl py-4"
               style={{ backgroundColor: '#1F1F1F', boxShadow: '0 6px 24px rgba(0,0,0,0.4)' }}
             >
-              <div className="text-7xl font-black leading-none mb-3" style={{ color: '#FFFFFF' }}>
+              <div className="text-5xl font-black leading-none mb-1.5" style={{ color: '#FFFFFF' }}>
                 8
               </div>
-              <div className="text-xs font-bold uppercase tracking-widest" style={{ color: '#94A3B8' }}>
+              <div className="text-[10px] font-bold uppercase tracking-widest" style={{ color: '#94A3B8' }}>
                 Chapters Read
               </div>
             </div>
 
             {/* 2×2 stats grid */}
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2">
               {[
                 { label: 'DAYS', value: '3', isText: false },
                 { label: 'BOOKS', value: '3', isText: false },
@@ -93,17 +93,17 @@ export default function AccountabilityScreen({ onContinue }) {
               ].map((stat) => (
                 <div
                   key={stat.label}
-                  className="flex flex-col items-center justify-center py-5 px-3 rounded-2xl min-h-[90px]"
+                  className="flex flex-col items-center justify-center py-3 px-3 rounded-xl min-h-[64px]"
                   style={{ backgroundColor: '#171717' }}
                 >
                   <div
-                    className={`font-black leading-none ${stat.isText ? 'text-2xl' : 'text-4xl'}`}
+                    className={`font-black leading-none ${stat.isText ? 'text-lg' : 'text-3xl'}`}
                     style={{ color: '#FFFFFF' }}
                   >
                     {stat.value}
                   </div>
                   <div
-                    className="text-[9px] font-bold uppercase tracking-wider mt-2 text-center"
+                    className="text-[8px] font-bold uppercase tracking-wider mt-1 text-center"
                     style={{ color: '#71717A' }}
                   >
                     {stat.label}
@@ -113,18 +113,18 @@ export default function AccountabilityScreen({ onContinue }) {
             </div>
 
             {/* Badges */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="text-[11px] font-black uppercase tracking-[0.15em]" style={{ color: '#94A3B8' }}>
+            <div className="flex flex-col items-center gap-2">
+              <div className="text-[10px] font-black uppercase tracking-[0.15em]" style={{ color: '#94A3B8' }}>
                 Earned Badges
               </div>
-              <div className="grid grid-cols-5 gap-3">
+              <div className="grid grid-cols-5 gap-2">
                 {MOCK_BADGES.map((badge, i) => (
                   <div
                     key={i}
-                    className="w-11 h-11 rounded-full flex items-center justify-center"
+                    className="w-9 h-9 rounded-full"
                     style={{
                       backgroundColor: badge.bg,
-                      boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                      boxShadow: '0 3px 8px rgba(0,0,0,0.3)',
                       border: badge.bg === '#1a1a2e' ? '1px solid rgba(255,255,255,0.15)' : 'none'
                     }}
                   />
