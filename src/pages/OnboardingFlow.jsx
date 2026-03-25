@@ -100,10 +100,13 @@ export default function OnboardingFlow() {
         }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
       case 8:
+        if (responses.experienceType === 'follow_plan') {
+          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
+        }
         return <ReadingTrackingScreen {...commonProps} />;
       case 9:
         if (responses.experienceType === 'follow_plan') {
-          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
+          return <ReadingTrackingScreen {...commonProps} />;
         }
         return <FinalScreen onContinue={handleFinish} />;
       case 10:
