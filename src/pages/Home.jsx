@@ -87,6 +87,7 @@ export default function Home() {
   }, [user]);
 
   const userId = user?.id;
+
   const today = getDateKey();
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
