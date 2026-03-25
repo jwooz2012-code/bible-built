@@ -38,8 +38,7 @@ import { runValidation } from '@/components/bible/plans/validatePlans';
 export default function Home() {
   const navigate = useNavigate();
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth } = useAuth();
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
