@@ -1,19 +1,28 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { BookOpen, CheckCircle2, Zap } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
 
-const MOCK_CHAPTERS = [
-  { name: 'Genesis 1', done: true },
-  { name: 'Genesis 2', done: true },
-  { name: 'Genesis 3', done: true },
-  { name: 'Genesis 4', done: false },
-  { name: 'Genesis 5', done: false },
-];
+// Initial chapter read counts — some pre-set to show multi-read is possible
+const INITIAL_COUNTS = [2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0];
 
 export default function ReadingTrackingScreen({ onContinue }) {
   const [isActivating, setIsActivating] = useState(false);
+  const [counts, setCounts] = useState(INITIAL_COUNTS);
+  const [floaters, setFloaters] = useState([]);
+
+  const handleTap = (i) => {
+    triggerHaptic();
+    setCounts(prev => {
+      const next = [...prev];
+      next[i] = next[i] + 1;
+      return next;
+    });
+    // Spawn a +1 floater
+    const id = Date.now() + i;
+    setFloaters(prev => [...prev, { id, i }]);
+    setTimeout(() => setFloaters(prev => prev.filter(f => f.id !== id)), 800);
+  };
 
   const handleContinue = () => {
     if (isActivating) return;
@@ -34,65 +43,98 @@ export default function ReadingTrackingScreen({ onContinue }) {
         initial={{ y: 24, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.15, duration: 0.4 }}
-        className="w-full max-w-sm flex flex-col items-center space-y-7"
+        className="w-full max-w-sm flex flex-col items-center space-y-6"
       >
-        {/* Animated Icon */}
-        <motion.div
-          animate={{ scale: [1, 1.12, 1] }}
-          transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-          className="w-20 h-20 rounded-full flex items-center justify-center shadow-lg bg-gradient-to-br from-emerald-100 to-teal-200 dark:from-emerald-900/40 dark:to-teal-800/40"
-        >
-          <BookOpen className="w-10 h-10 text-emerald-600 dark:text-emerald-400" />
-        </motion.div>
-
         {/* Heading */}
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-black text-foreground">Log Your Reading</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            From the home screen, tap any chapter to mark it complete. Your progress saves instantly!
+            Tap any chapter to mark it read. Tap again to log it a second time — every read counts!
           </p>
         </div>
 
-        {/* Mock Chapter List */}
+        {/* Interactive Book Card mockup */}
         <motion.div
           initial={{ scale: 0.93, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.35, duration: 0.4 }}
-          className="w-full rounded-2xl border-2 border-emerald-200 dark:border-emerald-800 bg-gradient-to-br from-emerald-50 to-teal-50/50 dark:from-emerald-950/20 dark:to-teal-900/10 p-4 space-y-2 shadow-md"
+          transition={{ delay: 0.3, duration: 0.4 }}
+          className="w-full bg-card border border-border rounded-2xl p-4 shadow-md"
         >
-          {/* Header row */}
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-              <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">Today's Chapters</span>
+          {/* Book header row */}
+          <div className="flex items-center justify-between mb-4">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Genesis</h2>
+              <p className="text-xs text-muted-foreground">Try tapping the tiles below 👇</p>
             </div>
-            <span className="text-xs font-semibold text-muted-foreground">3 / 5 done</span>
+            <div className="text-right">
+              <span className="text-xs text-muted-foreground">
+                {counts.filter(c => c > 0).length} / {counts.length} chapters
+              </span>
+            </div>
           </div>
 
-          {/* Chapter rows */}
-          {MOCK_CHAPTERS.map((ch, i) => (
-            <motion.div
-              key={ch.name}
-              initial={{ x: -10, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ delay: 0.4 + i * 0.07, duration: 0.3 }}
-              className={`flex items-center justify-between rounded-xl px-3 py-2 ${
-                ch.done
-                  ? 'bg-emerald-100 dark:bg-emerald-900/30'
-                  : 'bg-white/70 dark:bg-gray-800/40'
-              }`}
-            >
-              <span className={`text-sm font-medium ${ch.done ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
-                {ch.name}
-              </span>
-              {ch.done ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-500" />
-              ) : (
-                <div className="w-5 h-5 rounded-full border-2 border-muted-foreground/40" />
-              )}
-            </motion.div>
-          ))}
+          {/* Chapter tile grid */}
+          <div className="grid grid-cols-6 gap-2">
+            {counts.map((timesRead, i) => (
+              <div key={i} className="relative">
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  transition={{ duration: 0.12 }}
+                  onClick={() => handleTap(i)}
+                  className="relative aspect-square w-full rounded-xl flex items-center justify-center border shadow-sm transition-all"
+                  style={timesRead > 0
+                    ? { background: 'hsl(var(--accent))', borderColor: 'hsl(var(--accent))', borderWidth: '1.5px' }
+                    : { background: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }
+                  }
+                >
+                  {/* timesRead badge */}
+                  {timesRead >= 1 && (
+                    <div
+                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center z-10"
+                      style={{
+                        backgroundColor: '#FFFFFF',
+                        border: '1.5px solid #1a1a1a',
+                      }}
+                    >
+                      <span className="text-[9px] font-bold leading-none" style={{ color: '#1a1a1a' }}>
+                        {timesRead}
+                      </span>
+                    </div>
+                  )}
+                  <span className="text-[13px] font-semibold leading-none text-foreground">
+                    {i + 1}
+                  </span>
+                </motion.button>
+
+                {/* Floating +1 animation */}
+                <AnimatePresence>
+                  {floaters.filter(f => f.i === i).map(f => (
+                    <motion.div
+                      key={f.id}
+                      initial={{ opacity: 1, y: 0, scale: 1 }}
+                      animate={{ opacity: 0, y: -28, scale: 1.3 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.7, ease: 'easeOut' }}
+                      className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-500 pointer-events-none z-20"
+                    >
+                      +1
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+            ))}
+          </div>
         </motion.div>
+
+        {/* Hint */}
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+          className="text-xs text-center text-muted-foreground/70"
+        >
+          The number badge shows how many times you've read that chapter.
+        </motion.p>
       </motion.div>
 
       {/* CTA */}
@@ -100,7 +142,7 @@ export default function ReadingTrackingScreen({ onContinue }) {
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.7, duration: 0.4 }}
-        className="mt-10 w-full max-w-sm"
+        className="mt-8 w-full max-w-sm"
       >
         <motion.div whileTap={{ scale: 0.96 }}>
           <Button
