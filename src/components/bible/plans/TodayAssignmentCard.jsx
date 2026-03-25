@@ -189,7 +189,7 @@ export default function TodayAssignmentCard({
             }}>
             <BookOpen className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
           </div>
-          <span className="flex-1 text-[14px] font-semibold text-foreground/90">Explore Reading Plans</span>
+          <span className="flex-1 text-base font-semibold text-foreground/90">Explore Reading Plans</span>
           <ChevronRight className="w-4 h-4 flex-shrink-0" style={{ color: 'rgb(34,197,94)', opacity: 0.7 }} />
         </motion.button>
       </motion.div>);
@@ -227,7 +227,7 @@ export default function TodayAssignmentCard({
       }}>
 
       <div className="flex items-start justify-between mb-2">
-        <p className="text-xs text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Today · {formatDateKey(todayKey)}
         </p>
         <motion.button
@@ -245,7 +245,7 @@ export default function TodayAssignmentCard({
           <>
             <div className="flex items-center gap-1.5 mb-2">
               <BookOpen className="w-3 h-3 flex-shrink-0" style={{ color: 'hsl(25 95% 53%)' }} />
-              <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'hsl(25 95% 53%)' }}>Today's Reading</span>
+              <span className="text-xs font-semibold tracking-widest uppercase" style={{ color: 'hsl(25 95% 53%)' }}>Today's Reading</span>
             </div>
             <div className="mb-2 flex flex-col gap-0.5">
               {(parts && parts.length > 0 ? parts : [summary]).map((line, i) => (

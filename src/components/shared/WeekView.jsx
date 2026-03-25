@@ -33,7 +33,7 @@ export default function WeekView({ logs = [] }) {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 mb-6 shadow-sm">
-      <h3 className="text-xs font-medium text-muted-foreground/70 uppercase tracking-wide mb-4">This Week</h3>
+      <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wide mb-4">This Week</h3>
       <div className="grid grid-cols-7 gap-2.5">
         {weekDays.map((date, i) => {
           const dateKey = getDateKey(date);
@@ -79,7 +79,7 @@ export default function WeekView({ logs = [] }) {
               style={getTilestyle()}>
 
               <span
-                className="text-xs font-medium tracking-wide"
+                className="text-sm font-medium tracking-wide"
                 style={{ color: isToday ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))' }}>
 
                 {date.toLocaleDateString('en-US', { weekday: 'short' })}
@@ -93,7 +93,7 @@ export default function WeekView({ logs = [] }) {
               <div className="h-4 flex items-center justify-center">
                 {count > 0 &&
                 <span
-                  className="text-xs font-bold"
+                  className="text-sm font-bold"
                   style={{ color: '#10B981' }}>
 
                     {count}

@@ -22,7 +22,7 @@ export default function HabitLevelScreen({ onContinue, initialValue = '' }) {
     >
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">Where are you at right now?</h1>
-        <p className="text-sm text-muted-foreground mb-8">No pressure. Just honesty.</p>
+        <p className="text-base text-muted-foreground mb-8">No pressure. Just honesty.</p>
 
         <div className="space-y-3">
           {HABITS.map((habit, idx) => (
@@ -51,7 +51,7 @@ export default function HabitLevelScreen({ onContinue, initialValue = '' }) {
           onClick={() => onContinue(selected)}
           disabled={!selected}
           size="lg"
-          className="w-full h-12 rounded-full font-bold transition-all"
+          className="w-full h-14 rounded-full font-bold transition-all"
         >
           Continue
         </Button>

@@ -63,7 +63,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         }}
       >
           <span
-          className="text-[9px] font-bold leading-none"
+          className="text-[11px] font-bold leading-none"
           style={{ color: '#1a1a1a' }}>
 
             {timesRead}
@@ -72,7 +72,7 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
       }
       
       <span
-        className="text-[15px] font-semibold leading-none"
+        className="text-base font-semibold leading-none"
         style={{ 
           color: energyMode && timesRead > 0 
             ? '#FFFFFF' 

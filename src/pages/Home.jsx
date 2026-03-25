@@ -321,7 +321,7 @@ export default function Home() {
               <div className="flex items-center gap-2 mb-3">
                 <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
                 {!isLoadingLogs && (
-                  <span className="text-[13px] text-muted-foreground font-medium">
+                  <span className="text-sm text-muted-foreground font-medium">
                     • Chapters read this year: {yearChaptersRead}
                   </span>
                 )}
@@ -376,7 +376,7 @@ export default function Home() {
               variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setSelectedTestamentFilter('OT')}
-              className="flex-1 h-9 text-xs font-medium">
+              className="flex-1 h-10 text-sm font-medium">
 
                 Old Testament
               </Button>
@@ -384,7 +384,7 @@ export default function Home() {
               variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
               size="sm"
               onClick={() => setSelectedTestamentFilter('NT')}
-              className="flex-1 h-9 text-xs font-medium">
+              className="flex-1 h-10 text-sm font-medium">
 
                 New Testament
               </Button>
@@ -441,7 +441,7 @@ export default function Home() {
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
-            <p className="text-[13px] text-muted-foreground text-center mb-5">
+            <p className="text-sm text-muted-foreground text-center mb-5">
               Tap a chapter to mark it read.
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">

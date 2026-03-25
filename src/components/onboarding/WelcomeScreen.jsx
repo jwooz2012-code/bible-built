@@ -34,7 +34,7 @@ export default function WelcomeScreen({ onContinue }) {
       >
         <h1 className="text-4xl font-black mb-3 text-foreground">Let's Build Something Strong</h1>
         <p className="text-lg font-semibold text-muted-foreground mb-3">Welcome to Bible Built</p>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <p className="text-base text-muted-foreground leading-relaxed">
           Track your Bible reading. Build real consistency. See your growth.
         </p>
       </motion.div>

@@ -39,12 +39,12 @@ export default function FinalScreen({ onContinue }) {
           <p className="text-lg text-foreground/70 leading-relaxed font-semibold">
             Now it's time to show up daily.
           </p>
-          <p className="text-sm text-muted-foreground mt-3 leading-relaxed">
+          <p className="text-base text-muted-foreground mt-3 leading-relaxed">
             Start tracking. Build the habit. Stay in the Word.
           </p>
         </div>
 
-        <p className="text-xs text-muted-foreground italic">
+        <p className="text-sm text-muted-foreground italic">
           "But be ye doers of the word, and not hearers only… — James 1:22"
         </p>
       </motion.div>

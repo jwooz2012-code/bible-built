@@ -31,7 +31,7 @@ export default function MotivationScreen({ onContinue, initialValue = [] }) {
     >
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">What's your reason?</h1>
-        <p className="text-sm text-muted-foreground mb-8">Choose all that apply.</p>
+        <p className="text-base text-muted-foreground mb-8">Choose all that apply.</p>
 
         <div className="space-y-3">
           {MOTIVATIONS.map((motivation, idx) => (
@@ -60,7 +60,7 @@ export default function MotivationScreen({ onContinue, initialValue = [] }) {
           onClick={() => onContinue(selected)}
           disabled={selected.length === 0}
           size="lg"
-          className="w-full h-12 rounded-full font-bold transition-all"
+          className="w-full h-14 rounded-full font-bold transition-all"
         >
           Continue
         </Button>

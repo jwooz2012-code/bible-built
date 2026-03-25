@@ -28,7 +28,7 @@ export default function ExperienceTypeScreen({ onContinue, initialValue = '' }) 
     >
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">How do you want to start?</h1>
-        <p className="text-sm text-muted-foreground mb-8">You can change this later.</p>
+        <p className="text-base text-muted-foreground mb-8">You can change this later.</p>
 
         <div className="space-y-3">
           {EXPERIENCES.map((exp, idx) => (
@@ -49,7 +49,7 @@ export default function ExperienceTypeScreen({ onContinue, initialValue = '' }) 
               <div className={`font-bold text-lg ${selected === exp.value ? 'text-background' : 'text-foreground'}`}>
                 {exp.label}
               </div>
-              <div className={`text-sm mt-1 ${selected === exp.value ? 'text-background/70' : 'text-muted-foreground'}`}>
+              <div className={`text-base mt-1 ${selected === exp.value ? 'text-background/70' : 'text-muted-foreground'}`}>
                 {exp.description}
               </div>
             </motion.button>
@@ -62,7 +62,7 @@ export default function ExperienceTypeScreen({ onContinue, initialValue = '' }) 
           onClick={() => onContinue(selected)}
           disabled={!selected}
           size="lg"
-          className="w-full h-12 rounded-full font-bold transition-all"
+          className="w-full h-14 rounded-full font-bold transition-all"
         >
           Continue
         </Button>

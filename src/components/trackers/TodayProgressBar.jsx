@@ -12,14 +12,14 @@ export default function TodayProgressBar({ chaptersToday, goal = 3 }) {
   return (
     <div className="bg-card border border-border rounded-xl p-4">
       <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-foreground">Today</span>
+        <span className="text-base font-semibold text-foreground">Today</span>
         <div className="flex items-center gap-2">
           {goalHit && (
-            <span className="text-xs px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+            <span className="text-sm px-2 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
               Goal Hit
             </span>
           )}
-          <span className="text-sm text-muted-foreground">
+          <span className="text-base font-medium text-muted-foreground">
             {chaptersToday} / {goal}
           </span>
         </div>
