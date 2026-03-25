@@ -66,7 +66,7 @@ export default function FinalScreen({ onContinue }) {
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold"
           >
-            {isActivating ? 'Loading...' : 'Enter App'}
+            {isActivating ? 'Loading...' : 'Start Tracking'}
           </Button>
         </motion.div>
       </motion.div>
