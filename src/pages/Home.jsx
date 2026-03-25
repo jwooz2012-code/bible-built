@@ -65,19 +65,6 @@ export default function Home() {
   }, [selectedBook]);
 
   useEffect(() => {
-    let mounted = true;
-    base44.auth.me().
-    then((u) => {
-      if (mounted) {
-        setUser(u);
-        setIsLoading(false);
-      }
-    }).
-    catch(() => {if (mounted) setIsLoading(false);});
-    return () => {mounted = false;};
-  }, []);
-
-  useEffect(() => {
     const countKey = 'bb_app_open_count';
     const currentCount = parseInt(localStorage.getItem(countKey) || '0', 10);
     const newCount = currentCount + 1;
