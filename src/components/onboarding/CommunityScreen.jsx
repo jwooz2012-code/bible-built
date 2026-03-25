@@ -84,7 +84,7 @@ export default function CommunityScreen({ onContinue }) {
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold"
           >
-            {isActivating ? 'Continue...' : 'You\'re All Set!'}
+            {isActivating ? 'Continue...' : 'Continue'}
           </Button>
         </motion.div>
       </motion.div>
