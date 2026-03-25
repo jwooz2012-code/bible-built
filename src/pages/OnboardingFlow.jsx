@@ -15,10 +15,11 @@ import AccountabilityScreen from '@/components/onboarding/AccountabilityScreen';
 import CommunityScreen from '@/components/onboarding/CommunityScreen';
 import DailyCommitmentScreen from '@/components/onboarding/DailyCommitmentScreen';
 import FinalScreen from '@/components/onboarding/FinalScreen';
+import ReadingTrackingScreen from '@/components/onboarding/ReadingTrackingScreen';
 
-// TOTAL_SCREENS varies: 10-11 depending on whether plan guidance is shown
+// TOTAL_SCREENS varies: 11-12 depending on whether plan guidance is shown
 const getTotalScreens = (experienceType) => {
-  return experienceType === 'follow_plan' ? 11 : 10;
+  return experienceType === 'follow_plan' ? 12 : 11;
 };
 
 export default function OnboardingFlow() {
@@ -99,16 +100,18 @@ export default function OnboardingFlow() {
         }
         return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
       case 8:
+        return <ReadingTrackingScreen {...commonProps} />;
+      case 9:
         if (responses.experienceType === 'follow_plan') {
           return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
         }
         return <FinalScreen onContinue={handleFinish} />;
-      case 9:
+      case 10:
         if (responses.experienceType === 'follow_plan') {
           return <FinalScreen onContinue={handleFinish} />;
         }
         return null;
-      case 10:
+      case 11:
         return <FinalScreen onContinue={handleFinish} />;
       default:
         return null;
