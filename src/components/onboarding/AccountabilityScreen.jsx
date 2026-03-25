@@ -1,21 +1,16 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Share2 } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
+import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 
-// Mock badge colors matching the real app badge colors
 const MOCK_BADGES = [
-  { bg: '#1a1a2e' },   // dark/black
-  { bg: '#0ea5e9' },   // blue
-  { bg: '#10b981' },   // green
-  { bg: '#f59e0b' },   // amber
-  { bg: '#f97316' },   // orange
-  { bg: '#8b5cf6' },   // purple
-  { bg: '#ef4444' },   // red
-  { bg: '#059669' },   // emerald
-  { bg: '#6b7280' },   // gray
-  { bg: '#3b82f6' },   // blue2
+  { title: 'Battle' },
+  { title: 'First Rep' },
+  { title: 'Locked In' },
+  { title: 'Habit Forming' },
+  { title: 'Fifty Down' },
+
 ];
 
 export default function AccountabilityScreen({ onContinue }) {
@@ -117,18 +112,22 @@ export default function AccountabilityScreen({ onContinue }) {
               <div className="text-[10px] font-black uppercase tracking-[0.15em]" style={{ color: '#94A3B8' }}>
                 Earned Badges
               </div>
-              <div className="grid grid-cols-5 gap-2">
-                {MOCK_BADGES.map((badge, i) => (
-                  <div
-                    key={i}
-                    className="w-9 h-9 rounded-full"
-                    style={{
-                      backgroundColor: badge.bg,
-                      boxShadow: '0 3px 8px rgba(0,0,0,0.3)',
-                      border: badge.bg === '#1a1a2e' ? '1px solid rgba(255,255,255,0.15)' : 'none'
-                    }}
-                  />
-                ))}
+              <div className="flex gap-3 justify-center">
+                {MOCK_BADGES.map((badge, i) => {
+                  const color = getAchievementColor(badge.title);
+                  const isBlackWhite = color === 'BLACK_WHITE';
+                  return (
+                    <div
+                      key={i}
+                      className={`w-11 h-11 rounded-full flex items-center justify-center ${
+                        isBlackWhite ? 'bg-gray-900 border border-white/20' : `bg-gradient-to-br ${color}`
+                      }`}
+                      style={{ boxShadow: '0 4px 12px rgba(0,0,0,0.35)' }}
+                    >
+                      {getAchievementIcon(badge.title, true, 'default')}
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
