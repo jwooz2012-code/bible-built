@@ -452,6 +452,7 @@ export default function Home() {
                 <ChapterTile
                   key={chapter}
                   chapter={chapter}
+                  chapterId={chapterId}
                   timesRead={chapterStats.timesRead}
                   onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
                   disabled={isMarkingRead || isUndoingRead} />);

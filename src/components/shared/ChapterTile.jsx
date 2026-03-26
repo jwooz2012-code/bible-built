@@ -1,11 +1,24 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { useTheme } from '@/components/ThemeProvider';
 
-export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
+export default function ChapterTile({ chapter, timesRead, onClick, disabled, chapterId }) {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
+  const [floaters, setFloaters] = useState([]);
+
+  useEffect(() => {
+    if (!chapterId) return;
+    const handler = (e) => {
+      if (e.detail?.chapterId !== chapterId) return;
+      const id = Date.now() + Math.random();
+      setFloaters(prev => [...prev, id]);
+      setTimeout(() => setFloaters(prev => prev.filter(f => f !== id)), 800);
+    };
+    window.addEventListener('biblebuilt:chapterRead', handler);
+    return () => window.removeEventListener('biblebuilt:chapterRead', handler);
+  }, [chapterId]);
 
   const handleClick = () => {
     if (!disabled) {
@@ -45,12 +58,13 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
   };
 
   return (
+    <div className="relative">
     <motion.button
       whileTap={{ scale: disabled ? 1 : 0.95 }}
       transition={{ duration: 0.15 }}
       onClick={handleClick}
       disabled={disabled}
-      className={`relative aspect-square rounded-xl flex items-center justify-center transition-all border shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+      className={`relative aspect-square w-full rounded-xl flex items-center justify-center transition-all border shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       style={energyMode ? getEnergyTileStyle() : getDefaultTileStyle()}>
 
       {timesRead >= 1 &&
@@ -65,7 +79,6 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
           <span
           className="text-[11px] font-bold leading-none"
           style={{ color: '#1a1a1a' }}>
-
             {timesRead}
           </span>
         </div>
@@ -80,6 +93,23 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled }) {
         }}>
         {chapter}
       </span>
-    </motion.button>);
+    </motion.button>
+
+    {/* +1 micro-celebration — matches onboarding demo */}
+    <AnimatePresence>
+      {floaters.map(id => (
+        <motion.div
+          key={id}
+          initial={{ opacity: 1, y: 0, scale: 1 }}
+          animate={{ opacity: 0, y: -28, scale: 1.3 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.7, ease: 'easeOut' }}
+          className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-500 pointer-events-none z-20"
+        >
+          +1
+        </motion.div>
+      ))}
+    </AnimatePresence>
+    </div>);
 
 }

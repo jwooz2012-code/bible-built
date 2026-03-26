@@ -70,6 +70,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       }
 
+      // Fire micro-celebration event for ChapterTile
+      window.dispatchEvent(new CustomEvent('biblebuilt:chapterRead', { detail: { chapterId: variables.chapterId } }));
+
       base44.analytics.track({
         eventName: 'chapter_read_completed',
         properties: {
