@@ -319,15 +319,7 @@ export default function Stats() {
             <p className="text-[13px] text-muted-foreground">Milestones you've earned</p>
           </div>
 
-          <div className="bg-card border border-border/70 rounded-2xl p-5 mb-8" style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
-            <div className="mb-5 flex items-center gap-3">
-              <Award className="w-5 h-5" style={{ color: '#FACC15' }} />
-              <p className="text-sm font-semibold text-foreground">
-                {achievements.filter((a) => a.achieved).length} / {achievements.length} unlocked
-                <span className="font-normal text-muted-foreground"> — {achievements.length - achievements.filter((a) => a.achieved).length} to go</span>
-              </p>
-            </div>
-
+          <div className="rounded-2xl p-5 mb-8" style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}>
             {lifetimeLoading ? (
               <div className="flex justify-center py-12"><LoadingSpinner /></div>
             ) : (
