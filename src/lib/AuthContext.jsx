@@ -1,7 +1,9 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
+
+const AUTH_TIMEOUT_MS = 5000;
 
 const AuthContext = createContext();
 
@@ -11,10 +13,24 @@ export const AuthProvider = ({ children }) => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [isLoadingPublicSettings, setIsLoadingPublicSettings] = useState(true);
   const [authError, setAuthError] = useState(null);
-  const [appPublicSettings, setAppPublicSettings] = useState(null); // Contains only { id, public_settings }
+  const [appPublicSettings, setAppPublicSettings] = useState(null);
+  const timeoutRef = useRef(null);
 
+  // Hard timeout: never spin forever in WebView/native
   useEffect(() => {
-    checkAppState();
+    console.log('[Auth] Starting auth flow. token present:', !!appParams.token);
+    timeoutRef.current = setTimeout(() => {
+      console.warn('[Auth] TIMEOUT: auth took too long, forcing recovery screen');
+      setIsLoadingAuth(false);
+      setIsLoadingPublicSettings(false);
+      setAuthError({ type: 'timeout', message: 'Auth timed out' });
+    }, AUTH_TIMEOUT_MS);
+
+    checkAppState().finally(() => {
+      clearTimeout(timeoutRef.current);
+    });
+
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
   const checkAppState = async () => {
@@ -46,42 +62,27 @@ export const AuthProvider = ({ children }) => {
         }
         setIsLoadingPublicSettings(false);
       } catch (appError) {
-        console.error('App state check failed:', appError);
+        console.error('[Auth] Public settings fetch failed:', appError?.status, appError?.message);
         
-        // Handle app-level errors
         if (appError.status === 403 && appError.data?.extra_data?.reason) {
           const reason = appError.data.extra_data.reason;
+          console.log('[Auth] 403 reason:', reason);
           if (reason === 'auth_required') {
-            setAuthError({
-              type: 'auth_required',
-              message: 'Authentication required'
-            });
+            setAuthError({ type: 'auth_required', message: 'Authentication required' });
           } else if (reason === 'user_not_registered') {
-            setAuthError({
-              type: 'user_not_registered',
-              message: 'User not registered for this app'
-            });
+            setAuthError({ type: 'user_not_registered', message: 'User not registered for this app' });
           } else {
-            setAuthError({
-              type: reason,
-              message: appError.message
-            });
+            setAuthError({ type: reason, message: appError.message });
           }
         } else {
-          setAuthError({
-            type: 'unknown',
-            message: appError.message || 'Failed to load app'
-          });
+          setAuthError({ type: 'unknown', message: appError.message || 'Failed to load app' });
         }
         setIsLoadingPublicSettings(false);
         setIsLoadingAuth(false);
       }
     } catch (error) {
-      console.error('Unexpected error:', error);
-      setAuthError({
-        type: 'unknown',
-        message: error.message || 'An unexpected error occurred'
-      });
+      console.error('[Auth] Unexpected checkAppState error:', error);
+      setAuthError({ type: 'unknown', message: error.message || 'An unexpected error occurred' });
       setIsLoadingPublicSettings(false);
       setIsLoadingAuth(false);
     }
@@ -89,33 +90,25 @@ export const AuthProvider = ({ children }) => {
 
   const checkUserAuth = async () => {
     try {
-      // Now check if the user is authenticated
       setIsLoadingAuth(true);
+      console.log('[Auth] checkUserAuth: calling base44.auth.me()...');
       const currentUser = await base44.auth.me();
+      console.log('[Auth] User resolved:', currentUser?.id, currentUser?.email);
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
 
-      // Track new user registration (fires once on first ever login)
       const registeredKey = `bb_user_registered_tracked_${currentUser.id}`;
       if (!localStorage.getItem(registeredKey)) {
         localStorage.setItem(registeredKey, '1');
-        base44.analytics.track({
-          eventName: 'user_registered',
-          properties: { user_id: currentUser.id }
-        });
+        base44.analytics.track({ eventName: 'user_registered', properties: { user_id: currentUser.id } });
       }
     } catch (error) {
-      console.error('User auth check failed:', error);
+      console.error('[Auth] checkUserAuth failed:', error?.status, error?.message);
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
-      
-      // If user auth fails, it might be an expired token
       if (error.status === 401 || error.status === 403) {
-        setAuthError({
-          type: 'auth_required',
-          message: 'Authentication required'
-        });
+        setAuthError({ type: 'auth_required', message: 'Authentication required' });
       }
     }
   };
@@ -134,21 +127,30 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    // Use the SDK's redirectToLogin method
+    console.log('[Auth] redirecting to login, returnUrl:', window.location.href);
     base44.auth.redirectToLogin(window.location.href);
   };
 
+  const retryAuth = () => {
+    console.log('[Auth] retryAuth triggered');
+    setAuthError(null);
+    setIsLoadingAuth(true);
+    setIsLoadingPublicSettings(true);
+    checkAppState();
+  };
+
   return (
-    <AuthContext.Provider value={{ 
-      user, 
-      isAuthenticated, 
+    <AuthContext.Provider value={{
+      user,
+      isAuthenticated,
       isLoadingAuth,
       isLoadingPublicSettings,
       authError,
       appPublicSettings,
       logout,
       navigateToLogin,
-      checkAppState
+      checkAppState,
+      retryAuth
     }}>
       {children}
     </AuthContext.Provider>
