@@ -5,6 +5,7 @@ import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
 
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -38,7 +39,7 @@ import { runValidation } from '@/components/bible/plans/validatePlans';
 export default function Home() {
   const navigate = useNavigate();
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
-  const { user, isLoadingAuth } = useAuth();
+  const { user, isLoadingAuth, retryAuth, logout } = useAuth();
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
@@ -263,11 +264,22 @@ export default function Home() {
 
 
 
-  if (isLoadingAuth || !user || !userId) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
       </div>
+    );
+  }
+
+  if (!user || !userId) {
+    console.warn('[Home] user or userId missing after auth resolved. user:', user, 'userId:', userId);
+    return (
+      <AuthRecoveryScreen
+        errorType="session_missing"
+        onRetry={retryAuth}
+        onLogout={() => logout(true)}
+      />
     );
   }
 
