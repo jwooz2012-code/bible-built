@@ -57,8 +57,10 @@ export const AuthProvider = ({ children }) => {
         if (appParams.token) {
           await checkUserAuth();
         } else {
+          // No token at all — treat as auth required so navigateToLogin() fires
           setIsLoadingAuth(false);
           setIsAuthenticated(false);
+          setAuthError({ type: 'auth_required', message: 'Authentication required' });
         }
         setIsLoadingPublicSettings(false);
       } catch (appError) {
