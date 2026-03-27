@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { appParams } from '@/lib/app-params';
 import { createAxiosClient } from '@base44/sdk/dist/utils/axios-client';
 
-const AUTH_TIMEOUT_MS = 5000;
+const AUTH_TIMEOUT_MS = 15000;
 
 const AuthContext = createContext();
 
@@ -109,6 +109,9 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(false);
       if (error.status === 401 || error.status === 403) {
         setAuthError({ type: 'auth_required', message: 'Authentication required' });
+      } else {
+        // Network or unexpected error — show recovery screen instead of blank
+        setAuthError({ type: 'unknown', message: error.message || 'Failed to load user' });
       }
     }
   };
