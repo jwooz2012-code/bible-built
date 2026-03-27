@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
+import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
 import { createPageUrl } from '@/utils';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
@@ -133,31 +135,25 @@ function ShareSheet({ onClose, onSelect }) {
 
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Profile() {
-  const [user, setUser] = useState(null);
+  const { user, isLoadingAuth, retryAuth, logout } = useAuth();
   const [avatarData, setAvatarData] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    let mounted = true;
-    base44.auth.me()
-      .then(u => {
-        if (mounted) {
-          setUser(u);
-          setAvatarData({
-            avatarType: u?.avatarType,
-            avatarPhotoUrl: u?.avatarPhotoUrl,
-            avatarEmoji: u?.avatarEmoji,
-            avatarDefaultId: u?.avatarDefaultId,
-          });
-          setIsLoading(false);
-        }
-      })
-      .catch(() => { if (mounted) setIsLoading(false); });
-    return () => { mounted = false; };
-  }, []);
+  // Sync avatarData from user whenever user loads
+  const prevUserId = React.useRef(null);
+  React.useEffect(() => {
+    if (user && user.id !== prevUserId.current) {
+      prevUserId.current = user.id;
+      setAvatarData({
+        avatarType: user?.avatarType,
+        avatarPhotoUrl: user?.avatarPhotoUrl,
+        avatarEmoji: user?.avatarEmoji,
+        avatarDefaultId: user?.avatarDefaultId,
+      });
+    }
+  }, [user]);
 
   const userId = user?.id;
   const { data: lifetimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
@@ -181,7 +177,7 @@ export default function Profile() {
   const lastEarned = earnedBadges[earnedBadges.length - 1];
   const nextBadge = useMemo(() => badgeState.badges.find(b => !b.achieved), [badgeState]);
 
-  const displayName = user?.displayName || user?.full_name || user?.email?.split('@')[0] || 'Friend';
+  const displayName = user?.displayName || user?.full_name || user?.email?.split('@')[0] || '';
   const nameParts = displayName.trim().split(/\s+/);
   const initials = nameParts.length >= 2
     ? (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase()
@@ -204,11 +200,16 @@ export default function Profile() {
     } catch (e) { /* iframe — ignore */ }
   };
 
-  if (isLoading) return (
+  if (isLoadingAuth) return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <LoadingSpinner />
     </div>
   );
+
+  if (!user) {
+    console.warn('[Profile] user missing after auth resolved');
+    return <AuthRecoveryScreen errorType="session_missing" onRetry={retryAuth} onLogout={() => logout(true)} />;
+  }
 
   const nextBadgePct = nextBadge && nextBadge.target > 0 ? Math.min(nextBadge.current / nextBadge.target, 1) : 0;
   const lastEarnedColor = lastEarned ? getAchievementColor(lastEarned.title) : null;
