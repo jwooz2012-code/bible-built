@@ -1,186 +1,194 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, BarChart2, BookOpen, ChevronDown } from 'lucide-react';
+import { Calendar, BarChart2, BookOpen, ChevronDown, Check } from 'lucide-react';
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Tier config ────────────────────────────────────────────────────────────
 
-function getStreakColor(streak) {
-  if (streak >= 100) return { ring: '#A855F7', glow: 'rgba(168,85,247,0.25)', text: 'text-purple-500' };
-  if (streak >= 30)  return { ring: '#FACC15', glow: 'rgba(250,204,21,0.25)',  text: 'text-yellow-500' };
-  if (streak >= 7)   return { ring: '#22C55E', glow: 'rgba(34,197,94,0.25)',   text: 'text-green-500' };
-  return              { ring: '#6B7280', glow: 'rgba(107,114,128,0.18)',        text: 'text-muted-foreground' };
-}
-
-function getNextMilestone(streak) {
-  if (streak < 7)   return 7;
-  if (streak < 30)  return 30;
-  if (streak < 100) return 100;
-  return Math.ceil((streak + 1) / 50) * 50;
-}
-
-function getMilestoneLabel(streak) {
-  const next = getNextMilestone(streak);
-  if (streak === 0) return `${next} days to green`;
-  if (streak >= 100) return `${streak} days strong`;
-  return `${next - streak} days to next tier`;
-}
-
-function getEncouragementLine(streak, readToday) {
-  if (readToday) {
-    if (streak >= 100) return "A century of faithfulness.";
-    if (streak >= 30)  return "You showed up again.";
-    if (streak >= 7)   return "You're building something real.";
-    return "You showed up today.";
-  }
-  return "Read today to keep your streak alive.";
+function getTier(streak) {
+  if (streak >= 100) return {
+    ring: '#A855F7',
+    glow: 'rgba(168,85,247,0.30)',
+    bg: 'rgba(168,85,247,0.08)',
+    label: 'Legend',
+    labelColor: '#A855F7',
+  };
+  if (streak >= 30) return {
+    ring: '#FACC15',
+    glow: 'rgba(250,204,21,0.30)',
+    bg: 'rgba(250,204,21,0.08)',
+    label: 'On Fire',
+    labelColor: '#CA8A04',
+  };
+  if (streak >= 7) return {
+    ring: '#22C55E',
+    glow: 'rgba(34,197,94,0.30)',
+    bg: 'rgba(34,197,94,0.08)',
+    label: 'Consistent',
+    labelColor: '#16A34A',
+  };
+  return {
+    ring: '#9CA3AF',
+    glow: 'rgba(156,163,175,0.20)',
+    bg: 'rgba(156,163,175,0.06)',
+    label: 'Getting Started',
+    labelColor: '#6B7280',
+  };
 }
 
 // ── Count-up hook ──────────────────────────────────────────────────────────
 
-function useCountUp(target, duration = 1000, delay = 0) {
+function useCountUp(target, duration = 900, delay = 0) {
   const [value, setValue] = useState(0);
-  const started = useRef(false);
-
   useEffect(() => {
     if (target === 0) { setValue(0); return; }
     const timeout = setTimeout(() => {
-      started.current = true;
       const start = performance.now();
       const tick = (now) => {
-        const elapsed = now - start;
-        const progress = Math.min(elapsed / duration, 1);
-        // ease out cubic
-        const eased = 1 - Math.pow(1 - progress, 3);
+        const t = Math.min((now - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3);
         setValue(Math.round(eased * target));
-        if (progress < 1) requestAnimationFrame(tick);
+        if (t < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
     }, delay);
     return () => clearTimeout(timeout);
   }, [target, duration, delay]);
-
   return value;
 }
 
-// ── Streak Ring ─────────────────────────────────────────────────────────────
+// ── Full Status Ring ───────────────────────────────────────────────────────
 
-function StreakRing({ streak, animatedStreak, readToday }) {
-  const R = 72;
-  const STROKE = 7;
-  const SIZE = (R + STROKE) * 2;
+function StatusRing({ streak, animatedStreak, readToday }) {
+  const tier = getTier(streak);
+  const R = 76;
+  const STROKE = 8;
+  const SIZE = (R + STROKE) * 2 + 4;
+  const cx = SIZE / 2;
+  const cy = SIZE / 2;
   const circumference = 2 * Math.PI * R;
-
-  const colors = getStreakColor(streak);
-  const nextMilestone = getNextMilestone(streak);
-  const prevMilestone = streak >= 100 ? Math.floor(streak / 50) * 50 : streak >= 30 ? 100 > streak ? 30 : 100 : streak >= 7 ? 7 : 0;
-  const rangeStart = streak >= 100 ? Math.floor(streak / 50) * 50 : streak >= 30 ? 30 : streak >= 7 ? 7 : 0;
-  const fill = nextMilestone === rangeStart ? 1 : Math.min((streak - rangeStart) / (nextMilestone - rangeStart), 1);
-  const dashOffset = circumference * (1 - fill);
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: SIZE, height: SIZE }}>
-      {/* Glow */}
-      {streak > 0 && (
-        <motion.div
-          className="absolute inset-0 rounded-full"
-          animate={{ scale: [1, 1.04, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: `radial-gradient(circle, ${colors.glow} 0%, transparent 70%)` }}
-        />
-      )}
+      {/* Outer glow pulse */}
+      <motion.div
+        className="absolute rounded-full"
+        style={{
+          width: SIZE + 16,
+          height: SIZE + 16,
+          top: -8,
+          left: -8,
+          background: `radial-gradient(circle, ${tier.glow} 0%, transparent 65%)`,
+        }}
+        animate={{ scale: [1, 1.06, 1], opacity: [0.6, 1, 0.6] }}
+        transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+      />
 
-      <svg width={SIZE} height={SIZE} style={{ transform: 'rotate(-90deg)' }}>
-        {/* Track */}
-        <circle
-          cx={SIZE / 2} cy={SIZE / 2} r={R}
-          fill="none"
-          stroke="hsl(var(--border))"
-          strokeWidth={STROKE}
-        />
-        {/* Fill */}
+      <svg width={SIZE} height={SIZE}>
+        {/* Track ring */}
+        <circle cx={cx} cy={cy} r={R} fill="none" stroke="hsl(var(--border))" strokeWidth={STROKE} />
+
+        {/* Full status ring — always draws complete, just animates in */}
         <motion.circle
-          cx={SIZE / 2} cy={SIZE / 2} r={R}
+          cx={cx} cy={cy} r={R}
           fill="none"
-          stroke={colors.ring}
+          stroke={tier.ring}
           strokeWidth={STROKE}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={{ strokeDashoffset: circumference }}
-          animate={{ strokeDashoffset: dashOffset }}
-          transition={{ duration: 1.1, ease: [0.33, 1, 0.68, 1], delay: 0.1 }}
+          initial={{ strokeDashoffset: circumference, opacity: 0 }}
+          animate={{ strokeDashoffset: 0, opacity: 1 }}
+          transition={{ duration: 1.0, ease: [0.33, 1, 0.68, 1], delay: 0.15 }}
+          style={{ transform: `rotate(-90deg)`, transformOrigin: `${cx}px ${cy}px` }}
         />
+
+        {/* Inner tinted background */}
+        <circle cx={cx} cy={cy} r={R - STROKE / 2 - 2} fill={tier.bg} />
       </svg>
 
       {/* Center content */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-0.5">
         <motion.div
-          className="text-5xl font-bold tracking-tight text-foreground tabular-nums"
-          style={{ lineHeight: 1 }}
+          className="text-[52px] font-black tracking-tight text-foreground tabular-nums leading-none"
         >
           {animatedStreak}
         </motion.div>
-        <div className="text-xs font-medium text-muted-foreground mt-1 tracking-wide uppercase">
+        <div className="text-[11px] font-semibold text-muted-foreground tracking-widest uppercase mt-1">
           day streak
         </div>
-        {readToday && (
-          <div className="mt-1.5 flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-            <span className="text-[10px] text-green-500 font-medium">Read today</span>
-          </div>
-        )}
+
+        {/* Read-today badge */}
+        <AnimatePresence>
+          {readToday && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              transition={{ delay: 0.9, type: 'spring', stiffness: 400 }}
+              className="flex items-center gap-1 mt-1.5 px-2 py-0.5 rounded-full"
+              style={{ background: tier.bg }}
+            >
+              <Check className="w-2.5 h-2.5" style={{ color: tier.ring }} strokeWidth={3} />
+              <span className="text-[10px] font-semibold" style={{ color: tier.ring }}>Read today</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );
 }
 
-// ── Stat Trophy Card ─────────────────────────────────────────────────────────
+// ── Stat Card ──────────────────────────────────────────────────────────────
 
-function TrophyCard({ icon: Icon, label, value, color, delay = 0 }) {
+function StatCard({ icon: Icon, label, value, color, bg, delay = 0, fullWidth = false }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4, ease: 'easeOut' }}
-      className="bg-secondary/60 border border-border/60 rounded-2xl p-4 flex-1"
+      className={`rounded-2xl p-4 flex items-center gap-3 ${fullWidth ? 'w-full' : 'flex-1'}`}
+      style={{ background: bg, border: `1px solid ${color}22` }}
     >
-      <Icon className="w-4 h-4 mb-2.5" style={{ color }} />
-      <div className="text-base font-bold text-foreground tabular-nums">{value}</div>
-      <div className="text-[11px] text-muted-foreground mt-0.5 font-medium">{label}</div>
+      <div
+        className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: `${color}18` }}
+      >
+        <Icon className="w-5 h-5" style={{ color }} />
+      </div>
+      <div className="min-w-0">
+        <div className="text-xl font-black text-foreground tabular-nums leading-tight">{value}</div>
+        <div className="text-[11px] text-muted-foreground font-medium mt-0.5">{label}</div>
+      </div>
     </motion.div>
   );
 }
 
-// ── Main Component ──────────────────────────────────────────────────────────
+// ── Main Component ─────────────────────────────────────────────────────────
 
 export default function ProgressHero({ currentStreak, records, todayLogs = [], isLoading }) {
   const [expanded, setExpanded] = useState(false);
   const readToday = todayLogs.length > 0;
-  const colors = getStreakColor(currentStreak);
+  const tier = getTier(currentStreak);
 
   const animatedStreak = useCountUp(currentStreak, 900, 150);
-  const animatedBestWeek = useCountUp(records.bestRolling7, 800, 300);
-  const animatedBestMonth = useCountUp(records.bestMonth, 850, 400);
+  const animatedBestWeek = useCountUp(records.bestRolling7, 800, 350);
+  const animatedBestMonth = useCountUp(records.bestMonth, 850, 450);
 
-  const encouragement = getEncouragementLine(currentStreak, readToday);
-  const milestoneLabel = getMilestoneLabel(currentStreak);
+  const statusLine = readToday ? 'You showed up today.' : 'Keep your streak alive.';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
+      transition={{ duration: 0.35 }}
       className="mb-5"
     >
-      {/* Header row */}
+      {/* Section header */}
       <button
         onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center justify-between mb-4 active:scale-[0.99] transition-transform"
+        className="w-full flex items-center justify-between mb-4 active:scale-[0.99] transition-transform duration-100"
       >
         <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
-        <motion.div
-          animate={{ rotate: expanded ? 180 : 0 }}
-          transition={{ duration: 0.25 }}
-        >
+        <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.25 }}>
           <ChevronDown className="w-5 h-5 text-muted-foreground" />
         </motion.div>
       </button>
@@ -189,64 +197,74 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], i
       <motion.div
         whileTap={{ scale: 0.985 }}
         onClick={() => setExpanded(v => !v)}
-        className="bg-card border border-border rounded-3xl p-6 cursor-pointer shadow-sm"
+        className="bg-card border border-border rounded-3xl p-6 cursor-pointer shadow-sm overflow-hidden"
       >
-        {/* Streak ring centered */}
-        <div className="flex flex-col items-center mb-5">
-          <StreakRing
+        {/* Streak ring */}
+        <div className="flex flex-col items-center mb-2">
+          <StatusRing
             streak={currentStreak}
             animatedStreak={animatedStreak}
             readToday={readToday}
           />
 
-          {/* Encouragement line */}
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-sm text-muted-foreground mt-3 font-medium text-center"
+          {/* Tier label */}
+          <motion.div
+            initial={{ opacity: 0, y: 4 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
+            className="mt-3 px-3 py-1 rounded-full text-xs font-bold tracking-wide uppercase"
+            style={{ background: tier.bg, color: tier.labelColor }}
           >
-            {encouragement}
-          </motion.p>
+            {tier.label}
+          </motion.div>
 
-          {/* Milestone sub-line */}
+          {/* Status line */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.8 }}
-            className={`text-xs mt-1 ${colors.text}`}
+            transition={{ delay: 0.9 }}
+            className="text-sm text-muted-foreground mt-2 text-center"
           >
-            {milestoneLabel}
+            {statusLine}
           </motion.p>
         </div>
 
-        {/* Trophy cards row */}
-        <div className="flex gap-2.5">
-          <TrophyCard
+        {/* Divider */}
+        <div className="border-t border-border/50 my-4" />
+
+        {/* Stats row */}
+        <div className="flex gap-2.5 mb-2.5">
+          <StatCard
             icon={Calendar}
             label="Best Week"
-            value={`${animatedBestWeek} ch`}
+            value={`${animatedBestWeek}`}
             color="#22C55E"
-            delay={0.35}
+            bg="hsl(var(--secondary))"
+            delay={0.3}
           />
-          <TrophyCard
+          <StatCard
             icon={BarChart2}
             label="Best Month"
-            value={`${animatedBestMonth} ch`}
+            value={`${animatedBestMonth}`}
             color="#3B82F6"
-            delay={0.45}
-          />
-          <TrophyCard
-            icon={BookOpen}
-            label="Most Read"
-            value={records.mostReadBook.name === 'None' ? '—' : records.mostReadBook.name}
-            color="#A855F7"
-            delay={0.55}
+            bg="hsl(var(--secondary))"
+            delay={0.4}
           />
         </div>
+
+        {/* Most Read Book — full width */}
+        <StatCard
+          icon={BookOpen}
+          label="Most Read Book"
+          value={records.mostReadBook.name === 'None' ? '—' : records.mostReadBook.name}
+          color="#A855F7"
+          bg="hsl(var(--secondary))"
+          fullWidth
+          delay={0.5}
+        />
       </motion.div>
 
-      {/* Expandable detail section */}
+      {/* Expandable all-time records */}
       <AnimatePresence>
         {expanded && (
           <motion.div
@@ -254,17 +272,16 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], i
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
+            transition={{ duration: 0.28, ease: 'easeInOut' }}
             className="overflow-hidden"
           >
-            <div className="mt-3 bg-card border border-border rounded-3xl p-5 space-y-4">
-              <h3 className="text-sm font-semibold text-foreground uppercase tracking-wide">All-Time Records</h3>
-
-              <div className="grid grid-cols-2 gap-3">
-                <StatRow label="Longest Streak" value={`${records.longestStreak} days`} />
-                <StatRow label="Best 7-Day Run" value={`${records.bestRolling7} chapters`} />
-                <StatRow label="Best Month" value={`${records.bestMonth} chapters`} />
-                <StatRow label="Most Read Book" value={records.mostReadBook.name} />
+            <div className="mt-3 bg-card border border-border rounded-3xl p-5">
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-3">All-Time Records</h3>
+              <div className="grid grid-cols-2 gap-2.5">
+                <RecordItem label="Longest Streak" value={`${records.longestStreak} days`} />
+                <RecordItem label="Best 7-Day Run" value={`${records.bestRolling7} chapters`} />
+                <RecordItem label="Best Month" value={`${records.bestMonth} chapters`} />
+                <RecordItem label="Most Read" value={records.mostReadBook.name} />
               </div>
             </div>
           </motion.div>
@@ -274,10 +291,10 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], i
   );
 }
 
-function StatRow({ label, value }) {
+function RecordItem({ label, value }) {
   return (
-    <div className="bg-secondary/50 rounded-xl p-3">
-      <div className="text-[11px] text-muted-foreground font-medium mb-0.5">{label}</div>
+    <div className="bg-secondary/60 rounded-2xl p-3.5">
+      <div className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wide mb-1">{label}</div>
       <div className="text-sm font-bold text-foreground">{value}</div>
     </div>
   );
