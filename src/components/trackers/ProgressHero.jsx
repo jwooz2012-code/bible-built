@@ -1,45 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, BarChart2, BookOpen, ChevronDown, Check } from 'lucide-react';
+import { Calendar, BarChart2, BookOpen, Check, Flame, Zap } from 'lucide-react';
 
 // ── Tier config ────────────────────────────────────────────────────────────
 
 const TIERS = [
-  {
-    min: 0, max: 6, label: 'Getting Started', next: 7, nextLabel: 'Disciple',
-    ring: '#9CA3AF',
-    badgeBg: 'linear-gradient(145deg, #E5E7EB 0%, #9CA3AF 50%, #6B7280 100%)',
-    glow: 'rgba(156,163,175,0.30)',
-    pill: { bg: 'rgba(107,114,128,0.10)', border: 'rgba(107,114,128,0.20)', color: '#374151', colorDark: '#D1D5DB' },
-  },
-  {
-    min: 7, max: 29, label: 'Disciple', next: 30, nextLabel: 'Builder',
-    ring: '#34D399',
-    badgeBg: 'linear-gradient(145deg, #A7F3D0 0%, #34D399 45%, #059669 100%)',
-    glow: 'rgba(52,211,153,0.35)',
-    pill: { bg: 'rgba(52,211,153,0.10)', border: 'rgba(52,211,153,0.25)', color: '#065F46', colorDark: '#A7F3D0' },
-  },
-  {
-    min: 30, max: 59, label: 'Builder', next: 60, nextLabel: 'Warrior',
-    ring: '#FBBF24',
-    badgeBg: 'linear-gradient(145deg, #FDE68A 0%, #FBBF24 45%, #D97706 100%)',
-    glow: 'rgba(251,191,36,0.38)',
-    pill: { bg: 'rgba(251,191,36,0.10)', border: 'rgba(251,191,36,0.28)', color: '#78350F', colorDark: '#FDE68A' },
-  },
-  {
-    min: 60, max: 99, label: 'Warrior', next: 100, nextLabel: 'Legend',
-    ring: '#FB923C',
-    badgeBg: 'linear-gradient(145deg, #FED7AA 0%, #FB923C 45%, #C2410C 100%)',
-    glow: 'rgba(251,146,60,0.38)',
-    pill: { bg: 'rgba(251,146,60,0.10)', border: 'rgba(251,146,60,0.26)', color: '#7C2D12', colorDark: '#FED7AA' },
-  },
-  {
-    min: 100, max: Infinity, label: 'Legend', next: null, nextLabel: null,
-    ring: '#C084FC',
-    badgeBg: 'linear-gradient(145deg, #E9D5FF 0%, #A855F7 45%, #6D28D9 100%)',
-    glow: 'rgba(192,132,252,0.40)',
-    pill: { bg: 'rgba(168,85,247,0.10)', border: 'rgba(168,85,247,0.25)', color: '#5B21B6', colorDark: '#E9D5FF' },
-  },
+  { min: 0,   max: 6,   label: 'Getting Started', status: 'Just Starting', next: 7,   nextLabel: 'Disciple',
+    ringStart: '#9CA3AF', ringEnd: '#6B7280', glow: 'rgba(156,163,175,0.55)', badgeColor: '#9CA3AF', badgeBg: 'rgba(156,163,175,0.15)', badgeBorder: 'rgba(156,163,175,0.3)' },
+  { min: 7,   max: 29,  label: 'Disciple',         status: 'Building Habits', next: 30, nextLabel: 'Builder',
+    ringStart: '#6EE7B7', ringEnd: '#059669', glow: 'rgba(52,211,153,0.6)', badgeColor: '#34D399', badgeBg: 'rgba(52,211,153,0.15)', badgeBorder: 'rgba(52,211,153,0.3)' },
+  { min: 30,  max: 59,  label: 'Builder',          status: 'On Fire 🔥', next: 60, nextLabel: 'Warrior',
+    ringStart: '#FDE68A', ringEnd: '#D97706', glow: 'rgba(251,191,36,0.65)', badgeColor: '#FBBF24', badgeBg: 'rgba(251,191,36,0.15)', badgeBorder: 'rgba(251,191,36,0.3)' },
+  { min: 60,  max: 99,  label: 'Warrior',          status: 'Unstoppable', next: 100, nextLabel: 'Legend',
+    ringStart: '#FED7AA', ringEnd: '#EA580C', glow: 'rgba(249,115,22,0.65)', badgeColor: '#FB923C', badgeBg: 'rgba(249,115,22,0.15)', badgeBorder: 'rgba(249,115,22,0.3)' },
+  { min: 100, max: Infinity, label: 'Legend',      status: 'Legendary', next: null, nextLabel: null,
+    ringStart: '#FEF08A', ringEnd: '#F97316', glow: 'rgba(251,191,36,0.70)', badgeColor: '#FBBF24', badgeBg: 'rgba(251,146,60,0.18)', badgeBorder: 'rgba(251,191,36,0.4)' },
 ];
 
 function getTier(streak) {
@@ -53,186 +28,178 @@ function useCountUp(target, duration = 1500, delay = 0) {
   useEffect(() => {
     setValue(0);
     if (target === 0) return;
-    const timeout = setTimeout(() => {
+    const tid = setTimeout(() => {
       const start = performance.now();
       const tick = (now) => {
         const t = Math.min((now - start) / duration, 1);
-        const eased = 1 - Math.pow(1 - t, 3);
-        setValue(Math.round(eased * target));
+        setValue(Math.round((1 - Math.pow(1 - t, 3)) * target));
         if (t < 1) requestAnimationFrame(tick);
       };
       requestAnimationFrame(tick);
     }, delay);
-    return () => clearTimeout(timeout);
+    return () => clearTimeout(tid);
   }, [target]);
   return value;
 }
 
-// ── Emblem ─────────────────────────────────────────────────────────────────
+// ── SVG Ring ───────────────────────────────────────────────────────────────
+
+function RingGradient({ id, start, end }) {
+  return (
+    <defs>
+      <linearGradient id={id} x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stopColor={start} />
+        <stop offset="100%" stopColor={end} />
+      </linearGradient>
+      <filter id={`${id}-glow`} x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="4" result="blur" />
+        <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
+      </filter>
+    </defs>
+  );
+}
+
+// ── Main Emblem ────────────────────────────────────────────────────────────
 
 function StreakEmblem({ streak, animatedStreak, readToday }) {
   const tier = getTier(streak);
-  const SIZE = 168;
+  const SIZE = 200;
+  const R = 82;
+  const CX = SIZE / 2;
+  const CY = SIZE / 2;
+  const STROKE = 10;
+  const circumference = 2 * Math.PI * R;
+  const gradId = `ring-grad-${tier.label.replace(/\s/g, '')}`;
 
   const milestoneText = tier.next
     ? `${tier.next - streak} day${tier.next - streak === 1 ? '' : 's'} to ${tier.nextLabel}`
     : `${streak} days of faithfulness`;
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      {/* Badge ring area */}
+    <div className="flex flex-col items-center gap-3 w-full">
+      {/* Ring + number */}
       <div className="relative flex items-center justify-center" style={{ width: SIZE, height: SIZE }}>
-        {/* Ambient glow */}
+        {/* Ambient glow blob */}
         <motion.div
           className="absolute rounded-full pointer-events-none"
-          style={{
-            width: SIZE + 56, height: SIZE + 56,
-            top: -28, left: -28,
-            background: `radial-gradient(circle, ${tier.glow} 0%, transparent 65%)`,
-          }}
-          animate={{ opacity: [0.5, 0.85, 0.5] }}
-          transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        {/* Outer halo */}
-        <motion.div
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: SIZE + 22, height: SIZE + 22,
-            top: -11, left: -11,
-            border: `1.5px solid ${tier.ring}40`,
-          }}
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.35, duration: 0.6 }}
-        />
-
-        {/* Inner ring */}
-        <motion.div
-          className="absolute rounded-full pointer-events-none"
-          style={{
-            width: SIZE + 8, height: SIZE + 8,
-            top: -4, left: -4,
-            border: `2px solid ${tier.ring}90`,
-          }}
-          initial={{ opacity: 0, scale: 0.85 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        />
-
-        {/* Main badge */}
-        <motion.div
-          className="relative rounded-full flex items-center justify-center overflow-hidden"
           style={{
             width: SIZE, height: SIZE,
-            background: tier.badgeBg,
-            boxShadow: `0 16px 48px ${tier.glow}, 0 4px 16px rgba(0,0,0,0.20), inset 0 1px 0 rgba(255,255,255,0.30)`,
+            background: `radial-gradient(circle, ${tier.glow} 0%, transparent 68%)`,
+            opacity: 0.6,
           }}
-          initial={{ scale: 0.6, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.05, duration: 0.55, ease: [0.34, 1.4, 0.64, 1] }}
+          animate={{ opacity: [0.45, 0.75, 0.45] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+
+        {/* SVG ring */}
+        <motion.svg
+          width={SIZE} height={SIZE}
+          className="absolute top-0 left-0"
+          initial={{ opacity: 0, rotate: -90 }}
+          animate={{ opacity: 1, rotate: -90 }}
+          transition={{ delay: 0.1 }}
+          style={{ transformOrigin: '50% 50%' }}
         >
-          {/* Sheen */}
-          <div
-            className="absolute inset-0 rounded-full pointer-events-none"
-            style={{ background: 'radial-gradient(circle at 35% 25%, rgba(255,255,255,0.25) 0%, transparent 55%)' }}
+          <RingGradient id={gradId} start={tier.ringStart} end={tier.ringEnd} />
+          {/* Track ring */}
+          <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={STROKE} />
+          {/* Glow ring (blurred underneath) */}
+          <circle
+            cx={CX} cy={CY} r={R} fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth={STROKE + 4}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={0}
+            opacity={0.35}
+            filter={`url(#${gradId}-glow)`}
           />
+          {/* Main ring */}
+          <circle
+            cx={CX} cy={CY} r={R} fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth={STROKE}
+            strokeLinecap="round"
+            strokeDasharray={circumference}
+            strokeDashoffset={0}
+          />
+        </motion.svg>
 
-          <div className="flex flex-col items-center z-10 select-none">
-            <span
-              className="text-white font-black tabular-nums leading-none"
-              style={{ fontSize: 60, textShadow: '0 2px 12px rgba(0,0,0,0.28)' }}
-            >
-              {animatedStreak}
-            </span>
-            <span className="text-white/80 text-[11px] font-bold tracking-[0.18em] uppercase mt-1">
-              Day Streak
-            </span>
-          </div>
+        {/* Inner content */}
+        <motion.div
+          className="relative flex flex-col items-center justify-center z-10"
+          initial={{ opacity: 0, scale: 0.7 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1, duration: 0.5, ease: [0.34, 1.4, 0.64, 1] }}
+        >
+          <span
+            className="font-black tabular-nums leading-none text-foreground"
+            style={{ fontSize: 64, textShadow: `0 0 30px ${tier.glow}` }}
+          >
+            {animatedStreak}
+          </span>
+          <span className="text-[11px] font-bold tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
+            Day Streak
+          </span>
+
+          {/* Read today badge */}
+          <AnimatePresence>
+            {readToday && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.6 }}
+                transition={{ delay: 1.3, type: 'spring', stiffness: 460, damping: 20 }}
+                className="mt-2.5 flex items-center gap-1.5 px-3 py-1 rounded-full"
+                style={{ background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.35)' }}
+              >
+                <Check className="w-3.5 h-3.5" style={{ color: '#22C55E' }} strokeWidth={3} />
+                <span className="text-[11px] font-bold" style={{ color: '#22C55E' }}>Read today</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
-
-        {/* Read today badge */}
-        <AnimatePresence>
-          {readToday && (
-            <motion.div
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              transition={{ delay: 1.2, type: 'spring', stiffness: 480, damping: 22 }}
-              className="absolute bottom-0.5 right-0.5 w-9 h-9 rounded-full flex items-center justify-center"
-              style={{
-                background: '#22C55E',
-                boxShadow: '0 2px 10px rgba(34,197,94,0.55)',
-                outline: '3px solid hsl(var(--background))',
-              }}
-            >
-              <Check className="w-[18px] h-[18px] text-white" strokeWidth={3} />
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
-      {/* Tier + milestone */}
-      <div className="flex flex-col items-center gap-2">
-        <motion.span
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.35 }}
-          className="px-4 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest"
-          style={{
-            background: tier.pill.bg,
-            border: `1px solid ${tier.pill.border}`,
-            color: tier.pill.color,
-          }}
-        >
-          {tier.label}
-        </motion.span>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.9 }}
-          className="text-[13px] font-medium text-muted-foreground text-center"
-        >
-          {milestoneText}
-        </motion.p>
-
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.05 }}
-          className="text-xs text-muted-foreground/60 text-center"
-        >
-          {readToday ? 'You showed up today.' : 'Keep your streak alive.'}
-        </motion.p>
-      </div>
+      {/* Status + milestone row */}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.75 }}
+        className="flex items-center justify-between w-full px-1"
+      >
+        <div className="flex items-center gap-1.5">
+          <Flame className="w-3.5 h-3.5" style={{ color: tier.badgeColor }} />
+          <span className="text-xs font-semibold" style={{ color: tier.badgeColor }}>{tier.status}</span>
+        </div>
+        <span className="text-xs text-muted-foreground font-medium">{milestoneText}</span>
+      </motion.div>
     </div>
   );
 }
 
-// ── Stat card ──────────────────────────────────────────────────────────────
+// ── Stat Cards ─────────────────────────────────────────────────────────────
 
 function StatCard({ icon: Icon, label, value, color, delay = 0 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.38, ease: 'easeOut' }}
-      className="flex-1 rounded-3xl p-5 bg-card border border-border"
-      style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)' }}
+      transition={{ delay, duration: 0.38 }}
+      className="flex-1 rounded-2xl p-4 bg-card border border-border relative overflow-hidden"
+      style={{ boxShadow: `0 0 0 1px ${color}12, 0 4px 20px rgba(0,0,0,0.10)` }}
     >
+      {/* subtle tint corner */}
+      <div className="absolute top-0 right-0 w-16 h-16 rounded-full pointer-events-none"
+        style={{ background: `radial-gradient(circle at top right, ${color}20 0%, transparent 70%)` }} />
       <div
-        className="w-11 h-11 rounded-2xl flex items-center justify-center mb-4"
-        style={{ background: `${color}15`, border: `1.5px solid ${color}28` }}
+        className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+        style={{ background: `${color}18`, border: `1.5px solid ${color}30` }}
       >
-        <Icon className="w-5 h-5" style={{ color }} />
+        <Icon className="w-4.5 h-4.5" style={{ color }} />
       </div>
-      <div className="text-[34px] font-black text-foreground tabular-nums leading-none mb-1.5">
-        {value}
-      </div>
-      <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-        {label}
-      </div>
+      <div className="text-[32px] font-black text-foreground tabular-nums leading-none">{value}</div>
+      <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mt-1.5">{label}</div>
     </motion.div>
   );
 }
@@ -240,21 +207,23 @@ function StatCard({ icon: Icon, label, value, color, delay = 0 }) {
 function MostReadCard({ value, delay = 0 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.38, ease: 'easeOut' }}
-      className="w-full rounded-3xl p-5 flex items-center gap-4 bg-card border border-border"
-      style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.07), 0 1px 3px rgba(0,0,0,0.04)' }}
+      transition={{ delay, duration: 0.38 }}
+      className="w-full rounded-2xl p-4 flex items-center gap-4 bg-card border border-border relative overflow-hidden"
+      style={{ boxShadow: '0 0 0 1px rgba(168,85,247,0.10), 0 4px 20px rgba(0,0,0,0.10)' }}
     >
+      <div className="absolute top-0 right-0 w-24 h-24 rounded-full pointer-events-none"
+        style={{ background: 'radial-gradient(circle at top right, rgba(168,85,247,0.12) 0%, transparent 70%)' }} />
       <div
-        className="w-14 h-14 rounded-2xl flex items-center justify-center shrink-0"
-        style={{ background: 'rgba(168,85,247,0.12)', border: '1.5px solid rgba(168,85,247,0.22)' }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+        style={{ background: 'rgba(168,85,247,0.14)', border: '1.5px solid rgba(168,85,247,0.28)' }}
       >
-        <BookOpen className="w-6 h-6" style={{ color: '#A855F7' }} />
+        <BookOpen className="w-5 h-5" style={{ color: '#A855F7' }} />
       </div>
-      <div className="min-w-0">
-        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Most Read Book</div>
-        <div className="text-xl font-black text-foreground truncate leading-tight">
+      <div className="min-w-0 z-10">
+        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-0.5">Most Read Book</div>
+        <div className="text-xl font-black text-foreground truncate">
           {!value || value === 'None' ? '—' : value}
         </div>
       </div>
@@ -262,24 +231,15 @@ function MostReadCard({ value, delay = 0 }) {
   );
 }
 
-function RecordItem({ label, value }) {
-  return (
-    <div className="bg-muted/40 border border-border/50 rounded-2xl p-4">
-      <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest mb-1.5">{label}</div>
-      <div className="text-sm font-bold text-foreground">{value}</div>
-    </div>
-  );
-}
-
-// ── Main ───────────────────────────────────────────────────────────────────
+// ── Main export ────────────────────────────────────────────────────────────
 
 export default function ProgressHero({ currentStreak, records, todayLogs = [] }) {
-  const [expanded, setExpanded] = useState(false);
   const readToday = todayLogs.length > 0;
+  const tier = getTier(currentStreak);
 
-  const animatedStreak   = useCountUp(currentStreak, 1400, 80);
-  const animatedBestWeek = useCountUp(records.bestRolling7, 900, 300);
-  const animatedBestMonth = useCountUp(records.bestMonth, 950, 420);
+  const animatedStreak    = useCountUp(currentStreak, 1500, 80);
+  const animatedBestWeek  = useCountUp(records.bestRolling7, 1000, 300);
+  const animatedBestMonth = useCountUp(records.bestMonth, 1050, 420);
 
   return (
     <motion.div
@@ -288,63 +248,40 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [] })
       transition={{ duration: 0.3 }}
       className="mb-6"
     >
-      {/* Header */}
-      <button
-        onClick={() => setExpanded(v => !v)}
-        className="w-full flex items-center justify-between mb-7 active:opacity-70 transition-opacity"
-      >
+      {/* Header row with tier badge */}
+      <div className="flex items-center justify-between mb-6">
         <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
-        <motion.div animate={{ rotate: expanded ? 180 : 0 }} transition={{ duration: 0.22 }}>
-          <ChevronDown className="w-5 h-5 text-muted-foreground" />
+        <motion.div
+          initial={{ opacity: 0, x: 8 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.6 }}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-widest"
+          style={{
+            background: tier.badgeBg,
+            border: `1px solid ${tier.badgeBorder}`,
+            color: tier.badgeColor,
+          }}
+        >
+          <Zap className="w-3 h-3" />
+          {tier.label}
         </motion.div>
-      </button>
+      </div>
 
-      {/* Hero — open, no card wrapper */}
-      <motion.div
-        whileTap={{ scale: 0.975 }}
-        onClick={() => setExpanded(v => !v)}
-        className="flex justify-center mb-8 cursor-pointer"
-      >
+      {/* Streak ring */}
+      <div className="flex justify-center mb-6">
         <StreakEmblem
           streak={currentStreak}
           animatedStreak={animatedStreak}
           readToday={readToday}
         />
-      </motion.div>
+      </div>
 
       {/* Stat cards */}
       <div className="flex gap-3 mb-3">
-        <StatCard icon={Calendar} label="Best Week"  value={animatedBestWeek}  color="#22C55E" delay={0.28} />
-        <StatCard icon={BarChart2} label="Best Month" value={animatedBestMonth} color="#3B82F6" delay={0.38} />
+        <StatCard icon={Calendar}  label="Best Week"  value={animatedBestWeek}  color="#22C55E" delay={0.3} />
+        <StatCard icon={BarChart2} label="Best Month" value={animatedBestMonth} color="#3B82F6" delay={0.42} />
       </div>
-      <MostReadCard value={records.mostReadBook?.name} delay={0.48} />
-
-      {/* Expandable all-time records */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            key="expanded"
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.26, ease: 'easeInOut' }}
-            className="overflow-hidden"
-          >
-            <div
-              className="mt-4 rounded-3xl bg-card border border-border p-5"
-              style={{ boxShadow: '0 2px 16px rgba(0,0,0,0.07)' }}
-            >
-              <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest mb-4">All-Time Records</p>
-              <div className="grid grid-cols-2 gap-3">
-                <RecordItem label="Longest Streak"  value={`${records.longestStreak} days`} />
-                <RecordItem label="Best 7-Day Run"  value={`${records.bestRolling7} ch`} />
-                <RecordItem label="Best Month"      value={`${records.bestMonth} ch`} />
-                <RecordItem label="Most Read"       value={records.mostReadBook?.name || '—'} />
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <MostReadCard value={records.mostReadBook?.name} delay={0.54} />
     </motion.div>
   );
 }
