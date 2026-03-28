@@ -331,7 +331,7 @@ export default function Home() {
               currentStreak={currentStreak}
               records={trackerStats.records}
               todayLogs={todayLogs}
-              isLoading={isLoadingLogs}
+              thisWeekChapters={trackerStats.thisWeekChapters}
             />
 
             {energyMode &&

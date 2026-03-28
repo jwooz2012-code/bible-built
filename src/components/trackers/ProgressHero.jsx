@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Calendar, BarChart2, BookOpen, Check, Flame, Star } from 'lucide-react';
+import { BookOpen, Check, Flame, Star, Trophy, CalendarCheck } from 'lucide-react';
 
 // ── Tier config ────────────────────────────────────────────────────────────
 
@@ -92,7 +92,6 @@ function FireRing({ streak, animatedStreak, readToday }) {
 
   return (
     <div className="relative flex items-center justify-center" style={{ width: RING_SIZE, height: RING_SIZE }}>
-      {/* Ambient glow */}
       <div
         className="absolute rounded-full pointer-events-none"
         style={{
@@ -103,7 +102,6 @@ function FireRing({ streak, animatedStreak, readToday }) {
         }}
       />
 
-      {/* Rotating conic gradient ring */}
       <div
         className="absolute rounded-full bb-ring-spin"
         style={{
@@ -117,7 +115,6 @@ function FireRing({ streak, animatedStreak, readToday }) {
         }}
       />
 
-      {/* Mask to create ring */}
       <div
         className="absolute rounded-full z-10"
         style={{
@@ -128,7 +125,6 @@ function FireRing({ streak, animatedStreak, readToday }) {
         }}
       />
 
-      {/* Inner accent ring */}
       <div
         className="absolute rounded-full z-10 pointer-events-none"
         style={{
@@ -139,7 +135,6 @@ function FireRing({ streak, animatedStreak, readToday }) {
         }}
       />
 
-      {/* Inner content */}
       <div className="relative z-20 flex flex-col items-center justify-center select-none">
         <span
           className="font-black tabular-nums leading-none"
@@ -245,72 +240,168 @@ function MilestoneBar({ streak, tier }) {
   );
 }
 
-// ── Sparkline ──────────────────────────────────────────────────────────────
+// ── Stats Ribbon ──────────────────────────────────────────────────────────
 
-function Sparkline({ color, delay = 0 }) {
-  const heights = [4, 8, 5, 11, 7, 10, 12];
-  const [animate, setAnimate] = useState(false);
-  const ref = useRef(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setTimeout(() => setAnimate(true), delay * 1000); } },
-      { threshold: 0.5 }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [delay]);
+function StatItem({ icon: Icon, iconTint, iconColor, label, value, useFireGradient = false, isDark, children }) {
+  const dur = label === 'BEST MONTH' ? 1300 : label === 'BEST WEEK' ? 1000 : 800;
+  const del = label === 'BEST MONTH' ? 500 : label === 'BEST WEEK' ? 400 : 300;
+  const animated = useCountUp(value, dur, del);
 
   return (
-    <div ref={ref} className="flex items-end gap-0.5 mt-3" style={{ height: 16 }}>
-      {heights.map((h, i) => (
-        <motion.div
-          key={i}
-          className="w-[3px] rounded-full"
-          initial={{ height: 0 }}
-          animate={{ height: animate ? h : 0 }}
-          transition={{ delay: i * 0.08, duration: 0.35, ease: 'easeOut' }}
-          style={{ background: color }}
-        />
-      ))}
+    <div className="flex-1 flex flex-col items-center gap-1.5 px-2">
+      <div
+        className="w-8 h-8 rounded-full flex items-center justify-center"
+        style={{ background: iconTint }}
+      >
+        <Icon className="w-[15px] h-[15px]" style={{ color: iconColor }} />
+      </div>
+
+      <div className="relative">
+        {useFireGradient ? (
+          <span
+            className="text-[28px] font-black tabular-nums leading-none"
+            style={{
+              background: 'linear-gradient(135deg, #F97316, #FDE047)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
+            {animated}
+          </span>
+        ) : (
+          <span
+            className="text-[28px] font-black tabular-nums leading-none"
+            style={{ color: isDark ? '#fff' : '#27272A' }}
+          >
+            {animated}
+          </span>
+        )}
+      </div>
+
+      {children}
+
+      <span
+        className="text-[11px] font-semibold uppercase tracking-widest"
+        style={{ color: isDark ? '#71717A' : '#A1A1AA' }}
+      >
+        {label}
+      </span>
     </div>
   );
 }
 
-// ── Stat cards ─────────────────────────────────────────────────────────────
-
-function StatCard({ icon: Icon, label, value, fromColor, toColor, delay = 0 }) {
+function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
   const isDark = useIsDark();
-  const bgFrom    = isDark ? `${fromColor}12` : `${fromColor}18`;
-  const bgTo      = isDark ? `${fromColor}04` : `${fromColor}08`;
-  const borderCol = isDark ? `${fromColor}18` : 'rgba(0,0,0,0.07)';
+  const isNewPB = thisWeek >= bestWeek && bestWeek > 0;
+
+  const dividerColor    = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+  const containerBg     = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
+  const containerBorder = isDark ? 'none' : '1px solid rgba(0,0,0,0.06)';
+
+  const [shimmer, setShimmer] = useState(false);
+  useEffect(() => { const t = setTimeout(() => setShimmer(true), 400); return () => clearTimeout(t); }, []);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ delay, duration: 0.4 }}
-      whileTap={{ scale: 0.97 }}
-      className="flex-1 rounded-2xl p-4 relative overflow-hidden"
+      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
+      whileTap={{ scale: 0.98 }}
+      className="w-full rounded-2xl"
       style={{
-        background: `linear-gradient(135deg, ${bgFrom}, ${bgTo})`,
-        border: `1px solid ${borderCol}`,
-        boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
+        background: containerBg,
+        border: containerBorder,
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
+        padding: '20px 12px',
       }}
     >
-      <div className="absolute top-0 right-0 w-20 h-20 pointer-events-none rounded-bl-full"
-        style={{ background: `radial-gradient(circle at top right, ${fromColor}16 0%, transparent 70%)` }} />
+      <div className="flex items-stretch">
+        {/* THIS WEEK */}
+        <StatItem
+          icon={CalendarCheck}
+          iconTint={isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)'}
+          iconColor="#FB923C"
+          label="THIS WEEK"
+          value={thisWeek}
+          useFireGradient={isNewPB}
+          isDark={isDark}
+        >
+          <div className="flex items-center gap-1.5 h-4">
+            <motion.div
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
+              animate={{ opacity: [0.4, 1, 0.4] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+            {isNewPB && (
+              <motion.span
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.6 }}
+                className="text-[10px] font-medium whitespace-nowrap"
+                style={{ color: '#FBBF24' }}
+              >
+                New PB
+              </motion.span>
+            )}
+          </div>
+        </StatItem>
 
-      <div
-        className="w-8 h-8 rounded-xl flex items-center justify-center mb-3"
-        style={{ background: `${fromColor}20`, border: `1.5px solid ${fromColor}30` }}
-      >
-        <Icon className="w-[18px] h-[18px]" style={{ color: fromColor }} />
+        <div className="w-px self-stretch" style={{ background: dividerColor }} />
+
+        {/* BEST WEEK */}
+        <div className="flex-1 relative overflow-hidden">
+          <StatItem
+            icon={Star}
+            iconTint={isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)'}
+            iconColor="#FBBF24"
+            label="BEST WEEK"
+            value={isNewPB ? thisWeek : bestWeek}
+            useFireGradient
+            isDark={isDark}
+          >
+            <div className="h-4" />
+          </StatItem>
+          {shimmer && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
+                animation: 'shimmer 1.2s ease-out forwards',
+              }}
+            />
+          )}
+        </div>
+
+        <div className="w-px self-stretch" style={{ background: dividerColor }} />
+
+        {/* BEST MONTH */}
+        <div className="flex-1 relative overflow-hidden">
+          <StatItem
+            icon={Trophy}
+            iconTint={isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)'}
+            iconColor="#F59E0B"
+            label="BEST MONTH"
+            value={bestMonth}
+            useFireGradient
+            isDark={isDark}
+          >
+            <div className="h-4" />
+          </StatItem>
+          {shimmer && (
+            <div
+              className="absolute inset-0 pointer-events-none"
+              style={{
+                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
+                animation: 'shimmer 1.2s ease-out forwards',
+                animationDelay: '0.3s',
+              }}
+            />
+          )}
+        </div>
       </div>
-
-      <div className="text-[30px] font-black text-foreground tabular-nums leading-none">{value}</div>
-      <div className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mt-1">{label}</div>
-      <Sparkline color={`linear-gradient(90deg, ${fromColor}, ${toColor})`} delay={delay + 0.3} />
     </motion.div>
   );
 }
@@ -375,13 +466,10 @@ function MostReadCard({ value, delay = 0 }) {
 
 // ── Main ───────────────────────────────────────────────────────────────────
 
-export default function ProgressHero({ currentStreak, records, todayLogs = [] }) {
+export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0 }) {
   const readToday = todayLogs.length > 0;
   const tier = getTier(currentStreak);
-
-  const animatedStreak    = useCountUp(currentStreak, 1500, 80);
-  const animatedBestWeek  = useCountUp(records.bestRolling7, 1200, 300);
-  const animatedBestMonth = useCountUp(records.bestMonth, 1200, 420);
+  const animatedStreak = useCountUp(currentStreak, 1500, 80);
 
   return (
     <motion.div
@@ -421,10 +509,13 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [] })
         <MilestoneBar streak={currentStreak} tier={tier} />
       </motion.div>
 
-      {/* Stat cards */}
-      <div className="flex gap-3 mt-6 mb-3">
-        <StatCard icon={Calendar}  label="Best Week"  value={animatedBestWeek}  fromColor="#22C55E" toColor="#86EFAC" delay={0.3} />
-        <StatCard icon={BarChart2} label="Best Month" value={animatedBestMonth} fromColor="#6366F1" toColor="#818CF8" delay={0.42} />
+      {/* Stats Ribbon */}
+      <div className="mt-6 mb-3">
+        <StatsRibbon
+          thisWeek={thisWeekChapters}
+          bestWeek={records.bestRolling7}
+          bestMonth={records.bestMonth}
+        />
       </div>
 
       <MostReadCard value={records.mostReadBook?.name} delay={0.54} />
