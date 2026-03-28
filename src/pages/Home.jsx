@@ -51,17 +51,13 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [selectedBook]);
 
-  // Listen for Home tab taps for scroll-to-top behavior
   useEffect(() => {
     const onHomeTap = () => {
       if (selectedBook) {
-        // If viewing a book, go back to main view
         setSelectedBook(null);
       }
-      // Always scroll to top
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
-    
     window.addEventListener('biblebuilt:homeTap', onHomeTap);
     return () => window.removeEventListener('biblebuilt:homeTap', onHomeTap);
   }, [selectedBook]);
@@ -74,12 +70,10 @@ export default function Home() {
     setShowWelcome(newCount <= 5);
   }, []);
 
-  // DEV: Validate plans on mount
   useEffect(() => {
     runValidation();
   }, []);
 
-  // Track app_open for every authenticated user session (used to count DAU in analytics)
   useEffect(() => {
     if (!user) return;
     base44.analytics.track({
@@ -94,8 +88,7 @@ export default function Home() {
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
-  
-  // Single source of truth for current streak
+
   const currentStreak = useCurrentStreak(allTimeLogs);
 
   const trackerStats = useMemo(() => {
@@ -122,7 +115,6 @@ export default function Home() {
     const lifetimeUnique = dedupeChapterIds(allTimeLogs);
     const yearUnique = dedupeChapterIds(yearLogs);
 
-    // OT/NT progress for current year
     const yearOtLogs = yearLogs.filter((log) => log.testament === 'OT');
     const yearNtLogs = yearLogs.filter((log) => log.testament === 'NT');
     const otUnique = dedupeChapterIds(yearOtLogs);
@@ -152,25 +144,21 @@ export default function Home() {
   const currentYear = new Date().getFullYear();
   const now = new Date();
 
-  // Year calculations
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
   const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
   const yearChaptersRead = yearLogs.length;
 
-  // Week calculations (last 7 days)
   const weekAgo = new Date(now);
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStart = getDateKey(weekAgo);
   const weekLogs = allTimeLogs.filter((log) => log.dateKey >= weekStart);
   const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
 
-  // Month calculations (current month)
   const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
   const monthLogs = allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd);
   const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
 
-  // Phase calculations
   const readingDays = new Set(allTimeLogs.map((log) => log.dateKey)).size;
   const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
   const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
@@ -183,7 +171,6 @@ export default function Home() {
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
 
-  // Calculate achievements
   const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
   const daysWithReadingDistinct = uniqueDays.size;
@@ -204,8 +191,6 @@ export default function Home() {
     }
   });
 
-
-
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
     window.location.reload();
@@ -222,14 +207,12 @@ export default function Home() {
     for (let i = 1; i <= book.chapters; i++) {
       chapterCounts[i] = 0;
     }
-
     const bookLogs = allTimeLogs.filter((log) => log.bookIndex === book.index);
     bookLogs.forEach((log) => {
       if (chapterCounts[log.chapter] !== undefined) {
         chapterCounts[log.chapter]++;
       }
     });
-
     const minCount = Math.min(...Object.values(chapterCounts));
     return { completions: minCount };
   };
@@ -245,7 +228,6 @@ export default function Home() {
       toast.error('Please log in again');
       return;
     }
-
     try {
       const now = new Date();
       await markRead({
@@ -262,8 +244,6 @@ export default function Home() {
       toast.error(error?.message || 'Action failed. Please try again.');
     }
   };
-
-
 
   if (isLoadingAuth) {
     return (
@@ -285,17 +265,17 @@ export default function Home() {
   }
 
   const weeklyQuotes = [
-  "Faithfulness is built one chapter at a time.",
-  "Show up. Let the Word do the work.",
-  "You don't master the Word. You return to it.",
-  "Consistency shapes understanding.",
-  "A quiet habit can carry a lifetime.",
-  "Read again. There is more here.",
-  "Depth comes from staying.",
-  "The Word rewards the patient reader.",
-  "This is how Scripture becomes familiar.",
-  "Built slowly. Held forever."];
-
+    "Faithfulness is built one chapter at a time.",
+    "Show up. Let the Word do the work.",
+    "You don't master the Word. You return to it.",
+    "Consistency shapes understanding.",
+    "A quiet habit can carry a lifetime.",
+    "Read again. There is more here.",
+    "Depth comes from staying.",
+    "The Word rewards the patient reader.",
+    "This is how Scripture becomes familiar.",
+    "Built slowly. Held forever."
+  ];
 
   const getWeeklyQuote = () => {
     const startOfYear = new Date(currentYear, 0, 1);
@@ -306,15 +286,14 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-background pb-24">
       <div className="max-w-6xl mx-auto px-5 pb-8">
-        {!selectedBook &&
-        <>
+        {!selectedBook && (
+          <>
             {showWelcome && (
               <p className="text-sm text-muted-foreground/70 text-center mb-6">
                 Track what matters.
               </p>
             )}
 
-            {/* Today's Assignment Card */}
             <TodayAssignmentCard
               plan={plan}
               allTimeLogs={allTimeLogs}
@@ -326,109 +305,105 @@ export default function Home() {
               showPrompt={showPrompt}
             />
 
-            {/* Your Progress Section */}
             <ProgressHero
               currentStreak={currentStreak}
               records={trackerStats.records}
               todayLogs={todayLogs}
               thisWeekChapters={trackerStats.thisWeekChapters}
+              yearChapters={yearChaptersRead}
             />
 
-            {energyMode &&
+            {energyMode && (
               <div className="mb-5">
                 <XPBar todayCount={todayLogs.length} />
               </div>
-            }
+            )}
 
             <WeekView logs={allTimeLogs} />
 
-            {recentBooks.length > 0 &&
-          <div className="mb-6">
+            {recentBooks.length > 0 && (
+              <div className="mb-6">
                 <h2 className="text-lg font-semibold text-foreground mb-3">Continue Reading</h2>
                 <div className="grid grid-cols-2 gap-2">
                   {recentBooks.slice(0, 2).map((book) => {
-                const stats = getBookStats(book);
-                return (
-                  <BookCard
-                    key={book.index}
-                    book={book}
-                    completions={stats.completions}
-                    onClick={() => setSelectedBook(book)}
-                    compact={true} />);
-
-
-              })}
+                    const stats = getBookStats(book);
+                    return (
+                      <BookCard
+                        key={book.index}
+                        book={book}
+                        completions={stats.completions}
+                        onClick={() => setSelectedBook(book)}
+                        compact={true}
+                      />
+                    );
+                  })}
                 </div>
               </div>
-          }
+            )}
 
             <div className="flex gap-2 mb-5">
               <Button
-              variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setSelectedTestamentFilter('OT')}
-              className="flex-1 h-10 text-sm font-medium">
-
+                variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTestamentFilter('OT')}
+                className="flex-1 h-10 text-sm font-medium"
+              >
                 Old Testament
               </Button>
               <Button
-              variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
-              size="sm"
-              onClick={() => setSelectedTestamentFilter('NT')}
-              className="flex-1 h-10 text-sm font-medium">
-
+                variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
+                size="sm"
+                onClick={() => setSelectedTestamentFilter('NT')}
+                className="flex-1 h-10 text-sm font-medium"
+              >
                 New Testament
               </Button>
             </div>
           </>
-        }
+        )}
 
-        {!selectedBook ?
-        <>
-            <div className="grid grid-cols-2 gap-2 mb-6">
-              {filteredBooks.map((book) => {
+        {!selectedBook ? (
+          <div className="grid grid-cols-2 gap-2 mb-6">
+            {filteredBooks.map((book) => {
               const stats = getBookStats(book);
               return (
                 <BookCard
                   key={book.index}
                   book={book}
                   completions={stats.completions}
-                  onClick={() => setSelectedBook(book)} />);
-
-
+                  onClick={() => setSelectedBook(book)}
+                />
+              );
             })}
-            </div>
-          </> :
-
-        <motion.div
-          key={selectedBook.name}
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-card border border-border rounded-2xl p-5 shadow-sm">
-
+          </div>
+        ) : (
+          <motion.div
+            key={selectedBook.name}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="bg-card border border-border rounded-2xl p-5 shadow-sm"
+          >
             <div className="flex items-center justify-between mb-6 gap-3">
               <div className="flex items-center gap-3 flex-1 min-w-0">
                 <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 w-9 p-0 shrink-0"
-                onClick={() => {
-                  setSelectedBook(null);
-                }}>
-
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 w-9 p-0 shrink-0"
+                  onClick={() => setSelectedBook(null)}
+                >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
                 <h2 className="text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               </div>
               <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                await markAllRead({ userId, book: selectedBook });
-              }}
-              disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-              className="text-xs px-3 h-8 shrink-0">
-
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await markAllRead({ userId, book: selectedBook });
+                }}
+                disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+                className="text-xs px-3 h-8 shrink-0"
+              >
                 {isMarkingAll ? '...' : 'Mark All'}
               </Button>
             </div>
@@ -437,35 +412,33 @@ export default function Home() {
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chapter) => {
-              const chapterId = generateChapterId(selectedBook.index, chapter);
-              const chapterStats = getChapterStats(selectedBook.index, chapter);
-              return (
-                <ChapterTile
-                  key={chapter}
-                  chapter={chapter}
-                  chapterId={chapterId}
-                  timesRead={chapterStats.timesRead}
-                  onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
-                  disabled={isMarkingRead || isUndoingRead} />);
-
-
-            })}
+                const chapterId = generateChapterId(selectedBook.index, chapter);
+                const chapterStats = getChapterStats(selectedBook.index, chapter);
+                return (
+                  <ChapterTile
+                    key={chapter}
+                    chapter={chapter}
+                    chapterId={chapterId}
+                    timesRead={chapterStats.timesRead}
+                    onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
+                    disabled={isMarkingRead || isUndoingRead}
+                  />
+                );
+              })}
             </div>
           </motion.div>
-        }
-        </div>
+        )}
+      </div>
 
-        {/* Plan Modal */}
-        <PlanModal
+      <PlanModal
         open={planOpen}
         onClose={() => setPlanOpen(false)}
         userId={userId}
         existingPlan={plan}
         logs={allTimeLogs}
-        />
+      />
 
-        {/* Plan Preview Sheet */}
-        <PlanPreviewSheet
+      <PlanPreviewSheet
         open={planPreviewOpen}
         onClose={() => setPlanPreviewOpen(false)}
         plan={plan}
@@ -476,7 +449,7 @@ export default function Home() {
           setPlanPreviewOpen(false);
           setPlanOpen(true);
         }}
-        />
-        </div>);
-
-        }
+      />
+    </div>
+  );
+}

@@ -85,8 +85,8 @@ function injectStyles() {
 function FireRing({ streak, animatedStreak, readToday }) {
   const tier = getTier(streak);
   const isDark = useIsDark();
-  const RING_SIZE = 180;
-  const RING_THICK = 11;
+  const RING_SIZE = 120;
+  const RING_THICK = 8;
 
   useEffect(() => { injectStyles(); }, []);
 
@@ -95,8 +95,8 @@ function FireRing({ streak, animatedStreak, readToday }) {
       <div
         className="absolute rounded-full pointer-events-none"
         style={{
-          width: RING_SIZE + 52, height: RING_SIZE + 52,
-          top: -26, left: -26,
+          width: RING_SIZE + 36, height: RING_SIZE + 36,
+          top: -18, left: -18,
           background: `radial-gradient(circle, ${isDark ? tier.glow : 'rgba(249,115,22,0.12)'} 0%, transparent 65%)`,
           opacity: isDark ? 0.55 : 0.7,
         }}
@@ -128,10 +128,10 @@ function FireRing({ streak, animatedStreak, readToday }) {
       <div
         className="absolute rounded-full z-10 pointer-events-none"
         style={{
-          width: RING_SIZE - RING_THICK * 2 - 6,
-          height: RING_SIZE - RING_THICK * 2 - 6,
-          top: RING_THICK + 3, left: RING_THICK + 3,
-          border: '2px solid rgba(253,224,71,0.30)',
+          width: RING_SIZE - RING_THICK * 2 - 4,
+          height: RING_SIZE - RING_THICK * 2 - 4,
+          top: RING_THICK + 2, left: RING_THICK + 2,
+          border: '1.5px solid rgba(253,224,71,0.30)',
         }}
       />
 
@@ -139,7 +139,7 @@ function FireRing({ streak, animatedStreak, readToday }) {
         <span
           className="font-black tabular-nums leading-none"
           style={{
-            fontSize: 56,
+            fontSize: 40,
             background: 'linear-gradient(135deg, #F97316, #FDE047)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
@@ -148,7 +148,7 @@ function FireRing({ streak, animatedStreak, readToday }) {
         >
           {animatedStreak}
         </span>
-        <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
+        <span className="text-[9px] font-bold tracking-[0.2em] uppercase text-muted-foreground mt-0.5">
           Day Streak
         </span>
 
@@ -159,10 +159,10 @@ function FireRing({ streak, animatedStreak, readToday }) {
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0, opacity: 0 }}
               transition={{ delay: 1.8, type: 'spring', stiffness: 500, damping: 18 }}
-              className="mt-2 flex items-center gap-1 px-2.5 py-1 rounded-full"
+              className="mt-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full"
               style={{ background: 'rgba(34,197,94,0.18)', border: '1px solid rgba(34,197,94,0.38)' }}
             >
-              <Check className="w-3 h-3" style={{ color: '#22C55E' }} strokeWidth={3} />
+              <Check className="w-2.5 h-2.5" style={{ color: '#22C55E' }} strokeWidth={3} />
               <span className="text-[11px] font-bold" style={{ color: '#22C55E' }}>Read today</span>
             </motion.div>
           )}
@@ -198,8 +198,8 @@ function MilestoneBar({ streak, tier }) {
   const shimmer     = isDark ? 'rgba(255,255,255,0.20)' : 'rgba(255,255,255,0.30)';
 
   return (
-    <div className="w-full mt-4">
-      <div className="flex justify-between items-center mb-2">
+    <div className="w-full mt-2">
+      <div className="flex justify-between items-center mb-1.5">
         <div className="flex items-center gap-1.5">
           <Flame className="w-3 h-3 text-orange-400" />
           <span className="text-xs font-semibold text-orange-400">{tier.status}</span>
@@ -211,7 +211,7 @@ function MilestoneBar({ streak, tier }) {
 
       <div
         className="relative w-full rounded-full overflow-hidden"
-        style={{ height: 8, background: trackBg, border: trackBorder }}
+        style={{ height: 7, background: trackBg, border: trackBorder }}
       >
         <div
           className="absolute inset-y-0 left-0 rounded-full overflow-hidden transition-all ease-out"
@@ -233,7 +233,7 @@ function MilestoneBar({ streak, tier }) {
         </div>
       </div>
 
-      <p className="text-[13px] mt-2 text-center font-medium" style={{ color: labelColor }}>
+      <p className="text-[12px] mt-1 text-center font-medium" style={{ color: labelColor }}>
         {motivational}
       </p>
     </div>
@@ -296,10 +296,10 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
   return (
     <div className="flex flex-col items-center w-full">
       {/* Hero: This Week */}
-      <div className="relative flex flex-col items-center w-full" style={{ paddingTop: 24, paddingBottom: 20 }}>
+      <div className="relative flex flex-col items-center w-full" style={{ paddingTop: 12, paddingBottom: 10 }}>
         <div className="absolute inset-0 pointer-events-none" style={{ background: glowBg }} />
         <div className="relative flex items-center gap-2">
-          <span className="font-black tabular-nums leading-none" style={{ fontSize: 56, ...fireGrad }}>
+          <span className="font-black tabular-nums leading-none" style={{ fontSize: 36, ...fireGrad }}>
             {thisWeekAnim}
           </span>
           {dotVisible && (
@@ -307,7 +307,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               className="w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ marginBottom: 4, background: '#FB923C' }}
+              style={{ marginBottom: 2, background: '#FB923C' }}
             >
               <motion.div
                 className="w-full h-full rounded-full"
@@ -322,8 +322,8 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: labelVisible ? 1 : 0 }}
           transition={{ duration: 0.3 }}
-          className="mt-1.5 text-center"
-          style={{ fontSize: 14, color: labelColor, fontWeight: 400 }}
+          className="mt-1 text-center"
+          style={{ fontSize: 12, color: labelColor, fontWeight: 400 }}
         >
           chapters this week
           {isNewPB && (
@@ -333,14 +333,14 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
       </div>
 
       {/* Personal Best Badges */}
-      <div className="flex items-center justify-center gap-3">
+      <div className="flex items-center justify-center gap-3" style={{ marginTop: 8 }}>
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: badge1 ? 1 : 0, y: badge1 ? 0 : 8 }}
           transition={{ duration: 0.3 }}
           whileTap={{ scale: 0.95 }}
           className="relative overflow-hidden flex items-center gap-1.5 rounded-full"
-          style={{ background: badgeBg, border: isNewPB ? badgeBorderPB : badgeBorder, padding: '8px 14px' }}
+          style={{ background: badgeBg, border: isNewPB ? badgeBorderPB : badgeBorder, padding: '6px 14px' }}
         >
           <Star className="w-4 h-4 shrink-0" style={{ color: '#FBBF24' }} />
           <span className="text-[20px] font-bold tabular-nums leading-none" style={{ color: numColor }}>{bestWeekAnim}</span>
@@ -359,9 +359,10 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
           transition={{ duration: 0.3 }}
           whileTap={{ scale: 0.95 }}
           className="relative overflow-hidden flex items-center gap-1.5 rounded-full"
-          style={{ background: badgeBg, border: badgeBorder, padding: '8px 14px' }}
+          style={{ background: badgeBg, border: badgeBorder, padding: '6px 14px' }}
         >
-          <Trophy className="w-4 h-4 shrink-0" style={{ color: '#FBBF24' }} />
+          <Trophy
+            className="w-4 h-4 shrink-0" style={{ color: '#FBBF24' }} />
           <span className="text-[20px] font-bold tabular-nums leading-none" style={{ color: numColor }}>{bestMonthAnim}</span>
           <span className="text-[12px]" style={{ color: labelColor }}>best month</span>
           {shimmer2 && (
@@ -391,11 +392,12 @@ function MostReadCard({ value, delay = 0 }) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.4 }}
       whileTap={{ scale: 0.97 }}
-      className="w-full rounded-2xl p-4 flex items-center gap-4 relative overflow-hidden"
+      className="w-full rounded-2xl flex items-center gap-3 relative overflow-hidden"
       style={{
         background: 'linear-gradient(135deg, rgba(147,51,234,0.08), rgba(249,115,22,0.04))',
         border: '1px solid rgba(147,51,234,0.16)',
-        minHeight: 64,
+        minHeight: 52,
+        padding: '10px 12px',
         boxShadow: '0 4px 20px rgba(0,0,0,0.10)',
       }}
     >
@@ -412,7 +414,7 @@ function MostReadCard({ value, delay = 0 }) {
       )}
 
       <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center shrink-0"
+        className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
         style={{ background: 'rgba(124,58,237,0.16)', border: '1.5px solid rgba(124,58,237,0.28)' }}
       >
         <BookOpen className="w-5 h-5" style={{ color: '#7C3AED' }} />
@@ -434,9 +436,47 @@ function MostReadCard({ value, delay = 0 }) {
   );
 }
 
+// ── Year Counter ────────────────────────────────────────────────────────────
+
+function YearCounter({ yearChapters }) {
+  const isDark = useIsDark();
+  const year = new Date().getFullYear();
+  const animatedCount = useCountUp(yearChapters, 1500, 1400);
+
+  const fireGrad = {
+    background: 'linear-gradient(135deg, #F97316, #FDE047)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  };
+  const bg = isDark ? 'linear-gradient(90deg, rgba(249,115,22,0.04), rgba(251,191,36,0.04))' : 'linear-gradient(90deg, rgba(249,115,22,0.03), rgba(251,191,36,0.03))';
+  const border = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.05)';
+  const labelColor = isDark ? '#A1A1AA' : '#71717A';
+  const yearColor = isDark ? '#ffffff' : '#27272A';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 1.5, duration: 0.3 }}
+      className="w-full flex items-center justify-between rounded-xl"
+      style={{ background: bg, border, padding: '10px 14px', minHeight: 44 }}
+    >
+      <div className="flex items-center gap-1.5">
+        <BookOpen className="w-3.5 h-3.5" style={{ color: isDark ? '#A1A1AA' : '#71717A' }} />
+        <span className="text-[13px] font-bold" style={{ color: yearColor }}>{year}</span>
+      </div>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[20px] font-bold tabular-nums leading-none" style={fireGrad}>{animatedCount}</span>
+        <span className="text-[12px]" style={{ color: labelColor }}>chapters read</span>
+      </div>
+    </motion.div>
+  );
+}
+
 // ── Main ───────────────────────────────────────────────────────────────────
 
-export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0 }) {
+export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0, yearChapters = 0 }) {
   const readToday = todayLogs.length > 0;
   const tier = getTier(currentStreak);
   const animatedStreak = useCountUp(currentStreak, 1500, 80);
@@ -446,10 +486,10 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="mb-6"
+      className="mb-3"
     >
       {/* Header with tier badge */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-2">
         <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
         <motion.div
           initial={{ opacity: 0, x: 10 }}
@@ -459,7 +499,7 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
           style={{
             background: `linear-gradient(135deg, ${tier.badgeFrom}, ${tier.badgeTo})`,
             color: tier.textColor,
-            minHeight: 32,
+            minHeight: 28,
             boxShadow: '0 2px 8px rgba(249,115,22,0.30)',
           }}
         >
@@ -473,14 +513,15 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.5, ease: [0.34, 1.2, 0.64, 1] }}
-        className="flex flex-col items-center mb-2"
+        className="flex flex-col items-center"
+        style={{ marginBottom: 8 }}
       >
         <FireRing streak={currentStreak} animatedStreak={animatedStreak} readToday={readToday} />
         <MilestoneBar streak={currentStreak} tier={tier} />
       </motion.div>
 
-      {/* Stats Ribbon */}
-      <div className="mt-6 mb-3">
+      {/* Stats */}
+      <div style={{ marginTop: 12, marginBottom: 12 }}>
         <StatsRibbon
           thisWeek={thisWeekChapters}
           bestWeek={records.bestRolling7}
@@ -489,6 +530,10 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       </div>
 
       <MostReadCard value={records.mostReadBook?.name} delay={0.54} />
+
+      <div style={{ marginTop: 12 }}>
+        <YearCounter yearChapters={yearChapters} />
+      </div>
     </motion.div>
   );
 }
