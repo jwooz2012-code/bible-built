@@ -24,6 +24,7 @@ import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks'
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
+import ProgressHero from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
@@ -326,34 +327,12 @@ export default function Home() {
             />
 
             {/* Your Progress Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-5">
-              <div className="flex items-center gap-2 mb-3">
-                <h2 className="text-lg font-semibold text-foreground">Your Progress</h2>
-                {!isLoadingLogs && (
-                  <span className="text-sm text-muted-foreground font-medium">
-                    • Chapters read this year: {yearChaptersRead}
-                  </span>
-                )}
-              </div>
-              
-              {energyMode &&
-                <div className="flex items-center justify-center mb-4">
-                  <motion.span
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="inline-flex items-center px-2.5 py-1 bb-energy-card rounded-full text-[10px] font-bold text-accent uppercase tracking-wide">
-                    ⚡ Energy Mode
-                  </motion.span>
-                </div>
-              }
-
-              <PersonalRecordsCard records={trackerStats.records} currentStreak={currentStreak} showTitle={false} />
-              
-
-            </motion.div>
+            <ProgressHero
+              currentStreak={currentStreak}
+              records={trackerStats.records}
+              todayLogs={todayLogs}
+              isLoading={isLoadingLogs}
+            />
 
             {energyMode &&
               <div className="mb-5">
