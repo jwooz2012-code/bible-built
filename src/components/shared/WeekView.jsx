@@ -1,11 +1,22 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 
+function useIsDark() {
+  const [dark, setDark] = useState(() => document.documentElement.classList.contains('dark'));
+  useEffect(() => {
+    const obs = new MutationObserver(() => setDark(document.documentElement.classList.contains('dark')));
+    obs.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
+
 export default function WeekView({ logs = [] }) {
   const navigate = useNavigate();
+  const isDark = useIsDark();
   const today = new Date();
 
   const startOfWeek = new Date(today);
@@ -66,7 +77,7 @@ export default function WeekView({ logs = [] }) {
               <line
                 key={i}
                 x1={x1} y1="50%" x2={x2} y2="50%"
-                stroke="rgba(251,146,60,0.35)"
+                stroke={isDark ? 'rgba(251,146,60,0.35)' : 'rgba(249,115,22,0.50)'}
                 strokeWidth="2"
               />
             );
