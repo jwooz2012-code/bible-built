@@ -1,13 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BookOpen, Check, Flame, Star } from 'lucide-react';
 
 const TIERS = [
-  { min: 0, max: 6, label: 'Getting Started', status: 'Just Starting', next: 7, nextLabel: 'Disciple', gradient: '#4B5563 to #9CA3AF', glow: 'rgba(156,163,175,0.25)' },
-  { min: 7, max: 29, label: 'Disciple', status: 'Building Habits', next: 30, nextLabel: 'Builder', gradient: '#059669 to #34D399', glow: 'rgba(52,211,153,0.25)' },
-  { min: 30, max: 59, label: 'Builder', status: 'On Fire', next: 60, nextLabel: 'Warrior', gradient: '#C2410C to #FBBF24', glow: 'rgba(251,191,36,0.25)' },
-  { min: 60, max: 99, label: 'Warrior', status: 'Unstoppable', next: 100, nextLabel: 'Legend', gradient: '#C2410C to #FB923C', glow: 'rgba(249,115,22,0.25)' },
-  { min: 100, max: Infinity, label: 'Legend', status: 'Legendary', next: null, nextLabel: null, gradient: '#C2410C to #FDE047', glow: 'rgba(251,191,36,0.30)' },
+  { min: 0, max: 6, label: 'Getting Started', status: 'Just Starting', next: 7, nextLabel: 'Disciple', color: '#6B7280' },
+  { min: 7, max: 29, label: 'Disciple', status: 'Building Habits', next: 30, nextLabel: 'Builder', color: '#10B981' },
+  { min: 30, max: 59, label: 'Builder', status: 'On Fire', next: 60, nextLabel: 'Warrior', color: '#F97316' },
+  { min: 60, max: 99, label: 'Warrior', status: 'Unstoppable', next: 100, nextLabel: 'Legend', color: '#FB923C' },
+  { min: 100, max: Infinity, label: 'Legend', status: 'Legendary', next: null, nextLabel: null, color: '#FBBF24' },
 ];
 
 function getTier(streak) {
@@ -45,7 +45,6 @@ function useCountUp(target, duration = 1500, delay = 0) {
 const STYLES = `
 @keyframes ring-glow-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.30; } }
 @keyframes bar-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
-@keyframes star-shimmer { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) {
   * { animation: none !important; }
@@ -61,20 +60,18 @@ function injectStyles() {
   stylesInjected = true;
 }
 
-// Row 1: Header Bar
-function HeaderBar({ tier }) {
-  const tierColor = tier.glow;
+function HeaderBar({ tier, isDark }) {
   return (
-    <div className="flex items-center justify-between mb-3">
-      <h2 className="text-base font-semibold text-foreground">Your Progress</h2>
+    <div className="flex items-center justify-between mb-4">
+      <h2 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-zinc-900'}`}>Your Progress</h2>
       <motion.div
         initial={{ opacity: 0, x: 10 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
         className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white"
         style={{
-          background: `linear-gradient(135deg, ${tier.gradient})`,
-          boxShadow: `0 0 8px ${tierColor}`,
+          background: tier.color,
+          boxShadow: `0 0 8px ${tier.color}33`,
         }}
       >
         <Flame className="w-2.5 h-2.5 inline mr-1 mb-0.5" />
@@ -84,22 +81,20 @@ function HeaderBar({ tier }) {
   );
 }
 
-// Row 2: Streak Ring (Hero)
 function StreakRing({ streak, animatedStreak, readToday, isDark }) {
   const ringSize = 120;
   const ringStroke = 8;
-  const glowColor = isDark ? 'rgba(249,115,22,0.25)' : 'rgba(249,115,22,0.12)';
+  const glowColor = isDark ? 'rgba(249,115,22,0.25)' : 'rgba(249,115,22,0.15)';
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
-      className="flex flex-col items-center mb-2"
+      className="flex flex-col items-center mb-4"
     >
-      {/* Ring with glow */}
       <div className="relative flex items-center justify-center" style={{ width: ringSize, height: ringSize }}>
-        {/* Animated glow backdrop */}
+        {/* Glow backdrop */}
         <div
           className="absolute rounded-full pointer-events-none"
           style={{
@@ -112,15 +107,8 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
           }}
         />
 
-        {/* Ring stroke */}
-        <svg
-          width={ringSize}
-          height={ringSize}
-          className="absolute"
-          style={{
-            filter: `drop-shadow(0 0 12px ${glowColor})`,
-          }}
-        >
+        {/* Ring SVG */}
+        <svg width={ringSize} height={ringSize} className="absolute">
           <circle
             cx={ringSize / 2}
             cy={ringSize / 2}
@@ -129,7 +117,7 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
             stroke="url(#fireGradient)"
             strokeWidth={ringStroke}
             strokeLinecap="round"
-            opacity={0.95}
+            opacity={0.9}
           />
           <defs>
             <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -141,7 +129,7 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
         </svg>
 
         {/* Content inside ring */}
-        <div className="relative z-10 flex flex-col items-center justify-center">
+        <div className="relative z-10 flex flex-col items-center justify-center select-none">
           <span
             className="font-black tabular-nums leading-none"
             style={{
@@ -154,24 +142,27 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
           >
             {animatedStreak}
           </span>
-          <span className="text-xs font-bold tracking-wider uppercase text-zinc-400 mt-0.5">Day Streak</span>
+          <span className={`text-xs font-bold tracking-wider uppercase mt-1 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+            Day Streak
+          </span>
 
-          {/* Read Today Badge Inside Ring */}
+          {/* Read Today Badge - positioned below text, inside ring space */}
           <AnimatePresence>
             {readToday && (
               <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                exit={{ scale: 0 }}
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0, opacity: 0 }}
                 transition={{ type: 'spring', stiffness: 500, damping: 18, delay: 1.2 }}
-                className="mt-2 flex items-center gap-1.5 px-2 py-1 rounded-full"
+                className="mt-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
                 style={{
-                  background: 'rgba(34,197,94,0.12)',
-                  border: '1px solid rgba(34,197,94,0.30)',
+                  background: isDark ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.10)',
+                  color: '#22C55E',
+                  border: isDark ? '1px solid rgba(34,197,94,0.35)' : '1px solid rgba(34,197,94,0.25)',
                 }}
               >
-                <Check className="w-2.5 h-2.5" style={{ color: '#22C55E', strokeWidth: 3 }} />
-                <span className="text-xs font-bold" style={{ color: '#22C55E' }}>Read today</span>
+                <Check className="w-2.5 h-2.5" strokeWidth={3} />
+                <span>Read today</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -181,7 +172,6 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
   );
 }
 
-// Row 3: Tier Progress Bar
 function TierProgressBar({ streak, tier, isDark }) {
   const [barWidth, setBarWidth] = useState(0);
   const progress = tier.next ? Math.min(((streak - tier.min) / (tier.next - tier.min)) * 100, 100) : 100;
@@ -192,22 +182,25 @@ function TierProgressBar({ streak, tier, isDark }) {
     return () => clearTimeout(t);
   }, [progress]);
 
-  const trackBg = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)';
-  const trackBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
+  const trackBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+  const trackBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const textColor = isDark ? 'text-zinc-400' : 'text-zinc-600';
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5, duration: 0.3 }}
-      className="w-full mb-3"
+      className="w-full mb-4"
     >
-      <div className="flex items-center justify-between mb-1.5 gap-2">
+      <div className="flex items-center justify-between mb-2 gap-2">
         <div className="flex items-center gap-1">
-          <Flame className="w-3 h-3 text-orange-400" />
-          <span className="text-xs font-semibold text-orange-400">{tier.status}</span>
+          <Flame className="w-3 h-3" style={{ color: tier.color }} />
+          <span className="text-xs font-semibold" style={{ color: tier.color }}>
+            {tier.status}
+          </span>
         </div>
-        {tier.next && <span className="text-xs text-zinc-500">{tier.nextLabel}</span>}
+        {tier.next && <span className={`text-xs ${textColor}`}>{tier.nextLabel}</span>}
       </div>
 
       <div
@@ -218,8 +211,8 @@ function TierProgressBar({ streak, tier, isDark }) {
           className="absolute inset-y-0 left-0 rounded-full"
           style={{
             width: `${barWidth}%`,
-            background: 'linear-gradient(90deg, #F97316, #FDE047)',
-            boxShadow: '0 0 8px rgba(249,115,22,0.30)',
+            background: `linear-gradient(90deg, ${tier.color}, ${tier.color}dd)`,
+            boxShadow: `0 0 6px ${tier.color}40`,
           }}
           animate={{ width: `${barWidth}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
@@ -227,7 +220,7 @@ function TierProgressBar({ streak, tier, isDark }) {
           <div
             className="absolute inset-0 pointer-events-none"
             style={{
-              background: `linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%)`,
+              background: `linear-gradient(90deg, transparent 30%, ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.15)'} 50%, transparent 70%)`,
               animation: 'bar-shimmer 3s ease-in-out infinite',
               width: '40%',
             }}
@@ -236,7 +229,7 @@ function TierProgressBar({ streak, tier, isDark }) {
       </div>
 
       {tier.next && (
-        <p className="text-xs mt-1 text-center text-zinc-500 font-medium">
+        <p className={`text-xs mt-1.5 text-center font-medium ${textColor}`}>
           {daysLeft} day{daysLeft !== 1 ? 's' : ''} to {tier.nextLabel}
         </p>
       )}
@@ -244,8 +237,7 @@ function TierProgressBar({ streak, tier, isDark }) {
   );
 }
 
-// Row 4: Stats Ribbon
-function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
+function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   const [isNewBest, setIsNewBest] = useState(false);
   const [newBestTimer, setNewBestTimer] = useState(null);
 
@@ -257,27 +249,26 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
     if (thisWeek >= bestWeek && bestWeek > 0 && !isNewBest) {
       setIsNewBest(true);
       if (newBestTimer) clearTimeout(newBestTimer);
-      const timer = setTimeout(() => {
-        setIsNewBest(false);
-      }, 3000);
+      const timer = setTimeout(() => setIsNewBest(false), 3000);
       setNewBestTimer(timer);
     }
   }, [thisWeek, bestWeek, isNewBest]);
+
+  const statTextColor = isDark ? 'text-white' : 'text-zinc-900';
+  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
+  const dividerColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.7, duration: 0.3 }}
-      className="flex items-center justify-center gap-4 mb-2.5 px-4"
+      className="flex items-center justify-center gap-3 mb-3 px-2"
     >
       {/* This Week */}
-      <div className="flex flex-col items-center justify-center gap-0.5 relative">
-        <div className="flex items-center gap-1.5">
-          <span
-            className="font-bold tabular-nums leading-none"
-            style={{ fontSize: 22, color: 'hsl(var(--foreground))' }}
-          >
+      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
+        <div className="flex items-center gap-1.5 justify-center">
+          <span className={`font-bold tabular-nums leading-none ${statTextColor}`} style={{ fontSize: 22 }}>
             {thisWeekAnim}
           </span>
           <div
@@ -288,14 +279,14 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
             }}
           />
         </div>
-        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">This Week</span>
+        <span className={`text-xs font-semibold uppercase tracking-wider ${labelColor}`}>This Week</span>
       </div>
 
       {/* Divider */}
-      <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.10)' }} />
+      <div style={{ width: 1, height: 28, background: dividerColor }} />
 
       {/* Best Week */}
-      <div className="flex flex-col items-center justify-center gap-0.5">
+      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
         <span
           className="font-bold tabular-nums leading-none"
           style={{
@@ -310,17 +301,17 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
         </span>
         <span
           className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: isNewBest ? '#FBBF24' : 'hsl(var(--muted-foreground))' }}
+          style={{ color: isNewBest ? '#FBBF24' : (isDark ? '#A1A1AA' : '#71717A') }}
         >
           {isNewBest ? 'NEW BEST' : 'Best Week'}
         </span>
       </div>
 
       {/* Divider */}
-      <div style={{ width: 1, height: 24, background: 'rgba(255,255,255,0.10)' }} />
+      <div style={{ width: 1, height: 28, background: dividerColor }} />
 
       {/* Best Month */}
-      <div className="flex flex-col items-center justify-center gap-0.5">
+      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
         <span
           className="font-bold tabular-nums leading-none"
           style={{
@@ -333,106 +324,79 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
         >
           {bestMonthAnim}
         </span>
-        <span className="text-xs font-semibold uppercase tracking-wider text-zinc-500">Best Month</span>
+        <span className={`text-xs font-semibold uppercase tracking-wider ${labelColor}`}>Best Month</span>
       </div>
     </motion.div>
   );
 }
 
-// Row 5: Year Counter
-function YearCounter({ yearChapters, isDark }) {
-  const year = new Date().getFullYear();
-  const animatedCount = useCountUp(yearChapters, 1200, 1100);
+function CompactStatCard({ icon: Icon, label, value, isDark }) {
+  const animatedValue = useCountUp(value, 800, 1100);
 
-  const bg = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
-  const border = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
+  const bg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+  const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const textColor = isDark ? 'text-white' : 'text-zinc-900';
+  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.1, duration: 0.3 }}
-      className="w-full flex items-center justify-between rounded-xl mb-2.5 px-3.5 py-2"
-      style={{ background: bg, border }}
+      className="w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 relative overflow-hidden"
+      style={{ background: bg, border, minHeight: 44 }}
     >
-      <div className="flex items-center gap-1.5">
-        <BookOpen className="w-3.5 h-3.5 text-zinc-400" />
-        <span className="text-sm font-bold text-foreground">{year}</span>
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        style={{
+          background: isDark ? 'rgba(249,115,22,0.15)' : 'rgba(249,115,22,0.10)',
+        }}
+      >
+        <Icon className="w-4.5 h-4.5" style={{ color: '#F97316' }} />
       </div>
-      <div className="flex items-center gap-1.5">
-        <span
-          className="font-bold tabular-nums leading-none"
-          style={{
-            fontSize: 18,
-            background: 'linear-gradient(135deg, #F97316, #FDE047)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
-          {animatedCount}
-        </span>
-        <span className="text-xs text-zinc-500">chapters</span>
+
+      <div className="flex-1 min-w-0">
+        <div className={`text-xs font-bold uppercase tracking-widest ${labelColor} mb-0.5`}>{label}</div>
+        <div className={`text-lg font-bold tabular-nums ${textColor}`}>{animatedValue}</div>
       </div>
     </motion.div>
   );
 }
 
-// Row 6: Most Read Book
-function MostReadBookCard({ bookName, isDark }) {
-  const [shimmerDone, setShimmerDone] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShimmerDone(true), 2400);
-    return () => clearTimeout(timer);
-  }, []);
-
-  const bg = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
-  const border = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.04)';
+function MostReadCard({ bookName, isDark }) {
+  const bg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+  const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const textColor = isDark ? 'text-white' : 'text-zinc-900';
+  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 1.3, duration: 0.3 }}
-      className="w-full flex items-center justify-between rounded-xl px-3.5 py-2 relative overflow-hidden"
+      className="w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 relative overflow-hidden"
       style={{ background: bg, border, minHeight: 44 }}
     >
-      {!shimmerDone && (
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.04) 50%, transparent 60%)',
-            animation: 'bar-shimmer 1.5s ease-in-out',
-            animationDelay: '1.3s',
-            animationFillMode: 'forwards',
-          }}
-        />
-      )}
-
-      <div className="flex items-center gap-2">
-        <div
-          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
-          style={{ background: 'rgba(124,58,237,0.16)' }}
-        >
-          <BookOpen className="w-4 h-4 text-purple-400" />
-        </div>
-        <div className="flex flex-col gap-0.5">
-          <div className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Most Read</div>
-          <div className="text-sm font-semibold text-foreground">{bookName || '—'}</div>
-        </div>
+      <div
+        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
+        style={{
+          background: isDark ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.10)',
+        }}
+      >
+        <BookOpen className="w-4.5 h-4.5" style={{ color: '#A855F7' }} />
       </div>
 
-      <div className="flex items-center gap-0.5">
+      <div className="flex-1 min-w-0">
+        <div className={`text-xs font-bold uppercase tracking-widest ${labelColor} mb-0.5`}>Most Read</div>
+        <div className={`text-lg font-bold truncate ${textColor}`}>{bookName || '—'}</div>
+      </div>
+
+      <div className="flex items-center gap-0.5 shrink-0">
         {[...Array(5)].map((_, i) => (
           <Star
             key={i}
             className="w-3 h-3 fill-current"
-            style={{
-              color: '#EAB308',
-              animation: shimmerDone ? 'none' : `star-shimmer 0.6s ease-in-out ${1.3 + i * 0.08}s forwards`,
-              opacity: 0.6,
-            }}
+            style={{ color: '#EAB308' }}
           />
         ))}
       </div>
@@ -440,28 +404,28 @@ function MostReadBookCard({ bookName, isDark }) {
   );
 }
 
-// Main Component
 export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0, yearChapters = 0 }) {
   injectStyles();
   const isDark = useIsDark();
   const tier = getTier(currentStreak);
   const readToday = todayLogs.length > 0;
   const animatedStreak = useCountUp(currentStreak, 800, 0);
-  const mostReadBook = records.mostReadBook?.name || 'None';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mb-3"
+      className="mb-4"
     >
-      <HeaderBar tier={tier} />
+      <HeaderBar tier={tier} isDark={isDark} />
       <StreakRing streak={currentStreak} animatedStreak={animatedStreak} readToday={readToday} isDark={isDark} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
-      <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} />
-      <YearCounter yearChapters={yearChapters} isDark={isDark} />
-      <MostReadBookCard bookName={mostReadBook} isDark={isDark} />
+      <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} />
+      <div className="space-y-2">
+        <CompactStatCard icon={BookOpen} label="2026 Total" value={yearChapters} isDark={isDark} />
+        <MostReadCard bookName={records.mostReadBook?.name} isDark={isDark} />
+      </div>
     </motion.div>
   );
 }
