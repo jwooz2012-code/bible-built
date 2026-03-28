@@ -242,210 +242,137 @@ function MilestoneBar({ streak, tier }) {
 
 // ── Stats Ribbon ──────────────────────────────────────────────────────────
 
-function useWindowWidth() {
-  const [width, setWidth] = useState(() => window.innerWidth);
-  useEffect(() => {
-    const handler = () => setWidth(window.innerWidth);
-    window.addEventListener('resize', handler);
-    return () => window.removeEventListener('resize', handler);
-  }, []);
-  return width;
-}
-
 function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
   const isDark = useIsDark();
-  const width = useWindowWidth();
   const isNewPB = thisWeek >= bestWeek && bestWeek > 0;
 
-  const dividerColor    = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-  const containerBg     = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
-  const containerBorder = isDark ? 'none' : '1px solid rgba(0,0,0,0.06)';
-  const labelColor      = isDark ? '#71717A' : '#A1A1AA';
+  const thisWeekAnim  = useCountUp(thisWeek,  1000, 0);
+  const bestWeekAnim  = useCountUp(isNewPB ? thisWeek : bestWeek, 800, 1100);
+  const bestMonthAnim = useCountUp(bestMonth, 800, 1250);
 
-  const [shimmer, setShimmer] = useState(false);
-  useEffect(() => { const t = setTimeout(() => setShimmer(true), 400); return () => clearTimeout(t); }, []);
+  const [labelVisible, setLabelVisible] = useState(false);
+  const [dotVisible,   setDotVisible]   = useState(false);
+  const [badge1,       setBadge1]        = useState(false);
+  const [badge2,       setBadge2]        = useState(false);
+  const [shimmer1,     setShimmer1]      = useState(false);
+  const [shimmer2,     setShimmer2]      = useState(false);
 
-  // Count-ups
-  const thisWeekAnim  = useCountUp(thisWeek,  800,  300);
-  const bestWeekAnim  = useCountUp(isNewPB ? thisWeek : bestWeek, 1000, 400);
-  const bestMonthAnim = useCountUp(bestMonth, 1300, 500);
+  useEffect(() => {
+    const ts = [
+      setTimeout(() => setLabelVisible(true), 800),
+      setTimeout(() => setDotVisible(true),   1000),
+      setTimeout(() => setBadge1(true),       1100),
+      setTimeout(() => setBadge2(true),       1250),
+      setTimeout(() => setShimmer1(true),     1400),
+      setTimeout(() => setShimmer2(true),     1700),
+    ];
+    return () => ts.forEach(clearTimeout);
+  }, []);
 
-  const fireGradStyle = {
+  const prevIsNewPB = useRef(false);
+  useEffect(() => {
+    if (isNewPB && !prevIsNewPB.current) {
+      setShimmer1(false);
+      setTimeout(() => setShimmer1(true), 50);
+    }
+    prevIsNewPB.current = isNewPB;
+  }, [isNewPB]);
+
+  const fireGrad = {
     background: 'linear-gradient(135deg, #F97316, #FDE047)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
   };
+  const labelColor    = isDark ? '#A1A1AA' : '#71717A';
+  const badgeBg       = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)';
+  const badgeBorder   = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const badgeBorderPB = '1px solid rgba(251,191,36,0.20)';
+  const numColor      = isDark ? '#ffffff' : '#27272A';
+  const glowBg        = isDark
+    ? 'radial-gradient(circle at center, rgba(249,115,22,0.06) 0%, transparent 70%)'
+    : 'radial-gradient(circle at center, rgba(249,115,22,0.04) 0%, transparent 70%)';
 
-  // ── Tiny phones: vertical stack ──────────────────────────────────────────
-  if (width < 380) {
-    const rows = [
-      {
-        icon: CalendarCheck, iconTint: isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)',
-        iconColor: '#FB923C', label: 'THIS WEEK', value: thisWeekAnim,
-        gradient: isNewPB, showDot: true,
-      },
-      {
-        icon: Star, iconTint: isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)',
-        iconColor: '#FBBF24', label: 'BEST WEEK', value: bestWeekAnim,
-        gradient: true, shimmerEl: true,
-      },
-      {
-        icon: Trophy, iconTint: isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)',
-        iconColor: '#F59E0B', label: 'BEST MONTH', value: bestMonthAnim,
-        gradient: true, shimmerEl: true, shimmerDelay: '0.3s',
-      },
-    ];
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full rounded-2xl"
-        style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', padding: 16, minHeight: 80 }}
-      >
-        {rows.map((row, i) => {
-          const Icon = row.icon;
-          return (
-            <React.Fragment key={row.label}>
-              {i > 0 && <div style={{ height: 1, background: dividerColor, margin: '10px 0' }} />}
-              <div className="flex items-center gap-3 relative overflow-hidden">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: row.iconTint }}>
-                  <Icon className="w-[15px] h-[15px]" style={{ color: row.iconColor }} />
-                </div>
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <span className="text-2xl font-black tabular-nums leading-none" style={row.gradient ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>
-                    {row.value}
-                  </span>
-                  {row.showDot && (
-                    <motion.div className="w-1.5 h-1.5 rounded-full shrink-0"
-                      style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
-                      animate={{ opacity: [0.4, 1, 0.4] }}
-                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-                    />
-                  )}
-                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>
-                    {row.label}
-                  </span>
-                </div>
-                {row.shimmerEl && shimmer && (
-                  <div className="absolute inset-0 pointer-events-none" style={{
-                    background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
-                    animation: 'shimmer 1.2s ease-out forwards',
-                    animationDelay: row.shimmerDelay || '0s',
-                  }} />
-                )}
-              </div>
-            </React.Fragment>
-          );
-        })}
-      </motion.div>
-    );
-  }
-
-  // ── Standard mobile: horizontal, no icons ────────────────────────────────
-  if (width < 768) {
-    return (
-      <motion.div
-        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full rounded-2xl"
-        style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', padding: '20px 12px', minHeight: 80 }}
-      >
-        <div className="flex items-center justify-around">
-          {/* THIS WEEK */}
-          <div className="flex flex-col items-center gap-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[26px] font-black tabular-nums leading-none" style={isNewPB ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>
-                {thisWeekAnim}
-              </span>
-              <motion.div className="w-1.5 h-1.5 rounded-full shrink-0"
-                style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
+  return (
+    <div className="flex flex-col items-center w-full">
+      {/* Hero: This Week */}
+      <div className="relative flex flex-col items-center w-full" style={{ paddingTop: 24, paddingBottom: 20 }}>
+        <div className="absolute inset-0 pointer-events-none" style={{ background: glowBg }} />
+        <div className="relative flex items-center gap-2">
+          <span className="font-black tabular-nums leading-none" style={{ fontSize: 56, ...fireGrad }}>
+            {thisWeekAnim}
+          </span>
+          {dotVisible && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ marginBottom: 4, background: '#FB923C' }}
+            >
+              <motion.div
+                className="w-full h-full rounded-full"
+                style={{ background: '#FB923C' }}
                 animate={{ opacity: [0.4, 1, 0.4] }}
                 transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
               />
-            </div>
-            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>THIS WEEK</span>
-          </div>
-
-          <div style={{ width: 1, height: 24, background: dividerColor }} />
-
-          {/* BEST WEEK */}
-          <div className="flex flex-col items-center gap-1 relative overflow-hidden">
-            <span className="text-[26px] font-black tabular-nums leading-none" style={fireGradStyle}>
-              {bestWeekAnim}
-            </span>
-            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST WEEK</span>
-            {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards' }} />}
-          </div>
-
-          <div style={{ width: 1, height: 24, background: dividerColor }} />
-
-          {/* BEST MONTH */}
-          <div className="flex flex-col items-center gap-1 relative overflow-hidden">
-            <span className="text-[26px] font-black tabular-nums leading-none" style={fireGradStyle}>
-              {bestMonthAnim}
-            </span>
-            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST MONTH</span>
-            {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards', animationDelay: '0.3s' }} />}
-          </div>
+            </motion.div>
+          )}
         </div>
-      </motion.div>
-    );
-  }
-
-  // ── Tablet+: full layout with icons ──────────────────────────────────────
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
-      whileTap={{ scale: 0.98 }}
-      className="w-full rounded-2xl"
-      style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '20px 12px' }}
-    >
-      <div className="flex items-stretch">
-        {/* THIS WEEK */}
-        <div className="flex-1 flex flex-col items-center gap-1.5 px-2">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)' }}>
-            <CalendarCheck className="w-[15px] h-[15px]" style={{ color: '#FB923C' }} />
-          </div>
-          <span className="text-[28px] font-black tabular-nums leading-none" style={isNewPB ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>{thisWeekAnim}</span>
-          <div className="flex items-center gap-1.5 h-4">
-            <motion.div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
-              animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }} />
-            {isNewPB && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} className="text-[10px] font-medium whitespace-nowrap" style={{ color: '#FBBF24' }}>New PB</motion.span>}
-          </div>
-          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>THIS WEEK</span>
-        </div>
-
-        <div className="w-px self-stretch" style={{ background: dividerColor }} />
-
-        {/* BEST WEEK */}
-        <div className="flex-1 flex flex-col items-center gap-1.5 px-2 relative overflow-hidden">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)' }}>
-            <Star className="w-[15px] h-[15px]" style={{ color: '#FBBF24' }} />
-          </div>
-          <span className="text-[28px] font-black tabular-nums leading-none" style={fireGradStyle}>{bestWeekAnim}</span>
-          <div className="h-4" />
-          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST WEEK</span>
-          {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards' }} />}
-        </div>
-
-        <div className="w-px self-stretch" style={{ background: dividerColor }} />
-
-        {/* BEST MONTH */}
-        <div className="flex-1 flex flex-col items-center gap-1.5 px-2 relative overflow-hidden">
-          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)' }}>
-            <Trophy className="w-[15px] h-[15px]" style={{ color: '#F59E0B' }} />
-          </div>
-          <span className="text-[28px] font-black tabular-nums leading-none" style={fireGradStyle}>{bestMonthAnim}</span>
-          <div className="h-4" />
-          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST MONTH</span>
-          {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards', animationDelay: '0.3s' }} />}
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: labelVisible ? 1 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="mt-1.5 text-center"
+          style={{ fontSize: 14, color: labelColor, fontWeight: 400 }}
+        >
+          chapters this week
+          {isNewPB && (
+            <span className="font-bold" style={{ color: '#FBBF24' }}> — new personal best</span>
+          )}
+        </motion.div>
       </div>
-    </motion.div>
+
+      {/* Personal Best Badges */}
+      <div className="flex items-center justify-center gap-3">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: badge1 ? 1 : 0, y: badge1 ? 0 : 8 }}
+          transition={{ duration: 0.3 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative overflow-hidden flex items-center gap-1.5 rounded-full"
+          style={{ background: badgeBg, border: isNewPB ? badgeBorderPB : badgeBorder, padding: '8px 14px' }}
+        >
+          <Star className="w-4 h-4 shrink-0" style={{ color: '#FBBF24' }} />
+          <span className="text-[20px] font-bold tabular-nums leading-none" style={{ color: numColor }}>{bestWeekAnim}</span>
+          <span className="text-[12px]" style={{ color: labelColor }}>best week</span>
+          {shimmer1 && (
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%)',
+              animation: 'shimmer 1.2s ease-out forwards',
+            }} />
+          )}
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: badge2 ? 1 : 0, y: badge2 ? 0 : 8 }}
+          transition={{ duration: 0.3 }}
+          whileTap={{ scale: 0.95 }}
+          className="relative overflow-hidden flex items-center gap-1.5 rounded-full"
+          style={{ background: badgeBg, border: badgeBorder, padding: '8px 14px' }}
+        >
+          <Trophy className="w-4 h-4 shrink-0" style={{ color: '#FBBF24' }} />
+          <span className="text-[20px] font-bold tabular-nums leading-none" style={{ color: numColor }}>{bestMonthAnim}</span>
+          <span className="text-[12px]" style={{ color: labelColor }}>best month</span>
+          {shimmer2 && (
+            <div className="absolute inset-0 pointer-events-none" style={{
+              background: 'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%)',
+              animation: 'shimmer 1.2s ease-out forwards',
+            }} />
+          )}
+        </motion.div>
+      </div>
+    </div>
   );
 }
 
