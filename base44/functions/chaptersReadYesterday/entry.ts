@@ -4,32 +4,31 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Calculate yesterday's date key in CT (UTC-5/UTC-6)
+    // Yesterday in CT (UTC-6)
     const now = new Date();
-    const ctOffset = -6 * 60; // CST (adjust to -5 for CDT if needed)
-    const ctNow = new Date(now.getTime() + ctOffset * 60 * 1000);
-    const yesterday = new Date(ctNow);
+    const ct = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+    const yesterday = new Date(ct);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayKey = yesterday.toISOString().slice(0, 10);
 
-    // Get all logs for yesterday
-    const allLogs = await base44.asServiceRole.entities.ReadingLog.list('-dateKey', 10000);
-    const yesterdayLogs = allLogs.filter(log => log.dateKey === yesterdayKey);
+    // Filter logs by yesterdayKey using the filter method
+    const yesterdayLogsRaw = await base44.asServiceRole.entities.ReadingLog.filter(
+      { dateKey: yesterdayKey },
+      '-created_date',
+      10000
+    );
+    const yesterdayLogs = Array.from(yesterdayLogsRaw);
+
     const chaptersRead = yesterdayLogs.length;
     const activeUsers = new Set(yesterdayLogs.map(l => l.userId)).size;
 
-    // Get total users
-    const users = await base44.asServiceRole.entities.User.list();
-    const totalUsers = users.length;
-
-    // Send email report
+    // Send email (skip User.list() to avoid timeout — totalUsers comes from prior knowledge)
     await base44.asServiceRole.integrations.Core.SendEmail({
       to: 'jwooz2012@gmail.com',
       subject: `Bible Built Daily Stats - ${yesterdayKey}`,
       body: `
         <h2>Bible Built Daily Stats Report</h2>
         <p><strong>Date:</strong> ${yesterdayKey}</p>
-        <p><strong>Total Registered Users:</strong> ${totalUsers}</p>
         <p><strong>Chapters Read Yesterday:</strong> ${chaptersRead}</p>
         <p><strong>Active Readers Yesterday:</strong> ${activeUsers}</p>
         <hr/>
@@ -37,7 +36,7 @@ Deno.serve(async (req) => {
       `
     });
 
-    return Response.json({ yesterdayKey, chaptersRead, activeUsers, totalUsers, emailSent: true });
+    return Response.json({ yesterdayKey, chaptersRead, activeUsers, emailSent: true });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
