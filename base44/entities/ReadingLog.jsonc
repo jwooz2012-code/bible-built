@@ -1,0 +1,72 @@
+{
+  "name": "ReadingLog",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID who completed this reading"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of when the chapter was read"
+    },
+    "dateKey": {
+      "type": "string",
+      "description": "YYYY-MM-DD date key for grouping and filtering"
+    },
+    "book": {
+      "type": "string",
+      "description": "Book name (e.g. 'Genesis')"
+    },
+    "bookIndex": {
+      "type": "number",
+      "description": "Book index 0-65 in canonical order"
+    },
+    "chapter": {
+      "type": "number",
+      "description": "Chapter number"
+    },
+    "chapterId": {
+      "type": "string",
+      "description": "Deterministic chapter ID (e.g. '01-GEN-001')"
+    },
+    "testament": {
+      "type": "string",
+      "enum": [
+        "OT",
+        "NT"
+      ],
+      "description": "Old Testament or New Testament"
+    }
+  },
+  "required": [
+    "userId",
+    "timestamp",
+    "dateKey",
+    "book",
+    "bookIndex",
+    "chapter",
+    "chapterId",
+    "testament"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": false,
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.userId": "{{user.id}}"
+        },
+        {
+          "user.role": "admin"
+        }
+      ]
+    }
+  }
+}
