@@ -242,164 +242,207 @@ function MilestoneBar({ streak, tier }) {
 
 // ── Stats Ribbon ──────────────────────────────────────────────────────────
 
-function StatItem({ icon: Icon, iconTint, iconColor, label, value, useFireGradient = false, isDark, children }) {
-  const dur = label === 'BEST MONTH' ? 1300 : label === 'BEST WEEK' ? 1000 : 800;
-  const del = label === 'BEST MONTH' ? 500 : label === 'BEST WEEK' ? 400 : 300;
-  const animated = useCountUp(value, dur, del);
-
-  return (
-    <div className="flex-1 flex flex-col items-center gap-1.5 px-2">
-      <div
-        className="w-8 h-8 rounded-full flex items-center justify-center"
-        style={{ background: iconTint }}
-      >
-        <Icon className="w-[15px] h-[15px]" style={{ color: iconColor }} />
-      </div>
-
-      <div className="relative">
-        {useFireGradient ? (
-          <span
-            className="text-[28px] font-black tabular-nums leading-none"
-            style={{
-              background: 'linear-gradient(135deg, #F97316, #FDE047)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            {animated}
-          </span>
-        ) : (
-          <span
-            className="text-[28px] font-black tabular-nums leading-none"
-            style={{ color: isDark ? '#fff' : '#27272A' }}
-          >
-            {animated}
-          </span>
-        )}
-      </div>
-
-      {children}
-
-      <span
-        className="text-[11px] font-semibold uppercase tracking-widest"
-        style={{ color: isDark ? '#71717A' : '#A1A1AA' }}
-      >
-        {label}
-      </span>
-    </div>
-  );
+function useWindowWidth() {
+  const [width, setWidth] = useState(() => window.innerWidth);
+  useEffect(() => {
+    const handler = () => setWidth(window.innerWidth);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+  return width;
 }
 
 function StatsRibbon({ thisWeek, bestWeek, bestMonth }) {
   const isDark = useIsDark();
+  const width = useWindowWidth();
   const isNewPB = thisWeek >= bestWeek && bestWeek > 0;
 
   const dividerColor    = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
   const containerBg     = isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)';
   const containerBorder = isDark ? 'none' : '1px solid rgba(0,0,0,0.06)';
+  const labelColor      = isDark ? '#71717A' : '#A1A1AA';
 
   const [shimmer, setShimmer] = useState(false);
   useEffect(() => { const t = setTimeout(() => setShimmer(true), 400); return () => clearTimeout(t); }, []);
 
+  // Count-ups
+  const thisWeekAnim  = useCountUp(thisWeek,  800,  300);
+  const bestWeekAnim  = useCountUp(isNewPB ? thisWeek : bestWeek, 1000, 400);
+  const bestMonthAnim = useCountUp(bestMonth, 1300, 500);
+
+  const fireGradStyle = {
+    background: 'linear-gradient(135deg, #F97316, #FDE047)',
+    WebkitBackgroundClip: 'text',
+    WebkitTextFillColor: 'transparent',
+    backgroundClip: 'text',
+  };
+
+  // ── Tiny phones: vertical stack ──────────────────────────────────────────
+  if (width < 380) {
+    const rows = [
+      {
+        icon: CalendarCheck, iconTint: isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)',
+        iconColor: '#FB923C', label: 'THIS WEEK', value: thisWeekAnim,
+        gradient: isNewPB, showDot: true,
+      },
+      {
+        icon: Star, iconTint: isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)',
+        iconColor: '#FBBF24', label: 'BEST WEEK', value: bestWeekAnim,
+        gradient: true, shimmerEl: true,
+      },
+      {
+        icon: Trophy, iconTint: isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)',
+        iconColor: '#F59E0B', label: 'BEST MONTH', value: bestMonthAnim,
+        gradient: true, shimmerEl: true, shimmerDelay: '0.3s',
+      },
+    ];
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full rounded-2xl"
+        style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', padding: 16, minHeight: 80 }}
+      >
+        {rows.map((row, i) => {
+          const Icon = row.icon;
+          return (
+            <React.Fragment key={row.label}>
+              {i > 0 && <div style={{ height: 1, background: dividerColor, margin: '10px 0' }} />}
+              <div className="flex items-center gap-3 relative overflow-hidden">
+                <div className="w-8 h-8 rounded-full flex items-center justify-center shrink-0" style={{ background: row.iconTint }}>
+                  <Icon className="w-[15px] h-[15px]" style={{ color: row.iconColor }} />
+                </div>
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <span className="text-2xl font-black tabular-nums leading-none" style={row.gradient ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>
+                    {row.value}
+                  </span>
+                  {row.showDot && (
+                    <motion.div className="w-1.5 h-1.5 rounded-full shrink-0"
+                      style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+                    />
+                  )}
+                  <span className="text-[10px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>
+                    {row.label}
+                  </span>
+                </div>
+                {row.shimmerEl && shimmer && (
+                  <div className="absolute inset-0 pointer-events-none" style={{
+                    background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
+                    animation: 'shimmer 1.2s ease-out forwards',
+                    animationDelay: row.shimmerDelay || '0s',
+                  }} />
+                )}
+              </div>
+            </React.Fragment>
+          );
+        })}
+      </motion.div>
+    );
+  }
+
+  // ── Standard mobile: horizontal, no icons ────────────────────────────────
+  if (width < 768) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
+        whileTap={{ scale: 0.98 }}
+        className="w-full rounded-2xl"
+        style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', padding: '20px 12px', minHeight: 80 }}
+      >
+        <div className="flex items-center justify-around">
+          {/* THIS WEEK */}
+          <div className="flex flex-col items-center gap-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[26px] font-black tabular-nums leading-none" style={isNewPB ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>
+                {thisWeekAnim}
+              </span>
+              <motion.div className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            </div>
+            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>THIS WEEK</span>
+          </div>
+
+          <div style={{ width: 1, height: 24, background: dividerColor }} />
+
+          {/* BEST WEEK */}
+          <div className="flex flex-col items-center gap-1 relative overflow-hidden">
+            <span className="text-[26px] font-black tabular-nums leading-none" style={fireGradStyle}>
+              {bestWeekAnim}
+            </span>
+            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST WEEK</span>
+            {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards' }} />}
+          </div>
+
+          <div style={{ width: 1, height: 24, background: dividerColor }} />
+
+          {/* BEST MONTH */}
+          <div className="flex flex-col items-center gap-1 relative overflow-hidden">
+            <span className="text-[26px] font-black tabular-nums leading-none" style={fireGradStyle}>
+              {bestMonthAnim}
+            </span>
+            <span className="text-[9px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST MONTH</span>
+            {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards', animationDelay: '0.3s' }} />}
+          </div>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // ── Tablet+: full layout with icons ──────────────────────────────────────
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: 'easeOut', delay: 0.3 }}
       whileTap={{ scale: 0.98 }}
       className="w-full rounded-2xl"
-      style={{
-        background: containerBg,
-        border: containerBorder,
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        padding: '20px 12px',
-      }}
+      style={{ background: containerBg, border: containerBorder, backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)', padding: '20px 12px' }}
     >
       <div className="flex items-stretch">
         {/* THIS WEEK */}
-        <StatItem
-          icon={CalendarCheck}
-          iconTint={isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)'}
-          iconColor="#FB923C"
-          label="THIS WEEK"
-          value={thisWeek}
-          useFireGradient={isNewPB}
-          isDark={isDark}
-        >
-          <div className="flex items-center gap-1.5 h-4">
-            <motion.div
-              className="w-1.5 h-1.5 rounded-full shrink-0"
-              style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
-              animate={{ opacity: [0.4, 1, 0.4] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            />
-            {isNewPB && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.6 }}
-                className="text-[10px] font-medium whitespace-nowrap"
-                style={{ color: '#FBBF24' }}
-              >
-                New PB
-              </motion.span>
-            )}
+        <div className="flex-1 flex flex-col items-center gap-1.5 px-2">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(249,115,22,0.10)' : 'rgba(249,115,22,0.12)' }}>
+            <CalendarCheck className="w-[15px] h-[15px]" style={{ color: '#FB923C' }} />
           </div>
-        </StatItem>
+          <span className="text-[28px] font-black tabular-nums leading-none" style={isNewPB ? fireGradStyle : { color: isDark ? '#fff' : '#27272A' }}>{thisWeekAnim}</span>
+          <div className="flex items-center gap-1.5 h-4">
+            <motion.div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: isNewPB ? '#FBBF24' : '#FB923C' }}
+              animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut' }} />
+            {isNewPB && <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.6 }} className="text-[10px] font-medium whitespace-nowrap" style={{ color: '#FBBF24' }}>New PB</motion.span>}
+          </div>
+          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>THIS WEEK</span>
+        </div>
 
         <div className="w-px self-stretch" style={{ background: dividerColor }} />
 
         {/* BEST WEEK */}
-        <div className="flex-1 relative overflow-hidden">
-          <StatItem
-            icon={Star}
-            iconTint={isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)'}
-            iconColor="#FBBF24"
-            label="BEST WEEK"
-            value={isNewPB ? thisWeek : bestWeek}
-            useFireGradient
-            isDark={isDark}
-          >
-            <div className="h-4" />
-          </StatItem>
-          {shimmer && (
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
-                animation: 'shimmer 1.2s ease-out forwards',
-              }}
-            />
-          )}
+        <div className="flex-1 flex flex-col items-center gap-1.5 px-2 relative overflow-hidden">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(251,191,36,0.10)' : 'rgba(251,191,36,0.12)' }}>
+            <Star className="w-[15px] h-[15px]" style={{ color: '#FBBF24' }} />
+          </div>
+          <span className="text-[28px] font-black tabular-nums leading-none" style={fireGradStyle}>{bestWeekAnim}</span>
+          <div className="h-4" />
+          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST WEEK</span>
+          {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards' }} />}
         </div>
 
         <div className="w-px self-stretch" style={{ background: dividerColor }} />
 
         {/* BEST MONTH */}
-        <div className="flex-1 relative overflow-hidden">
-          <StatItem
-            icon={Trophy}
-            iconTint={isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)'}
-            iconColor="#F59E0B"
-            label="BEST MONTH"
-            value={bestMonth}
-            useFireGradient
-            isDark={isDark}
-          >
-            <div className="h-4" />
-          </StatItem>
-          {shimmer && (
-            <div
-              className="absolute inset-0 pointer-events-none"
-              style={{
-                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
-                animation: 'shimmer 1.2s ease-out forwards',
-                animationDelay: '0.3s',
-              }}
-            />
-          )}
+        <div className="flex-1 flex flex-col items-center gap-1.5 px-2 relative overflow-hidden">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: isDark ? 'rgba(245,158,11,0.10)' : 'rgba(245,158,11,0.12)' }}>
+            <Trophy className="w-[15px] h-[15px]" style={{ color: '#F59E0B' }} />
+          </div>
+          <span className="text-[28px] font-black tabular-nums leading-none" style={fireGradStyle}>{bestMonthAnim}</span>
+          <div className="h-4" />
+          <span className="text-[11px] font-semibold uppercase tracking-widest" style={{ color: labelColor, whiteSpace: 'nowrap' }}>BEST MONTH</span>
+          {shimmer && <div className="absolute inset-0 pointer-events-none" style={{ background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)', animation: 'shimmer 1.2s ease-out forwards', animationDelay: '0.3s' }} />}
         </div>
       </div>
     </motion.div>
