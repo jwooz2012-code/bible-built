@@ -85,10 +85,14 @@ export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvaila
   const graceCoveredDates = [];
 
   const tryConsumeGrace = (missedDateKeys) => {
+    // Simulate the decrement to check if we actually have enough grace for every day
+    const simulated = { ...graceRemaining };
     for (const day of missedDateKeys) {
       const mk = day.substring(0, 7);
-      if ((graceRemaining[mk] ?? 0) <= 0) return false;
+      if ((simulated[mk] ?? 0) <= 0) return false;
+      simulated[mk]--;
     }
+    // All days can be covered — commit the changes
     for (const day of missedDateKeys) {
       const mk = day.substring(0, 7);
       graceRemaining[mk]--;
