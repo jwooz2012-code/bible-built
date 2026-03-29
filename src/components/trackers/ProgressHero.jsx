@@ -413,62 +413,134 @@ function SectionDivider({ isDark }) {
 }
 
 // ─── Bottom cards (side-by-side) ──────────────────────────────────────────────
-function BottomCards({ yearChapters, mostReadBook, isDark }) {
+function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
   const animYear = useCountUp(yearChapters, 1000, 1400);
   const year = new Date().getFullYear();
 
-  const bg        = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)';
-  const border    = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.06)';
-  const bshadow   = isDark
-    ? 'inset 0 1px 0 rgba(255,255,255,0.04)'
-    : 'inset 0 1px 2px rgba(0,0,0,0.04)';
-  const topLabel  = isDark ? '#A1A1AA' : '#71717A';
-  const nameColor = isDark ? '#ffffff' : '#18181B';
+  const cardBase = {
+    flex: 1,
+    borderRadius: 16,
+    padding: '14px 14px 12px',
+    position: 'relative',
+    overflow: 'hidden',
+    minHeight: 96,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    background: isDark
+      ? `linear-gradient(135deg, rgba(255,255,255,0.04) 0%, ${tier.color}12 100%)`
+      : `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${tier.color}18 100%)`,
+    border: `1px solid ${tier.color}30`,
+    boxShadow: isDark
+      ? `0 0 18px ${tier.color}18, inset 0 1px 0 rgba(255,255,255,0.05)`
+      : `0 2px 12px ${tier.color}20, inset 0 1px 0 rgba(255,255,255,0.8)`,
+  };
 
-  const cardStyle = {
-    flex: 1, borderRadius: 12, padding: 12,
-    background: bg, border, boxShadow: bshadow, minHeight: 72,
+  const labelStyle = {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: '1.2px',
+    textTransform: 'uppercase',
+    color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
+    marginBottom: 2,
+  };
+
+  const subtextStyle = {
+    fontSize: 9,
+    color: isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.30)',
+    marginTop: 2,
+    fontWeight: 500,
+    letterSpacing: '0.3px',
+  };
+
+  const iconStyle = {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 14,
+    height: 14,
+    color: tier.color,
+    opacity: 0.6,
   };
 
   return (
     <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-      {/* Left: Year Total — SKY BLUE #38BDF8 */}
+
+      {/* Card 1: This Year */}
       <motion.div
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.3 }}
-        style={cardStyle}
+        transition={{ delay: 1.4, duration: 0.35 }}
+        whileTap={{ scale: 0.97 }}
+        style={{ ...cardBase, cursor: 'default' }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-          <Calendar style={{ width: 14, height: 14, color: '#38BDF8' }} />
-          <span style={{ fontSize: 11, fontWeight: 600, color: topLabel }}>{year}</span>
+        {/* Shimmer sweep */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(105deg, transparent 40%, ${tier.color}18 50%, transparent 60%)`,
+          animation: 'bar-shimmer 2.4s ease-out 1.6s 1',
+          pointerEvents: 'none',
+        }} />
+
+        <Calendar style={iconStyle} />
+
+        <div>
+          <div style={labelStyle}>{year}</div>
+          <div style={{
+            fontSize: 34,
+            fontWeight: 700,
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+            color: tier.color,
+            marginTop: 2,
+          }}>
+            {animYear}
+          </div>
+          <div style={subtextStyle}>chapters read</div>
         </div>
-        <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#38BDF8' }}>
-          {animYear}
-        </div>
-        <div style={{ fontSize: 9, color: isDark ? '#71717A' : '#A1A1AA', marginTop: 3 }}>chapters read</div>
       </motion.div>
 
-      {/* Right: Most Read — GOLD #EAB308 */}
+      {/* Card 2: Most Read */}
       <motion.div
-        initial={{ opacity: 0, y: 6 }}
+        initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.3 }}
-        style={cardStyle}
+        transition={{ delay: 1.5, duration: 0.35 }}
+        whileTap={{ scale: 0.97 }}
+        style={{ ...cardBase, cursor: 'default' }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
-          <Star style={{ width: 14, height: 14, color: '#EAB308' }} />
-          <span style={{ fontSize: 11, fontWeight: 600, color: topLabel }}>Most Read</span>
-        </div>
-        <div style={{ fontSize: 16, fontWeight: 600, color: nameColor, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-          {mostReadBook || '—'}
-        </div>
-        <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
-          {[...Array(5)].map((_, i) => (
-            <Star key={i} style={{ width: 10, height: 10, color: '#EAB308', fill: '#EAB308' }} />
-          ))}
+        {/* Shimmer sweep */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: `linear-gradient(105deg, transparent 40%, ${tier.color}18 50%, transparent 60%)`,
+          animation: 'bar-shimmer 2.4s ease-out 1.8s 1',
+          pointerEvents: 'none',
+        }} />
+
+        <BookOpen style={iconStyle} />
+
+        <div>
+          <div style={labelStyle}>Most Read</div>
+          <div style={{
+            fontSize: 20,
+            fontWeight: 700,
+            lineHeight: 1.15,
+            color: isDark ? '#ffffff' : '#18181B',
+            marginTop: 2,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {mostReadBook || '—'}
+          </div>
+          {/* Stars */}
+          <div style={{ display: 'flex', gap: 2, marginTop: 6 }}>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} style={{ width: 10, height: 10, color: tier.color, fill: tier.color }} />
+            ))}
+          </div>
         </div>
       </motion.div>
+
     </div>
   );
 }
@@ -492,7 +564,7 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
       <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} />
-      <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} />
+      <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} tier={tier} />
       <SectionDivider isDark={isDark} />
     </motion.div>
   );
