@@ -182,7 +182,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
           {/* Streak number — fire gradient */}
           <span style={{
-            fontSize: 42, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
+            fontSize: 50, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
             background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
@@ -196,23 +196,6 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
           }}>
             Day Streak
           </span>
-
-          {/* Tier label with icon */}
-          <motion.div
-            key={tier.label}
-            initial={{ opacity: 0, y: 3 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}
-          >
-            <TierIcon style={{ width: 11, height: 11, color: tier.color, transition: 'color 0.5s ease' }} />
-            <span style={{
-              fontSize: 9, fontWeight: 600, letterSpacing: '0.5px',
-              color: tier.color, transition: 'color 0.5s ease',
-            }}>
-              {tier.label}
-            </span>
-          </motion.div>
 
           {/* Read state */}
           {readToday ? (
@@ -239,8 +222,9 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
   );
 }
 
-// ─── Row 3: Tier progress bar ─────────────────────────────────────────────────
+// ─── Row 3: Tier progress bar ───────────────────────────────────────────────────────
 function TierProgressBar({ streak, tier, isDark }) {
+  const TierIcon = tier.Icon;
   const [barWidth, setBarWidth] = useState(0);
   const progress = tier.next ? Math.min(((streak - tier.min) / (tier.next - tier.min)) * 100, 100) : 100;
   const daysLeft = tier.next ? Math.max(0, tier.next - streak) : 0;
@@ -263,10 +247,28 @@ function TierProgressBar({ streak, tier, isDark }) {
       style={{ width: '100%', marginBottom: 16 }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        {/* Current tier label — current tier color */}
-        <span style={{ fontSize: 11, fontWeight: 600, color: tier.color }}>{tier.label}</span>
-        {/* Next tier label — next tier color */}
-        {tier.next && <span style={{ fontSize: 11, fontWeight: 600, color: nextColor }}>{tier.nextLabel}</span>}
+        {/* Current tier: icon + label */}
+        <motion.div
+          key={tier.label}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.4 }}
+          style={{ display: 'flex', alignItems: 'center', gap: 4 }}
+        >
+          <TierIcon style={{ width: 12, height: 12, color: tier.color }} />
+          <span style={{ fontSize: 11, fontWeight: 600, color: tier.color }}>{tier.label}</span>
+        </motion.div>
+        {/* Next tier: icon + label */}
+        {tier.next && (() => {
+          const NextTier = TIERS.find(t => t.label === tier.nextLabel);
+          const NextIcon = NextTier?.Icon;
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              {NextIcon && <NextIcon style={{ width: 12, height: 12, color: nextColor }} />}
+              <span style={{ fontSize: 11, fontWeight: 600, color: nextColor }}>{tier.nextLabel}</span>
+            </div>
+          );
+        })()}
       </div>
 
       <div style={{ position: 'relative', width: '100%', height: 6, borderRadius: 9999, background: trackBg, border: trackBorder, overflow: 'visible' }}>
