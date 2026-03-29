@@ -1,28 +1,32 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Check, Flame, Star, Sword, Crown, BookMarked, Sprout, Calendar } from 'lucide-react';
+import { BookOpen, Check, Flame, Star, Shield, Crown, Sprout, Calendar, Layers } from 'lucide-react';
 
 // ─── Tier config ───────────────────────────────────────────────────────────────
 const TIERS = [
   {
-    min: 0,   max: 6,        label: 'Getting Started', next: 7,   nextLabel: 'Consistent',
-    color: '#3B82F6', bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.30)',  Icon: BookMarked,
+    min: 0,   max: 6,        label: 'Beginner',   next: 7,   nextLabel: 'Disciple',
+    color: '#22C55E', bg: 'rgba(34,197,94,0.15)',   border: 'rgba(34,197,94,0.30)',   Icon: Sprout,
   },
   {
-    min: 7,   max: 29,       label: 'Consistent',      next: 30,  nextLabel: 'On Fire',
-    color: '#10B981', bg: 'rgba(16,185,129,0.15)',   border: 'rgba(16,185,129,0.30)',  Icon: Sprout,
+    min: 7,   max: 29,       label: 'Disciple',   next: 30,  nextLabel: 'Warrior',
+    color: '#3B82F6', bg: 'rgba(59,130,246,0.15)',  border: 'rgba(59,130,246,0.30)',  Icon: BookOpen,
   },
   {
-    min: 30,  max: 59,       label: 'On Fire',         next: 60,  nextLabel: 'Warrior',
-    color: '#F97316', bg: 'rgba(249,115,22,0.15)',   border: 'rgba(249,115,22,0.30)',  Icon: Flame,
+    min: 30,  max: 99,       label: 'Warrior',    next: 100, nextLabel: 'Builder',
+    color: '#EF4444', bg: 'rgba(239,68,68,0.15)',   border: 'rgba(239,68,68,0.30)',   Icon: Shield,
   },
   {
-    min: 60,  max: 99,       label: 'Warrior',         next: 100, nextLabel: 'Legend',
-    color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)',   border: 'rgba(139,92,246,0.30)',  Icon: Sword,
+    min: 100, max: 249,      label: 'Builder',    next: 250, nextLabel: 'Faithful',
+    color: '#F97316', bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.30)',  Icon: Layers,
   },
   {
-    min: 100, max: Infinity, label: 'Legend',          next: null, nextLabel: null,
-    color: '#EAB308', bg: 'rgba(234,179,8,0.15)',    border: 'rgba(234,179,8,0.30)',   Icon: Crown,
+    min: 250, max: 499,      label: 'Faithful',   next: 500, nextLabel: 'Steadfast',
+    color: '#8B5CF6', bg: 'rgba(139,92,246,0.15)',  border: 'rgba(139,92,246,0.30)',  Icon: Crown,
+  },
+  {
+    min: 500, max: Infinity, label: 'Steadfast',  next: null, nextLabel: null,
+    color: '#FDE047', bg: 'rgba(253,224,71,0.15)',  border: 'rgba(253,224,71,0.30)',  Icon: Star,
   },
 ];
 
@@ -114,12 +118,13 @@ function HeaderBar({ tier, isDark }) {
 }
 
 // ─── Row 2: Streak ring ───────────────────────────────────────────────────────
-function StreakRing({ animatedStreak, readToday, isDark }) {
+function StreakRing({ animatedStreak, readToday, isDark, tier }) {
   const SIZE = 140;
   const SW = 8;
   const r = (SIZE - SW) / 2;
   const [tapped, setTapped] = useState(false);
   const handleTap = useCallback(() => { setTapped(true); setTimeout(() => setTapped(false), 200); }, []);
+  const TierIcon = tier.Icon;
 
   return (
     <motion.div
@@ -137,14 +142,14 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
           animation: tapped ? 'ring-tap 0.2s ease-out' : 'none',
         }}
       >
-        {/* Breathing glow — only when read */}
+        {/* Breathing glow */}
         {readToday && (
           <div style={{
             position: 'absolute',
             width: SIZE + 40, height: SIZE + 40,
             top: -20, left: -20,
             borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(249,115,22,0.20) 0%, transparent 65%)',
+            background: `radial-gradient(circle, ${tier.color}33 0%, transparent 65%)`,
             animation: 'ring-glow-pulse 3s ease-in-out infinite',
             pointerEvents: 'none',
           }} />
@@ -152,28 +157,30 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
 
         <svg width={SIZE} height={SIZE} style={{
           position: 'absolute',
-          filter: readToday ? 'drop-shadow(0 0 14px rgba(249,115,22,0.25))' : 'none',
+          filter: readToday ? `drop-shadow(0 0 14px ${tier.color}44)` : 'none',
+          transition: 'filter 0.5s ease',
         }}>
           <defs>
-            <linearGradient id="fireGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%"   stopColor="#F97316" />
-              <stop offset="50%"  stopColor="#EF4444" />
-              <stop offset="100%" stopColor="#FDE047" />
+            <linearGradient id="tierGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor={tier.color} />
+              <stop offset="100%" stopColor={tier.color + 'CC'} />
             </linearGradient>
           </defs>
           {/* Track ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
             stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
             strokeWidth={SW} />
-          {/* Fire ring */}
+          {/* Tier-colored ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
-            stroke={readToday ? 'url(#fireGrad)' : 'rgba(249,115,22,0.30)'}
-            strokeWidth={SW} strokeLinecap="round" />
+            stroke={readToday ? `url(#tierGrad)` : `${tier.color}4D`}
+            strokeWidth={SW} strokeLinecap="round"
+            style={{ transition: 'stroke 0.6s ease' }}
+          />
         </svg>
 
         {/* Content inside ring */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
-          {/* Streak number — FIRE GRADIENT only here */}
+          {/* Streak number — fire gradient */}
           <span style={{
             fontSize: 42, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
             background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
@@ -182,7 +189,7 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
             {animatedStreak}
           </span>
 
-          {/* Label */}
+          {/* Day Streak label */}
           <span style={{
             fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px',
             color: isDark ? '#A1A1AA' : '#71717A', marginTop: 3, lineHeight: 1,
@@ -190,13 +197,30 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
             Day Streak
           </span>
 
+          {/* Tier label with icon */}
+          <motion.div
+            key={tier.label}
+            initial={{ opacity: 0, y: 3 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 3, marginTop: 5 }}
+          >
+            <TierIcon style={{ width: 11, height: 11, color: tier.color, transition: 'color 0.5s ease' }} />
+            <span style={{
+              fontSize: 9, fontWeight: 600, letterSpacing: '0.5px',
+              color: tier.color, transition: 'color 0.5s ease',
+            }}>
+              {tier.label}
+            </span>
+          </motion.div>
+
           {/* Read state */}
           {readToday ? (
             <motion.div
               initial={{ scale: 0, opacity: 0, y: 4 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 1.0 }}
-              style={{ marginTop: 6 }}
+              style={{ marginTop: 4 }}
             >
               <Check style={{ width: 14, height: 14, color: '#10B981', strokeWidth: 3 }} />
             </motion.div>
@@ -204,7 +228,7 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
             <span style={{
               fontSize: 9, fontStyle: 'italic',
               color: isDark ? '#71717A' : '#A1A1AA',
-              marginTop: 6, lineHeight: 1, textAlign: 'center',
+              marginTop: 4, lineHeight: 1, textAlign: 'center',
             }}>
               open your Bible
             </span>
@@ -463,7 +487,7 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       style={{ marginBottom: 0 }}
     >
       <HeaderBar tier={tier} isDark={isDark} />
-      <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} />
+      <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
       <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} />
       <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} />
