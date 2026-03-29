@@ -182,11 +182,9 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
           {/* Streak number — fire gradient */}
           <span style={{
-            fontSize: 50, fontWeight: 700, lineHeight: 1.12, fontVariantNumeric: 'tabular-nums',
-            paddingTop: 2, paddingLeft: 1, paddingRight: 1,
+            fontSize: 50, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
             background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-            overflow: 'visible',
           }}>
             {animatedStreak}
           </span>
@@ -360,11 +358,11 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
     >
       {/* THIS WEEK — emerald */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center', paddingTop: 2, paddingLeft: 2, paddingRight: 8, overflow: 'visible' }}>
-          <span style={{ ...twNumberStyle, lineHeight: 1.12, paddingTop: 1, paddingLeft: 1, paddingRight: 1, overflow: 'visible' }}>{twAnim}</span>
+        <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
+          <span style={twNumberStyle}>{twAnim}</span>
           {/* Pulsing live dot upper-right */}
           <div style={{
-            position: 'absolute', top: -1, right: -1,
+            position: 'absolute', top: -1, right: -9,
             width: 5, height: 5, borderRadius: '50%', background: '#10B981',
             animation: 'pulse-dot 2s ease-in-out infinite',
           }} />
@@ -379,7 +377,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST WEEK — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.12, paddingTop: 1, paddingLeft: 1, paddingRight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B', overflow: 'visible' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bwAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -391,7 +389,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST MONTH — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.12, paddingTop: 1, paddingLeft: 1, paddingRight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B', overflow: 'visible' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bmAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -402,7 +400,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   );
 }
 
-// ─── Section divider ────────────────────────────────────────────────────────
+// ─── Section divider ──────────────────────────────────────────────────────────
 function SectionDivider({ isDark }) {
   return (
     <div style={{
