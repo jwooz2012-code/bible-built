@@ -2,21 +2,28 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { Shield } from 'lucide-react';
 
 const GRACE_DAYS_PER_MONTH = 2;
 
-function GraceDot({ filled, color }) {
+function ShieldToken({ available, color }) {
   return (
-    <div
-      style={{
-        width: 10,
-        height: 10,
-        borderRadius: '50%',
-        background: filled ? color : 'transparent',
-        border: `1.5px solid ${filled ? color : 'rgba(161,161,170,0.5)'}`,
-        transition: 'all 0.3s ease',
-      }}
-    />
+    <motion.div
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Shield
+        style={{
+          width: 18,
+          height: 18,
+          fill: available ? color : 'transparent',
+          stroke: available ? color : 'rgba(161,161,170,0.45)',
+          strokeWidth: 1.5,
+          opacity: available ? 1 : 0.4,
+          transition: 'all 0.25s ease',
+          filter: available ? `drop-shadow(0 0 4px ${color}55)` : 'none',
+        }}
+      />
+    </motion.div>
   );
 }
 
@@ -56,21 +63,17 @@ export default function GraceDaysBanner({ userId, tierColor }) {
         </div>
 
         <div className="flex flex-col items-end gap-1.5 ml-4">
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             {Array.from({ length: GRACE_DAYS_PER_MONTH }, (_, i) => (
-              <GraceDot
+              <ShieldToken
                 key={i}
-                filled={i < graceDaysAvailable}
+                available={i < graceDaysAvailable}
                 color={color}
               />
             ))}
           </div>
           <p className="text-[10px] font-medium text-muted-foreground">
-            {graceDaysAvailable === 0
-              ? 'None left'
-              : graceDaysAvailable === 1
-              ? '1 left'
-              : '2 left'}
+            {graceDaysAvailable === 0 ? 'None left' : graceDaysAvailable === 1 ? '1 left' : '2 left'}
           </p>
         </div>
       </div>
