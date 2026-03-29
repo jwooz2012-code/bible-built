@@ -11,7 +11,7 @@ import { base44 } from '@/api/base44Client';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
-import { TOTAL_CHAPTERS } from '@/components/bible/bibleData';
+import { TOTAL_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { Pencil, CalendarCheck, RefreshCw, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
 import VelocityMeter from '@/components/trackers/VelocityMeter';
