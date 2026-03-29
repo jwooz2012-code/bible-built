@@ -67,18 +67,28 @@ export function computeStreaks(sortedDateKeysDesc, todayKey) {
 }
 
 export function computeWeeklySummary(dateCountMap, todayKey) {
-  const weekAgo = addDaysToDateKey(todayKey, -6);
-  const twoWeeksAgo = addDaysToDateKey(todayKey, -13);
+  // Find the most recent Sunday (week starts on Sunday)
+  const todayDate = new Date(todayKey + 'T00:00:00');
+  const dayOfWeek = todayDate.getDay(); // 0=Sun, 6=Sat
+  const sundayDate = new Date(todayDate);
+  sundayDate.setDate(todayDate.getDate() - dayOfWeek);
+  const weekStart = sundayDate.toISOString().split('T')[0];
+
+  // Last week: Sunday to Saturday before this week
+  const lastSundayDate = new Date(sundayDate);
+  lastSundayDate.setDate(sundayDate.getDate() - 7);
+  const lastWeekStart = lastSundayDate.toISOString().split('T')[0];
+  const lastWeekEnd = addDaysToDateKey(weekStart, -1);
 
   let thisWeekChapters = 0;
   let thisWeekActiveDays = 0;
   let lastWeekChapters = 0;
 
   for (const [dateKey, count] of dateCountMap.entries()) {
-    if (dateKey >= weekAgo && dateKey <= todayKey) {
+    if (dateKey >= weekStart && dateKey <= todayKey) {
       thisWeekChapters += count;
       thisWeekActiveDays++;
-    } else if (dateKey >= twoWeeksAgo && dateKey < weekAgo) {
+    } else if (dateKey >= lastWeekStart && dateKey <= lastWeekEnd) {
       lastWeekChapters += count;
     }
   }

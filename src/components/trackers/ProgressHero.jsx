@@ -349,9 +349,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       <Divider />
 
-      {/* BEST WEEK — violet */}
+      {/* BEST WEEK — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#A78BFA' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bwAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -361,9 +361,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       <Divider />
 
-      {/* BEST MONTH — violet */}
+      {/* BEST MONTH — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#A78BFA' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bmAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
