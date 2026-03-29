@@ -18,7 +18,7 @@ const TIERS = [
   },
   {
     min: 100, max: 249,      label: 'Builder',    next: 250, nextLabel: 'Faithful',
-    color: '#14B8A6', bg: 'rgba(20,184,166,0.15)',  border: 'rgba(20,184,166,0.30)',  Icon: Layers,
+    color: '#4169E1', bg: 'rgba(65,105,225,0.15)',  border: 'rgba(65,105,225,0.30)',  Icon: Layers,
   },
   {
     min: 250, max: 499,      label: 'Faithful',   next: 500, nextLabel: 'Steadfast',
