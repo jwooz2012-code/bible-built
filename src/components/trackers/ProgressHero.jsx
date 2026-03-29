@@ -46,9 +46,7 @@ const STYLES = `
 @keyframes ring-glow-pulse { 0%, 100% { opacity: 0.15; } 50% { opacity: 0.30; } }
 @keyframes bar-shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(400%); } }
 @keyframes pulse-dot { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) {
-  * { animation: none !important; }
-}
+@media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
 `;
 
 let stylesInjected = false;
@@ -69,10 +67,7 @@ function HeaderBar({ tier, isDark }) {
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.1 }}
         className="px-2.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider text-white"
-        style={{
-          background: tier.color,
-          boxShadow: `0 0 8px ${tier.color}33`,
-        }}
+        style={{ background: tier.color, boxShadow: `0 0 8px ${tier.color}33` }}
       >
         <Flame className="w-2.5 h-2.5 inline mr-1 mb-0.5" />
         {tier.label}
@@ -81,7 +76,7 @@ function HeaderBar({ tier, isDark }) {
   );
 }
 
-function StreakRing({ streak, animatedStreak, readToday, isDark }) {
+function StreakRing({ currentStreak, animatedStreak, readToday, isDark }) {
   const ringSize = 120;
   const ringStroke = 8;
   const glowColor = isDark ? 'rgba(249,115,22,0.25)' : 'rgba(249,115,22,0.15)';
@@ -94,7 +89,7 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
       className="flex flex-col items-center mb-4"
     >
       <div className="relative flex items-center justify-center" style={{ width: ringSize, height: ringSize }}>
-        {/* Glow backdrop */}
+        {/* Glow */}
         <div
           className="absolute rounded-full pointer-events-none"
           style={{
@@ -109,6 +104,13 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
 
         {/* Ring SVG */}
         <svg width={ringSize} height={ringSize} className="absolute">
+          <defs>
+            <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#F97316" />
+              <stop offset="50%" stopColor="#EF4444" />
+              <stop offset="100%" stopColor="#FDE047" />
+            </linearGradient>
+          </defs>
           <circle
             cx={ringSize / 2}
             cy={ringSize / 2}
@@ -119,17 +121,11 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
             strokeLinecap="round"
             opacity={0.9}
           />
-          <defs>
-            <linearGradient id="fireGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#F97316" />
-              <stop offset="50%" stopColor="#EF4444" />
-              <stop offset="100%" stopColor="#FDE047" />
-            </linearGradient>
-          </defs>
         </svg>
 
         {/* Content inside ring */}
-        <div className="relative z-10 flex flex-col items-center justify-center select-none">
+        <div className="relative z-10 flex flex-col items-center justify-center select-none gap-0">
+          {/* Streak number */}
           <span
             className="font-black tabular-nums leading-none"
             style={{
@@ -142,27 +138,35 @@ function StreakRing({ streak, animatedStreak, readToday, isDark }) {
           >
             {animatedStreak}
           </span>
-          <span className={`text-xs font-bold tracking-wider uppercase mt-1 ${isDark ? 'text-zinc-500' : 'text-zinc-600'}`}>
+
+          {/* Day Streak label */}
+          <span
+            className="font-bold uppercase leading-none mt-1"
+            style={{
+              fontSize: 8,
+              letterSpacing: '1.5px',
+              color: isDark ? '#71717A' : '#52525B',
+            }}
+          >
             Day Streak
           </span>
 
-          {/* Read Today Badge - positioned below text, inside ring space */}
+          {/* Read Today Badge — inside ring, below label */}
           <AnimatePresence>
             {readToday && (
               <motion.div
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0, opacity: 0 }}
-                transition={{ type: 'spring', stiffness: 500, damping: 18, delay: 1.2 }}
-                className="mt-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 0.5 }}
+                className="mt-1.5 flex items-center gap-1 px-2 py-0.5 rounded-full"
                 style={{
-                  background: isDark ? 'rgba(34,197,94,0.15)' : 'rgba(34,197,94,0.10)',
-                  color: '#22C55E',
-                  border: isDark ? '1px solid rgba(34,197,94,0.35)' : '1px solid rgba(34,197,94,0.25)',
+                  background: isDark ? 'rgba(34,197,94,0.10)' : 'rgba(34,197,94,0.08)',
+                  border: '1px solid rgba(34,197,94,0.25)',
                 }}
               >
-                <Check className="w-2.5 h-2.5" strokeWidth={3} />
-                <span>Read today</span>
+                <Check style={{ width: 10, height: 10, color: '#22C55E', strokeWidth: 3 }} />
+                <span style={{ fontSize: 10, fontWeight: 600, color: '#22C55E', lineHeight: 1 }}>Read today</span>
               </motion.div>
             )}
           </AnimatePresence>
@@ -184,7 +188,7 @@ function TierProgressBar({ streak, tier, isDark }) {
 
   const trackBg = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
   const trackBorder = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
-  const textColor = isDark ? 'text-zinc-400' : 'text-zinc-600';
+  const textColor = isDark ? '#71717A' : '#52525B';
 
   return (
     <motion.div
@@ -196,24 +200,15 @@ function TierProgressBar({ streak, tier, isDark }) {
       <div className="flex items-center justify-between mb-2 gap-2">
         <div className="flex items-center gap-1">
           <Flame className="w-3 h-3" style={{ color: tier.color }} />
-          <span className="text-xs font-semibold" style={{ color: tier.color }}>
-            {tier.status}
-          </span>
+          <span className="text-xs font-semibold" style={{ color: tier.color }}>{tier.status}</span>
         </div>
-        {tier.next && <span className={`text-xs ${textColor}`}>{tier.nextLabel}</span>}
+        {tier.next && <span className="text-xs" style={{ color: textColor }}>{tier.nextLabel}</span>}
       </div>
 
-      <div
-        className="relative w-full rounded-full overflow-hidden"
-        style={{ height: 4, background: trackBg, border: trackBorder }}
-      >
+      <div className="relative w-full rounded-full overflow-hidden" style={{ height: 4, background: trackBg, border: trackBorder }}>
         <motion.div
           className="absolute inset-y-0 left-0 rounded-full"
-          style={{
-            width: `${barWidth}%`,
-            background: `linear-gradient(90deg, ${tier.color}, ${tier.color}dd)`,
-            boxShadow: `0 0 6px ${tier.color}40`,
-          }}
+          style={{ background: `linear-gradient(90deg, ${tier.color}, ${tier.color}cc)`, boxShadow: `0 0 6px ${tier.color}40` }}
           animate={{ width: `${barWidth}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
@@ -229,7 +224,7 @@ function TierProgressBar({ streak, tier, isDark }) {
       </div>
 
       {tier.next && (
-        <p className={`text-xs mt-1.5 text-center font-medium ${textColor}`}>
+        <p className="text-xs mt-1.5 text-center font-medium" style={{ color: textColor }}>
           {daysLeft} day{daysLeft !== 1 ? 's' : ''} to {tier.nextLabel}
         </p>
       )}
@@ -239,7 +234,6 @@ function TierProgressBar({ streak, tier, isDark }) {
 
 function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   const [isNewBest, setIsNewBest] = useState(false);
-  const [newBestTimer, setNewBestTimer] = useState(null);
 
   const thisWeekAnim = useCountUp(thisWeek, 600, 700);
   const bestWeekAnim = useCountUp(isNewBest ? thisWeek : bestWeek, 600, 800);
@@ -248,14 +242,13 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   useEffect(() => {
     if (thisWeek >= bestWeek && bestWeek > 0 && !isNewBest) {
       setIsNewBest(true);
-      if (newBestTimer) clearTimeout(newBestTimer);
       const timer = setTimeout(() => setIsNewBest(false), 3000);
-      setNewBestTimer(timer);
+      return () => clearTimeout(timer);
     }
   }, [thisWeek, bestWeek, isNewBest]);
 
-  const statTextColor = isDark ? 'text-white' : 'text-zinc-900';
-  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
+  const statColor = isDark ? '#FFFFFF' : '#18181B';
+  const labelColor = isDark ? '#71717A' : '#52525B';
   const dividerColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
 
   return (
@@ -263,144 +256,120 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 0.7, duration: 0.3 }}
-      className="flex items-center justify-center gap-3 mb-3 px-2"
+      className="flex items-center justify-center gap-3 mb-4 px-2"
     >
       {/* This Week */}
-      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
+      <div className="flex flex-col items-center gap-0.5 flex-1">
         <div className="flex items-center gap-1.5 justify-center">
-          <span className={`font-bold tabular-nums leading-none ${statTextColor}`} style={{ fontSize: 22 }}>
+          <span className="font-bold tabular-nums leading-none" style={{ fontSize: 22, color: statColor }}>
             {thisWeekAnim}
           </span>
-          <div
-            className="w-1.5 h-1.5 rounded-full"
-            style={{
-              background: '#FB923C',
-              animation: 'pulse-dot 1.5s ease-in-out infinite',
-            }}
-          />
+          <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#FB923C', animation: 'pulse-dot 1.5s ease-in-out infinite' }} />
         </div>
-        <span className={`text-xs font-semibold uppercase tracking-wider ${labelColor}`}>This Week</span>
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelColor }}>This Week</span>
       </div>
 
-      {/* Divider */}
       <div style={{ width: 1, height: 28, background: dividerColor }} />
 
       {/* Best Week */}
-      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
-        <span
-          className="font-bold tabular-nums leading-none"
-          style={{
-            fontSize: 22,
-            background: 'linear-gradient(135deg, #F97316, #FDE047)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-          }}
-        >
+      <div className="flex flex-col items-center gap-0.5 flex-1">
+        <span className="font-bold tabular-nums leading-none" style={{
+          fontSize: 22,
+          background: 'linear-gradient(135deg, #F97316, #FDE047)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
           {bestWeekAnim}
         </span>
-        <span
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: isNewBest ? '#FBBF24' : (isDark ? '#A1A1AA' : '#71717A') }}
-        >
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: isNewBest ? '#FBBF24' : labelColor }}>
           {isNewBest ? 'NEW BEST' : 'Best Week'}
         </span>
       </div>
 
-      {/* Divider */}
       <div style={{ width: 1, height: 28, background: dividerColor }} />
 
       {/* Best Month */}
-      <div className="flex flex-col items-center justify-center gap-0.5 flex-1">
-        <span
+      <div className="flex flex-col items-center gap-0.5 flex-1">
+        <span className="font-bold tabular-nums leading-none" style={{
+          fontSize: 22,
+          background: 'linear-gradient(135deg, #F97316, #FDE047)',
+          WebkitBackgroundClip: 'text',
+          WebkitTextFillColor: 'transparent',
+          backgroundClip: 'text',
+        }}>
+          {bestMonthAnim}
+        </span>
+        <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: labelColor }}>Best Month</span>
+      </div>
+    </motion.div>
+  );
+}
+
+function BottomCards({ yearChapters, mostReadBook, isDark }) {
+  const animatedYear = useCountUp(yearChapters, 1000, 1100);
+  const year = new Date().getFullYear();
+
+  const bg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)';
+  const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
+  const topLabelColor = isDark ? '#A1A1AA' : '#71717A';
+  const bookNameColor = isDark ? '#FFFFFF' : '#18181B';
+
+  return (
+    <div className="flex gap-2.5">
+      {/* Left card: Year Total */}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.1, duration: 0.3 }}
+        className="flex-1 rounded-xl p-3"
+        style={{ background: bg, border, minHeight: 80 }}
+      >
+        <div className="flex items-center gap-1.5 mb-2">
+          <BookOpen style={{ width: 14, height: 14, color: '#F59E0B' }} />
+          <span className="text-xs font-semibold" style={{ color: topLabelColor }}>{year}</span>
+        </div>
+        <div
           className="font-bold tabular-nums leading-none"
           style={{
-            fontSize: 22,
+            fontSize: 24,
             background: 'linear-gradient(135deg, #F97316, #FDE047)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
             backgroundClip: 'text',
           }}
         >
-          {bestMonthAnim}
-        </span>
-        <span className={`text-xs font-semibold uppercase tracking-wider ${labelColor}`}>Best Month</span>
-      </div>
-    </motion.div>
-  );
-}
+          {animatedYear}
+        </div>
+        <div className="mt-0.5 text-xs" style={{ color: topLabelColor }}>chapters read</div>
+      </motion.div>
 
-function CompactStatCard({ icon: Icon, label, value, isDark }) {
-  const animatedValue = useCountUp(value, 800, 1100);
-
-  const bg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
-  const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
-  const textColor = isDark ? 'text-white' : 'text-zinc-900';
-  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.1, duration: 0.3 }}
-      className="w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 relative overflow-hidden"
-      style={{ background: bg, border, minHeight: 44 }}
-    >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{
-          background: isDark ? 'rgba(249,115,22,0.15)' : 'rgba(249,115,22,0.10)',
-        }}
+      {/* Right card: Most Read */}
+      <motion.div
+        initial={{ opacity: 0, y: 6 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.15, duration: 0.3 }}
+        className="flex-1 rounded-xl p-3"
+        style={{ background: bg, border, minHeight: 80 }}
       >
-        <Icon className="w-4.5 h-4.5" style={{ color: '#F97316' }} />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className={`text-xs font-bold uppercase tracking-widest ${labelColor} mb-0.5`}>{label}</div>
-        <div className={`text-lg font-bold tabular-nums ${textColor}`}>{animatedValue}</div>
-      </div>
-    </motion.div>
-  );
-}
-
-function MostReadCard({ bookName, isDark }) {
-  const bg = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
-  const border = isDark ? '1px solid rgba(255,255,255,0.08)' : '1px solid rgba(0,0,0,0.06)';
-  const textColor = isDark ? 'text-white' : 'text-zinc-900';
-  const labelColor = isDark ? 'text-zinc-500' : 'text-zinc-600';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 1.3, duration: 0.3 }}
-      className="w-full flex items-center gap-3 rounded-lg px-3.5 py-2.5 relative overflow-hidden"
-      style={{ background: bg, border, minHeight: 44 }}
-    >
-      <div
-        className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0"
-        style={{
-          background: isDark ? 'rgba(168,85,247,0.15)' : 'rgba(168,85,247,0.10)',
-        }}
-      >
-        <BookOpen className="w-4.5 h-4.5" style={{ color: '#A855F7' }} />
-      </div>
-
-      <div className="flex-1 min-w-0">
-        <div className={`text-xs font-bold uppercase tracking-widest ${labelColor} mb-0.5`}>Most Read</div>
-        <div className={`text-lg font-bold truncate ${textColor}`}>{bookName || '—'}</div>
-      </div>
-
-      <div className="flex items-center gap-0.5 shrink-0">
-        {[...Array(5)].map((_, i) => (
-          <Star
-            key={i}
-            className="w-3 h-3 fill-current"
-            style={{ color: '#EAB308' }}
-          />
-        ))}
-      </div>
-    </motion.div>
+        <div className="flex items-center gap-1.5 mb-2">
+          <Star style={{ width: 14, height: 14, color: '#F59E0B' }} />
+          <span className="text-xs font-semibold" style={{ color: topLabelColor }}>Most Read</span>
+        </div>
+        <div className="font-semibold truncate leading-tight" style={{ fontSize: 16, color: bookNameColor }}>
+          {mostReadBook || '—'}
+        </div>
+        <div className="flex items-center gap-0.5 mt-1">
+          {[...Array(5)].map((_, i) => (
+            <Star
+              key={i}
+              className="fill-current"
+              style={{ width: 11, height: 11, color: '#EAB308' }}
+            />
+          ))}
+        </div>
+      </motion.div>
+    </div>
   );
 }
 
@@ -419,13 +388,10 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       className="mb-4"
     >
       <HeaderBar tier={tier} isDark={isDark} />
-      <StreakRing streak={currentStreak} animatedStreak={animatedStreak} readToday={readToday} isDark={isDark} />
+      <StreakRing currentStreak={currentStreak} animatedStreak={animatedStreak} readToday={readToday} isDark={isDark} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
       <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} />
-      <div className="space-y-2">
-        <CompactStatCard icon={BookOpen} label="2026 Total" value={yearChapters} isDark={isDark} />
-        <MostReadCard bookName={records.mostReadBook?.name} isDark={isDark} />
-      </div>
+      <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} />
     </motion.div>
   );
 }
