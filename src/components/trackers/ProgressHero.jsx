@@ -120,7 +120,7 @@ function HeaderBar({ tier, isDark }) {
 // ─── Row 2: Streak ring ───────────────────────────────────────────────────────
 function StreakRing({ animatedStreak, readToday, isDark, tier }) {
   const SIZE = 140;
-  const SW = 8;
+  const SW = 7;
   const r = (SIZE - SW) / 2;
   const [tapped, setTapped] = useState(false);
   const handleTap = useCallback(() => { setTapped(true); setTimeout(() => setTapped(false), 200); }, []);
@@ -168,7 +168,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
           </defs>
           {/* Track ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
-            stroke={isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.04)'}
+            stroke={isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'}
             strokeWidth={SW} />
           {/* Tier-colored ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
@@ -236,8 +236,8 @@ function TierProgressBar({ streak, tier, isDark }) {
   }, [progress]);
 
   const subtleLabel = isDark ? '#71717A' : '#A1A1AA';
-  const trackBg     = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)';
-  const trackBorder = isDark ? '1px solid rgba(255,255,255,0.04)' : '1px solid rgba(0,0,0,0.06)';
+  const trackBg     = isDark ? 'rgba(255,255,255,0.13)' : 'rgba(0,0,0,0.09)';
+  const trackBorder = isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(0,0,0,0.08)';
 
   return (
     <motion.div

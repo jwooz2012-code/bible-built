@@ -103,12 +103,13 @@ export default function WeekView({ logs = [], tierColor }) {
                     ? 'transparent'
                     : hasActivity
                     ? 'hsl(var(--accent))'
-                    : 'hsl(var(--card))',
+                    : isDark ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)',
                   borderColor: isToday
                     ? 'transparent'
                     : hasActivity
                     ? 'hsl(var(--accent))'
-                    : 'hsl(var(--border))',
+                    : isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
+                  opacity: (!isToday && !hasActivity) ? 0.55 : 1,
                   // Today gets a fire gradient bg via inline style
                   ...(isToday ? {
                     background: tierColor
