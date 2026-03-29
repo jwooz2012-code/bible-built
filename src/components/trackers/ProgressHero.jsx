@@ -174,8 +174,8 @@ function StreakRing({ animatedStreak, readToday, isDark }) {
               transition={{ type: 'spring', stiffness: 400, damping: 18, delay: 0.5 }}
               style={{ marginTop: 6 }}
             >
-              {/* Checkmark — TEAL #34D399, no pill, no background */}
-              <Check style={{ width: 12, height: 12, color: '#34D399', strokeWidth: 3 }} />
+              {/* Checkmark — EMERALD #10B981 */}
+              <Check style={{ width: 12, height: 12, color: '#10B981', strokeWidth: 3 }} />
             </motion.div>
           ) : (
             <span style={{
@@ -307,14 +307,14 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       transition={{ delay: 0.7, duration: 0.3 }}
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12, marginBottom: 16, paddingLeft: 8, paddingRight: 8 }}
     >
-      {/* THIS WEEK — TEAL GREEN #34D399 */}
+      {/* THIS WEEK — EMERALD GREEN #10B981 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flex: 1 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center' }}>
-          <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#34D399' }}>
+          <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#10B981' }}>
             {twAnim}
           </span>
-          {/* Live dot — TEAL #34D399 */}
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34D399', animation: 'pulse-dot 1.5s ease-in-out infinite', flexShrink: 0 }} />
+          {/* Live dot — EMERALD #10B981 */}
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#10B981', animation: 'pulse-dot 1.5s ease-in-out infinite', flexShrink: 0 }} />
         </div>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
           This Week
@@ -323,9 +323,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       <Divider />
 
-      {/* BEST WEEK — SOLID GOLD #F59E0B (no gradient, no orange) */}
+      {/* BEST WEEK — SKY BLUE #38BDF8 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flex: 1 }}>
-        <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#F59E0B' }}>
+        <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#38BDF8' }}>
           {bwAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: isNewBest ? '#FBBF24' : labelColor }}>
@@ -335,9 +335,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       <Divider />
 
-      {/* BEST MONTH — SOLID GOLD #F59E0B (no gradient, no orange) */}
+      {/* BEST MONTH — SKY BLUE #38BDF8 */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, flex: 1 }}>
-        <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#F59E0B' }}>
+        <span style={{ fontSize: 22, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#38BDF8' }}>
           {bmAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -388,11 +388,11 @@ function BottomCards({ yearChapters, mostReadBook, isDark }) {
         style={cardStyle}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <BookOpen style={{ width: 14, height: 14, color: '#F59E0B' }} />
+          <BookOpen style={{ width: 14, height: 14, color: '#A78BFA' }} />
           <span style={{ fontSize: 11, fontWeight: 600, color: topLabel }}>{year}</span>
         </div>
-        {/* YEAR TOTAL NUMBER — SOLID GOLD #F59E0B, no gradient */}
-        <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#F59E0B' }}>
+        {/* YEAR TOTAL NUMBER — VIOLET #A78BFA */}
+        <div style={{ fontSize: 24, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: '#A78BFA' }}>
           {animYear}
         </div>
         <div style={{ fontSize: 10, color: topLabel, marginTop: 2 }}>chapters read</div>
@@ -406,7 +406,7 @@ function BottomCards({ yearChapters, mostReadBook, isDark }) {
         style={cardStyle}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
-          <Star style={{ width: 14, height: 14, color: '#F59E0B' }} />
+          <Star style={{ width: 14, height: 14, color: '#FBBF24' }} />
           <span style={{ fontSize: 11, fontWeight: 600, color: topLabel }}>Most Read</span>
         </div>
         <div style={{ fontSize: 16, fontWeight: 600, color: nameColor, lineHeight: 1.2, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>

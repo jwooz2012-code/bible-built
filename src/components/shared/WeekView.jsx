@@ -146,12 +146,12 @@ export default function WeekView({ logs = [], tierColor }) {
                 <div className="h-4 flex flex-col items-center justify-center gap-0.5">
                   {hasActivity ? (
                     <>
-                      <span className="text-[11px] font-bold" style={{ color: isToday ? '#fff' : '#22C55E' }}>
+                      <span className="text-[11px] font-bold" style={{ color: isToday ? '#fff' : '#10B981' }}>
                         {count}
                       </span>
                       <div
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: isToday ? 'rgba(255,255,255,0.8)' : '#22C55E' }}
+                        style={{ background: isToday ? 'rgba(255,255,255,0.8)' : '#10B981' }}
                       />
                     </>
                   ) : (
