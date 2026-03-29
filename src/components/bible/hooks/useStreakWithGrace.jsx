@@ -32,8 +32,8 @@ export function useStreakWithGrace(logs, userId) {
     return result;
   }, [graceDayRecords, currentMonthKey]);
 
-  const { currentStreak, graceDaysConsumed } = useMemo(() => {
-    if (!logs || !logs.length) return { currentStreak: 0, graceDaysConsumed: {} };
+  const { currentStreak, graceDaysConsumed, graceCoveredDates } = useMemo(() => {
+    if (!logs || !logs.length) return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
     const dateCountMap = groupByDateKey(logs);
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
     return computeStreakWithGrace(sortedDates, today, graceAvailableByMonth);
@@ -80,5 +80,5 @@ export function useStreakWithGrace(logs, userId) {
   const graceDaysUsed = currentMonthRecord?.graceDaysUsed || 0;
   const graceDaysAvailable = Math.max(0, GRACE_DAYS_PER_MONTH - graceDaysUsed);
 
-  return { currentStreak, graceDaysUsed, graceDaysAvailable };
+  return { currentStreak, graceDaysUsed, graceDaysAvailable, graceCoveredDates };
 }

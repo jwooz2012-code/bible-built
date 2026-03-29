@@ -72,25 +72,25 @@ export function computeStreaks(sortedDateKeysDesc, todayKey) {
  * Returns { currentStreak, graceDaysConsumed: { 'YYYY-MM': count } }
  */
 export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvailableByMonth) {
-  if (!sortedDateKeysDesc.length) return { currentStreak: 0, graceDaysConsumed: {} };
+  if (!sortedDateKeysDesc.length) return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
 
   const graceRemaining = {};
   for (const [k, v] of Object.entries(graceAvailableByMonth || {})) {
     graceRemaining[k] = v;
   }
   const graceDaysConsumed = {};
+  const graceCoveredDates = [];
 
   const tryConsumeGrace = (missedDateKeys) => {
-    // Check all can be covered first
     for (const day of missedDateKeys) {
       const mk = day.substring(0, 7);
       if ((graceRemaining[mk] ?? 0) <= 0) return false;
     }
-    // Consume
     for (const day of missedDateKeys) {
       const mk = day.substring(0, 7);
       graceRemaining[mk]--;
       graceDaysConsumed[mk] = (graceDaysConsumed[mk] || 0) + 1;
+      graceCoveredDates.push(day);
     }
     return true;
   };
@@ -98,25 +98,22 @@ export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvaila
   const mostRecent = sortedDateKeysDesc[0];
   const daysSinceMostRecent = daysBetweenDateKeys(mostRecent, todayKey);
 
-  // If most recent reading was 2+ days ago, need to bridge the gap with grace
   if (daysSinceMostRecent > 1) {
     const missedDays = [];
     for (let d = 1; d < daysSinceMostRecent; d++) {
       missedDays.push(addDaysToDateKey(todayKey, -d));
     }
     if (!tryConsumeGrace(missedDays)) {
-      return { currentStreak: 0, graceDaysConsumed: {} };
+      return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
     }
   }
 
-  // Streak alive — count backwards through reading days
   let currentStreak = 1;
   for (let i = 1; i < sortedDateKeysDesc.length; i++) {
     const diff = daysBetweenDateKeys(sortedDateKeysDesc[i], sortedDateKeysDesc[i - 1]);
     if (diff === 1) {
       currentStreak++;
     } else {
-      // diff - 1 missed days in this gap
       const missedDays = [];
       for (let d = 1; d < diff; d++) {
         missedDays.push(addDaysToDateKey(sortedDateKeysDesc[i], d));
@@ -129,7 +126,7 @@ export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvaila
     }
   }
 
-  return { currentStreak, graceDaysConsumed };
+  return { currentStreak, graceDaysConsumed, graceCoveredDates };
 }
 
 export function computeWeeklySummary(dateCountMap, todayKey) {

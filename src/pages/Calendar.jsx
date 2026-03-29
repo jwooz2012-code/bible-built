@@ -20,6 +20,7 @@ import GraceDaysBanner from '@/components/calendar/GraceDaysBanner';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import { useReadingLogsRange as useAllLogs } from '@/components/bible/hooks/useReadingLogsRange';
 import { getTier } from '@/components/trackers/ProgressHero';
+import { Shield } from 'lucide-react';
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
@@ -89,8 +90,9 @@ export default function Calendar() {
 
   // Grace days — need all-time logs for streak computation
   const { data: allTimeLogsForGrace = [] } = useAllLogs(userId, '2000-01-01', '2099-12-31');
-  const { currentStreak: gracefulStreak } = useStreakWithGrace(allTimeLogsForGrace, userId);
+  const { currentStreak: gracefulStreak, graceCoveredDates = [] } = useStreakWithGrace(allTimeLogsForGrace, userId);
   const tierColor = getTier(gracefulStreak).color;
+  const graceCoveredSet = new Set(graceCoveredDates);
   const logsByDay = groupLogsByDay(logs);
 
   // Year totals
@@ -340,65 +342,28 @@ export default function Calendar() {
                 const dateKey = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const count = logsByDay[dateKey]?.length || 0;
                 const isToday = dateKey === todayKey;
+                const isGraceDay = !count && graceCoveredSet.has(dateKey);
 
-                // Energy mode: use dark neutral background with subtle orange ring/accent
                 const getEnergyDayStyle = () => {
                   if (isToday) {
-                    return count > 0 
-                      ? {
-                          background: 'rgba(28, 32, 38, 0.95)',
-                          borderColor: 'hsl(var(--primary))',
-                          borderWidth: '2px',
-                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.25), inset 0 0 12px hsla(var(--primary) / 0.15)'
-                        }
-                      : {
-                          background: 'rgba(28, 32, 38, 0.6)',
-                          borderColor: 'hsl(var(--primary))',
-                          borderWidth: '2px',
-                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.2)'
-                        };
+                    return count > 0
+                      ? { background: 'rgba(28,32,38,0.95)', borderColor: 'hsl(var(--primary))', borderWidth: '2px', boxShadow: '0 0 0 1px hsla(var(--primary)/0.25), inset 0 0 12px hsla(var(--primary)/0.15)' }
+                      : { background: 'rgba(28,32,38,0.6)', borderColor: 'hsl(var(--primary))', borderWidth: '2px', boxShadow: '0 0 0 1px hsla(var(--primary)/0.2)' };
                   }
-                  if (count > 0) {
-                    return {
-                      background: 'rgba(28, 32, 38, 0.9)',
-                      borderWidth: '1.5px',
-                      borderColor: 'hsla(var(--primary) / 0.4)',
-                      boxShadow: 'inset 0 0 8px hsla(var(--primary) / 0.1)'
-                    };
-                  }
-                  return {
-                    background: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))'
-                  };
+                  if (count > 0) return { background: 'rgba(28,32,38,0.9)', borderWidth: '1.5px', borderColor: 'hsla(var(--primary)/0.4)', boxShadow: 'inset 0 0 8px hsla(var(--primary)/0.1)' };
+                  if (isGraceDay) return { background: `${tierColor}0D`, borderColor: `${tierColor}30`, borderWidth: '1px' };
+                  return { background: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' };
                 };
 
                 const getDefaultDayStyle = () => {
                   if (isToday) {
-                    return count > 0 
-                      ? {
-                          background: 'hsl(var(--accent))',
-                          borderColor: 'hsl(var(--primary))',
-                          borderWidth: '2px',
-                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
-                        }
-                      : {
-                          background: 'hsla(var(--accent) / 0.08)',
-                          borderColor: 'hsl(var(--primary))',
-                          borderWidth: '2px',
-                          boxShadow: '0 0 0 1px hsla(var(--primary) / 0.1)'
-                        };
+                    return count > 0
+                      ? { background: 'hsl(var(--accent))', borderColor: 'hsl(var(--primary))', borderWidth: '2px', boxShadow: '0 0 0 1px hsla(var(--primary)/0.1)' }
+                      : { background: 'hsla(var(--accent)/0.08)', borderColor: 'hsl(var(--primary))', borderWidth: '2px', boxShadow: '0 0 0 1px hsla(var(--primary)/0.1)' };
                   }
-                  if (count > 0) {
-                    return {
-                      background: 'hsl(var(--accent))',
-                      borderWidth: '1.5px',
-                      borderColor: 'hsl(var(--accent))'
-                    };
-                  }
-                  return {
-                    background: 'hsl(var(--card))',
-                    borderColor: 'hsl(var(--border))'
-                  };
+                  if (count > 0) return { background: 'hsl(var(--accent))', borderWidth: '1.5px', borderColor: 'hsl(var(--accent))' };
+                  if (isGraceDay) return { background: `${tierColor}0D`, borderColor: `${tierColor}30`, borderWidth: '1px' };
+                  return { background: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' };
                 };
 
                 return (
@@ -418,14 +383,27 @@ export default function Calendar() {
                     >
                       {day}
                     </span>
-                    <span 
-                      className="text-sm h-4 flex items-center justify-center font-bold opacity-85" 
-                      style={count > 0 ? { 
-                        color: '#10B981'
-                      } : { color: 'transparent' }}
-                    >
-                      {count > 0 ? count : '•'}
-                    </span>
+                    {isGraceDay ? (
+                      <Shield
+                        title="Grace Day used — your streak was protected"
+                        style={{
+                          width: 11,
+                          height: 11,
+                          fill: tierColor,
+                          stroke: tierColor,
+                          strokeWidth: 1.5,
+                          opacity: 0.6,
+                          marginTop: 2,
+                        }}
+                      />
+                    ) : (
+                      <span 
+                        className="text-sm h-4 flex items-center justify-center font-bold opacity-85" 
+                        style={count > 0 ? { color: '#10B981' } : { color: 'transparent' }}
+                      >
+                        {count > 0 ? count : '•'}
+                      </span>
+                    )}
                   </button>
                 );
               })}
