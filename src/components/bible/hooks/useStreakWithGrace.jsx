@@ -19,18 +19,12 @@ export function useStreakWithGrace(logs, userId) {
     staleTime: 30000,
   });
 
-  // Build { 'YYYY-MM': remainingGraceDays }
+  // Always give the algorithm the full monthly allowance.
+  // The DB is only used for notification/persistence, never to cap the computation.
+  // This prevents a feedback loop where stored graceDaysUsed reduces availability on re-runs.
   const graceAvailableByMonth = useMemo(() => {
-    const result = {};
-    for (const record of graceDayRecords) {
-      result[record.monthKey] = Math.max(0, GRACE_DAYS_PER_MONTH - (record.graceDaysUsed || 0));
-    }
-    // Ensure current month always has default if no record
-    if (result[currentMonthKey] === undefined) {
-      result[currentMonthKey] = GRACE_DAYS_PER_MONTH;
-    }
-    return result;
-  }, [graceDayRecords, currentMonthKey]);
+    return { [currentMonthKey]: GRACE_DAYS_PER_MONTH };
+  }, [currentMonthKey]);
 
   const { currentStreak, graceDaysConsumed, graceCoveredDates } = useMemo(() => {
     if (!logs || !logs.length) return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
