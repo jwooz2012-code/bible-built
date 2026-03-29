@@ -402,6 +402,135 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   );
 }
 
+// ─── Section divider ────────────────────────────────────────────────────────
+function SectionDivider({ isDark }) {
+  return (
+    <div style={{
+      width: '100%', height: 1, marginBottom: 16,
+      background: isDark
+        ? 'linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)'
+        : 'linear-gradient(90deg, transparent, rgba(0,0,0,0.04), transparent)',
+    }} />
+  );
+}
+
+// ─── Bottom cards (side-by-side) ──────────────────────────────────────────────
+function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
+  const animYear = useCountUp(yearChapters, 1000, 1400);
+  const year = new Date().getFullYear();
+
+  const cardBase = {
+    flex: 1,
+    borderRadius: 16,
+    padding: '10px 12px 10px',
+    position: 'relative',
+    overflow: 'hidden',
+    minHeight: 80,
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'space-between',
+    background: isDark
+      ? `linear-gradient(135deg, rgba(255,255,255,0.04) 0%, ${tier.color}12 100%)`
+      : `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${tier.color}18 100%)`,
+    border: `1px solid ${tier.color}30`,
+    boxShadow: isDark
+      ? `0 0 18px ${tier.color}18, inset 0 1px 0 rgba(255,255,255,0.05)`
+      : `0 2px 12px ${tier.color}20, inset 0 1px 0 rgba(255,255,255,0.8)`,
+  };
+
+  const labelStyle = {
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: '1.2px',
+    textTransform: 'uppercase',
+    color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
+    marginBottom: 1,
+  };
+
+  const subtextStyle = {
+    fontSize: 9,
+    color: isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.30)',
+    marginTop: 2,
+    fontWeight: 500,
+    letterSpacing: '0.3px',
+  };
+
+  const iconStyle = {
+    position: 'absolute',
+    top: 12,
+    right: 12,
+    width: 14,
+    height: 14,
+    color: tier.color,
+    opacity: 0.6,
+  };
+
+  return (
+    <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
+
+      {/* Card 1: This Year */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4, duration: 0.35 }}
+        whileTap={{ scale: 0.97 }}
+        style={{ ...cardBase, cursor: 'default' }}
+      >
+        <Calendar style={iconStyle} />
+
+        <div>
+          <div style={labelStyle}>{year}</div>
+          <div style={{
+            fontSize: 30,
+            fontWeight: 700,
+            lineHeight: 1,
+            fontVariantNumeric: 'tabular-nums',
+            color: tier.color,
+            marginTop: 1,
+          }}>
+            {animYear}
+          </div>
+          <div style={{ ...subtextStyle, marginTop: 1 }}>chapters read</div>
+        </div>
+      </motion.div>
+
+      {/* Card 2: Most Read */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.35 }}
+        whileTap={{ scale: 0.97 }}
+        style={{ ...cardBase, cursor: 'default' }}
+      >
+        <BookOpen style={iconStyle} />
+
+        <div>
+          <div style={labelStyle}>Most Read</div>
+          <div style={{
+            fontSize: 18,
+            fontWeight: 700,
+            lineHeight: 1.15,
+            color: isDark ? '#ffffff' : '#18181B',
+            marginTop: 1,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}>
+            {mostReadBook || '—'}
+          </div>
+          {/* Stars */}
+          <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
+            {[...Array(5)].map((_, i) => (
+              <Star key={i} style={{ width: 10, height: 10, color: tier.color, fill: tier.color }} />
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+    </div>
+  );
+}
+
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0, yearChapters = 0 }) {
   injectStyles();
