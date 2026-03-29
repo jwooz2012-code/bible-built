@@ -24,7 +24,7 @@ import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks'
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
-import ProgressHero from '@/components/trackers/ProgressHero';
+import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
 import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
@@ -319,7 +319,7 @@ export default function Home() {
               </div>
             )}
 
-            <WeekView logs={allTimeLogs} />
+            <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
 
             {recentBooks.length > 0 && (
               <div className="mb-6">

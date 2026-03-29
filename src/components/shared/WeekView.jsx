@@ -14,7 +14,7 @@ function useIsDark() {
   return dark;
 }
 
-export default function WeekView({ logs = [] }) {
+export default function WeekView({ logs = [], tierColor }) {
   const navigate = useNavigate();
   const isDark = useIsDark();
   const today = new Date();
@@ -111,9 +111,12 @@ export default function WeekView({ logs = [] }) {
                     : 'hsl(var(--border))',
                   // Today gets a fire gradient bg via inline style
                   ...(isToday ? {
-                    background: 'linear-gradient(135deg, #F97316, #FDE047)',
+                    background: tierColor
+                      ? `linear-gradient(135deg, ${tierColor}, ${tierColor}cc)`
+                      : 'linear-gradient(135deg, #F97316, #FDE047)',
                     border: 'none',
-                    boxShadow: '0 0 14px rgba(249,115,22,0.38)',
+                    boxShadow: `0 0 14px ${tierColor ? tierColor + '60' : 'rgba(249,115,22,0.38)'}`,
+
                   } : {})
                 }}
               >
