@@ -56,9 +56,9 @@ export default function WeekView({ logs = [], tierColor }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.55, duration: 0.4 }}
-      className="bg-card border border-border rounded-2xl p-5 mb-6 shadow-sm"
+      className="bg-card border border-border rounded-2xl p-4 mb-4 shadow-sm"
     >
-      <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wide mb-4">This Week</h3>
+      <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wide mb-3">This Week</h3>
 
       {/* Connector line layer (behind cells) */}
       <div className="relative">

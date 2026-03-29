@@ -354,7 +354,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ delay: 1.0, duration: 0.3 }}
-      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 16 }}
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 12 }}
     >
       {/* THIS WEEK — emerald */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
@@ -420,10 +420,10 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
   const cardBase = {
     flex: 1,
     borderRadius: 16,
-    padding: '14px 14px 12px',
+    padding: '10px 12px 10px',
     position: 'relative',
     overflow: 'hidden',
-    minHeight: 96,
+    minHeight: 80,
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'space-between',
@@ -442,7 +442,7 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
     letterSpacing: '1.2px',
     textTransform: 'uppercase',
     color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
-    marginBottom: 2,
+    marginBottom: 1,
   };
 
   const subtextStyle = {
@@ -464,7 +464,7 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
   };
 
   return (
-    <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
+    <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
 
       {/* Card 1: This Year */}
       <motion.div
@@ -479,16 +479,16 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
         <div>
           <div style={labelStyle}>{year}</div>
           <div style={{
-            fontSize: 34,
+            fontSize: 30,
             fontWeight: 700,
             lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
             color: tier.color,
-            marginTop: 2,
+            marginTop: 1,
           }}>
             {animYear}
           </div>
-          <div style={subtextStyle}>chapters read</div>
+          <div style={{ ...subtextStyle, marginTop: 1 }}>chapters read</div>
         </div>
       </motion.div>
 
@@ -505,11 +505,11 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
         <div>
           <div style={labelStyle}>Most Read</div>
           <div style={{
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: 700,
             lineHeight: 1.15,
             color: isDark ? '#ffffff' : '#18181B',
-            marginTop: 2,
+            marginTop: 1,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
@@ -517,7 +517,7 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
             {mostReadBook || '—'}
           </div>
           {/* Stars */}
-          <div style={{ display: 'flex', gap: 2, marginTop: 6 }}>
+          <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
             {[...Array(5)].map((_, i) => (
               <Star key={i} style={{ width: 10, height: 10, color: tier.color, fill: tier.color }} />
             ))}
