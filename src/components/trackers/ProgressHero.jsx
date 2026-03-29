@@ -5,7 +5,7 @@ import { BookOpen, Check, Flame, Star, Shield, Crown, Sprout, Calendar, Layers }
 // ─── Tier config ───────────────────────────────────────────────────────────────
 const TIERS = [
   {
-    min: 0,   max: 6,        label: 'Beginner',   next: 7,   nextLabel: 'Disciple',
+    min: 0,   max: 6,        label: 'Follower',   next: 7,   nextLabel: 'Disciple',
     color: '#22C55E', bg: 'rgba(34,197,94,0.15)',   border: 'rgba(34,197,94,0.30)',   Icon: Sprout,
   },
   {
@@ -18,7 +18,7 @@ const TIERS = [
   },
   {
     min: 100, max: 249,      label: 'Builder',    next: 250, nextLabel: 'Faithful',
-    color: '#F97316', bg: 'rgba(249,115,22,0.15)',  border: 'rgba(249,115,22,0.30)',  Icon: Layers,
+    color: '#14B8A6', bg: 'rgba(20,184,166,0.15)',  border: 'rgba(20,184,166,0.30)',  Icon: Layers,
   },
   {
     min: 250, max: 499,      label: 'Faithful',   next: 500, nextLabel: 'Steadfast',
