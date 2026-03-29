@@ -90,7 +90,7 @@ export default function Calendar() {
 
   // Grace days — need all-time logs for streak computation
   const { data: allTimeLogsForGrace = [] } = useAllLogs(userId, '2000-01-01', '2099-12-31');
-  const { currentStreak: gracefulStreak, graceCoveredDates = [] } = useStreakWithGrace(allTimeLogsForGrace, userId);
+  const { currentStreak: gracefulStreak, graceCoveredDates = [], graceDaysUsed } = useStreakWithGrace(allTimeLogsForGrace, userId);
   const tierColor = getTier(gracefulStreak).color;
   const graceCoveredSet = new Set(graceCoveredDates);
   const logsByDay = groupLogsByDay(logs);
@@ -259,7 +259,7 @@ export default function Calendar() {
       <div className="max-w-2xl mx-auto px-4 pb-4">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
-        <GraceDaysBanner userId={userId} tierColor={tierColor} />
+        <GraceDaysBanner tierColor={tierColor} graceDaysUsed={graceDaysUsed} />
 
         {/* Momentum Stats */}
         <motion.div

@@ -1,7 +1,5 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { Shield } from 'lucide-react';
 
 const GRACE_DAYS_PER_MONTH = 2;
@@ -27,20 +25,9 @@ function ShieldToken({ available, color }) {
   );
 }
 
-export default function GraceDaysBanner({ userId, tierColor }) {
-  const today = new Date();
-  const currentMonthKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+// graceDaysUsed is passed directly from useStreakWithGrace — the single source of truth.
+export default function GraceDaysBanner({ tierColor, graceDaysUsed = 0 }) {
   const color = tierColor || '#10B981';
-
-  const { data: graceDayRecords = [] } = useQuery({
-    queryKey: ['graceDays', userId],
-    queryFn: () => base44.entities.GraceDay.filter({ userId }),
-    enabled: !!userId,
-    staleTime: 30000,
-  });
-
-  const currentRecord = graceDayRecords.find(r => r.monthKey === currentMonthKey);
-  const graceDaysUsed = currentRecord?.graceDaysUsed || 0;
   const graceDaysAvailable = Math.max(0, GRACE_DAYS_PER_MONTH - graceDaysUsed);
 
   return (

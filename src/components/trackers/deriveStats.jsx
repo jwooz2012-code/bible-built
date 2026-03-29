@@ -78,40 +78,45 @@ export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvaila
 
   const graceRemaining = {};
   for (const [k, v] of Object.entries(graceAvailableByMonth || {})) {
-    // Hard-cap each month at the allowed maximum, regardless of what was passed in
     graceRemaining[k] = Math.min(v, GRACE_DAYS_PER_MONTH);
   }
   const graceDaysConsumed = {};
   const graceCoveredDates = [];
 
-  const tryConsumeGrace = (missedDateKeys) => {
-    // Simulate the decrement to check if we actually have enough grace for every day
-    const simulated = { ...graceRemaining };
-    for (const day of missedDateKeys) {
+  // Consume grace days in chronological order (first missed days get covered first).
+  // Covers as many as possible up to the available limit.
+  // Returns true if ALL missed days were covered (streak continues), false if not.
+  const consumeGrace = (missedDateKeysChron) => {
+    let allCovered = true;
+    for (const day of missedDateKeysChron) {
       const mk = day.substring(0, 7);
-      if ((simulated[mk] ?? 0) <= 0) return false;
-      simulated[mk]--;
+      if ((graceRemaining[mk] ?? 0) > 0) {
+        graceRemaining[mk]--;
+        graceDaysConsumed[mk] = (graceDaysConsumed[mk] || 0) + 1;
+        graceCoveredDates.push(day);
+      } else {
+        allCovered = false;
+        // Don't break — allow remaining days to be skipped (they won't be covered)
+        // but we must stop consuming once we hit a month with no grace left
+        break;
+      }
     }
-    // All days can be covered — commit the changes
-    for (const day of missedDateKeys) {
-      const mk = day.substring(0, 7);
-      graceRemaining[mk]--;
-      graceDaysConsumed[mk] = (graceDaysConsumed[mk] || 0) + 1;
-      graceCoveredDates.push(day);
-    }
-    return true;
+    return allCovered;
   };
 
   const mostRecent = sortedDateKeysDesc[0];
   const daysSinceMostRecent = daysBetweenDateKeys(mostRecent, todayKey);
 
   if (daysSinceMostRecent > 1) {
+    // Build missed days in CHRONOLOGICAL order (forward from last read day)
+    // so the first missed days after the last real reading get covered first.
     const missedDays = [];
     for (let d = 1; d < daysSinceMostRecent; d++) {
-      missedDays.push(addDaysToDateKey(todayKey, -d));
+      missedDays.push(addDaysToDateKey(mostRecent, d));
     }
-    if (!tryConsumeGrace(missedDays)) {
-      return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
+    if (!consumeGrace(missedDays)) {
+      // Streak is broken, but graceCoveredDates still has the dates that were covered
+      return { currentStreak: 0, graceDaysConsumed, graceCoveredDates };
     }
   }
 
@@ -121,11 +126,12 @@ export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvaila
     if (diff === 1) {
       currentStreak++;
     } else {
+      // Build in chronological order: days after the earlier date
       const missedDays = [];
       for (let d = 1; d < diff; d++) {
         missedDays.push(addDaysToDateKey(sortedDateKeysDesc[i], d));
       }
-      if (tryConsumeGrace(missedDays)) {
+      if (consumeGrace(missedDays)) {
         currentStreak++;
       } else {
         break;
