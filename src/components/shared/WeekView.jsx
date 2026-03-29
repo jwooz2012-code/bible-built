@@ -112,32 +112,31 @@ export default function WeekView({ logs = [], tierColor }) {
                   // Today gets a fire gradient bg via inline style
                   ...(isToday ? {
                     background: tierColor
-                      ? `linear-gradient(135deg, ${tierColor}, ${tierColor}cc)`
-                      : 'linear-gradient(135deg, #F97316, #FDE047)',
-                    border: 'none',
-                    boxShadow: `0 0 14px ${tierColor ? tierColor + '60' : 'rgba(249,115,22,0.38)'}`,
-
+                      ? `${tierColor}22`
+                      : 'rgba(249,115,22,0.13)',
+                    borderColor: tierColor ? `${tierColor}60` : 'rgba(249,115,22,0.4)',
+                    boxShadow: `0 0 10px ${tierColor ? tierColor + '30' : 'rgba(249,115,22,0.20)'}`,
                   } : {})
                 }}
               >
                 {isToday && (
                   <motion.div
                     className="absolute inset-0 rounded-xl pointer-events-none"
-                    animate={{ scale: [1, 1.05, 1] }}
-                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ background: 'linear-gradient(135deg, #F97316, #FDE047)', opacity: 0.15 }}
+                    animate={{ opacity: [0.08, 0.16, 0.08] }}
+                    transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+                    style={{ background: tierColor || '#F97316' }}
                   />
                 )}
 
                 <span
                   className="text-[10px] font-semibold tracking-wide"
-                  style={{ color: isToday ? '#fff' : 'hsl(var(--muted-foreground))' }}
+                  style={{ color: isToday ? (tierColor || '#F97316') : 'hsl(var(--muted-foreground))' }}
                 >
                   {date.toLocaleDateString('en-US', { weekday: 'short' })}
                 </span>
                 <span
                   className="text-sm font-bold"
-                  style={{ color: isToday ? '#fff' : 'hsl(var(--foreground))' }}
+                  style={{ color: isToday ? (tierColor || '#F97316') : 'hsl(var(--foreground))' }}
                 >
                   {date.getDate()}
                 </span>
@@ -146,12 +145,12 @@ export default function WeekView({ logs = [], tierColor }) {
                 <div className="h-4 flex flex-col items-center justify-center gap-0.5">
                   {hasActivity ? (
                     <>
-                      <span className="text-[11px] font-bold" style={{ color: isToday ? '#fff' : '#10B981' }}>
+                      <span className="text-[11px] font-bold" style={{ color: isToday ? (tierColor || '#10B981') : '#10B981' }}>
                         {count}
                       </span>
                       <div
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: isToday ? 'rgba(255,255,255,0.8)' : '#10B981' }}
+                        style={{ background: isToday ? (tierColor || '#10B981') : '#10B981' }}
                       />
                     </>
                   ) : (
