@@ -14,6 +14,15 @@ function useIsDark() {
   return dark;
 }
 
+// Intensity color based on chapter count
+function getActivityColor(count, isDark) {
+  if (count === 0) return null;
+  if (count >= 8) return isDark ? 'rgba(249,115,22,0.90)' : 'rgba(194,65,12,0.85)';
+  if (count >= 5) return isDark ? 'rgba(249,115,22,0.65)' : 'rgba(234,88,12,0.65)';
+  if (count >= 3) return isDark ? 'rgba(249,115,22,0.45)' : 'rgba(234,88,12,0.45)';
+  return isDark ? 'rgba(249,115,22,0.25)' : 'rgba(234,88,12,0.25)';
+}
+
 export default function WeekView({ logs = [], tierColor }) {
   const navigate = useNavigate();
   const isDark = useIsDark();
@@ -62,7 +71,6 @@ export default function WeekView({ logs = [], tierColor }) {
 
       {/* Connector line layer (behind cells) */}
       <div className="relative">
-        {/* SVG for streak connectors */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none"
           style={{ zIndex: 0 }}
@@ -70,14 +78,13 @@ export default function WeekView({ logs = [], tierColor }) {
         >
           {weekDays.map((_, i) => {
             if (!connectorPairs.has(i)) return null;
-            // Each cell is 1/7 of the width; connector goes from center of col i to center of col i+1
             const x1 = `${(i / 7 + 1 / 14) * 100}%`;
             const x2 = `${((i + 1) / 7 + 1 / 14) * 100}%`;
             return (
               <line
                 key={i}
                 x1={x1} y1="50%" x2={x2} y2="50%"
-                stroke={isDark ? 'rgba(251,146,60,0.35)' : 'rgba(249,115,22,0.50)'}
+                stroke={tierColor ? tierColor + '55' : (isDark ? 'rgba(249,115,22,0.40)' : 'rgba(194,65,12,0.40)')}
                 strokeWidth="2"
               />
             );
@@ -91,6 +98,7 @@ export default function WeekView({ logs = [], tierColor }) {
             const isToday = todayKey === dateKey;
             const hasActivity = count > 0;
 
+            const activityBg = getActivityColor(count, isDark);
             return (
               <motion.button
                 key={i}
@@ -98,25 +106,19 @@ export default function WeekView({ logs = [], tierColor }) {
                 onClick={() => navigate(createPageUrl('Calendar'))}
                 className="relative flex flex-col items-center justify-center rounded-xl py-2.5 px-1 gap-0.5 transition-colors border"
                 style={{
-                  minHeight: 64,
+                  minHeight: isToday ? 70 : 64,
                   background: isToday
                     ? 'transparent'
-                    : hasActivity
-                    ? 'hsl(var(--accent))'
-                    : 'hsl(var(--card))',
+                    : activityBg ?? 'hsl(var(--card))',
                   borderColor: isToday
                     ? 'transparent'
-                    : hasActivity
-                    ? 'hsl(var(--accent))'
-                    : 'hsl(var(--border))',
-                  // Today gets a fire gradient bg via inline style
+                    : activityBg ?? 'hsl(var(--border))',
                   ...(isToday ? {
                     background: tierColor
                       ? `linear-gradient(135deg, ${tierColor}, ${tierColor}cc)`
                       : 'linear-gradient(135deg, #F97316, #FDE047)',
                     border: 'none',
-                    boxShadow: `0 0 14px ${tierColor ? tierColor + '60' : 'rgba(249,115,22,0.38)'}`,
-
+                    boxShadow: `0 0 16px ${tierColor ? tierColor + '60' : 'rgba(249,115,22,0.40)'}`,
                   } : {})
                 }}
               >
