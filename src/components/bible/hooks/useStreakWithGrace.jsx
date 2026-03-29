@@ -39,33 +39,43 @@ export function useStreakWithGrace(logs, userId) {
     return computeStreakWithGrace(sortedDates, today, graceAvailableByMonth);
   }, [logs, today, graceAvailableByMonth]);
 
-  // Sync consumed grace days to DB and flag alerts
+  // Sync consumed grace days to DB — always reconcile bidirectionally
   const syncedRef = useRef({});
   useEffect(() => {
-    if (!userId || !Object.keys(graceDaysConsumed).length) return;
+    if (!userId) return;
+    // Also handle months that had grace days stored but now compute to 0
+    const allMonthsToSync = new Set([
+      ...Object.keys(graceDaysConsumed),
+      ...graceDayRecords.map(r => r.monthKey),
+    ]);
+    if (!allMonthsToSync.size) return;
 
     const syncGrace = async () => {
-      for (const [monthKey, consumed] of Object.entries(graceDaysConsumed)) {
+      for (const monthKey of allMonthsToSync) {
+        const consumed = graceDaysConsumed[monthKey] || 0;
         const existing = graceDayRecords.find(r => r.monthKey === monthKey);
         const alreadyStored = existing?.graceDaysUsed || 0;
 
-        if (consumed <= alreadyStored) continue; // already synced
-        if (syncedRef.current[monthKey] === consumed) continue; // already synced this session
-        syncedRef.current[monthKey] = consumed;
+        if (consumed === alreadyStored) continue; // already in sync
+        const syncKey = `${monthKey}:${consumed}`;
+        if (syncedRef.current[monthKey] === syncKey) continue; // already synced this render
+        syncedRef.current[monthKey] = syncKey;
 
         // Update or create grace day record
         if (existing) {
           await base44.entities.GraceDay.update(existing.id, { graceDaysUsed: consumed });
-        } else {
+        } else if (consumed > 0) {
           await base44.entities.GraceDay.create({ userId, monthKey, graceDaysUsed: consumed });
         }
 
-        // Set localStorage alert for next app open
-        const alertKey = `bb_grace_alert_${monthKey}`;
-        const existingAlert = parseInt(localStorage.getItem(alertKey) || '0', 10);
-        if (consumed > existingAlert) {
-          localStorage.setItem(alertKey, String(consumed));
-          localStorage.setItem('bb_grace_alert_pending', '1');
+        // Set localStorage alert only when usage increases
+        if (consumed > alreadyStored) {
+          const alertKey = `bb_grace_alert_${monthKey}`;
+          const existingAlert = parseInt(localStorage.getItem(alertKey) || '0', 10);
+          if (consumed > existingAlert) {
+            localStorage.setItem(alertKey, String(consumed));
+            localStorage.setItem('bb_grace_alert_pending', '1');
+          }
         }
 
         queryClient.invalidateQueries({ queryKey: ['graceDays', userId] });
@@ -75,9 +85,8 @@ export function useStreakWithGrace(logs, userId) {
     syncGrace();
   }, [graceDaysConsumed, userId, graceDayRecords, queryClient]);
 
-  // Current month stats
-  const currentMonthRecord = graceDayRecords.find(r => r.monthKey === currentMonthKey);
-  const graceDaysUsed = currentMonthRecord?.graceDaysUsed || 0;
+  // Current month stats — use freshly computed value as source of truth
+  const graceDaysUsed = graceDaysConsumed[currentMonthKey] || 0;
   const graceDaysAvailable = Math.max(0, GRACE_DAYS_PER_MONTH - graceDaysUsed);
 
   return { currentStreak, graceDaysUsed, graceDaysAvailable, graceCoveredDates };
