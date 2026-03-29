@@ -16,6 +16,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useTheme } from '@/components/ThemeProvider';
 import AddChapterActionSheet from '@/components/calendar/AddChapterActionSheet';
 import BulkAddModal from '@/components/calendar/BulkAddModal';
+import GraceDaysBanner from '@/components/calendar/GraceDaysBanner';
+import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
+import { useReadingLogsRange as useAllLogs } from '@/components/bible/hooks/useReadingLogsRange';
+import { getTier } from '@/components/trackers/ProgressHero';
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
@@ -82,6 +86,11 @@ export default function Calendar() {
   const monthEnd = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
 
   const { data: logs = [], isLoading: logsLoading } = useReadingLogsRange(userId, monthStart, monthEnd);
+
+  // Grace days — need all-time logs for streak computation
+  const { data: allTimeLogsForGrace = [] } = useAllLogs(userId, '2000-01-01', '2099-12-31');
+  const { currentStreak: gracefulStreak } = useStreakWithGrace(allTimeLogsForGrace, userId);
+  const tierColor = getTier(gracefulStreak).color;
   const logsByDay = groupLogsByDay(logs);
 
   // Year totals
@@ -247,6 +256,8 @@ export default function Calendar() {
     <div className="min-h-screen bg-background pb-20">
       <div className="max-w-2xl mx-auto px-4 pb-4">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
+
+        <GraceDaysBanner userId={userId} tierColor={tierColor} />
 
         {/* Momentum Stats */}
         <motion.div

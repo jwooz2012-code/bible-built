@@ -1,0 +1,37 @@
+{
+  "name": "GraceDay",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID who owns this grace day record"
+    },
+    "monthKey": {
+      "type": "string",
+      "description": "Calendar month in YYYY-MM format"
+    },
+    "graceDaysUsed": {
+      "type": "number",
+      "description": "How many grace days have been consumed this month (0, 1, or 2)"
+    }
+  },
+  "required": [
+    "userId",
+    "monthKey",
+    "graceDaysUsed"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

@@ -14,13 +14,13 @@ export function groupByDateKey(logs) {
   return map;
 }
 
-function addDaysToDateKey(dateKey, days) {
+export function addDaysToDateKey(dateKey, days) {
   const date = new Date(dateKey + 'T00:00:00Z');
   date.setUTCDate(date.getUTCDate() + days);
   return date.toISOString().split('T')[0];
 }
 
-function daysBetweenDateKeys(dateKey1, dateKey2) {
+export function daysBetweenDateKeys(dateKey1, dateKey2) {
   const d1 = new Date(dateKey1 + 'T00:00:00Z');
   const d2 = new Date(dateKey2 + 'T00:00:00Z');
   return Math.floor((d2 - d1) / (1000 * 60 * 60 * 24));
@@ -64,6 +64,72 @@ export function computeStreaks(sortedDateKeysDesc, todayKey) {
   longestStreak = Math.max(longestStreak, tempStreak);
 
   return { currentStreak, longestStreak: Math.max(currentStreak, longestStreak) };
+}
+
+/**
+ * Grace-aware streak computation.
+ * graceAvailableByMonth: { 'YYYY-MM': remainingGraceDays }
+ * Returns { currentStreak, graceDaysConsumed: { 'YYYY-MM': count } }
+ */
+export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvailableByMonth) {
+  if (!sortedDateKeysDesc.length) return { currentStreak: 0, graceDaysConsumed: {} };
+
+  const graceRemaining = {};
+  for (const [k, v] of Object.entries(graceAvailableByMonth || {})) {
+    graceRemaining[k] = v;
+  }
+  const graceDaysConsumed = {};
+
+  const tryConsumeGrace = (missedDateKeys) => {
+    // Check all can be covered first
+    for (const day of missedDateKeys) {
+      const mk = day.substring(0, 7);
+      if ((graceRemaining[mk] ?? 0) <= 0) return false;
+    }
+    // Consume
+    for (const day of missedDateKeys) {
+      const mk = day.substring(0, 7);
+      graceRemaining[mk]--;
+      graceDaysConsumed[mk] = (graceDaysConsumed[mk] || 0) + 1;
+    }
+    return true;
+  };
+
+  const mostRecent = sortedDateKeysDesc[0];
+  const daysSinceMostRecent = daysBetweenDateKeys(mostRecent, todayKey);
+
+  // If most recent reading was 2+ days ago, need to bridge the gap with grace
+  if (daysSinceMostRecent > 1) {
+    const missedDays = [];
+    for (let d = 1; d < daysSinceMostRecent; d++) {
+      missedDays.push(addDaysToDateKey(todayKey, -d));
+    }
+    if (!tryConsumeGrace(missedDays)) {
+      return { currentStreak: 0, graceDaysConsumed: {} };
+    }
+  }
+
+  // Streak alive — count backwards through reading days
+  let currentStreak = 1;
+  for (let i = 1; i < sortedDateKeysDesc.length; i++) {
+    const diff = daysBetweenDateKeys(sortedDateKeysDesc[i], sortedDateKeysDesc[i - 1]);
+    if (diff === 1) {
+      currentStreak++;
+    } else {
+      // diff - 1 missed days in this gap
+      const missedDays = [];
+      for (let d = 1; d < diff; d++) {
+        missedDays.push(addDaysToDateKey(sortedDateKeysDesc[i], d));
+      }
+      if (tryConsumeGrace(missedDays)) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+  }
+
+  return { currentStreak, graceDaysConsumed };
 }
 
 export function computeWeeklySummary(dateCountMap, todayKey) {

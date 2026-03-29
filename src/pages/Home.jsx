@@ -23,6 +23,8 @@ import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
+import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
+import GraceAlertBanner from '@/components/home/GraceAlertBanner';
 import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
@@ -89,7 +91,7 @@ export default function Home() {
   const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
 
-  const currentStreak = useCurrentStreak(allTimeLogs);
+  const currentStreak = useStreakWithGrace(allTimeLogs, userId).currentStreak;
 
   const trackerStats = useMemo(() => {
     if (!allTimeLogs.length) {
@@ -293,6 +295,8 @@ export default function Home() {
                 Track what matters.
               </p>
             )}
+
+            <GraceAlertBanner tierColor={getTier(currentStreak).color} />
 
             <TodayAssignmentCard
               plan={plan}
