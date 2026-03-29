@@ -474,14 +474,6 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
         whileTap={{ scale: 0.97 }}
         style={{ ...cardBase, cursor: 'default' }}
       >
-        {/* Shimmer sweep */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: `linear-gradient(105deg, transparent 40%, ${tier.color}18 50%, transparent 60%)`,
-          animation: 'bar-shimmer 2.4s ease-out 1.6s 1',
-          pointerEvents: 'none',
-        }} />
-
         <Calendar style={iconStyle} />
 
         <div>
@@ -508,14 +500,6 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
         whileTap={{ scale: 0.97 }}
         style={{ ...cardBase, cursor: 'default' }}
       >
-        {/* Shimmer sweep */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          background: `linear-gradient(105deg, transparent 40%, ${tier.color}18 50%, transparent 60%)`,
-          animation: 'bar-shimmer 2.4s ease-out 1.8s 1',
-          pointerEvents: 'none',
-        }} />
-
         <BookOpen style={iconStyle} />
 
         <div>
