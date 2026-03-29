@@ -182,8 +182,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
           {/* Streak number — fire gradient */}
           <span style={{
-            fontSize: 50, fontWeight: 700, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums',
-            paddingTop: 2, paddingBottom: 2,
+            fontSize: 50, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
             background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
           }}>
@@ -341,14 +340,12 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
   // This Week number style — fire gradient if new best, else emerald
   const twNumberStyle = isNewBest
     ? {
-        fontSize: 28, fontWeight: 700, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums',
-        paddingTop: 2, paddingBottom: 2,
+        fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
         background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
         WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
       }
     : {
-        fontSize: 28, fontWeight: 700, lineHeight: 1.2, fontVariantNumeric: 'tabular-nums',
-        paddingTop: 2, paddingBottom: 2,
+        fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums',
         color: '#10B981',
       };
 
@@ -380,7 +377,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST WEEK — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.2, paddingTop: 2, paddingBottom: 2, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bwAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -392,7 +389,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST MONTH — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.2, paddingTop: 2, paddingBottom: 2, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bmAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -484,10 +481,8 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
           <div style={{
             fontSize: 30,
             fontWeight: 700,
-            lineHeight: 1.2,
+            lineHeight: 1,
             fontVariantNumeric: 'tabular-nums',
-            paddingTop: 2,
-            paddingBottom: 2,
             color: tier.color,
             marginTop: 1,
           }}>
