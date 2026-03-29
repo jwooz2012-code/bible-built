@@ -71,12 +71,15 @@ export function computeStreaks(sortedDateKeysDesc, todayKey) {
  * graceAvailableByMonth: { 'YYYY-MM': remainingGraceDays }
  * Returns { currentStreak, graceDaysConsumed: { 'YYYY-MM': count } }
  */
+const GRACE_DAYS_PER_MONTH = 2;
+
 export function computeStreakWithGrace(sortedDateKeysDesc, todayKey, graceAvailableByMonth) {
   if (!sortedDateKeysDesc.length) return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };
 
   const graceRemaining = {};
   for (const [k, v] of Object.entries(graceAvailableByMonth || {})) {
-    graceRemaining[k] = v;
+    // Hard-cap each month at the allowed maximum, regardless of what was passed in
+    graceRemaining[k] = Math.min(v, GRACE_DAYS_PER_MONTH);
   }
   const graceDaysConsumed = {};
   const graceCoveredDates = [];
