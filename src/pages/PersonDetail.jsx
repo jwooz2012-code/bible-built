@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Sparkles, Cloud, Shirt, ScrollText, Sword, Music, Flame, Crown as LionCrown, Key, Book, ChevronLeft, Loader2, Crown, Wheat, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
@@ -231,10 +231,7 @@ export default function PersonDetail() {
           <Button 
             variant="outline" 
             className="w-full"
-            onClick={() => {
-              // TODO: Pre-select person in Custom Plan Builder
-              navigate(createPageUrl('CustomPlanBuilder'));
-            }}
+            onClick={() => navigate(createPageUrl('CustomPlanBuilder'))}
           >
             Customize Plan
           </Button>

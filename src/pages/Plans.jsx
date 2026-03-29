@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
 import { getDateKey, formatDateKey } from '@/components/bible/utils/dateUtils';
 import { getAssignmentForDate } from '@/components/bible/plans/planUtils';
-import PageHeader from '@/components/shared/PageHeader';
+
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 

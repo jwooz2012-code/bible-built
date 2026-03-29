@@ -100,10 +100,11 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
       await base44.entities.ReadingLog.delete(latestLog.id);
-      return { deletedId: latestLog.id, chapterId };
+      return { deletedId: latestLog.id, chapterId, dateKey: latestLog.dateKey };
     },
     onSuccess: (data, variables) => {
-      queryClient.setQueryData(['dayLogs', variables.userId, getDateKey()], (old = []) => {
+      const affectedDateKey = data.dateKey;
+      queryClient.setQueryData(['dayLogs', variables.userId, affectedDateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
         return prev.filter(log => log.id !== data.deletedId);
       });
@@ -118,7 +119,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       );
       
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, getDateKey()] });
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
       queryClient.invalidateQueries({ 
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });

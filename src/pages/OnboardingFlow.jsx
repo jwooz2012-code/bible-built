@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { triggerHaptic } from '@/components/utils/haptics';
-import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
+
 import ProgressIndicator from '@/components/onboarding/ProgressIndicator';
 import WelcomeScreen from '@/components/onboarding/WelcomeScreen';
 import DisplayNameScreen from '@/components/onboarding/DisplayNameScreen';
@@ -24,7 +24,6 @@ const getTotalScreens = (experienceType) => {
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
-  const { triggerCelebration } = useCelebration();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState({
     displayName: '',

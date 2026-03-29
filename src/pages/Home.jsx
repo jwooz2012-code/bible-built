@@ -48,6 +48,7 @@ export default function Home() {
   const [planOpen, setPlanOpen] = useState(false);
   const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [promptDismissed, setPromptDismissed] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -171,7 +172,7 @@ export default function Home() {
   const recentBooks = useMostRecentBooks(allTimeLogs);
 
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
-  const showPrompt = !hasPlan && !localStorage.getItem('bb_plan_prompt_seen');
+  const showPrompt = !hasPlan && !promptDismissed && !localStorage.getItem('bb_plan_prompt_seen');
 
   const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
@@ -195,7 +196,7 @@ export default function Home() {
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
-    window.location.reload();
+    setPromptDismissed(true);
   };
 
   const filteredBooks = BIBLE_BOOKS.filter((book) => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
-import { BookOpen, Check, Flame, Star, Shield, Crown, Sprout, Calendar, Layers } from 'lucide-react';
+import { BookOpen, Check, Star, Shield, Crown, Sprout, Calendar, Layers } from 'lucide-react';
 
 // ─── Tier config ───────────────────────────────────────────────────────────────
 const TIERS = [

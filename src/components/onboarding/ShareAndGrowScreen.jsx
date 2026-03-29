@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Share2, Users, CalendarDays, CalendarRange } from 'lucide-react';
+import { Share2, Users } from 'lucide-react';
 
 export default function ShareAndGrowScreen({ onContinue }) {
   const sections = [
