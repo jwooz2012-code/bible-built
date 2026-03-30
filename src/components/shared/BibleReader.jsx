@@ -221,12 +221,21 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     >
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-        {/* Left: close */}
-        <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
-          <X className="w-5 h-5 text-foreground" />
-        </button>
+        {/* Left: close + font size */}
+        <div className="flex items-center gap-1 w-16">
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+          <button
+            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground"
+            title="Change font size"
+          >
+            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
+          </button>
+        </div>
 
-        {/* Center: chapter nav + font size */}
+        {/* Center: chapter nav */}
         <div className="flex items-center gap-1">
           <button
             onClick={handlePrevChapter}
@@ -243,22 +252,17 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           >
             <ChevronRight className="w-5 h-5 text-foreground" />
           </button>
-          <button
-            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground ml-1"
-            title="Change font size"
-          >
-            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
-          </button>
         </div>
 
         {/* Right: audio toggle */}
-        <button
-          onClick={() => setAudioVisible(v => !v)}
-          className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-        >
-          {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-        </button>
+        <div className="w-16 flex justify-end">
+          <button
+            onClick={() => setAudioVisible(v => !v)}
+            className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+          >
+            {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
       {/* ── Content ── */}
@@ -355,7 +359,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
         <button
           onClick={handleMarkRead}
           disabled={isMarkingRead || isMarked || !userId}
-          className={`w-full max-w-2xl mx-auto flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm transition-all
+          className={`w-full max-w-2xl mx-auto flex items-center justify-center gap-2 py-2 rounded-2xl font-semibold text-sm transition-all
             ${isMarked
               ? 'bg-green-500/20 text-green-600 border border-green-500/30'
               : 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'
