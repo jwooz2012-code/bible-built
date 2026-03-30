@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -8,6 +9,7 @@ import { detectNewCelebrations } from '@/components/celebration/useCelebrationTr
 export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
   const { triggerCelebration } = useCelebration();
+  const undoReadRef = useRef(null);
 
   const markRead = useMutation({
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
@@ -83,7 +85,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           chapterId: variables.chapterId,
         }
       });
-      toast.success('Chapter marked as read');
+      toast.success('Chapter marked as read', {
+        duration: 4000,
+        action: {
+          label: 'Undo',
+          onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }),
+        },
+      });
     },
     onError: (error) => {
       console.error('[markRead] Error:', error);
@@ -124,13 +132,15 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
       
-      toast.success('Chapter unmarked');
+      toast('Chapter unmarked');
     },
     onError: (error) => {
       console.error('[undoRead] Error:', error);
       toast.error(error?.message || 'Failed to undo');
     },
   });
+
+  undoReadRef.current = undoRead.mutateAsync;
 
   return { 
     markRead: markRead.mutateAsync,
