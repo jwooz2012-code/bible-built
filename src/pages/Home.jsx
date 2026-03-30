@@ -420,7 +420,7 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-card border border-border rounded-2xl p-5 shadow-sm"
           >
-            <div className="flex flex-col gap-4 mb-5">
+            <div className="flex flex-col mb-5" style={{ gap: '8px' }}>
               <div className="flex items-center gap-3">
                 <button
                   className="h-9 w-9 p-0 shrink-0 flex items-center justify-center rounded-xl hover:bg-muted transition-colors"
@@ -433,24 +433,24 @@ export default function Home() {
 
               {/* Segmented Control */}
               <div
-                className="relative flex p-1 rounded-full"
-                style={{ background: 'var(--btn-inactive-bg)' }}
+                className="relative flex rounded-full border border-border"
+                style={{ background: 'var(--btn-inactive-bg)', padding: '2px' }}
               >
                 {/* Sliding pill */}
                 <div
-                  className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full"
+                  className="absolute top-[2px] bottom-[2px] rounded-full"
                   style={{
                     background: 'linear-gradient(135deg, #16A34A, #22C55E)',
-                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)',
-                    transform: isReadModeActive ? 'translateX(calc(100% + 8px))' : 'translateX(0)',
-                    transition: 'transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1)',
+                    width: 'calc(50% - 2px)',
+                    transform: isReadModeActive ? 'translateX(calc(100% + 4px))' : 'translateX(0)',
+                    transition: 'transform 140ms cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 />
                 {/* Mark Complete */}
                 <button
                   onClick={() => { if (isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="relative flex-1 flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold z-10 transition-colors duration-150"
-                  style={{ color: !isReadModeActive ? '#fff' : 'var(--btn-inactive-text)' }}
+                  className="relative flex-1 flex items-center justify-center gap-2 h-10 rounded-full text-sm font-semibold z-10"
+                  style={{ color: !isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
                 >
                   <CheckSquare className="w-4 h-4" />
                   Mark Complete
@@ -458,8 +458,8 @@ export default function Home() {
                 {/* Read Chapter */}
                 <button
                   onClick={() => { if (!isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="relative flex-1 flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold z-10 transition-colors duration-150"
-                  style={{ color: isReadModeActive ? '#fff' : 'var(--btn-inactive-text)' }}
+                  className="relative flex-1 flex items-center justify-center gap-2 h-10 rounded-full text-sm font-semibold z-10"
+                  style={{ color: isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
                 >
                   <BookOpen className="w-4 h-4" />
                   Read Chapter
@@ -471,7 +471,7 @@ export default function Home() {
                 <button
                   onClick={() => setShowMarkAllConfirm(true)}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 active:scale-[0.97]"
+                  className="flex items-center gap-1.5 px-5 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 active:scale-[0.97]"
                   style={{ background: 'var(--btn-inactive-bg)', color: '#16A34A' }}
                 >
                   <Zap className="w-3.5 h-3.5" />
