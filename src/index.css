@@ -91,17 +91,9 @@
   }
 
   [data-sonner-toaster] {
-    position: fixed !important;
-    inset: unset !important;
-    top: auto !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
     bottom: calc(env(safe-area-inset-bottom) + 88px) !important;
     z-index: 99999 !important;
     pointer-events: none !important;
-    width: max-content !important;
-    max-width: 90vw !important;
   }
 
   [data-sonner-toast] {
