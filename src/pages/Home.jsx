@@ -433,7 +433,7 @@ export default function Home() {
 
               {/* Segmented Control */}
               <div
-                className="relative flex rounded-full border border-border"
+                className="relative flex rounded-full border border-border overflow-hidden"
                 style={{ background: 'var(--btn-inactive-bg)', padding: '2px' }}
               >
                 {/* Sliding pill */}
@@ -442,26 +442,26 @@ export default function Home() {
                   style={{
                     background: 'linear-gradient(135deg, #16A34A, #22C55E)',
                     width: 'calc(50% - 2px)',
-                    transform: isReadModeActive ? 'translateX(calc(100% + 4px))' : 'translateX(0)',
-                    transition: 'transform 140ms cubic-bezier(0.4, 0, 0.2, 1)',
+                    left: isReadModeActive ? '50%' : '2px',
+                    transition: 'left 140ms cubic-bezier(0.4, 0, 0.2, 1)',
                   }}
                 />
                 {/* Mark Complete */}
                 <button
                   onClick={() => { if (isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="relative flex-1 flex items-center justify-center gap-2 h-10 rounded-full text-sm font-semibold z-10"
+                  className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
                   style={{ color: !isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
                 >
-                  <CheckSquare className="w-4 h-4" />
+                  <CheckSquare className="w-4 h-4 shrink-0" />
                   Mark Complete
                 </button>
                 {/* Read Chapter */}
                 <button
                   onClick={() => { if (!isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="relative flex-1 flex items-center justify-center gap-2 h-10 rounded-full text-sm font-semibold z-10"
+                  className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
                   style={{ color: isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-4 h-4 shrink-0" />
                   Read Chapter
                 </button>
               </div>
@@ -472,10 +472,10 @@ export default function Home() {
                   onClick={() => setShowMarkAllConfirm(true)}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
                   className="flex items-center gap-1.5 px-5 py-1.5 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 active:scale-[0.97]"
-                  style={{ background: 'var(--btn-inactive-bg)', color: '#16A34A' }}
+                  style={{ background: 'var(--btn-inactive-bg)' }}
                 >
-                  <Zap className="w-3.5 h-3.5" />
-                  {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
+                  <Zap className="w-3.5 h-3.5 shrink-0" style={{ color: '#16A34A' }} />
+                  <span style={{ color: 'var(--btn-inactive-text)' }}>{isMarkingAll ? 'Marking...' : 'Mark All as Read'}</span>
                 </button>
               </div>
             </div>
