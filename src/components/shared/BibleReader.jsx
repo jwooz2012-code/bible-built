@@ -10,8 +10,8 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-const FONT_SIZES = ['text-sm', 'text-base', 'text-lg', 'text-xl'];
-const FONT_SIZE_LABELS = ['S', 'M', 'L', 'XL'];
+const FONT_SIZES = ['text-base', 'text-lg', 'text-xl'];
+const FONT_SIZE_CLASSES = ['text-sm', 'text-base', 'text-lg']; // size of the 'A' indicator button
 const SPEEDS = [0.75, 1, 1.25, 1.5];
 
 /**
@@ -29,7 +29,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [verses, setVerses] = useState([]);
-  const [fontSizeIdx, setFontSizeIdx] = useState(1); // default 'text-base'
+  const [fontSizeIdx, setFontSizeIdx] = useState(0); // default 'text-base'
 
   // Audio state
   const [audioVisible, setAudioVisible] = useState(false);
@@ -219,9 +219,10 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           {/* Font size */}
           <button
             onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
-            className="px-2 py-1 rounded-lg hover:bg-muted transition-colors text-xs font-bold text-muted-foreground"
+            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground"
+            title="Change font size"
           >
-            {FONT_SIZE_LABELS[fontSizeIdx]}A
+            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
           </button>
 
           {/* Audio toggle */}

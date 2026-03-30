@@ -415,8 +415,8 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-card border border-border rounded-2xl p-5 shadow-sm"
           >
-            <div className="flex items-center justify-between mb-6 gap-3">
-              <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="flex flex-col gap-3 mb-6">
+              <div className="flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="sm"
@@ -425,9 +425,9 @@ export default function Home() {
                 >
                   <ArrowLeft className="w-5 h-5" />
                 </Button>
-                <h2 className="text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
+                <h2 className="text-xl font-semibold text-foreground flex-1">{selectedBook.name}</h2>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 pl-1">
                 {/* Smart Toggle */}
                 <div className="relative">
                   <button
@@ -451,7 +451,7 @@ export default function Home() {
                     )}
                   </button>
                   {showReaderTooltip && (
-                    <div className="absolute top-full mt-2 right-0 z-50 bg-popover text-popover-foreground text-xs rounded-xl px-3 py-2 shadow-lg border border-border w-56 leading-snug">
+                    <div className="absolute top-full mt-2 left-0 z-50 bg-popover text-popover-foreground text-xs rounded-xl px-3 py-2 shadow-lg border border-border w-56 leading-snug">
                       New! Toggle between quick logging and reading/listening in the app.
                       <button onClick={() => setShowReaderTooltip(false)} className="ml-1 text-muted-foreground underline">Got it</button>
                     </div>
