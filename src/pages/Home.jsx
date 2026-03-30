@@ -498,7 +498,6 @@ export default function Home() {
             key={`${readerState.book.index}-${readerState.chapter}`}
             book={readerState.book}
             chapter={readerState.chapter}
-            language="en"
             userId={userId}
             onClose={() => setReaderState(null)}
             onMarkRead={() => setReaderState(null)}

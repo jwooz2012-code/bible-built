@@ -20,15 +20,12 @@ const SPEEDS = [0.75, 1, 1.25, 1.5];
  * Props:
  *   book       — { name, index, testament, chapters } from BIBLE_BOOKS
  *   chapter    — chapter number (1-based)
- *   language   — 'en' | 'es'
  *   userId     — for marking chapters read
  *   onClose    — dismiss callback
  *   onMarkRead — called with { book, chapter, chapterId, testament } after logging
  */
-export default function BibleReader({ book, chapter: initialChapter, language: initialLang = 'en', userId, onClose, onMarkRead }) {
+export default function BibleReader({ book, chapter: initialChapter, userId, onClose, onMarkRead }) {
   const [chapter, setChapter] = useState(initialChapter);
-  const [language, setLanguage] = useState(initialLang);
-  const [verses, setVerses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [fontSizeIdx, setFontSizeIdx] = useState(1); // default 'text-base'
@@ -54,18 +51,18 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
     setVerses([]);
     stopAudio();
 
-    fetchChapter(book.index, chapter, language)
+    fetchChapter(book.index, chapter)
       .then(v => { if (!cancelled) { setVerses(v); setIsLoading(false); setCurrentVerse(0); } })
       .catch(err => { if (!cancelled) { setLoadError(err.message); setIsLoading(false); } });
 
     return () => { cancelled = true; };
-  }, [book.index, chapter, language]);
+  }, [book.index, chapter]);
 
   // Prefetch adjacent chapters
   useEffect(() => {
-    if (chapter > 1) prefetchChapter(book.index, chapter - 1, language);
-    if (chapter < book.chapters) prefetchChapter(book.index, chapter + 1, language);
-  }, [book.index, book.chapters, chapter, language]);
+    if (chapter > 1) prefetchChapter(book.index, chapter - 1);
+    if (chapter < book.chapters) prefetchChapter(book.index, chapter + 1);
+  }, [book.index, book.chapters, chapter]);
 
   // Auto-scroll to highlighted verse
   useEffect(() => {
@@ -86,7 +83,7 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
     utteranceRef.current = null;
   }, []);
 
-  const speakVerse = useCallback((idx, speed, lang, versesList) => {
+  const speakVerse = useCallback((idx, speed, versesList) => {
     if (!versesList?.length || idx >= versesList.length) {
       setIsPlaying(false);
       setAudioVisible(false);
@@ -95,20 +92,18 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
 
     const utterance = new SpeechSynthesisUtterance(versesList[idx].text);
     utterance.rate = speed;
-    utterance.lang = lang === 'es' ? 'es-ES' : 'en-US';
+    utterance.lang = 'en-US';
 
-    // Try to pick a natural voice
     const voices = window.speechSynthesis.getVoices();
-    const langCode = lang === 'es' ? 'es' : 'en';
-    const preferred = voices.find(v => v.lang.startsWith(langCode) && !v.localService === false)
-      || voices.find(v => v.lang.startsWith(langCode));
+    const preferred = voices.find(v => v.lang.startsWith('en') && !v.localService === false)
+      || voices.find(v => v.lang.startsWith('en'));
     if (preferred) utterance.voice = preferred;
 
     utterance.onend = () => {
       const nextIdx = idx + 1;
       if (nextIdx < versesList.length) {
         setCurrentVerse(nextIdx);
-        speakVerse(nextIdx, speed, lang, versesList);
+        speakVerse(nextIdx, speed, versesList);
       } else {
         setIsPlaying(false);
         setCurrentVerse(0);
@@ -129,18 +124,18 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
       setIsPlaying(false);
     } else {
       setIsPlaying(true);
-      speakVerse(currentVerse, SPEEDS[speedIdx], language, verses);
+      speakVerse(currentVerse, SPEEDS[speedIdx], verses);
     }
-  }, [isPlaying, currentVerse, speedIdx, language, verses, speakVerse]);
+  }, [isPlaying, currentVerse, speedIdx, verses, speakVerse]);
 
   const handleSpeedChange = useCallback(() => {
     const nextIdx = (speedIdx + 1) % SPEEDS.length;
     setSpeedIdx(nextIdx);
     if (isPlaying) {
       window.speechSynthesis.cancel();
-      setTimeout(() => speakVerse(currentVerse, SPEEDS[nextIdx], language, verses), 50);
+      setTimeout(() => speakVerse(currentVerse, SPEEDS[nextIdx], verses), 50);
     }
-  }, [speedIdx, isPlaying, currentVerse, language, verses, speakVerse]);
+  }, [speedIdx, isPlaying, currentVerse, verses, speakVerse]);
 
   const handlePrevChapter = useCallback(() => {
     if (chapter > 1) { stopAudio(); setChapter(c => c - 1); }
@@ -150,10 +145,7 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
     if (chapter < book.chapters) { stopAudio(); setChapter(c => c + 1); }
   }, [chapter, book.chapters, stopAudio]);
 
-  const handleLanguageToggle = useCallback(() => {
-    stopAudio();
-    setLanguage(l => l === 'en' ? 'es' : 'en');
-  }, [stopAudio]);
+
 
   const handleMarkRead = useCallback(async () => {
     if (!userId || isMarkingRead || isMarked) return;
@@ -231,14 +223,6 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
             {FONT_SIZE_LABELS[fontSizeIdx]}A
           </button>
 
-          {/* Language */}
-          <button
-            onClick={handleLanguageToggle}
-            className="px-2 py-1 rounded-lg hover:bg-muted transition-colors text-xs font-semibold text-muted-foreground"
-          >
-            {language === 'en' ? 'EN' : 'ES'}
-          </button>
-
           {/* Audio toggle */}
           <button
             onClick={() => setAudioVisible(v => !v)}
@@ -260,7 +244,7 @@ export default function BibleReader({ book, chapter: initialChapter, language: i
           <div className="text-center py-12 text-destructive text-sm">
             <p className="mb-2">⚠️ Could not load this chapter.</p>
             <p className="text-muted-foreground text-xs">{loadError}</p>
-            <button onClick={() => { setLoadError(null); setIsLoading(true); fetchChapter(book.index, chapter, language).then(v => { setVerses(v); setIsLoading(false); }).catch(e => { setLoadError(e.message); setIsLoading(false); }); }} className="mt-4 text-primary text-sm underline">
+            <button onClick={() => { setLoadError(null); setIsLoading(true); fetchChapter(book.index, chapter).then(v => { setVerses(v); setIsLoading(false); }).catch(e => { setLoadError(e.message); setIsLoading(false); }); }} className="mt-4 text-primary text-sm underline">
               Try again
             </button>
           </div>
