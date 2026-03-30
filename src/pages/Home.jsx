@@ -431,39 +431,37 @@ export default function Home() {
                 <h2 className="text-xl font-semibold text-foreground flex-1">{selectedBook.name}</h2>
               </div>
 
-              {/* Mode buttons */}
+              {/* Segmented Control */}
               <div
-                className="flex gap-2 p-1 rounded-2xl"
-                style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+                className="relative flex p-1 rounded-full"
+                style={{ background: 'var(--btn-inactive-bg)' }}
               >
+                {/* Sliding pill */}
+                <div
+                  className="absolute top-1 bottom-1 w-[calc(50%-4px)] rounded-full"
+                  style={{
+                    background: 'linear-gradient(135deg, #16A34A, #22C55E)',
+                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)',
+                    transform: isReadModeActive ? 'translateX(calc(100% + 8px))' : 'translateX(0)',
+                    transition: 'transform 180ms cubic-bezier(0.34, 1.4, 0.64, 1)',
+                  }}
+                />
+                {/* Mark Complete */}
                 <button
                   onClick={() => { if (isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
-                  style={!isReadModeActive ? {
-                    background: 'linear-gradient(135deg, #16A34A, #22C55E)',
-                    color: '#fff',
-                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)'
-                  } : {
-                    background: 'var(--btn-inactive-bg)',
-                    color: 'var(--btn-inactive-text)'
-                  }}
+                  className="relative flex-1 flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold z-10 transition-colors duration-150"
+                  style={{ color: !isReadModeActive ? '#fff' : 'var(--btn-inactive-text)' }}
                 >
-                  <CheckSquare className="w-5 h-5" />
+                  <CheckSquare className="w-4 h-4" />
                   Mark Complete
                 </button>
+                {/* Read Chapter */}
                 <button
                   onClick={() => { if (!isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
-                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
-                  style={isReadModeActive ? {
-                    background: 'linear-gradient(135deg, #16A34A, #22C55E)',
-                    color: '#fff',
-                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)'
-                  } : {
-                    background: 'var(--btn-inactive-bg)',
-                    color: 'var(--btn-inactive-text)'
-                  }}
+                  className="relative flex-1 flex items-center justify-center gap-2 h-11 rounded-full text-sm font-semibold z-10 transition-colors duration-150"
+                  style={{ color: isReadModeActive ? '#fff' : 'var(--btn-inactive-text)' }}
                 >
-                  <BookOpen className="w-5 h-5" />
+                  <BookOpen className="w-4 h-4" />
                   Read Chapter
                 </button>
               </div>
@@ -474,14 +472,14 @@ export default function Home() {
                   onClick={() => setShowMarkAllConfirm(true)}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
                   className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 active:scale-[0.97]"
-                  style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
+                  style={{ background: 'var(--btn-inactive-bg)', color: '#16A34A' }}
                 >
                   <Zap className="w-3.5 h-3.5" />
                   {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
                 </button>
               </div>
             </div>
-            <p className="text-xs text-center mb-5" style={{ opacity: 0.55, color: 'inherit' }}>
+            <p key={isReadModeActive ? 'read' : 'mark'} className="text-xs text-center mb-5 animate-in fade-in duration-200" style={{ opacity: 0.55, color: 'inherit' }}>
               {isReadModeActive ? '📖 Tap a chapter to read' : '✅ Tap a chapter to mark complete'}
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
