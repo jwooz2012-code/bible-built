@@ -512,10 +512,6 @@ export default function ShareSummary() {
         {/* Month Navigation */}
         {mode === 'monthly' && (
           <div className="w-full max-w-md px-6">
-            <div 
-              className="h-px w-full mb-6"
-              style={{ backgroundColor: theme.divider }}
-            />
             <div className="flex items-center justify-center pb-4">
               <div className="flex items-center gap-3">
                 <button
@@ -550,10 +546,6 @@ export default function ShareSummary() {
         {/* Week Navigation */}
         {mode === 'weekly' && (
           <div className="w-full max-w-md px-6">
-            <div 
-              className="h-px w-full mb-6"
-              style={{ backgroundColor: theme.divider }}
-            />
             <div className="flex items-center justify-center pb-4">
               <div className="flex items-center gap-3">
                 <button
