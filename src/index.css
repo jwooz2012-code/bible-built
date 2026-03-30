@@ -88,6 +88,13 @@
 
   :root {
     --sab: env(safe-area-inset-bottom);
+    --btn-inactive-bg: #F3F4F6;
+    --btn-inactive-text: #374151;
+  }
+
+  .dark {
+    --btn-inactive-bg: #1F2937;
+    --btn-inactive-text: #D1D5DB;
   }
 
   [data-sonner-toaster] {

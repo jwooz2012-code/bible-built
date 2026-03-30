@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, CheckSquare, Zap } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckSquare, Zap, BookMarked } from 'lucide-react';
+import { triggerHaptic } from '@/components/utils/haptics';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
@@ -431,27 +432,38 @@ export default function Home() {
               </div>
 
               {/* Mode buttons */}
-              <div className="flex gap-2">
+              <div
+                className="flex gap-2 p-1 rounded-2xl"
+                style={{ boxShadow: '0 2px 12px rgba(0,0,0,0.08)' }}
+              >
                 <button
-                  onClick={() => { if (isReadModeActive) handleToggleReadMode(); }}
-                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-sm font-semibold transition-all ${
-                    !isReadModeActive
-                      ? 'bg-foreground text-background shadow-sm'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
+                  onClick={() => { if (isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
+                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
+                  style={!isReadModeActive ? {
+                    background: 'linear-gradient(135deg, #16A34A, #22C55E)',
+                    color: '#fff',
+                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)'
+                  } : {
+                    background: 'var(--btn-inactive-bg)',
+                    color: 'var(--btn-inactive-text)'
+                  }}
                 >
-                  <CheckSquare className="w-4 h-4" />
+                  <CheckSquare className="w-5 h-5" />
                   Mark Complete
                 </button>
                 <button
-                  onClick={() => { if (!isReadModeActive) handleToggleReadMode(); }}
-                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-sm font-semibold transition-all ${
-                    isReadModeActive
-                      ? 'bg-foreground text-background shadow-sm'
-                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                  }`}
+                  onClick={() => { if (!isReadModeActive) { handleToggleReadMode(); triggerHaptic('light'); } }}
+                  className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl text-sm font-semibold transition-all active:scale-[0.97]"
+                  style={isReadModeActive ? {
+                    background: 'linear-gradient(135deg, #16A34A, #22C55E)',
+                    color: '#fff',
+                    boxShadow: '0 4px 14px rgba(34,197,94,0.35)'
+                  } : {
+                    background: 'var(--btn-inactive-bg)',
+                    color: 'var(--btn-inactive-text)'
+                  }}
                 >
-                  <BookOpen className="w-4 h-4" />
+                  <BookOpen className="w-5 h-5" />
                   Read Chapter
                 </button>
               </div>
@@ -461,15 +473,16 @@ export default function Home() {
                 <button
                   onClick={() => setShowMarkAllConfirm(true)}
                   disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all disabled:opacity-40"
+                  className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-xs font-semibold transition-all disabled:opacity-40 active:scale-[0.97]"
+                  style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
                 >
                   <Zap className="w-3.5 h-3.5" />
                   {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
                 </button>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground text-center mb-5">
-              {isReadModeActive ? 'Tap a chapter to open and read' : 'Tap a chapter to mark it as read'}
+            <p className="text-xs text-center mb-5" style={{ opacity: 0.55, color: 'inherit' }}>
+              {isReadModeActive ? '📖 Tap a chapter to read' : '✅ Tap a chapter to mark complete'}
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chapter) => {
