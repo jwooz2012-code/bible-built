@@ -18,9 +18,7 @@ export const AuthProvider = ({ children }) => {
 
   // Hard timeout: never spin forever in WebView/native
   useEffect(() => {
-    console.log('[Auth] Starting auth flow. token present:', !!appParams.token);
     timeoutRef.current = setTimeout(() => {
-      console.warn('[Auth] TIMEOUT: auth took too long, forcing recovery screen');
       setIsLoadingAuth(false);
       setIsLoadingPublicSettings(false);
       setAuthError({ type: 'timeout', message: 'Auth timed out' });
@@ -68,7 +66,6 @@ export const AuthProvider = ({ children }) => {
         
         if (appError.status === 403 && appError.data?.extra_data?.reason) {
           const reason = appError.data.extra_data.reason;
-          console.log('[Auth] 403 reason:', reason);
           if (reason === 'auth_required') {
             setAuthError({ type: 'auth_required', message: 'Authentication required' });
           } else if (reason === 'user_not_registered') {
@@ -93,9 +90,7 @@ export const AuthProvider = ({ children }) => {
   const checkUserAuth = async () => {
     try {
       setIsLoadingAuth(true);
-      console.log('[Auth] checkUserAuth: calling base44.auth.me()...');
       const currentUser = await base44.auth.me();
-      console.log('[Auth] User resolved:', currentUser?.id, currentUser?.email);
       setUser(currentUser);
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
@@ -132,12 +127,10 @@ export const AuthProvider = ({ children }) => {
   };
 
   const navigateToLogin = () => {
-    console.log('[Auth] redirecting to login, returnUrl:', window.location.href);
     base44.auth.redirectToLogin(window.location.href);
   };
 
   const retryAuth = () => {
-    console.log('[Auth] retryAuth triggered');
     setAuthError(null);
     setIsLoadingAuth(true);
     setIsLoadingPublicSettings(true);

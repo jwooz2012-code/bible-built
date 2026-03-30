@@ -95,20 +95,13 @@ export function validateAllPlans() {
  * Run validation and log results to console
  */
 export function runValidation() {
-  console.log('🔍 Validating Bible reading plans...');
-  
   const issues = validateAllPlans();
-  
-  if (issues.length === 0) {
-    console.log('✅ All plans validated successfully - no empty days found!');
-    return true;
-  } else {
-    console.warn(`❌ Found ${issues.length} issue(s):`);
-    issues.forEach((issue, idx) => {
-      console.warn(`\n[${idx + 1}] ${issue.presetId} (${issue.scope}):`);
-      console.warn(`    ${issue.message}`);
-      console.warn('    Details:', issue);
-    });
-    return false;
+  if (import.meta.env.DEV) {
+    if (issues.length === 0) {
+      console.log('✅ All plans validated successfully - no empty days found!');
+    } else {
+      console.warn(`❌ Found ${issues.length} plan issue(s):`, issues);
+    }
   }
+  return issues.length === 0;
 }

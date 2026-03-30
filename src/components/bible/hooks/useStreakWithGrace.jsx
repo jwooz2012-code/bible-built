@@ -19,12 +19,21 @@ export function useStreakWithGrace(logs, userId) {
     staleTime: 30000,
   });
 
-  // Always give the algorithm the full monthly allowance.
-  // The DB is only used for notification/persistence, never to cap the computation.
-  // This prevents a feedback loop where stored graceDaysUsed reduces availability on re-runs.
+  // Build a grace allowance map for every month in the user's reading history.
+  // Each month independently gets GRACE_DAYS_PER_MONTH, enabling long cross-month streaks.
   const graceAvailableByMonth = useMemo(() => {
-    return { [currentMonthKey]: GRACE_DAYS_PER_MONTH };
-  }, [currentMonthKey]);
+    const map = {};
+    if (logs && logs.length) {
+      const months = new Set(logs.map(l => l.dateKey.substring(0, 7)));
+      months.add(currentMonthKey);
+      for (const m of months) {
+        map[m] = GRACE_DAYS_PER_MONTH;
+      }
+    } else {
+      map[currentMonthKey] = GRACE_DAYS_PER_MONTH;
+    }
+    return map;
+  }, [logs, currentMonthKey]);
 
   const { currentStreak, graceDaysConsumed, graceCoveredDates } = useMemo(() => {
     if (!logs || !logs.length) return { currentStreak: 0, graceDaysConsumed: {}, graceCoveredDates: [] };

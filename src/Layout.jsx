@@ -15,13 +15,11 @@ export default function Layout({ children }) {
   useEffect(() => {
     // Root-only landing fix. Do not affect deep links.
     if (location.pathname === "/") {
-      console.log("[ROOT_FIX] redirecting / -> /home");
       navigate("/home", { replace: true });
     }
   }, [location.pathname, navigate]);
 
   useEffect(() => {
-    console.log('[LAYOUT] Current pathname:', currentPath);
     window.scrollTo(0, 0);
   }, [location.pathname, currentPath]);
 

@@ -81,7 +81,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    runValidation();
+    if (import.meta.env.DEV) runValidation();
   }, []);
 
   useEffect(() => {
