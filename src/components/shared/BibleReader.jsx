@@ -1,0 +1,345 @@
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  X, ChevronLeft, ChevronRight, Volume2, VolumeX, Play, Pause,
+  BookOpen, Minus, Plus
+} from 'lucide-react';
+import { fetchChapter, prefetchChapter } from '@/components/bible/utils/readerUtils';
+import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
+
+const FONT_SIZES = ['text-sm', 'text-base', 'text-lg', 'text-xl'];
+const FONT_SIZE_LABELS = ['S', 'M', 'L', 'XL'];
+const SPEEDS = [0.75, 1, 1.25, 1.5];
+
+/**
+ * BibleReader — full-screen overlay reader (z-[55], below nav z-[60])
+ *
+ * Props:
+ *   book       — { name, index, testament, chapters } from BIBLE_BOOKS
+ *   chapter    — chapter number (1-based)
+ *   language   — 'en' | 'es'
+ *   userId     — for marking chapters read
+ *   onClose    — dismiss callback
+ *   onMarkRead — called with { book, chapter, chapterId, testament } after logging
+ */
+export default function BibleReader({ book, chapter: initialChapter, language: initialLang = 'en', userId, onClose, onMarkRead }) {
+  const [chapter, setChapter] = useState(initialChapter);
+  const [language, setLanguage] = useState(initialLang);
+  const [verses, setVerses] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [loadError, setLoadError] = useState(null);
+  const [fontSizeIdx, setFontSizeIdx] = useState(1); // default 'text-base'
+
+  // Audio state
+  const [audioVisible, setAudioVisible] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentVerse, setCurrentVerse] = useState(0);
+  const [speedIdx, setSpeedIdx] = useState(1); // default 1x
+  const utteranceRef = useRef(null);
+  const verseRefs = useRef([]);
+  const scrollContainerRef = useRef(null);
+
+  // Mark-as-read
+  const [isMarkingRead, setIsMarkingRead] = useState(false);
+  const [isMarked, setIsMarked] = useState(false);
+
+  // Load chapter
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setLoadError(null);
+    setVerses([]);
+    stopAudio();
+
+    fetchChapter(book.index, chapter, language)
+      .then(v => { if (!cancelled) { setVerses(v); setIsLoading(false); setCurrentVerse(0); } })
+      .catch(err => { if (!cancelled) { setLoadError(err.message); setIsLoading(false); } });
+
+    return () => { cancelled = true; };
+  }, [book.index, chapter, language]);
+
+  // Prefetch adjacent chapters
+  useEffect(() => {
+    if (chapter > 1) prefetchChapter(book.index, chapter - 1, language);
+    if (chapter < book.chapters) prefetchChapter(book.index, chapter + 1, language);
+  }, [book.index, book.chapters, chapter, language]);
+
+  // Auto-scroll to highlighted verse
+  useEffect(() => {
+    const el = verseRefs.current[currentVerse];
+    if (el && scrollContainerRef.current && isPlaying) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [currentVerse, isPlaying]);
+
+  // Stop audio on unmount
+  useEffect(() => () => stopAudio(), []);
+
+  const stopAudio = useCallback(() => {
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    setIsPlaying(false);
+    utteranceRef.current = null;
+  }, []);
+
+  const speakVerse = useCallback((idx, speed, lang, versesList) => {
+    if (!versesList?.length || idx >= versesList.length) {
+      setIsPlaying(false);
+      setAudioVisible(false);
+      return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(versesList[idx].text);
+    utterance.rate = speed;
+    utterance.lang = lang === 'es' ? 'es-ES' : 'en-US';
+
+    // Try to pick a natural voice
+    const voices = window.speechSynthesis.getVoices();
+    const langCode = lang === 'es' ? 'es' : 'en';
+    const preferred = voices.find(v => v.lang.startsWith(langCode) && !v.localService === false)
+      || voices.find(v => v.lang.startsWith(langCode));
+    if (preferred) utterance.voice = preferred;
+
+    utterance.onend = () => {
+      const nextIdx = idx + 1;
+      if (nextIdx < versesList.length) {
+        setCurrentVerse(nextIdx);
+        speakVerse(nextIdx, speed, lang, versesList);
+      } else {
+        setIsPlaying(false);
+        setCurrentVerse(0);
+      }
+    };
+
+    utteranceRef.current = utterance;
+    window.speechSynthesis.speak(utterance);
+  }, []);
+
+  const handlePlayPause = useCallback(() => {
+    if (!('speechSynthesis' in window)) {
+      toast.error('Audio not supported on this device');
+      return;
+    }
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setIsPlaying(false);
+    } else {
+      setIsPlaying(true);
+      speakVerse(currentVerse, SPEEDS[speedIdx], language, verses);
+    }
+  }, [isPlaying, currentVerse, speedIdx, language, verses, speakVerse]);
+
+  const handleSpeedChange = useCallback(() => {
+    const nextIdx = (speedIdx + 1) % SPEEDS.length;
+    setSpeedIdx(nextIdx);
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setTimeout(() => speakVerse(currentVerse, SPEEDS[nextIdx], language, verses), 50);
+    }
+  }, [speedIdx, isPlaying, currentVerse, language, verses, speakVerse]);
+
+  const handlePrevChapter = useCallback(() => {
+    if (chapter > 1) { stopAudio(); setChapter(c => c - 1); }
+  }, [chapter, stopAudio]);
+
+  const handleNextChapter = useCallback(() => {
+    if (chapter < book.chapters) { stopAudio(); setChapter(c => c + 1); }
+  }, [chapter, book.chapters, stopAudio]);
+
+  const handleLanguageToggle = useCallback(() => {
+    stopAudio();
+    setLanguage(l => l === 'en' ? 'es' : 'en');
+  }, [stopAudio]);
+
+  const handleMarkRead = useCallback(async () => {
+    if (!userId || isMarkingRead || isMarked) return;
+    setIsMarkingRead(true);
+    stopAudio();
+    try {
+      const now = new Date();
+      const chapterId = generateChapterId(book.index, chapter);
+      await base44.entities.ReadingLog.create({
+        userId,
+        dateKey: getDateKey(now),
+        timestamp: now.toISOString(),
+        book: book.name,
+        bookIndex: book.index,
+        chapter,
+        chapterId,
+        testament: book.testament,
+      });
+      setIsMarked(true);
+      base44.analytics.track({ eventName: 'chapter_read_completed', properties: { book: book.name, chapter, testament: book.testament, chapterId } });
+      toast.success('Chapter marked as read');
+      onMarkRead?.({ book, chapter, chapterId, testament: book.testament });
+      setTimeout(() => onClose(), 600);
+    } catch (err) {
+      toast.error('Failed to mark chapter');
+      setIsMarkingRead(false);
+    }
+  }, [userId, isMarkingRead, isMarked, book, chapter, stopAudio, onMarkRead, onClose]);
+
+  const verseList = useMemo(() => verses, [verses]);
+  const chapterTitle = `${book.name} ${chapter}`;
+  const fontSize = FONT_SIZES[fontSizeIdx];
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-background z-[55] flex flex-col"
+      style={{ paddingTop: 'env(safe-area-inset-top)' }}
+    >
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+        {/* Left: close */}
+        <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
+          <X className="w-5 h-5 text-foreground" />
+        </button>
+
+        {/* Center: chapter nav */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrevChapter}
+            disabled={chapter <= 1}
+            className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <span className="text-sm font-semibold text-foreground min-w-[110px] text-center">{chapterTitle}</span>
+          <button
+            onClick={handleNextChapter}
+            disabled={chapter >= book.chapters}
+            className="p-1.5 rounded-lg hover:bg-muted disabled:opacity-30 transition-colors"
+          >
+            <ChevronRight className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+
+        {/* Right: controls */}
+        <div className="flex items-center gap-1">
+          {/* Font size */}
+          <button
+            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
+            className="px-2 py-1 rounded-lg hover:bg-muted transition-colors text-xs font-bold text-muted-foreground"
+          >
+            {FONT_SIZE_LABELS[fontSizeIdx]}A
+          </button>
+
+          {/* Language */}
+          <button
+            onClick={handleLanguageToggle}
+            className="px-2 py-1 rounded-lg hover:bg-muted transition-colors text-xs font-semibold text-muted-foreground"
+          >
+            {language === 'en' ? 'EN' : 'ES'}
+          </button>
+
+          {/* Audio toggle */}
+          <button
+            onClick={() => setAudioVisible(v => !v)}
+            className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+          >
+            {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+        </div>
+      </div>
+
+      {/* ── Content ── */}
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
+        {isLoading && (
+          <div className="flex items-center justify-center h-40">
+            <div className="w-6 h-6 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
+          </div>
+        )}
+        {loadError && (
+          <div className="text-center py-12 text-destructive text-sm">
+            <p className="mb-2">⚠️ Could not load this chapter.</p>
+            <p className="text-muted-foreground text-xs">{loadError}</p>
+            <button onClick={() => { setLoadError(null); setIsLoading(true); fetchChapter(book.index, chapter, language).then(v => { setVerses(v); setIsLoading(false); }).catch(e => { setLoadError(e.message); setIsLoading(false); }); }} className="mt-4 text-primary text-sm underline">
+              Try again
+            </button>
+          </div>
+        )}
+        {!isLoading && !loadError && (
+          <div className="max-w-2xl mx-auto">
+            {verseList.map((verse, idx) => (
+              <p
+                key={verse.number}
+                ref={el => verseRefs.current[idx] = el}
+                className={`${fontSize} font-serif leading-relaxed mb-3 transition-colors duration-300 ${
+                  isPlaying && idx === currentVerse
+                    ? 'text-foreground bg-primary/10 rounded-md px-2 -mx-2'
+                    : 'text-foreground/90'
+                }`}
+              >
+                <sup className="text-[10px] text-muted-foreground font-sans mr-1.5 select-none">{verse.number}</sup>
+                {verse.text}
+              </p>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* ── Audio bar ── */}
+      <AnimatePresence>
+        {audioVisible && (
+          <motion.div
+            initial={{ y: 60, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 60, opacity: 0 }}
+            transition={{ type: 'spring', damping: 24, stiffness: 280 }}
+            className="border-t border-border bg-card px-5 py-3 shrink-0"
+          >
+            <div className="flex items-center justify-between max-w-2xl mx-auto">
+              {/* Verse counter */}
+              <span className="text-xs text-muted-foreground min-w-[80px]">
+                {verses.length > 0 ? `Verse ${currentVerse + 1} of ${verses.length}` : '—'}
+              </span>
+
+              {/* Play/Pause */}
+              <button
+                onClick={handlePlayPause}
+                disabled={isLoading || verses.length === 0}
+                className="w-11 h-11 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 hover:bg-primary/90 transition-colors shadow-md"
+              >
+                {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
+              </button>
+
+              {/* Speed */}
+              <button
+                onClick={handleSpeedChange}
+                className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition-colors min-w-[48px] text-center"
+              >
+                {SPEEDS[speedIdx]}x
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Mark as Read / bottom bar ── */}
+      <div
+        className="shrink-0 px-5 py-3 border-t border-border bg-card"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+      >
+        <button
+          onClick={handleMarkRead}
+          disabled={isMarkingRead || isMarked || !userId}
+          className={`w-full max-w-2xl mx-auto flex items-center justify-center gap-2 py-3 rounded-2xl font-semibold text-sm transition-all
+            ${isMarked
+              ? 'bg-green-500/20 text-green-600 border border-green-500/30'
+              : 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'
+            } disabled:opacity-60`}
+        >
+          <BookOpen className="w-4 h-4" />
+          {isMarked ? 'Marked as Read ✓' : isMarkingRead ? 'Saving...' : 'Mark as Read'}
+        </button>
+      </div>
+    </motion.div>
+  );
+}

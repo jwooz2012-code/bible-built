@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, BookOpen, BookMarked } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -38,6 +38,8 @@ import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
+import BibleReader from '@/components/shared/BibleReader';
+import { AnimatePresence } from 'framer-motion';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -49,6 +51,11 @@ export default function Home() {
   const [planPreviewOpen, setPlanPreviewOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [promptDismissed, setPromptDismissed] = useState(false);
+  const [isReadModeActive, setIsReadModeActive] = useState(false);
+  const [readerState, setReaderState] = useState(null); // { book, chapter }
+  // One-time discovery: show badge for new reader feature
+  const [showReaderBadge, setShowReaderBadge] = useState(() => !localStorage.getItem('bb_reader_discovered'));
+  const [showReaderTooltip, setShowReaderTooltip] = useState(false);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'instant' });
@@ -231,6 +238,12 @@ export default function Home() {
       toast.error('Please log in again');
       return;
     }
+    if (isReadModeActive) {
+      // Read Mode: open BibleReader overlay
+      setReaderState({ book, chapter });
+      return;
+    }
+    // Log Mode: mark as read immediately
     try {
       const now = new Date();
       await markRead({
@@ -245,6 +258,20 @@ export default function Home() {
       });
     } catch (error) {
       toast.error(error?.message || 'Action failed. Please try again.');
+    }
+  };
+
+  const handleToggleReadMode = () => {
+    const next = !isReadModeActive;
+    setIsReadModeActive(next);
+    if (showReaderBadge) {
+      setShowReaderBadge(false);
+      localStorage.setItem('bb_reader_discovered', '1');
+    }
+    if (next && !localStorage.getItem('bb_reader_tooltip_seen')) {
+      setShowReaderTooltip(true);
+      localStorage.setItem('bb_reader_tooltip_seen', '1');
+      setTimeout(() => setShowReaderTooltip(false), 4000);
     }
   };
 
@@ -400,20 +427,49 @@ export default function Home() {
                 </Button>
                 <h2 className="text-xl font-semibold text-foreground flex-1 min-w-0">{selectedBook.name}</h2>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={async () => {
-                  await markAllRead({ userId, book: selectedBook });
-                }}
-                disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                className="text-xs px-3 h-8 shrink-0"
-              >
-                {isMarkingAll ? '...' : 'Mark All'}
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Smart Toggle */}
+                <div className="relative">
+                  <button
+                    onClick={handleToggleReadMode}
+                    title={isReadModeActive ? 'Switch to Log Mode' : 'Switch to Read Mode'}
+                    className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
+                      isReadModeActive
+                        ? 'bg-primary text-primary-foreground border-primary'
+                        : 'bg-muted text-muted-foreground border-border'
+                    }`}
+                  >
+                    {isReadModeActive
+                      ? <><BookOpen className="w-3.5 h-3.5" /> Read</>
+                      : <><BookMarked className="w-3.5 h-3.5" /> Log</>
+                    }
+                    {showReaderBadge && (
+                      <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-primary" />
+                      </span>
+                    )}
+                  </button>
+                  {showReaderTooltip && (
+                    <div className="absolute top-full mt-2 right-0 z-50 bg-popover text-popover-foreground text-xs rounded-xl px-3 py-2 shadow-lg border border-border w-56 leading-snug">
+                      New! Toggle between quick logging and reading/listening in the app.
+                      <button onClick={() => setShowReaderTooltip(false)} className="ml-1 text-muted-foreground underline">Got it</button>
+                    </div>
+                  )}
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => { await markAllRead({ userId, book: selectedBook }); }}
+                  disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+                  className="text-xs px-3 h-8 shrink-0"
+                >
+                  {isMarkingAll ? '...' : 'Mark All'}
+                </Button>
+              </div>
             </div>
             <p className="text-sm text-muted-foreground text-center mb-5">
-              Tap a chapter to mark it read.
+              {isReadModeActive ? 'Tap a chapter to read it.' : 'Tap a chapter to mark it read.'}
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chapter) => {
@@ -434,6 +490,21 @@ export default function Home() {
           </motion.div>
         )}
       </div>
+
+      {/* BibleReader overlay */}
+      <AnimatePresence>
+        {readerState && (
+          <BibleReader
+            key={`${readerState.book.index}-${readerState.chapter}`}
+            book={readerState.book}
+            chapter={readerState.chapter}
+            language="en"
+            userId={userId}
+            onClose={() => setReaderState(null)}
+            onMarkRead={() => setReaderState(null)}
+          />
+        )}
+      </AnimatePresence>
 
       <PlanModal
         open={planOpen}
