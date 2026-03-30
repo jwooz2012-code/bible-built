@@ -144,6 +144,10 @@ export const AuthProvider = ({ children }) => {
     checkAppState();
   };
 
+  const updateUser = (updates) => {
+    setUser((prev) => prev ? { ...prev, ...updates } : prev);
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -155,7 +159,8 @@ export const AuthProvider = ({ children }) => {
       logout,
       navigateToLogin,
       checkAppState,
-      retryAuth
+      retryAuth,
+      updateUser
     }}>
       {children}
     </AuthContext.Provider>

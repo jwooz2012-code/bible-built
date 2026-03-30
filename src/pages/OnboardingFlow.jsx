@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
 
 import ProgressIndicator from '@/components/onboarding/ProgressIndicator';
@@ -24,6 +25,7 @@ const getTotalScreens = (experienceType) => {
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
+  const { updateUser } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState({
     displayName: '',
@@ -63,6 +65,8 @@ export default function OnboardingFlow() {
         full_name: responses.displayName,
         onboardingComplete: true 
       });
+      // Immediately update local user state so App.jsx doesn't redirect back to onboarding
+      updateUser({ full_name: responses.displayName, onboardingComplete: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
     }
