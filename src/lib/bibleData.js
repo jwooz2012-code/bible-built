@@ -132,7 +132,7 @@ export const bibleData = {
         { number: 31, text: "Y vió Dios todo lo que había hecho, y he aquí que era bueno en gran manera. Y fue la tarde y la mañana el día sexto." },
       ],
     },
-    Juan: {
+    John: {
       1: [
         { number: 1, text: "En el principio era el Verbo, y el Verbo era con Dios, y el Verbo era Dios." },
         { number: 2, text: "Este era en el principio con Dios." },
