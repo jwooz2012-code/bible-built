@@ -62,11 +62,11 @@ export default function OnboardingFlow() {
     setIsSaving(true);
     try {
       await base44.auth.updateMe({ 
-        full_name: responses.displayName,
+        displayName: responses.displayName,
         onboardingComplete: true 
       });
       // Immediately update local user state so App.jsx doesn't redirect back to onboarding
-      updateUser({ full_name: responses.displayName, onboardingComplete: true });
+      updateUser({ displayName: responses.displayName, onboardingComplete: true });
     } catch (error) {
       console.error('Failed to save onboarding:', error);
     }
