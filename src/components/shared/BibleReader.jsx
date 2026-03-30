@@ -221,17 +221,10 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     >
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
-        {/* Left: close + font size */}
-        <div className="flex items-center gap-1 w-16">
+        {/* Left: close */}
+        <div className="w-10">
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
             <X className="w-5 h-5 text-foreground" />
-          </button>
-          <button
-            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
-            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground"
-            title="Change font size"
-          >
-            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
           </button>
         </div>
 
@@ -254,15 +247,8 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           </button>
         </div>
 
-        {/* Right: audio toggle */}
-        <div className="w-16 flex justify-end">
-          <button
-            onClick={() => setAudioVisible(v => !v)}
-            className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-          >
-            {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
-        </div>
+        {/* Right: spacer to balance */}
+        <div className="w-10" />
       </div>
 
       {/* ── Content ── */}
@@ -356,18 +342,40 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
         className="shrink-0 px-5 py-3 border-t border-border bg-card"
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
-        <button
-          onClick={handleMarkRead}
-          disabled={isMarkingRead || isMarked || !userId}
-          className={`w-full max-w-2xl mx-auto flex items-center justify-center gap-2 py-2 rounded-2xl font-semibold text-sm transition-all
-            ${isMarked
-              ? 'bg-green-500/20 text-green-600 border border-green-500/30'
-              : 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'
-            } disabled:opacity-60`}
-        >
-          <BookOpen className="w-4 h-4" />
-          {isMarked ? 'Marked as Read ✓' : isMarkingRead ? 'Saving...' : 'Mark as Read'}
-        </button>
+        <div className="max-w-2xl mx-auto flex items-center gap-2">
+          {/* Font size */}
+          <button
+            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
+            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors font-serif font-bold text-muted-foreground shrink-0"
+            title="Change font size"
+          >
+            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
+          </button>
+
+          {/* Mark as Read */}
+          <button
+            onClick={handleMarkRead}
+            disabled={isMarkingRead || isMarked || !userId}
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-2xl font-semibold text-sm transition-all
+              ${isMarked
+                ? 'bg-green-500/20 text-green-600 border border-green-500/30'
+                : 'bg-primary text-primary-foreground hover:bg-primary/90 active:scale-[0.98]'
+              } disabled:opacity-60`}
+          >
+            <BookOpen className="w-4 h-4" />
+            {isMarked ? 'Marked as Read ✓' : isMarkingRead ? 'Saving...' : 'Mark as Read'}
+          </button>
+
+          {/* Audio toggle */}
+          <button
+            onClick={() => setAudioVisible(v => !v)}
+            className={`w-10 h-10 flex items-center justify-center rounded-xl transition-colors shrink-0 ${
+              audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'
+            }`}
+          >
+            {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
     </motion.div>
   );
