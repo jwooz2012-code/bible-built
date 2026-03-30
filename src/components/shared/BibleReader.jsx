@@ -216,7 +216,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background z-[55] flex flex-col"
+      className="fixed inset-0 bg-background z-[65] flex flex-col"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {/* ── Header ── */}
