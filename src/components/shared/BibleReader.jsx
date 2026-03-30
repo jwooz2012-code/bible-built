@@ -226,8 +226,8 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           <X className="w-5 h-5 text-foreground" />
         </button>
 
-        {/* Center: chapter nav */}
-        <div className="flex items-center gap-2">
+        {/* Center: chapter nav + font size */}
+        <div className="flex items-center gap-1">
           <button
             onClick={handlePrevChapter}
             disabled={chapter <= 1}
@@ -235,7 +235,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <span className="text-sm font-semibold text-foreground min-w-[110px] text-center">{chapterTitle}</span>
+          <span className="text-sm font-semibold text-foreground min-w-[90px] text-center">{chapterTitle}</span>
           <button
             onClick={handleNextChapter}
             disabled={chapter >= book.chapters}
@@ -243,27 +243,22 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           >
             <ChevronRight className="w-5 h-5 text-foreground" />
           </button>
-        </div>
-
-        {/* Right: controls */}
-        <div className="flex items-center gap-1">
-          {/* Font size */}
           <button
             onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
-            className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground"
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors font-serif font-bold text-muted-foreground ml-1"
             title="Change font size"
           >
             <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
           </button>
-
-          {/* Audio toggle */}
-          <button
-            onClick={() => setAudioVisible(v => !v)}
-            className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
-          >
-            {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
-          </button>
         </div>
+
+        {/* Right: audio toggle */}
+        <button
+          onClick={() => setAudioVisible(v => !v)}
+          className={`p-2 rounded-xl transition-colors ${audioVisible ? 'bg-primary/10 text-primary' : 'hover:bg-muted text-muted-foreground'}`}
+        >
+          {audioVisible ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+        </button>
       </div>
 
       {/* ── Content ── */}
