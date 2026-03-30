@@ -2,8 +2,9 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronLeft, ChevronRight, Volume2, VolumeX, Play, Pause,
-  BookOpen, Minus, Plus
+  BookOpen
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { fetchChapter, prefetchChapter } from '@/components/bible/utils/readerUtils';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -40,9 +41,30 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const verseRefs = useRef([]);
   const scrollContainerRef = useRef(null);
 
+  // Voice selection
+  const [availableVoices, setAvailableVoices] = useState([]);
+  const [selectedVoiceURI, setSelectedVoiceURI] = useState(
+    () => localStorage.getItem('bb_voice_uri') || ''
+  );
+
   // Mark-as-read
   const [isMarkingRead, setIsMarkingRead] = useState(false);
   const [isMarked, setIsMarked] = useState(false);
+
+  // Populate voices
+  useEffect(() => {
+    const populate = () => {
+      const voices = window.speechSynthesis?.getVoices() || [];
+      const eng = voices.filter(v => v.lang.startsWith('en'));
+      setAvailableVoices(eng);
+      if (!selectedVoiceURI && eng.length > 0) {
+        setSelectedVoiceURI(eng[0].voiceURI);
+      }
+    };
+    populate();
+    window.speechSynthesis.onvoiceschanged = populate;
+    return () => { window.speechSynthesis.onvoiceschanged = null; };
+  }, []);
 
   // Load chapter
   useEffect(() => {
@@ -96,9 +118,9 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     utterance.lang = 'en-US';
 
     const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.lang.startsWith('en') && !v.localService === false)
+    const chosen = voices.find(v => v.voiceURI === selectedVoiceURI)
       || voices.find(v => v.lang.startsWith('en'));
-    if (preferred) utterance.voice = preferred;
+    if (chosen) utterance.voice = chosen;
 
     utterance.onend = () => {
       const nextIdx = idx + 1;
@@ -137,6 +159,15 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       setTimeout(() => speakVerse(currentVerse, SPEEDS[nextIdx], verses), 50);
     }
   }, [speedIdx, isPlaying, currentVerse, verses, speakVerse]);
+
+  const handleVoiceChange = useCallback((uri) => {
+    setSelectedVoiceURI(uri);
+    localStorage.setItem('bb_voice_uri', uri);
+    if (isPlaying) {
+      window.speechSynthesis.cancel();
+      setTimeout(() => speakVerse(currentVerse, SPEEDS[speedIdx], verses), 50);
+    }
+  }, [isPlaying, currentVerse, speedIdx, verses, speakVerse]);
 
   const handlePrevChapter = useCallback(() => {
     if (chapter > 1) { stopAudio(); setChapter(c => c - 1); }
@@ -281,13 +312,27 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
             transition={{ type: 'spring', damping: 24, stiffness: 280 }}
             className="border-t border-border bg-card px-5 py-3 shrink-0"
           >
-            <div className="flex items-center justify-between max-w-2xl mx-auto">
-              {/* Verse counter */}
-              <span className="text-xs text-muted-foreground min-w-[80px]">
-                {verses.length > 0 ? `Verse ${currentVerse + 1} of ${verses.length}` : '—'}
+            <div className="max-w-2xl mx-auto space-y-2">
+            {/* Voice selector */}
+            {availableVoices.length > 0 && (
+              <Select value={selectedVoiceURI} onValueChange={handleVoiceChange}>
+                <SelectTrigger className="w-full h-8 text-xs">
+                  <SelectValue placeholder="Select voice" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableVoices.map(v => (
+                    <SelectItem key={v.voiceURI} value={v.voiceURI} className="text-xs">
+                      {v.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+            {/* Controls row */}
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground w-20">
+                {verses.length > 0 ? `Verse ${currentVerse + 1} / ${verses.length}` : '—'}
               </span>
-
-              {/* Play/Pause */}
               <button
                 onClick={handlePlayPause}
                 disabled={isLoading || verses.length === 0}
@@ -295,15 +340,14 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
               >
                 {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
               </button>
-
-              {/* Speed */}
               <button
                 onClick={handleSpeedChange}
-                className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition-colors min-w-[48px] text-center"
+                className="px-3 py-1.5 rounded-lg bg-muted text-muted-foreground text-xs font-semibold hover:bg-muted/80 transition-colors w-20 text-center"
               >
                 {SPEEDS[speedIdx]}x
               </button>
             </div>
+          </div>
           </motion.div>
         )}
       </AnimatePresence>
