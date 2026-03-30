@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, BookOpen, BookMarked } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckSquare, Zap } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -52,6 +53,7 @@ export default function Home() {
   const [showWelcome, setShowWelcome] = useState(false);
   const [promptDismissed, setPromptDismissed] = useState(false);
   const [isReadModeActive, setIsReadModeActive] = useState(false);
+  const [showMarkAllConfirm, setShowMarkAllConfirm] = useState(false);
   const [readerState, setReaderState] = useState(null); // { book, chapter }
   const [optimisticLogs, setOptimisticLogs] = useState([]);
   // One-time discovery: show badge for new reader feature
@@ -417,61 +419,57 @@ export default function Home() {
             animate={{ opacity: 1, x: 0 }}
             className="bg-card border border-border rounded-2xl p-5 shadow-sm"
           >
-            <div className="flex flex-col gap-3 mb-6">
+            <div className="flex flex-col gap-4 mb-5">
               <div className="flex items-center gap-3">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 w-9 p-0 shrink-0"
+                <button
+                  className="h-9 w-9 p-0 shrink-0 flex items-center justify-center rounded-xl hover:bg-muted transition-colors"
                   onClick={() => setSelectedBook(null)}
                 >
                   <ArrowLeft className="w-5 h-5" />
-                </Button>
+                </button>
                 <h2 className="text-xl font-semibold text-foreground flex-1">{selectedBook.name}</h2>
               </div>
-              <div className="flex items-center gap-2 pl-1">
-                {/* Smart Toggle */}
-                <div className="relative">
-                  <button
-                    onClick={handleToggleReadMode}
-                    title={isReadModeActive ? 'Switch to Log Mode' : 'Switch to Read Mode'}
-                    className={`relative flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-xs font-semibold transition-all ${
-                      isReadModeActive
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-muted text-muted-foreground border-border'
-                    }`}
-                  >
-                    {isReadModeActive
-                      ? <><BookOpen className="w-3.5 h-3.5" /> Read</>
-                      : <><BookMarked className="w-3.5 h-3.5" /> Log</>
-                    }
-                    {showReaderBadge && (
-                      <span className="absolute -top-1.5 -right-1.5 flex h-3.5 w-3.5">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-                        <span className="relative inline-flex rounded-full h-3.5 w-3.5 bg-primary" />
-                      </span>
-                    )}
-                  </button>
-                  {showReaderTooltip && (
-                    <div className="absolute top-full mt-2 left-0 z-50 bg-popover text-popover-foreground text-xs rounded-xl px-3 py-2 shadow-lg border border-border w-56 leading-snug">
-                      New! Toggle between quick logging and reading/listening in the app.
-                      <button onClick={() => setShowReaderTooltip(false)} className="ml-1 text-muted-foreground underline">Got it</button>
-                    </div>
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={async () => { await markAllRead({ userId, book: selectedBook }); }}
-                  disabled={isMarkingAll || isMarkingRead || isUndoingRead}
-                  className="text-xs px-3 h-8 shrink-0"
+
+              {/* Mode buttons */}
+              <div className="flex gap-2">
+                <button
+                  onClick={() => { if (isReadModeActive) handleToggleReadMode(); }}
+                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-sm font-semibold transition-all ${
+                    !isReadModeActive
+                      ? 'bg-foreground text-background shadow-sm'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
                 >
-                  {isMarkingAll ? '...' : 'Mark All'}
-                </Button>
+                  <CheckSquare className="w-4 h-4" />
+                  Mark Complete
+                </button>
+                <button
+                  onClick={() => { if (!isReadModeActive) handleToggleReadMode(); }}
+                  className={`flex-1 flex items-center justify-center gap-2 h-11 rounded-2xl text-sm font-semibold transition-all ${
+                    isReadModeActive
+                      ? 'bg-foreground text-background shadow-sm'
+                      : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Read Chapter
+                </button>
+              </div>
+
+              {/* Mark All as Read */}
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setShowMarkAllConfirm(true)}
+                  disabled={isMarkingAll || isMarkingRead || isUndoingRead}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-all disabled:opacity-40"
+                >
+                  <Zap className="w-3.5 h-3.5" />
+                  {isMarkingAll ? 'Marking...' : 'Mark All as Read'}
+                </button>
               </div>
             </div>
-            <p className="text-sm text-muted-foreground text-center mb-5">
-              {isReadModeActive ? 'Tap a chapter to read it.' : 'Tap a chapter to mark it read.'}
+            <p className="text-xs text-muted-foreground text-center mb-5">
+              {isReadModeActive ? 'Tap a chapter to open and read' : 'Tap a chapter to mark it as read'}
             </p>
             <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3.5">
               {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((chapter) => {
@@ -509,6 +507,23 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+
+      <AlertDialog open={showMarkAllConfirm} onOpenChange={setShowMarkAllConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark all chapters as read?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will log every chapter in {selectedBook?.name} as read today. This cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={async () => { await markAllRead({ userId, book: selectedBook }); setShowMarkAllConfirm(false); }}>
+              Mark All as Read
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <PlanModal
         open={planOpen}
