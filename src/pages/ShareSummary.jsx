@@ -276,21 +276,13 @@ export default function ShareSummary() {
     setIsShareCaptureMode(true);
     
     // Wait for UI to update before capturing
-    await new Promise(resolve => setTimeout(resolve, 80));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     try {
-      const el = screenshotRef.current;
-      const canvas = await html2canvas(el, {
+      const canvas = await html2canvas(screenshotRef.current, {
         backgroundColor: theme.cardBg,
-        scale: 3,
+        scale: 2,
         useCORS: true,
-        width: el.offsetWidth,
-        height: el.offsetHeight,
-        scrollY: 0,
-        scrollX: 0,
-        windowWidth: el.offsetWidth,
-        windowHeight: el.offsetHeight,
-        logging: false,
       });
 
       // Try native share first
@@ -307,11 +299,11 @@ export default function ShareSummary() {
           } catch (err) {
             // User cancelled share
           }
-        }, 'image/png', 1.0);
+        });
       } else {
         // Fallback: download
         const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png', 1.0);
+        link.href = canvas.toDataURL('image/png');
         link.download = `${displayTitle}-summary.png`;
         link.click();
       }
@@ -326,131 +318,140 @@ export default function ShareSummary() {
   return (
     <div 
       className="min-h-screen overflow-y-auto pb-[calc(8rem+env(safe-area-inset-bottom))]"
-      style={{ backgroundColor: theme.background }}
+      style={{ backgroundColor: theme.cardBg }}
     >
-      <div className="flex flex-col items-center justify-start py-6 gap-6 px-4">
-
-        {/* 9:16 Instagram Story Card */}
+      <div className="flex flex-col items-center justify-center py-6 gap-8">
+        {/* Screenshot-ready content - ONLY this section is captured */}
         <div
           ref={screenshotRef}
-          style={{
-            width: '100%',
-            maxWidth: '390px',
-            aspectRatio: '9 / 16',
-            backgroundColor: theme.cardBg,
-            backgroundImage: theme.energyAccent,
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '36px 28px 32px',
-            boxSizing: 'border-box',
-            borderRadius: isShareCaptureMode ? '0' : '24px',
-            overflow: 'hidden',
-          }}
+          className="w-full max-w-md"
+          style={{ backgroundColor: theme.cardBg }}
         >
-          {/* Top Branding */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '24px' }}>
-            <img
-              src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
-              alt="Bible Built"
-              style={{ width: '20px', height: '20px', borderRadius: '5px', opacity: theme.logoOpacity }}
-            />
-            <span style={{ fontSize: '13px', fontWeight: 700, letterSpacing: '0.04em', color: theme.brandingText }}>Bible Built</span>
-          </div>
-
-          {/* Title */}
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <h1 style={{ fontSize: '32px', fontWeight: 900, color: theme.primaryText, lineHeight: 1.1, letterSpacing: '-0.02em', margin: 0 }}>
-              {displayTitle}
-            </h1>
-            <p style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.secondaryText, marginTop: '8px' }}>
-              {displaySubtitle}
-            </p>
-          </div>
-
-          {/* Hero Stat */}
-          <div
-            style={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: '24px',
-              padding: '32px 24px',
-              marginBottom: '20px',
-              backgroundColor: theme.heroBg,
-              boxShadow: theme.energyGlow || '0 8px 32px rgba(0,0,0,0.18)',
-              flexShrink: 0,
+          {/* Share Content - Everything visible in screenshot */}
+          <div 
+            className="w-full flex flex-col px-6 py-8"
+            style={{ 
+              backgroundColor: theme.cardBg,
+              backgroundImage: theme.energyAccent
             }}
           >
-            <div style={{ fontSize: '80px', fontWeight: 900, color: theme.heroText, lineHeight: 1, letterSpacing: '-0.04em' }}>
+          {/* Header - Refined */}
+          <div className="flex-shrink-0 mb-6">
+            <h1 
+              className="text-3xl font-black text-center leading-tight tracking-tight"
+              style={{ color: theme.primaryText }}
+            >
+              {displayTitle}
+            </h1>
+            {(mode !== 'monthly') && (
+              <p 
+                className="text-xs text-center mt-2 font-bold uppercase tracking-widest"
+                style={{ color: theme.secondaryText }}
+              >
+                {displaySubtitle}
+              </p>
+            )}
+            {mode === 'monthly' && (
+              <div className="flex items-center justify-center gap-2 mt-4">
+                <img 
+                  src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                  alt="Bible Built"
+                  className="w-4 h-4 rounded-sm"
+                  style={{ opacity: 0.9 }}
+                />
+                <div 
+                  className="text-xs font-bold tracking-wide"
+                  style={{ color: theme.primaryText, opacity: 0.9 }}
+                >
+                  Bible Built
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Hero Stat - Elite Design */}
+          <div 
+            className="flex flex-col items-center justify-center rounded-3xl p-8 flex-shrink-0 mb-6"
+            style={{ 
+              backgroundColor: theme.heroBg,
+              boxShadow: theme.energyGlow || '0 6px 24px rgba(0, 0, 0, 0.14)'
+            }}
+          >
+            <div 
+              className="text-7xl font-black mb-6 tracking-tight leading-none"
+              style={{ color: theme.heroText }}
+            >
               {totalChapters}
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 700, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.heroLabel, marginTop: '12px' }}>
+            <div 
+              className="text-xs font-bold uppercase tracking-widest"
+              style={{ color: theme.heroLabel }}
+            >
               Chapters Read
             </div>
           </div>
 
-          {/* 2x2 Stats Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '20px', flexShrink: 0 }}>
+          {/* Key Stats Grid - Refined 2x2 */}
+          <div className="grid grid-cols-2 gap-4 flex-shrink-0 mb-7">
             {secondaryStats.map((stat) => (
               <div
                 key={stat.label}
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  padding: '18px 12px',
-                  borderRadius: '18px',
+                className="flex flex-col items-center justify-center py-5 px-4 rounded-2xl min-h-[100px]"
+                style={{ 
                   backgroundColor: theme.statBg,
-                  minHeight: '90px',
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)',
+                  border: `1px solid rgba(0, 0, 0, 0.04)`
                 }}
               >
-                <div style={{
-                  fontSize: stat.isText
-                    ? ((stat.value || '').length > 14 ? '13px' : (stat.value || '').length > 10 ? '15px' : '24px')
-                    : '36px',
-                  fontWeight: 900,
-                  color: theme.statValue,
-                  textAlign: 'center',
-                  lineHeight: 1.1,
-                  letterSpacing: stat.isText ? '0' : '-0.02em',
-                }}>
+                <div 
+                  className={stat.isText
+                    ? `font-bold text-center leading-snug flex items-center justify-center flex-1 w-full ${
+                        (stat.value || '').length > 14
+                          ? 'text-sm'
+                          : (stat.value || '').length > 10
+                          ? 'text-base'
+                          : 'text-2xl'
+                      }`
+                    : 'text-4xl font-black flex items-center justify-center flex-1'}
+                  style={{ color: theme.statValue }}
+                >
                   {stat.value}
                 </div>
-                <div style={{ fontSize: '9px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase', color: theme.statLabel, marginTop: '6px', textAlign: 'center' }}>
+                <div 
+                  className="text-[9px] text-center font-bold uppercase tracking-wider mt-2 leading-tight"
+                  style={{ color: theme.statLabel }}
+                >
                   {stat.label}
                 </div>
               </div>
             ))}
           </div>
 
-          {/* Badges */}
-          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 1 }}>
-            <div style={{ fontSize: '10px', fontWeight: 800, letterSpacing: '0.14em', textTransform: 'uppercase', color: theme.badgeSectionLabel, marginBottom: '14px' }}>
-              {mode === 'monthly' || mode === 'weekly' ? 'Earned Badges' : 'Badges Earned'}
+          {/* Badges Section - Premium Display */}
+          <div className="flex flex-col items-center w-full">
+            <div 
+              className="text-[11px] font-black uppercase tracking-[0.15em] mb-4 text-center"
+              style={{ color: theme.badgeSectionLabel }}
+            >
+              {mode === 'monthly' || mode === 'weekly' ? 'EARNED BADGES' : 'BADGES EARNED'}
             </div>
             {earnedBadges && earnedBadges.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px' }}>
-                  {earnedBadges.slice(0, 8).map((badge, idx) => {
+              <div className="flex flex-col items-center gap-2">
+                <div className="grid grid-cols-5 gap-3.5">
+                  {earnedBadges.slice(0, 10).map((badge, idx) => {
                     const color = getAchievementColor(badge.title);
                     const isBlackWhite = color === 'BLACK_WHITE';
                     return (
-                      <div key={badge.id || idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <div
-                          className={isBlackWhite ? '' : `bg-gradient-to-br ${color}`}
+                      <div
+                        key={badge.id || idx}
+                        className="flex items-center justify-center"
+                      >
+                        <div 
+                          className={`w-12 h-12 flex items-center justify-center rounded-full ${
+                            isBlackWhite ? 'bg-gray-900 border border-white/20' : `bg-gradient-to-br ${color}`
+                          }`}
                           style={{
-                            width: '52px',
-                            height: '52px',
-                            borderRadius: '50%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            backgroundColor: isBlackWhite ? '#111' : undefined,
-                            border: isBlackWhite ? '1px solid rgba(255,255,255,0.2)' : undefined,
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                            flexShrink: 0,
+                            boxShadow: isBlackWhite ? '0 4px 12px rgba(0,0,0,0.3)' : '0 4px 12px rgba(0,0,0,0.15)'
                           }}
                         >
                           {getAchievementIcon(badge.title, true, 'default')}
@@ -459,45 +460,81 @@ export default function ShareSummary() {
                     );
                   })}
                 </div>
-                {earnedBadges.length > 8 && (
-                  <div style={{ fontSize: '11px', fontWeight: 600, color: theme.secondaryText, marginTop: '4px' }}>
-                    +{earnedBadges.length - 8} more
+                {earnedBadges.length > 10 && (
+                  <div 
+                    className="text-[10px] font-semibold mt-1.5"
+                    style={{ color: theme.secondaryText }}
+                  >
+                    +{earnedBadges.length - 10} more badges
                   </div>
                 )}
               </div>
             ) : (
-              <div style={{ padding: '16px 0' }}>
-                <p style={{ fontSize: '13px', fontWeight: 500, color: theme.secondaryText }}>No badges earned yet.</p>
+              <div className="py-6">
+                <p 
+                  className="text-sm font-medium"
+                  style={{ color: theme.secondaryText }}
+                >
+                  No badges earned yet.
+                </p>
+              </div>
+            )}
+            
+            {/* Achievement Signature Line - Only show in yearly/weekly mode */}
+            {mode !== 'monthly' && (
+              <div className="flex flex-col items-center justify-center gap-1.5 pt-5 mt-3">
+                <div className="flex items-center gap-2">
+                  <img 
+                    src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6953bfa67629f34f674461da/6d21a8071_AppIcon.png"
+                    alt="Bible Built"
+                    className="w-5 h-5 rounded-md"
+                    style={{ opacity: theme.logoOpacity }}
+                  />
+                  <div 
+                    className="text-sm font-bold tracking-wide"
+                    style={{ color: theme.brandingText }}
+                  >
+                    Bible Built
+                  </div>
+                </div>
+                <div 
+                  className="text-[10px] font-semibold tracking-wide"
+                  style={{ color: theme.brandingTagline }}
+                >
+                  Track what matters
+                </div>
               </div>
             )}
           </div>
-
-          {/* Bottom tagline */}
-          <div style={{ textAlign: 'center', marginTop: '20px', flexShrink: 0 }}>
-            <div style={{ fontSize: '10px', fontWeight: 600, letterSpacing: '0.08em', color: theme.brandingTagline }}>Track what matters</div>
           </div>
         </div>
 
-        {/* Month Navigation (outside card) */}
+        {/* Month Navigation */}
         {mode === 'monthly' && (
-          <div className="w-full max-w-[390px]">
-            <div className="flex items-center justify-center">
+          <div className="w-full max-w-md px-6">
+            <div className="flex items-center justify-center pb-4">
               <div className="flex items-center gap-3">
                 <button
                   onClick={handlePrevMonth}
                   className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
-                  style={{ color: theme.secondaryText }}
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm font-semibold px-4 py-2 rounded-full" style={{ color: theme.primaryText }}>
+                <div 
+                  className="text-sm font-semibold px-4 py-2 rounded-full shadow-sm"
+                  style={{ 
+                    color: theme.primaryText,
+                    backgroundColor: theme.cardBg
+                  }}
+                >
                   {format(selectedMonthDate, 'MMMM yyyy')}
                 </div>
                 <button
                   onClick={handleNextMonth}
                   disabled={isCurrentMonthSelected}
                   className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
-                  style={{ color: theme.secondaryText }}
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -506,26 +543,33 @@ export default function ShareSummary() {
           </div>
         )}
 
-        {/* Week Navigation (outside card) */}
+        {/* Week Navigation */}
         {mode === 'weekly' && (
-          <div className="w-full max-w-[390px]">
-            <div className="flex items-center justify-center">
+          <div className="w-full max-w-md px-6">
+            <div className="flex items-center justify-center pb-4">
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => setWeekOffset(prev => prev - 1)}
                   className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95"
-                  style={{ color: theme.secondaryText }}
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                <div className="text-sm font-semibold px-4 py-2 rounded-full text-center" style={{ color: theme.primaryText, minWidth: '160px' }}>
+                <div 
+                  className="text-sm font-semibold px-4 py-2 rounded-full shadow-sm text-center"
+                  style={{ 
+                    color: theme.primaryText,
+                    backgroundColor: theme.cardBg,
+                    minWidth: '160px'
+                  }}
+                >
                   {weekOffset === 0 ? 'This Week' : weekOffset === -1 ? 'Last Week' : weeklyRange.label}
                 </div>
                 <button
                   onClick={() => setWeekOffset(prev => prev + 1)}
                   disabled={weekOffset >= 0}
                   className="p-2 rounded-full hover:bg-accent transition-colors active:scale-95 disabled:opacity-30 disabled:pointer-events-none"
-                  style={{ color: theme.secondaryText }}
+                  style={{ color: theme.secondaryText, backgroundColor: theme.cardBg }}
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -533,22 +577,21 @@ export default function ShareSummary() {
             </div>
           </div>
         )}
-
-        {/* Share Button */}
-        <div className="w-full max-w-[390px] pb-8">
-          <Button
-            onClick={handleShare}
-            disabled={isExporting}
-            className="w-full h-12 text-base font-semibold rounded-2xl"
-          >
-            {isExporting ? (
-              <Loader2 className="w-5 h-5 animate-spin mr-2" />
-            ) : (
-              <Share2 className="w-5 h-5 mr-2" />
-            )}
-            {isExporting ? 'Preparing...' : 'Share Summary'}
-          </Button>
-        </div>
+      {/* Share Button */}
+      <div className="w-full max-w-md px-6 pb-8">
+        <Button
+          onClick={handleShare}
+          disabled={isExporting}
+          className="w-full h-12 text-base font-semibold rounded-2xl"
+        >
+          {isExporting ? (
+            <Loader2 className="w-5 h-5 animate-spin mr-2" />
+          ) : (
+            <Share2 className="w-5 h-5 mr-2" />
+          )}
+          {isExporting ? 'Preparing...' : 'Share Summary'}
+        </Button>
+      </div>
       </div>
     </div>
   );
