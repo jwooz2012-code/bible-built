@@ -11,8 +11,8 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-const FONT_SIZES = ['text-base', 'text-lg', 'text-xl'];
-const FONT_SIZE_CLASSES = ['text-sm', 'text-base', 'text-lg']; // size of the 'A' indicator button
+const FONT_SIZES = ['text-lg', 'text-xl'];
+const FONT_SIZE_CLASSES = ['text-base', 'text-lg']; // size of the 'A' indicator button
 const SPEEDS = [0.75, 1, 1.25, 1.5];
 
 /**
