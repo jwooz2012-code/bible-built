@@ -1,32 +1,69 @@
 import React from 'react';
+import { motion } from 'framer-motion';
+import { Shield } from 'lucide-react';
 
 const GRACE_DAYS_PER_MONTH = 2;
 
+function ShieldToken({ available, color }) {
+  return (
+    <motion.div
+      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+    >
+      <Shield
+        style={{
+          width: 18,
+          height: 18,
+          fill: available ? color : 'transparent',
+          stroke: available ? color : 'rgba(161,161,170,0.45)',
+          strokeWidth: 1.5,
+          opacity: available ? 1 : 0.4,
+          transition: 'all 0.25s ease',
+          filter: available ? `drop-shadow(0 0 4px ${color}55)` : 'none',
+        }}
+      />
+    </motion.div>
+  );
+}
+
+// graceDaysUsed is passed directly from useStreakWithGrace — the single source of truth.
 export default function GraceDaysBanner({ tierColor, graceDaysUsed = 0 }) {
   const color = tierColor || '#10B981';
   const graceDaysAvailable = Math.max(0, GRACE_DAYS_PER_MONTH - graceDaysUsed);
-  const leftLabel = graceDaysAvailable === 0 ? 'none left' : graceDaysAvailable === 1 ? '1 left' : '2 left';
 
   return (
-    <div className="flex items-center gap-2 mb-3" style={{ height: 30 }}>
-      <span className="text-xs font-medium text-muted-foreground">Grace Days</span>
-      <div className="flex items-center gap-1.5">
-        {Array.from({ length: GRACE_DAYS_PER_MONTH }, (_, i) => (
-          <div
-            key={i}
-            style={{
-              width: 9,
-              height: 9,
-              borderRadius: '50%',
-              background: i < graceDaysAvailable ? color : 'transparent',
-              border: `1.5px solid ${i < graceDaysAvailable ? color : 'rgba(161,161,170,0.4)'}`,
-              opacity: i < graceDaysAvailable ? 1 : 0.45,
-              transition: 'all 0.2s ease',
-            }}
-          />
-        ))}
+    <motion.div
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3, delay: 0.1 }}
+      className="bg-card border border-border rounded-2xl px-4 py-3 mb-4"
+      style={{
+        boxShadow: `0 0 12px ${color}10`,
+        borderColor: `${color}25`,
+      }}
+    >
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-[12px] font-semibold text-foreground tracking-wide">Grace Days This Month</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">
+            Miss up to 2 days each month without losing your streak.
+          </p>
+        </div>
+
+        <div className="flex flex-col items-end gap-1.5 ml-4">
+          <div className="flex gap-2">
+            {Array.from({ length: GRACE_DAYS_PER_MONTH }, (_, i) => (
+              <ShieldToken
+                key={i}
+                available={i < graceDaysAvailable}
+                color={color}
+              />
+            ))}
+          </div>
+          <p className="text-[10px] font-medium text-muted-foreground">
+            {graceDaysAvailable === 0 ? 'None left' : graceDaysAvailable === 1 ? '1 left' : '2 left'}
+          </p>
+        </div>
       </div>
-      <span className="text-xs text-muted-foreground/60">({leftLabel})</span>
-    </div>
+    </motion.div>
   );
 }
