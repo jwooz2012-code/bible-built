@@ -28,6 +28,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const [chapter, setChapter] = useState(initialChapter);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
+  const [verses, setVerses] = useState([]);
   const [fontSizeIdx, setFontSizeIdx] = useState(1); // default 'text-base'
 
   // Audio state
