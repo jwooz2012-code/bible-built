@@ -53,6 +53,7 @@ export default function Home() {
   const [promptDismissed, setPromptDismissed] = useState(false);
   const [isReadModeActive, setIsReadModeActive] = useState(false);
   const [readerState, setReaderState] = useState(null); // { book, chapter }
+  const [optimisticLogs, setOptimisticLogs] = useState([]);
   // One-time discovery: show badge for new reader feature
   const [showReaderBadge, setShowReaderBadge] = useState(() => !localStorage.getItem('bb_reader_discovered'));
   const [showReaderTooltip, setShowReaderTooltip] = useState(false);
@@ -230,7 +231,8 @@ export default function Home() {
   const getChapterStats = (bookIndex, chapter) => {
     const chapterId = generateChapterId(bookIndex, chapter);
     const chapterLogs = allTimeLogs.filter((log) => log.chapterId === chapterId);
-    return { timesRead: chapterLogs.length };
+    const optimisticCount = optimisticLogs.filter((log) => log.chapterId === chapterId).length;
+    return { timesRead: chapterLogs.length + optimisticCount };
   };
 
   const handleChapterClick = async (book, chapter, chapterId) => {
@@ -500,7 +502,10 @@ export default function Home() {
             chapter={readerState.chapter}
             userId={userId}
             onClose={() => setReaderState(null)}
-            onMarkRead={() => setReaderState(null)}
+            onMarkRead={({ chapterId }) => {
+              setOptimisticLogs(prev => [...prev, { chapterId }]);
+              setReaderState(null);
+            }}
           />
         )}
       </AnimatePresence>
