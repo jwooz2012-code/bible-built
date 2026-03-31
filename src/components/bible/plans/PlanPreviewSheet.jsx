@@ -25,7 +25,7 @@ export default function PlanPreviewSheet({
   const handleEditPlan = () => {
     onClose();
     if (plan?.scope === 'CUSTOM') {
-      navigate('/CustomPlanBuilder');
+      navigate('/CustomPlanBuilder', { state: { existingPlan: plan } });
       return;
     }
     const preset = PLAN_PRESETS.find(p => p.scope === plan?.scope);

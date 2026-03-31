@@ -30,6 +30,25 @@ export default function CustomPlanBuilder() {
   const presetId = new URLSearchParams(location.search).get('preset');
   const preset = presetId ? PLAN_PRESETS.find(p => p.id === presetId) : null;
 
+  // Check if editing an existing custom plan
+  const existingPlan = location.state?.existingPlan || null;
+
+  // Map plan name back to theme key for pre-selection
+  const NAME_TO_THEME = {
+    'Leadership Intensive': 'LEADERSHIP_INTENSIVE',
+    'Wisdom Plunge': 'WISDOM_PLUNGE',
+    'The Intentional Mom': 'INTENTIONAL_MOTHERHOOD',
+    'The Godly Man': 'GODLY_MAN',
+    'Live With Purpose': 'LIVE_WITH_PURPOSE',
+    'Know King David': 'KNOW_KING_DAVID',
+    'Heart of God': 'HEART_OF_GOD',
+    'Who Is Jesus': 'WHO_IS_JESUS',
+    'Chronological Old Testament Journey': 'CHRONOLOGICAL_OT_JOURNEY',
+    'Chronological New Testament Journey': 'CHRONOLOGICAL_NT_JOURNEY',
+    '12 Voices · 1 Holy God': 'TWELVE_VOICES_ONE_HOLY_GOD',
+  };
+  const existingThemeKey = existingPlan?.name ? NAME_TO_THEME[existingPlan.name] : null;
+
   // Map preset to theme key - use scope directly (already uppercase)
   const getThemeKeyFromPreset = (preset) => {
     if (!preset) return null;
@@ -39,15 +58,23 @@ export default function CustomPlanBuilder() {
   // Tab state - preserve from navigation state or default to 'themes'
   const [activeTab, setActiveTab] = useState(() => {
     const savedTab = location.state?.activeTab;
-    return savedTab || 'themes';
+    if (savedTab) return savedTab;
+    if (existingThemeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') return 'people';
+    if (existingThemeKey) return 'themes';
+    return 'themes';
   });
 
   // Selection state - preserve selectedPresetId for 12 Voices
   const [selectedPresetId, setSelectedPresetId] = useState(() => {
-    return location.state?.selectedPresetId || null;
+    if (location.state?.selectedPresetId) return location.state.selectedPresetId;
+    if (existingThemeKey === 'TWELVE_VOICES_ONE_HOLY_GOD') return 'TWELVE_VOICES_ONE_HOLY_GOD';
+    return null;
   });
   const [selectedBooks, setSelectedBooks] = useState([]);
-  const [selectedTheme, setSelectedTheme] = useState(() => getThemeKeyFromPreset(preset));
+  const [selectedTheme, setSelectedTheme] = useState(() => {
+    if (existingThemeKey && existingThemeKey !== 'TWELVE_VOICES_ONE_HOLY_GOD') return existingThemeKey;
+    return getThemeKeyFromPreset(preset);
+  });
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [characterDetailOpen, setCharacterDetailOpen] = useState(false);
   const [selectedCharacterForDetail, setSelectedCharacterForDetail] = useState(null);
@@ -57,6 +84,10 @@ export default function CustomPlanBuilder() {
   // Timeframe state
   const [timeframeMode, setTimeframeMode] = useState('finishIn'); // 'finishIn' or 'dateRange'
   const [finishInDays, setFinishInDays] = useState(() => {
+    if (existingPlan?.startDate && existingPlan?.endDate) {
+      const days = Math.ceil((new Date(existingPlan.endDate) - new Date(existingPlan.startDate)) / (1000 * 60 * 60 * 24)) + 1;
+      return days > 0 ? days : 30;
+    }
     if (preset && preset.scope) {
       const chapterList = CURATED_PLANS[preset.scope] || [];
       const chaptersPerDay = preset.chaptersPerDay || 4;
@@ -231,17 +262,31 @@ export default function CustomPlanBuilder() {
     try {
       const user = await base44.auth.me();
 
-      // Create the reading plan
-      const plan = await base44.entities.ReadingPlan.create({
-        userId: user.id,
-        name: planName,
-        scope: 'CUSTOM',
-        startDate: effectiveStartDate,
-        endDate: generatedPlan.summary.projectedFinish,
-        chaptersPerDay: generatedPlan.summary.autoPace,
-      });
+      let plan;
+      if (existingPlan?.id) {
+        // Update existing plan
+        plan = await base44.entities.ReadingPlan.update(existingPlan.id, {
+          name: planName,
+          startDate: effectiveStartDate,
+          endDate: generatedPlan.summary.projectedFinish,
+          chaptersPerDay: generatedPlan.summary.autoPace,
+        });
+        plan = { ...existingPlan, id: existingPlan.id };
+        // Delete old plan days and recreate
+        const oldDays = await base44.entities.PlanDay.filter({ planId: existingPlan.id });
+        await Promise.all(oldDays.map(d => base44.entities.PlanDay.delete(d.id)));
+      } else {
+        // Create the reading plan
+        plan = await base44.entities.ReadingPlan.create({
+          userId: user.id,
+          name: planName,
+          scope: 'CUSTOM',
+          startDate: effectiveStartDate,
+          endDate: generatedPlan.summary.projectedFinish,
+          chaptersPerDay: generatedPlan.summary.autoPace,
+        });
+      }
 
-      // Create PlanDay records
       const planDayRecords = generatedPlan.planDays.map(day => ({
         planId: plan.id,
         userId: user.id,
@@ -251,7 +296,7 @@ export default function CustomPlanBuilder() {
 
       await base44.entities.PlanDay.bulkCreate(planDayRecords);
 
-      toast.success('Custom plan created!');
+      toast.success(existingPlan?.id ? 'Plan updated!' : 'Custom plan created!');
       
       // Refresh the page to load the new active plan
       window.location.href = createPageUrl('Home');
@@ -271,7 +316,7 @@ export default function CustomPlanBuilder() {
             <button onClick={() => setShowConfirm(false)} className="text-muted-foreground">
               <ChevronLeft className="w-6 h-6" />
             </button>
-            <h1 className="text-2xl font-bold text-foreground">Confirm Plan</h1>
+            <h1 className="text-2xl font-bold text-foreground">{existingPlan?.id ? 'Update Plan' : 'Confirm Plan'}</h1>
           </div>
 
           <div className="space-y-6">
@@ -328,7 +373,7 @@ export default function CustomPlanBuilder() {
             </div>
 
             <Button onClick={handleConfirm} disabled={isSaving} className="w-full">
-              {isSaving ? 'Creating Plan...' : 'Create Plan'}
+              {isSaving ? (existingPlan?.id ? 'Updating...' : 'Creating Plan...') : (existingPlan?.id ? 'Update Plan' : 'Create Plan')}
             </Button>
           </div>
         </div>
