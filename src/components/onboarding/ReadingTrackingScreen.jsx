@@ -8,7 +8,6 @@ import ChapterTile from '@/components/shared/ChapterTile';
 import BibleReader from '@/components/shared/BibleReader';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
-// Use Genesis as the demo book, show first 12 chapters
 const DEMO_BOOK = BIBLE_BOOKS[0]; // Genesis
 const DEMO_CHAPTERS = 12;
 
@@ -17,8 +16,9 @@ export default function ReadingTrackingScreen({ onContinue }) {
   const userId = user?.id;
 
   const [isReadModeActive, setIsReadModeActive] = useState(false);
-  const [counts, setCounts] = useState({}); // { chapter: timesRead }
-  const [readerState, setReaderState] = useState(null); // { chapter }
+  const [counts, setCounts] = useState({});
+  const [readerMarkedChapters, setReaderMarkedChapters] = useState(new Set());
+  const [readerState, setReaderState] = useState(null);
   const [hasMarkedComplete, setHasMarkedComplete] = useState(false);
   const [hasReadChapter, setHasReadChapter] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
@@ -39,12 +39,11 @@ export default function ReadingTrackingScreen({ onContinue }) {
     }
   };
 
-  const handleReaderClose = () => {
-    setReaderState(null);
-  };
-
-  const handleReaderMarkRead = () => {
+  const handleReaderMarkRead = ({ chapter: markedChapter } = {}) => {
     setHasReadChapter(true);
+    if (markedChapter) {
+      setReaderMarkedChapters(prev => new Set([...prev, markedChapter]));
+    }
     setReaderState(null);
   };
 
@@ -56,6 +55,8 @@ export default function ReadingTrackingScreen({ onContinue }) {
     triggerHaptic();
     setTimeout(() => onContinue(), 300);
   };
+
+  const totalMarked = Object.values(counts).filter(c => c > 0).length + readerMarkedChapters.size;
 
   return (
     <>
@@ -94,16 +95,15 @@ export default function ReadingTrackingScreen({ onContinue }) {
                 <p className="text-xs text-muted-foreground">Showing first {DEMO_CHAPTERS} chapters</p>
               </div>
               <span className="text-xs text-muted-foreground">
-                {Object.values(counts).filter(c => c > 0).length} / {DEMO_CHAPTERS} read
+                {totalMarked} / {DEMO_CHAPTERS} read
               </span>
             </div>
 
-            {/* Segmented Control — identical to Home */}
+            {/* Segmented Control */}
             <div
               className="relative flex rounded-full border border-border overflow-hidden mb-3"
               style={{ background: 'var(--btn-inactive-bg)', padding: '2px' }}
             >
-              {/* Sliding pill */}
               <div
                 className="absolute top-[2px] bottom-[2px] rounded-full"
                 style={{
@@ -113,7 +113,6 @@ export default function ReadingTrackingScreen({ onContinue }) {
                   transition: 'left 140ms cubic-bezier(0.4, 0, 0.2, 1)',
                 }}
               />
-              {/* Mark Complete */}
               <button
                 onClick={() => handleToggle(false)}
                 className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
@@ -122,7 +121,6 @@ export default function ReadingTrackingScreen({ onContinue }) {
                 <CheckSquare className="w-4 h-4 shrink-0" />
                 Mark Complete
               </button>
-              {/* Read Chapter */}
               <button
                 onClick={() => handleToggle(true)}
                 className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
@@ -146,12 +144,13 @@ export default function ReadingTrackingScreen({ onContinue }) {
             <div className="grid grid-cols-4 gap-3">
               {Array.from({ length: DEMO_CHAPTERS }, (_, i) => i + 1).map((chapter) => {
                 const chapterId = generateChapterId(DEMO_BOOK.index, chapter);
+                const timesRead = (counts[chapter] || 0) + (readerMarkedChapters.has(chapter) ? 1 : 0);
                 return (
                   <ChapterTile
                     key={chapter}
                     chapter={chapter}
                     chapterId={chapterId}
-                    timesRead={counts[chapter] || 0}
+                    timesRead={timesRead}
                     onClick={() => handleChapterClick(chapter)}
                   />
                 );
@@ -168,11 +167,13 @@ export default function ReadingTrackingScreen({ onContinue }) {
           >
             <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${hasMarkedComplete ? 'border-green-500/40 bg-green-500/10 text-green-600' : 'border-border text-muted-foreground'}`}>
               <CheckSquare className="w-3.5 h-3.5 shrink-0" />
-              {hasMarkedComplete ? 'Marked complete ✓' : 'Mark a chapter'}
+              <span className="truncate">{hasMarkedComplete ? 'Marked complete' : 'Mark a chapter'}</span>
+              {hasMarkedComplete && <span className="ml-auto shrink-0">✓</span>}
             </div>
             <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${hasReadChapter ? 'border-green-500/40 bg-green-500/10 text-green-600' : 'border-border text-muted-foreground'}`}>
               <BookOpen className="w-3.5 h-3.5 shrink-0" />
-              {hasReadChapter ? 'Chapter read ✓' : 'Read a chapter'}
+              <span className="truncate">{hasReadChapter ? 'Chapter read' : 'Read a chapter'}</span>
+              {hasReadChapter && <span className="ml-auto shrink-0">✓</span>}
             </div>
           </motion.div>
         </motion.div>
@@ -205,8 +206,8 @@ export default function ReadingTrackingScreen({ onContinue }) {
             book={DEMO_BOOK}
             chapter={readerState.chapter}
             userId={userId}
-            onClose={handleReaderClose}
-            onMarkRead={handleReaderMarkRead}
+            onClose={() => setReaderState(null)}
+            onMarkRead={({ chapter: c }) => handleReaderMarkRead({ chapter: c })}
           />
         )}
       </AnimatePresence>
