@@ -114,7 +114,7 @@ export default function PlanPreviewSheet({
       return {
         dateKey,
         assignments,
-        summary: parts.join(' • '),
+        summary: parts.join(', '),
         done,
         total: assignments.length,
         isComplete: done === assignments.length && assignments.length > 0,
