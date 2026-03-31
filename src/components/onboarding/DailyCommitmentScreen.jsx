@@ -31,10 +31,12 @@ export default function DailyCommitmentScreen({ onContinue }) {
   const [logs, setLogs] = useState(INITIAL_LOGS);
   const [selectedDay, setSelectedDay] = useState(null);
   const [isActivating, setIsActivating] = useState(false);
+  const [hasTappedCalendar, setHasTappedCalendar] = useState(false);
 
   const handleDayTap = (day) => {
     triggerHaptic();
     setSelectedDay(day);
+    setHasTappedCalendar(true);
   };
 
   const handleDelete = (day, id) => {
@@ -56,7 +58,7 @@ export default function DailyCommitmentScreen({ onContinue }) {
   };
 
   const handleContinue = () => {
-    if (isActivating) return;
+    if (!hasTappedCalendar || isActivating) return;
     setIsActivating(true);
     triggerHaptic();
     setTimeout(() => onContinue(), 300);
@@ -239,11 +241,11 @@ export default function DailyCommitmentScreen({ onContinue }) {
         <motion.div whileTap={{ scale: 0.96 }}>
           <Button
             onClick={handleContinue}
-            disabled={isActivating}
+            disabled={!hasTappedCalendar || isActivating}
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold"
           >
-            Got it! 👍
+            {hasTappedCalendar ? 'Got it! 👍' : 'Tap a day to continue'}
           </Button>
         </motion.div>
       </motion.div>
