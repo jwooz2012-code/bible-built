@@ -290,7 +290,7 @@ export default function Calendar() {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-card border border-border rounded-2xl p-5"
+          className="bg-card border border-border rounded-2xl px-5 pt-2 pb-5"
         >
           <div className="flex items-center justify-between mb-4">
             <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
