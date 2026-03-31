@@ -56,7 +56,7 @@ export default function WeekView({ logs = [], tierColor }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.55, duration: 0.4 }}
-      className="bg-card border border-border rounded-2xl p-4 mb-4 shadow-sm"
+      className="bg-card border border-border rounded-2xl p-3 mb-4 shadow-sm"
     >
       <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wide mb-3">This Week</h3>
 
@@ -96,9 +96,9 @@ export default function WeekView({ logs = [], tierColor }) {
                 key={i}
                 whileTap={{ scale: 1.05 }}
                 onClick={() => navigate(createPageUrl('Calendar'))}
-                className="relative flex flex-col items-center justify-center rounded-xl py-2.5 px-1 gap-0.5 transition-colors border"
+                className="relative flex flex-col items-center justify-center rounded-xl py-1.5 px-1 gap-0.5 transition-colors border"
                 style={{
-                  minHeight: 64,
+                  minHeight: 54,
                   background: isToday
                     ? 'transparent'
                     : hasActivity
