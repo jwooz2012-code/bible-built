@@ -7,6 +7,7 @@ import Profile from './pages/Profile';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
+import ReadingTrackingIntro from './pages/ReadingTrackingIntro';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
@@ -53,16 +54,19 @@ const AuthenticatedApp = () => {
 
   // Check if user needs to complete onboarding
   const needsOnboarding = user && !user.onboardingComplete;
+  // Existing users who haven't seen the reading tracking feature
+  const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
 
   // Render the main app
   return (
     <Routes>
       {/* Onboarding route - takes priority */}
       <Route path="/onboarding" element={<OnboardingFlow />} />
+      <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
       
-      {/* Redirect to onboarding if needed */}
+      {/* Redirect to onboarding or feature intro if needed */}
       <Route path="/" element={
-        needsOnboarding ? <OnboardingFlow /> : (
+        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
           <LayoutWrapper currentPageName={mainPageKey}>
             <MainPage />
           </LayoutWrapper>
@@ -75,6 +79,8 @@ const AuthenticatedApp = () => {
           element={
             needsOnboarding && path !== 'onboarding' ? (
               <OnboardingFlow />
+            ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
+              <ReadingTrackingIntro />
             ) : (
               <LayoutWrapper currentPageName={path}>
                 <Page />

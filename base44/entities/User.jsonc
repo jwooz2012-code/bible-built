@@ -1,0 +1,81 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "role": {
+      "type": "string",
+      "enum": [
+        "admin",
+        "user"
+      ],
+      "default": "user"
+    },
+    "displayName": {
+      "type": "string",
+      "description": "User's chosen display name"
+    },
+    "motivation": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of motivation reasons selected during onboarding"
+    },
+    "habitLevel": {
+      "type": "string",
+      "enum": [
+        "just_starting",
+        "few_times_week",
+        "almost_daily",
+        "every_day"
+      ],
+      "description": "Current Bible reading habit level"
+    },
+    "experienceType": {
+      "type": "string",
+      "enum": [
+        "read_freely",
+        "follow_plan"
+      ],
+      "description": "Preferred reading experience type"
+    },
+    "goal": {
+      "type": "string",
+      "enum": [
+        "consistency",
+        "bible_knowledge",
+        "stronger_walk",
+        "discipline"
+      ],
+      "description": "Primary goal for reading"
+    },
+    "dailyCommitment": {
+      "type": "string",
+      "enum": [
+        "5",
+        "10",
+        "15",
+        "20plus"
+      ],
+      "description": "Daily time commitment in minutes"
+    },
+    "onboardingComplete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user has completed onboarding"
+    },
+    "hasSeenReadingTrackingFeature": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether an existing user has seen the reading tracking feature introduction"
+    }
+  },
+  "required": [
+    "displayName",
+    "motivation",
+    "habitLevel",
+    "experienceType",
+    "goal",
+    "dailyCommitment"
+  ]
+}
