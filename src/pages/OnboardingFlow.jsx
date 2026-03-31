@@ -57,20 +57,16 @@ export default function OnboardingFlow() {
     }
   };
 
-  const handleFinish = async () => {
+  const handleFinish = () => {
     triggerHaptic();
-    setIsSaving(true);
-    try {
-      await base44.auth.updateMe({ 
-        displayName: responses.displayName,
-        onboardingComplete: true 
-      });
-      // Immediately update local user state so App.jsx doesn't redirect back to onboarding
-      updateUser({ displayName: responses.displayName, onboardingComplete: true });
-    } catch (error) {
-      console.error('Failed to save onboarding:', error);
-    }
+    // Update local state immediately so App.jsx doesn't redirect back to onboarding
+    updateUser({ displayName: responses.displayName, onboardingComplete: true });
+    // Navigate instantly — save in background
     navigate('/home', { replace: true });
+    base44.auth.updateMe({ 
+      displayName: responses.displayName,
+      onboardingComplete: true 
+    }).catch((error) => console.error('Failed to save onboarding:', error));
   };
 
   const renderScreen = () => {
