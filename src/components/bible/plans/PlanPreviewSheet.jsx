@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { X, ChevronDown, ChevronUp, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getAssignmentForDate } from '@/components/bible/plans/planUtils';
@@ -7,6 +8,7 @@ import { formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 
 export default function PlanPreviewSheet({
   open,
@@ -17,7 +19,22 @@ export default function PlanPreviewSheet({
   logs,
   onOpenPlanModal
 }) {
+  const navigate = useNavigate();
   const [expandedDays, setExpandedDays] = useState(new Set([todayKey]));
+
+  const handleEditPlan = () => {
+    onClose();
+    if (plan?.scope === 'CUSTOM') {
+      navigate('/CustomPlanBuilder');
+      return;
+    }
+    const preset = PLAN_PRESETS.find(p => p.scope === plan?.scope);
+    if (preset) {
+      navigate(`/PlanDetail?id=${preset.id}`);
+    } else {
+      onOpenPlanModal();
+    }
+  };
 
   // Generate 8 date keys: today + next 7 days
   const dateKeys = useMemo(() => {
@@ -251,10 +268,7 @@ export default function PlanPreviewSheet({
               <div className="mt-6 pb-2">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    onClose();
-                    onOpenPlanModal();
-                  }}
+                  onClick={handleEditPlan}
                   className="w-full"
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
