@@ -292,7 +292,7 @@ export default function Calendar() {
           animate={{ opacity: 1, y: 0 }}
           className="bg-card border border-border rounded-2xl px-5 pt-2 pb-5"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <Button variant="ghost" size="icon" onClick={() => setCurrentDate(new Date(year, month - 1, 1))}>
               <ChevronLeft className="w-5 h-5" />
             </Button>
