@@ -255,16 +255,17 @@ export function computeRecords(dateCountMap, logs) {
   const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
   const { longestStreak } = computeStreaks(sortedDates, sortedDates[0] || '2026-01-05');
 
-  // Best rolling 7-day window
-  const dateArray = Array.from(dateCountMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
-  let bestRolling7 = 0;
-  for (let i = 0; i < dateArray.length; i++) {
-    let sum = 0;
-    for (let j = i; j < Math.min(i + 7, dateArray.length); j++) {
-      sum += dateArray[j][1];
-    }
-    bestRolling7 = Math.max(bestRolling7, sum);
+  // Best calendar week (Sunday–Saturday)
+  const weekTotals = new Map();
+  for (const [dateKey, count] of dateCountMap.entries()) {
+    const d = new Date(dateKey + 'T00:00:00');
+    const dayOfWeek = d.getDay(); // 0=Sun
+    const sunday = new Date(d);
+    sunday.setDate(d.getDate() - dayOfWeek);
+    const weekKey = sunday.toISOString().split('T')[0];
+    weekTotals.set(weekKey, (weekTotals.get(weekKey) || 0) + count);
   }
+  const bestRolling7 = Math.max(0, ...weekTotals.values());
 
   // Best month
   const monthTotals = new Map();
