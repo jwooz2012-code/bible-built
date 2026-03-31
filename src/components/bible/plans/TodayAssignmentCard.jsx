@@ -10,6 +10,24 @@ import { useMarkTodayComplete } from '@/components/bible/hooks/useMarkTodayCompl
 import { formatDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
+function formatChapterList(chapters) {
+  const sorted = [...chapters].sort((a, b) => a - b);
+  const parts = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      parts.push(start === end ? `${start}` : `${start}\u2013${end}`);
+      start = sorted[i];
+      end = sorted[i];
+    }
+  }
+  parts.push(start === end ? `${start}` : `${start}\u2013${end}`);
+  return parts.join(', ');
+}
+
 export default function TodayAssignmentCard({
   plan,
   allTimeLogs,
@@ -84,9 +102,7 @@ export default function TodayAssignmentCard({
     }, {});
 
     const parts = Object.entries(grouped).map(([book, chapters]) => {
-      if (chapters.length === 1) return `${book} ${chapters[0]}`;
-      const sorted = chapters.sort((a, b) => a - b);
-      return `${book} ${sorted[0]}\u2013${sorted[sorted.length - 1]}`;
+      return `${book} ${formatChapterList(chapters)}`;
     });
 
     return {
@@ -121,9 +137,7 @@ export default function TodayAssignmentCard({
     }, {});
 
     const parts = Object.entries(grouped).map(([book, chapters]) => {
-      if (chapters.length === 1) return `${book} ${chapters[0]}`;
-      const sorted = chapters.sort((a, b) => a - b);
-      return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+      return `${book} ${formatChapterList(chapters)}`;
     });
 
     return {
