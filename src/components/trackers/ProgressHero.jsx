@@ -179,7 +179,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
         </svg>
 
         {/* Content inside ring */}
-        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0 }}>
+        <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, paddingLeft: 8, paddingRight: 8 }}>
           {/* Streak number — fire gradient */}
           <span style={{
             fontSize: 50, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums',
@@ -357,7 +357,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 12 }}
     >
       {/* THIS WEEK — emerald */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
           <span style={twNumberStyle}>{twAnim}</span>
           {/* Pulsing live dot upper-right */}
@@ -376,7 +376,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       <Divider />
 
       {/* BEST WEEK — foreground */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bwAnim}
         </span>
@@ -388,7 +388,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
       <Divider />
 
       {/* BEST MONTH — foreground */}
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
           {bmAnim}
         </span>
