@@ -323,7 +323,7 @@ export default function Calendar() {
 
           <div className="grid grid-cols-7 gap-2 mb-2">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-              <div key={i} className="text-center text-xs font-medium text-muted-foreground py-2">
+              <div key={i} className="text-center text-xs font-medium text-muted-foreground py-1">
                 {day}
               </div>
             ))}
