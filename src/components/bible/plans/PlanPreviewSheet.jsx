@@ -30,7 +30,7 @@ export default function PlanPreviewSheet({
     }
     const preset = PLAN_PRESETS.find(p => p.scope === plan?.scope);
     if (preset) {
-      navigate(`/PlanDetail?id=${preset.id}`);
+      navigate(`/PlanDetail?id=${preset.id}`, { state: { existingPlan: plan } });
     } else {
       onOpenPlanModal();
     }

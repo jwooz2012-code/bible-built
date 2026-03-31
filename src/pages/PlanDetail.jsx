@@ -41,6 +41,7 @@ export default function PlanDetail() {
 
   const planId = new URLSearchParams(location.search).get('id');
   const preset = PLAN_PRESETS.find((p) => p.id === planId);
+  const existingPlan = location.state?.existingPlan || null;
 
   useEffect(() => {
     let mounted = true;
@@ -233,8 +234,8 @@ export default function PlanDetail() {
         chaptersPerDay: preset.chaptersPerDay,
       };
 
-      await upsertPlan({ existingPlan: null, planData });
-      toast.success('Plan started!');
+      await upsertPlan({ existingPlan, planData });
+      toast.success(existingPlan ? 'Plan updated!' : 'Plan started!');
       navigate('/');
     } catch (error) {
       console.log('Start plan error', error);
@@ -292,7 +293,7 @@ export default function PlanDetail() {
             disabled={isSaving}
             className="flex-1 h-12 text-base font-semibold"
           >
-            {isSaving ? 'Starting...' : 'Start This Plan'}
+            {isSaving ? (existingPlan ? 'Updating...' : 'Starting...') : (existingPlan ? 'Update Plan' : 'Start This Plan')}
           </Button>
         </div>
       </div>
