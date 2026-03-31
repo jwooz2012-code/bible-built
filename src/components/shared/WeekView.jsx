@@ -37,19 +37,7 @@ export default function WeekView({ logs = [], tierColor }) {
 
   const todayKey = getDateKey(today);
 
-  // Determine consecutive streak days for connector line
-  const activeDayIndices = weekDays
-    .map((d, i) => ({ i, key: getDateKey(d), count: logsGrouped[getDateKey(d)] || 0 }))
-    .filter(d => d.count > 0)
-    .map(d => d.i);
 
-  // Build a set of consecutive pairs for the connector
-  const connectorPairs = new Set();
-  for (let k = 0; k < activeDayIndices.length - 1; k++) {
-    if (activeDayIndices[k + 1] === activeDayIndices[k] + 1) {
-      connectorPairs.add(activeDayIndices[k]);
-    }
-  }
 
   return (
     <motion.div
@@ -60,31 +48,9 @@ export default function WeekView({ logs = [], tierColor }) {
     >
       <h3 className="text-sm font-semibold text-muted-foreground/70 uppercase tracking-wide mb-3">This Week</h3>
 
-      {/* Connector line layer (behind cells) */}
       <div className="relative">
-        {/* SVG for streak connectors */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          style={{ zIndex: 0 }}
-          preserveAspectRatio="none"
-        >
-          {weekDays.map((_, i) => {
-            if (!connectorPairs.has(i)) return null;
-            // Each cell is 1/7 of the width; connector goes from center of col i to center of col i+1
-            const x1 = `${(i / 7 + 1 / 14) * 100}%`;
-            const x2 = `${((i + 1) / 7 + 1 / 14) * 100}%`;
-            return (
-              <line
-                key={i}
-                x1={x1} y1="50%" x2={x2} y2="50%"
-                stroke={isDark ? 'rgba(251,146,60,0.35)' : 'rgba(249,115,22,0.50)'}
-                strokeWidth="2"
-              />
-            );
-          })}
-        </svg>
 
-        <div className="grid grid-cols-7 gap-1.5 relative" style={{ zIndex: 1 }}>
+        <div className="grid grid-cols-7 gap-1.5 relative">
           {weekDays.map((date, i) => {
             const dateKey = getDateKey(date);
             const count = logsGrouped[dateKey] || 0;
