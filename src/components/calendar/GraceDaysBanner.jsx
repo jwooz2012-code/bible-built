@@ -35,7 +35,7 @@ export default function GraceDaysBanner({ tierColor, graceDaysUsed = 0 }) {
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, delay: 0.1 }}
-      className="bg-card border border-border rounded-2xl px-4 py-3 mb-4"
+      className="bg-card border border-border rounded-2xl px-4 py-2 mb-2"
       style={{
         boxShadow: `0 0 12px ${color}10`,
         borderColor: `${color}25`,
@@ -44,7 +44,7 @@ export default function GraceDaysBanner({ tierColor, graceDaysUsed = 0 }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-[12px] font-semibold text-foreground tracking-wide">Grace Days This Month</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">
+          <p className="text-[11px] text-muted-foreground">
             Miss up to 2 days each month without losing your streak.
           </p>
         </div>
