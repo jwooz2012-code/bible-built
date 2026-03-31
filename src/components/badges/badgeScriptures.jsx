@@ -5,94 +5,94 @@
 export const BADGE_SCRIPTURES = {
   'Battle': {
     reference: 'Ephesians 6:17',
-    text: 'Take the helmet of salvation and the sword of the Spirit, which is the word of God.',
+    text: 'And take the helmet of salvation, and the sword of the Spirit, which is the word of God.',
   },
   'First Rep': {
     reference: 'Psalm 1:2',
-    text: 'His delight is in the law of the Lord, and on his law he meditates day and night.',
+    text: 'But his delight is in the law of the LORD; and in his law doth he meditate day and night.',
   },
   'Locked In': {
     reference: 'Joshua 1:8',
-    text: 'This Book of the Law shall not depart from your mouth... then you will make your way prosperous.',
+    text: 'This book of the law shall not depart out of thy mouth... then thou shalt make thy way prosperous.',
   },
   'Habit Forming': {
     reference: 'Proverbs 3:3',
-    text: 'Let love and faithfulness never leave you; bind them around your neck, write them on the tablet of your heart.',
+    text: 'Let not mercy and truth forsake thee: bind them about thy neck; write them upon the table of thine heart.',
   },
   'Fifty Down': {
     reference: 'Psalm 119:11',
-    text: 'I have hidden your word in my heart that I might not sin against you.',
+    text: 'Thy word have I hid in mine heart, that I might not sin against thee.',
   },
   'Triple Digits': {
     reference: 'Romans 10:17',
-    text: 'Faith comes from hearing, and hearing through the word of Christ.',
+    text: 'So then faith cometh by hearing, and hearing by the word of God.',
   },
   'All In': {
     reference: 'Deuteronomy 6:5',
-    text: 'Love the Lord your God with all your heart and with all your soul and with all your strength.',
+    text: 'And thou shalt love the LORD thy God with all thine heart, and with all thy soul, and with all thy might.',
   },
   'Built to Last': {
     reference: 'Matthew 7:24',
-    text: 'Everyone who hears these words of mine and puts them into practice is like a wise man who built his house on the rock.',
+    text: 'Whosoever heareth these sayings of mine, and doeth them, I will liken him unto a wise man, which built his house upon a rock.',
   },
   'Cover to Cover': {
     reference: '2 Timothy 3:16',
-    text: 'All Scripture is God-breathed and is useful for teaching, rebuking, correcting and training in righteousness.',
+    text: 'All scripture is given by inspiration of God, and is profitable for doctrine, for reproof, for correction, for instruction in righteousness.',
   },
   'Testament Strong': {
     reference: 'Hebrews 4:12',
-    text: 'The word of God is alive and active. Sharper than any double-edged sword.',
+    text: 'For the word of God is quick, and powerful, and sharper than any twoedged sword.',
   },
   'The Whole Word': {
     reference: 'Psalm 119:160',
-    text: 'All your words are true; all your righteous laws are eternal.',
+    text: 'Thy word is true from the beginning: and every one of thy righteous judgments endureth for ever.',
   },
   'Back for More': {
     reference: 'Psalm 119:97',
-    text: 'Oh, how I love your law! I meditate on it all day long.',
+    text: 'O how love I thy law! it is my meditation all the day.',
   },
   'Deep Roots': {
     reference: 'Colossians 3:16',
-    text: 'Let the word of Christ dwell in you richly, teaching and admonishing one another in all wisdom.',
+    text: 'Let the word of Christ dwell in you richly in all wisdom; teaching and admonishing one another.',
   },
   'Iron Discipline': {
-    reference: '1 Timothy 4:7',
-    text: 'Train yourself to be godly. Physical training is of some value, but godliness has value for all things.',
+    reference: '1 Timothy 4:8',
+    text: 'For bodily exercise profiteth little: but godliness is profitable unto all things, having promise of the life that now is, and of that which is to come.',
   },
   'Master Builder': {
     reference: 'Nehemiah 4:6',
-    text: 'We rebuilt the wall... for the people worked with all their heart.',
+    text: 'So built we the wall; and all the wall was joined together unto the half thereof: for the people had a mind to work.',
   },
   'Built for a Lifetime': {
     reference: 'Isaiah 40:8',
-    text: 'The grass withers and the flowers fall, but the word of our God endures forever.',
+    text: 'The grass withereth, the flower fadeth: but the word of our God shall stand for ever.',
   },
   'Swordsmen': {
     reference: 'Ephesians 6:17',
-    text: 'Take... the sword of the Spirit, which is the word of God.',
+    text: 'And take the helmet of salvation, and the sword of the Spirit, which is the word of God.',
   },
   'Opened the Door': {
     reference: 'Proverbs 27:17',
-    text: 'As iron sharpens iron, so one person sharpens another.',
+    text: 'Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.',
   },
   'Walking Accountably': {
     reference: 'Galatians 6:2',
-    text: 'Carry each other\'s burdens, and in this way you will fulfill the law of Christ.',
+    text: 'Bear ye one another\'s burdens, and so fulfil the law of Christ.',
   },
   'Living Examined': {
     reference: 'Hebrews 10:24',
-    text: 'And let us consider how we may spur one another on toward love and good deeds.',
+    text: 'And let us consider one another to provoke unto love and to good works.',
   },
   'Lifted a Brother': {
     reference: 'Ecclesiastes 4:10',
-    text: 'If either of them falls down, one can help the other up.',
+    text: 'For if they fall, the one will lift up his fellow: but woe to him that is alone when he falleth.',
   },
   'Faithful Encourager': {
     reference: '1 Thessalonians 5:11',
-    text: 'Therefore encourage one another and build each other up.',
+    text: 'Wherefore comfort yourselves together, and edify one another, even as also ye do.',
   },
   'Strengthened Many': {
     reference: 'Isaiah 35:3',
-    text: 'Strengthen the feeble hands, steady the knees that give way.',
+    text: 'Strengthen ye the weak hands, and confirm the feeble knees.',
   },
 };
