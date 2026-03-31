@@ -220,7 +220,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-background z-[65] flex flex-col"
-      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}
+      style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}
     >
       {/* ── Header ── */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
