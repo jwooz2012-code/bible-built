@@ -12,6 +12,24 @@ import { getDateKey, addDaysKey } from '@/components/bible/utils/dateUtils';
 import { toast } from 'sonner';
 import PlanInfoCard from '@/components/bible/plans/PlanInfoCard';
 
+function formatChapterList(chapters) {
+  const sorted = [...chapters].sort((a, b) => a - b);
+  const parts = [];
+  let start = sorted[0];
+  let end = sorted[0];
+  for (let i = 1; i < sorted.length; i++) {
+    if (sorted[i] === end + 1) {
+      end = sorted[i];
+    } else {
+      parts.push(start === end ? `${start}` : `${start}\u2013${end}`);
+      start = sorted[i];
+      end = sorted[i];
+    }
+  }
+  parts.push(start === end ? `${start}` : `${start}\u2013${end}`);
+  return parts.join(', ');
+}
+
 export default function PlanDetail() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -156,12 +174,17 @@ export default function PlanDetail() {
     if (curatedChapters.length > 0) {
       const startIdx = (dayNum - 1) * preset.chaptersPerDay;
       const endIdx = startIdx + preset.chaptersPerDay;
+      const grouped = {};
       for (let i = startIdx; i < endIdx && i < curatedChapters.length; i++) {
         const chap = curatedChapters[i];
         if (chap && chap.bookName && chap.chapter) {
-          chaptersForDay.push(`${chap.bookName} ${chap.chapter}`);
+          if (!grouped[chap.bookName]) grouped[chap.bookName] = [];
+          grouped[chap.bookName].push(chap.chapter);
         }
       }
+      Object.entries(grouped).forEach(([bookName, chs]) => {
+        chaptersForDay.push(`${bookName} ${formatChapterList(chs)}`);
+      });
     }
 
     return { day: dayNum, chapters: chaptersForDay };
