@@ -18,5 +18,9 @@ export default function ReadingTrackingIntro() {
     navigate('/home', { replace: true });
   };
 
-  return <ReadingTrackingScreen onContinue={handleContinue} isNewFeature />;
+  return (
+    <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
+      <ReadingTrackingScreen onContinue={handleContinue} isNewFeature />
+    </div>
+  );
 }
