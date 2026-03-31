@@ -19,7 +19,7 @@ export default function ReadingTrackingIntro() {
   };
 
   return (
-    <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 12px)' }}>
+    <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}>
       <ReadingTrackingScreen onContinue={handleContinue} isNewFeature />
     </div>
   );
