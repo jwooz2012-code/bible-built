@@ -18,5 +18,5 @@ export default function ReadingTrackingIntro() {
     navigate('/home', { replace: true });
   };
 
-  return <ReadingTrackingScreen onContinue={handleContinue} />;
+  return <ReadingTrackingScreen onContinue={handleContinue} isNewFeature />;
 }

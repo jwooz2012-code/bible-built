@@ -11,7 +11,7 @@ import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 const DEMO_BOOK = BIBLE_BOOKS[0]; // Genesis
 const DEMO_CHAPTERS = 12;
 
-export default function ReadingTrackingScreen({ onContinue }) {
+export default function ReadingTrackingScreen({ onContinue, isNewFeature = false }) {
   const { user } = useAuth();
   const userId = user?.id;
 
@@ -75,9 +75,19 @@ export default function ReadingTrackingScreen({ onContinue }) {
         >
           {/* Heading */}
           <div className="text-center space-y-2">
-            <h1 className="text-3xl font-black text-foreground">Log Your Reading</h1>
+            {isNewFeature && (
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.05, type: 'spring', stiffness: 300, damping: 18 }}
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-green-500/15 border border-green-500/30 text-green-600 text-xs font-bold tracking-wide mb-1"
+              >
+                <span>✨</span> NEW FEATURE
+              </motion.div>
+            )}
+            <h1 className="text-3xl font-black text-foreground">{isNewFeature ? 'Track Your Reading' : 'Log Your Reading'}</h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              Try both modes below before continuing — mark a chapter complete, then open one to read it.
+              {isNewFeature ? 'You can now log chapters two ways — mark them complete instantly, or open and read them right here in the app.' : 'Try both modes below before continuing — mark a chapter complete, then open one to read it.'}
             </p>
           </div>
 
