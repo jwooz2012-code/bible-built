@@ -7,7 +7,7 @@ import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
 import { createPageUrl } from '@/utils';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
-import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
+import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -157,7 +157,7 @@ export default function Profile() {
 
   const userId = user?.id;
   const { data: lifetimeLogs = [] } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
-  const currentStreak = useCurrentStreak(lifetimeLogs);
+  const { currentStreak } = useStreakWithGrace(lifetimeLogs, userId);
   const now = new Date();
   const todayKey = getDateKey();
 
