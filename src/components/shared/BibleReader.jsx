@@ -25,7 +25,7 @@ const SPEEDS = [0.75, 1, 1.25, 1.5];
  *   onClose    — dismiss callback
  *   onMarkRead — called with { book, chapter, chapterId, testament } after logging
  */
-export default function BibleReader({ book, chapter: initialChapter, userId, onClose, onMarkRead }) {
+export default function BibleReader({ book, chapter: initialChapter, userId, onClose, onMarkRead, demoMode = false }) {
   const [chapter, setChapter] = useState(initialChapter);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -180,24 +180,27 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
 
 
   const handleMarkRead = useCallback(async () => {
-    if (!userId || isMarkingRead || isMarked) return;
+    if (isMarkingRead || isMarked) return;
+    if (!demoMode && !userId) return;
     setIsMarkingRead(true);
     stopAudio();
     try {
-      const now = new Date();
       const chapterId = generateChapterId(book.index, chapter);
-      await base44.entities.ReadingLog.create({
-        userId,
-        dateKey: getDateKey(now),
-        timestamp: now.toISOString(),
-        book: book.name,
-        bookIndex: book.index,
-        chapter,
-        chapterId,
-        testament: book.testament,
-      });
+      if (!demoMode) {
+        const now = new Date();
+        await base44.entities.ReadingLog.create({
+          userId,
+          dateKey: getDateKey(now),
+          timestamp: now.toISOString(),
+          book: book.name,
+          bookIndex: book.index,
+          chapter,
+          chapterId,
+          testament: book.testament,
+        });
+        base44.analytics.track({ eventName: 'chapter_read_completed', properties: { book: book.name, chapter, testament: book.testament, chapterId } });
+      }
       setIsMarked(true);
-      base44.analytics.track({ eventName: 'chapter_read_completed', properties: { book: book.name, chapter, testament: book.testament, chapterId } });
       toast.success('Chapter marked as read');
       onMarkRead?.({ book, chapter, chapterId, testament: book.testament });
       setTimeout(() => onClose(), 600);
@@ -205,7 +208,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       toast.error('Failed to mark chapter');
       setIsMarkingRead(false);
     }
-  }, [userId, isMarkingRead, isMarked, book, chapter, stopAudio, onMarkRead, onClose]);
+  }, [demoMode, userId, isMarkingRead, isMarked, book, chapter, stopAudio, onMarkRead, onClose]);
 
   const verseList = useMemo(() => verses, [verses]);
   const chapterTitle = `${book.name} ${chapter}`;

@@ -208,6 +208,7 @@ export default function ReadingTrackingScreen({ onContinue }) {
             userId={userId}
             onClose={() => setReaderState(null)}
             onMarkRead={({ chapter: c }) => handleReaderMarkRead({ chapter: c })}
+            demoMode
           />
         )}
       </AnimatePresence>
