@@ -95,8 +95,20 @@ export default function PlanPreviewSheet({
 
       const parts = Object.entries(grouped).map(([book, chapters]) => {
         if (chapters.length === 1) return `${book} ${chapters[0]}`;
-        const sorted = chapters.sort((a, b) => a - b);
-        return `${book} ${sorted[0]}–${sorted[sorted.length - 1]}`;
+        const sorted = [...chapters].sort((a, b) => a - b);
+        // Group consecutive chapters into ranges, separate non-consecutive with commas
+        const ranges = [];
+        let start = sorted[0], end = sorted[0];
+        for (let i = 1; i < sorted.length; i++) {
+          if (sorted[i] === end + 1) {
+            end = sorted[i];
+          } else {
+            ranges.push(start === end ? `${start}` : `${start}–${end}`);
+            start = end = sorted[i];
+          }
+        }
+        ranges.push(start === end ? `${start}` : `${start}–${end}`);
+        return `${book} ${ranges.join(', ')}`;
       });
 
       return {
