@@ -12,7 +12,7 @@ export function useMarkTodayComplete() {
   const queryClient = useQueryClient();
 
   const { mutate: markTodayComplete, isPending } = useMutation({
-    mutationFn: async ({ userId, todayAssignments }) => {
+    mutationFn: async ({ userId, todayAssignments, allTimeLogs = [] }) => {
       if (!todayAssignments || todayAssignments.length === 0) {
         throw new Error('No assignments for today');
       }
@@ -21,6 +21,8 @@ export function useMarkTodayComplete() {
       const todayKey = getDateKey(now);
       const timestamp = now.toISOString();
       
+      // Skip chapters already logged
+      const completedIds = new Set(allTimeLogs.map(l => l.chapterId));
       const logsToCreate = [];
       
       todayAssignments.forEach(assignment => {
@@ -28,6 +30,7 @@ export function useMarkTodayComplete() {
         if (!book) return;
         
         const chapterId = generateChapterId(book.index, assignment.chapter);
+        if (completedIds.has(chapterId)) return; // already read
         
         logsToCreate.push({
           userId,
@@ -41,16 +44,33 @@ export function useMarkTodayComplete() {
         });
       });
 
+      if (logsToCreate.length === 0) {
+        toast.success('Already complete for today');
+        return { count: 0, userId, todayKey, logsToCreate: [] };
+      }
+
       // Bulk create all reading logs
-      await base44.entities.ReadingLog.bulkCreate(logsToCreate);
+      const createdLogs = await base44.entities.ReadingLog.bulkCreate(logsToCreate);
       
-      return logsToCreate.length;
+      return { count: logsToCreate.length, userId, todayKey, logsToCreate: createdLogs || logsToCreate };
     },
-    onSuccess: (count) => {
-      // Invalidate reading logs queries
-      queryClient.invalidateQueries({ queryKey: ['readingLogs'] });
-      queryClient.invalidateQueries({ queryKey: ['dayReadingLogs'] });
-      
+    onSuccess: (data) => {
+      if (!data || data.count === 0) return;
+      const { userId, todayKey, logsToCreate, count } = data;
+
+      // Optimistically update all-time logs cache
+      queryClient.setQueriesData(
+        { predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId },
+        (old = []) => [...logsToCreate, ...old]
+      );
+
+      // Optimistically update today's logs cache
+      queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => [...logsToCreate, ...old]);
+
+      // Invalidate to refetch fresh data
+      queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+
       toast.success(`Marked ${count} chapter${count !== 1 ? 's' : ''} complete`);
     },
     onError: (error) => {

@@ -139,6 +139,7 @@ export default function TodayAssignmentCard({
       // Use new hook for CUSTOM plans
       markTodayComplete({
         userId,
+        allTimeLogs,
         todayAssignments: assignedToday.map(a => ({
           bookName: a.book,
           chapter: a.chapter,
