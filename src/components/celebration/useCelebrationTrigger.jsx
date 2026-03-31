@@ -5,29 +5,11 @@
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { CELEBRATION_TYPES } from './CelebrationContext';
+import { computeStreak } from '@/lib/streakUtils';
 
 const STREAK_MILESTONES = new Set([3, 7, 14, 30, 50, 100, 150, 200, 365]);
 
-export function computeStreak(logs) {
-  if (!logs || logs.length === 0) return 0;
-  const days = Array.from(new Set(logs.map(l => l.dateKey))).sort().reverse();
-  if (!days.length) return 0;
-  const today = new Date();
-  const pad = n => String(n).padStart(2, '0');
-  const toKey = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
-  const todayKey = toKey(today);
-  const yesterdayKey = toKey(new Date(today.getTime() - 86400000));
-  if (days[0] !== todayKey && days[0] !== yesterdayKey) return 0;
-  let streak = 1;
-  for (let i = 1; i < days.length; i++) {
-    const prev = new Date(days[i - 1]);
-    const curr = new Date(days[i]);
-    const diff = Math.round((prev - curr) / 86400000);
-    if (diff === 1) streak++;
-    else break;
-  }
-  return streak;
-}
+
 
 /**
  * Returns array of { type, data, dedupKey } to trigger
