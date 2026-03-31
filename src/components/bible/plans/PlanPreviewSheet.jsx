@@ -115,7 +115,7 @@ export default function PlanPreviewSheet({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 bg-black/50 z-50"
+        className="fixed inset-0 bg-black/50 z-[70]"
         onClick={onClose}
       >
         <motion.div
@@ -124,10 +124,7 @@ export default function PlanPreviewSheet({
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 30, stiffness: 300 }}
           className="fixed bottom-0 left-0 right-0 bg-card rounded-t-3xl shadow-xl overflow-hidden"
-          style={{ 
-            maxHeight: 'calc(85vh - 80px)',
-            paddingBottom: 'calc(env(safe-area-inset-bottom) + 16px)'
-          }}
+          style={{ maxHeight: '85vh' }}
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
@@ -145,8 +142,8 @@ export default function PlanPreviewSheet({
           <div 
             className="overflow-y-auto px-6 py-4" 
             style={{ 
-              maxHeight: 'calc(85vh - 80px)',
-              paddingBottom: 'calc(env(safe-area-inset-bottom) + 96px)'
+              maxHeight: 'calc(85vh - 65px)',
+              paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)'
             }}
           >
             {!hasPlan ? (
