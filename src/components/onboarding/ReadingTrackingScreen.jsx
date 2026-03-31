@@ -1,160 +1,215 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { CheckSquare, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/components/utils/haptics';
+import { useAuth } from '@/lib/AuthContext';
+import ChapterTile from '@/components/shared/ChapterTile';
+import BibleReader from '@/components/shared/BibleReader';
+import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 
-// Initial chapter read counts — some pre-set to show multi-read is possible
-const INITIAL_COUNTS = [2, 1, 3, 1, 0, 0, 0, 0, 0, 0, 0, 0];
+// Use Genesis as the demo book, show first 12 chapters
+const DEMO_BOOK = BIBLE_BOOKS[0]; // Genesis
+const DEMO_CHAPTERS = 12;
 
 export default function ReadingTrackingScreen({ onContinue }) {
-  const [isActivating, setIsActivating] = useState(false);
-  const [counts, setCounts] = useState(INITIAL_COUNTS);
-  const [floaters, setFloaters] = useState([]);
+  const { user } = useAuth();
+  const userId = user?.id;
 
-  const handleTap = (i) => {
+  const [isReadModeActive, setIsReadModeActive] = useState(false);
+  const [counts, setCounts] = useState({}); // { chapter: timesRead }
+  const [readerState, setReaderState] = useState(null); // { chapter }
+  const [hasMarkedComplete, setHasMarkedComplete] = useState(false);
+  const [hasReadChapter, setHasReadChapter] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
+
+  const handleToggle = (toReadMode) => {
+    if (toReadMode === isReadModeActive) return;
     triggerHaptic();
-    setCounts(prev => {
-      const next = [...prev];
-      next[i] = next[i] + 1;
-      return next;
-    });
-    // Spawn a +1 floater
-    const id = Date.now() + i;
-    setFloaters(prev => [...prev, { id, i }]);
-    setTimeout(() => setFloaters(prev => prev.filter(f => f.id !== id)), 800);
+    setIsReadModeActive(toReadMode);
   };
 
+  const handleChapterClick = (chapter) => {
+    triggerHaptic();
+    if (isReadModeActive) {
+      setReaderState({ chapter });
+    } else {
+      setCounts(prev => ({ ...prev, [chapter]: (prev[chapter] || 0) + 1 }));
+      setHasMarkedComplete(true);
+    }
+  };
+
+  const handleReaderClose = () => {
+    setReaderState(null);
+  };
+
+  const handleReaderMarkRead = () => {
+    setHasReadChapter(true);
+    setReaderState(null);
+  };
+
+  const canContinue = hasMarkedComplete && hasReadChapter;
+
   const handleContinue = () => {
-    if (isActivating) return;
+    if (!canContinue || isActivating) return;
     setIsActivating(true);
     triggerHaptic();
     setTimeout(() => onContinue(), 300);
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 pb-24"
-    >
+    <>
       <motion.div
-        initial={{ y: 24, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.15, duration: 0.4 }}
-        className="w-full max-w-sm flex flex-col items-center space-y-6"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3 }}
+        className="min-h-screen flex flex-col items-center justify-center px-6 pb-24 pt-8"
       >
-        {/* Heading */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black text-foreground">Log Your Reading</h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Tap any chapter to mark it read. Tap again to log it a second time — every read counts!
-          </p>
-        </div>
-
-        {/* Interactive Book Card mockup */}
         <motion.div
-          initial={{ scale: 0.93, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.4 }}
-          className="w-full bg-card border border-border rounded-2xl p-4 shadow-md"
+          initial={{ y: 24, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.15, duration: 0.4 }}
+          className="w-full max-w-sm flex flex-col items-center space-y-6"
         >
-          {/* Book header row */}
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-base font-bold text-foreground">Genesis</h2>
-              <p className="text-xs text-muted-foreground">Try tapping the tiles below 👇</p>
-            </div>
-            <div className="text-right">
+          {/* Heading */}
+          <div className="text-center space-y-2">
+            <h1 className="text-3xl font-black text-foreground">Log Your Reading</h1>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Try both modes below before continuing — mark a chapter complete, then open one to read it.
+            </p>
+          </div>
+
+          {/* Book Card */}
+          <motion.div
+            initial={{ scale: 0.93, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.4 }}
+            className="w-full bg-card border border-border rounded-2xl p-4 shadow-md"
+          >
+            {/* Book header */}
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <h2 className="text-base font-bold text-foreground">{DEMO_BOOK.name}</h2>
+                <p className="text-xs text-muted-foreground">Showing first {DEMO_CHAPTERS} chapters</p>
+              </div>
               <span className="text-xs text-muted-foreground">
-                {counts.filter(c => c > 0).length} / {counts.length} chapters
+                {Object.values(counts).filter(c => c > 0).length} / {DEMO_CHAPTERS} read
               </span>
             </div>
-          </div>
 
-          {/* Chapter tile grid */}
-          <div className="grid grid-cols-6 gap-2">
-            {counts.map((timesRead, i) => (
-              <div key={i} className="relative">
-                <motion.button
-                  whileTap={{ scale: 0.88 }}
-                  transition={{ duration: 0.12 }}
-                  onClick={() => handleTap(i)}
-                  className="relative aspect-square w-full rounded-xl flex items-center justify-center border shadow-sm transition-all"
-                  style={timesRead > 0
-                    ? { background: 'hsl(var(--accent))', borderColor: 'hsl(var(--accent))', borderWidth: '1.5px' }
-                    : { background: 'hsl(var(--card))', borderColor: 'hsl(var(--border))' }
-                  }
-                >
-                  {/* timesRead badge */}
-                  {timesRead >= 1 && (
-                    <div
-                      className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center z-10"
-                      style={{
-                        backgroundColor: '#FFFFFF',
-                        border: '1.5px solid #1a1a1a',
-                      }}
-                    >
-                      <span className="text-[9px] font-bold leading-none" style={{ color: '#1a1a1a' }}>
-                        {timesRead}
-                      </span>
-                    </div>
-                  )}
-                  <span className="text-[13px] font-semibold leading-none text-foreground">
-                    {i + 1}
-                  </span>
-                </motion.button>
+            {/* Segmented Control — identical to Home */}
+            <div
+              className="relative flex rounded-full border border-border overflow-hidden mb-3"
+              style={{ background: 'var(--btn-inactive-bg)', padding: '2px' }}
+            >
+              {/* Sliding pill */}
+              <div
+                className="absolute top-[2px] bottom-[2px] rounded-full"
+                style={{
+                  background: 'linear-gradient(135deg, #16A34A, #22C55E)',
+                  width: 'calc(50% - 2px)',
+                  left: isReadModeActive ? '50%' : '2px',
+                  transition: 'left 140ms cubic-bezier(0.4, 0, 0.2, 1)',
+                }}
+              />
+              {/* Mark Complete */}
+              <button
+                onClick={() => handleToggle(false)}
+                className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
+                style={{ color: !isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
+              >
+                <CheckSquare className="w-4 h-4 shrink-0" />
+                Mark Complete
+              </button>
+              {/* Read Chapter */}
+              <button
+                onClick={() => handleToggle(true)}
+                className="relative flex-1 flex items-center justify-center gap-1.5 h-10 text-sm font-semibold z-10 whitespace-nowrap"
+                style={{ color: isReadModeActive ? '#fff' : 'var(--btn-inactive-text)', transition: 'color 140ms' }}
+              >
+                <BookOpen className="w-4 h-4 shrink-0" />
+                Read Chapter
+              </button>
+            </div>
 
-                {/* Floating +1 animation */}
-                <AnimatePresence>
-                  {floaters.filter(f => f.i === i).map(f => (
-                    <motion.div
-                      key={f.id}
-                      initial={{ opacity: 1, y: 0, scale: 1 }}
-                      animate={{ opacity: 0, y: -28, scale: 1.3 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.7, ease: 'easeOut' }}
-                      className="absolute -top-2 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-500 pointer-events-none z-20"
-                    >
-                      +1
-                    </motion.div>
-                  ))}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-        </motion.div>
+            {/* Mode hint */}
+            <p
+              key={isReadModeActive ? 'read' : 'mark'}
+              className="text-xs text-center mb-4 animate-in fade-in duration-200"
+              style={{ opacity: 0.55 }}
+            >
+              {isReadModeActive ? '📖 Tap a chapter to read' : '✅ Tap a chapter to mark complete'}
+            </p>
 
-        {/* Hint */}
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="text-xs text-center text-muted-foreground/70"
-        >
-          The number badge shows how many times you've read that chapter.
-        </motion.p>
-      </motion.div>
+            {/* Chapter tile grid */}
+            <div className="grid grid-cols-4 gap-3">
+              {Array.from({ length: DEMO_CHAPTERS }, (_, i) => i + 1).map((chapter) => {
+                const chapterId = generateChapterId(DEMO_BOOK.index, chapter);
+                return (
+                  <ChapterTile
+                    key={chapter}
+                    chapter={chapter}
+                    chapterId={chapterId}
+                    timesRead={counts[chapter] || 0}
+                    onClick={() => handleChapterClick(chapter)}
+                  />
+                );
+              })}
+            </div>
+          </motion.div>
 
-      {/* CTA */}
-      <motion.div
-        initial={{ y: 20, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.4 }}
-        className="mt-8 w-full max-w-sm"
-      >
-        <motion.div whileTap={{ scale: 0.96 }}>
-          <Button
-            onClick={handleContinue}
-            disabled={isActivating}
-            size="lg"
-            className="w-full h-14 rounded-full text-base font-bold"
+          {/* Progress indicators */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+            className="w-full flex gap-3"
           >
-            Got it! 🙌
-          </Button>
+            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${hasMarkedComplete ? 'border-green-500/40 bg-green-500/10 text-green-600' : 'border-border text-muted-foreground'}`}>
+              <CheckSquare className="w-3.5 h-3.5 shrink-0" />
+              {hasMarkedComplete ? 'Marked complete ✓' : 'Mark a chapter'}
+            </div>
+            <div className={`flex-1 flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all ${hasReadChapter ? 'border-green-500/40 bg-green-500/10 text-green-600' : 'border-border text-muted-foreground'}`}>
+              <BookOpen className="w-3.5 h-3.5 shrink-0" />
+              {hasReadChapter ? 'Chapter read ✓' : 'Read a chapter'}
+            </div>
+          </motion.div>
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.7, duration: 0.4 }}
+          className="mt-8 w-full max-w-sm"
+        >
+          <motion.div whileTap={{ scale: canContinue ? 0.96 : 1 }}>
+            <Button
+              onClick={handleContinue}
+              disabled={!canContinue || isActivating}
+              size="lg"
+              className="w-full h-14 rounded-full text-base font-bold"
+            >
+              {canContinue ? "Got it! 🙌" : "Try both modes to continue"}
+            </Button>
+          </motion.div>
         </motion.div>
       </motion.div>
-    </motion.div>
+
+      {/* BibleReader overlay */}
+      <AnimatePresence>
+        {readerState && (
+          <BibleReader
+            key={readerState.chapter}
+            book={DEMO_BOOK}
+            chapter={readerState.chapter}
+            userId={userId}
+            onClose={handleReaderClose}
+            onMarkRead={handleReaderMarkRead}
+          />
+        )}
+      </AnimatePresence>
+    </>
   );
 }
