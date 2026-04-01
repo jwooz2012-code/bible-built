@@ -87,6 +87,15 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     if (chapter < book.chapters) prefetchChapter(book.index, chapter + 1);
   }, [book.index, book.chapters, chapter]);
 
+  // In demo mode, auto-mark as read once chapter loads
+  useEffect(() => {
+    if (demoMode && !isLoading && !loadError && !isMarked) {
+      const chapterId = generateChapterId(book.index, chapter);
+      setIsMarked(true);
+      onMarkRead?.({ book, chapter, chapterId, testament: book.testament });
+    }
+  }, [demoMode, isLoading, loadError]);
+
   // Auto-scroll to highlighted verse
   useEffect(() => {
     const el = verseRefs.current[currentVerse];
@@ -355,7 +364,8 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
             <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
           </button>
 
-          {/* Mark as Read */}
+          {/* Mark as Read — hidden in demo mode (auto-triggered) */}
+          {!demoMode && (
           <button
             onClick={handleMarkRead}
             disabled={isMarkingRead || isMarked || !userId}
@@ -368,6 +378,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
             <BookOpen className="w-4 h-4" />
             {isMarked ? 'Marked as Read ✓' : isMarkingRead ? 'Saving...' : 'Mark as Read'}
           </button>
+          )}
 
           {/* Audio toggle */}
           <button
