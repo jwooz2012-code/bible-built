@@ -24,24 +24,25 @@ export default function BookCard({ book, completions, onClick, compact = false }
         e.currentTarget.style.borderColor = 'hsl(var(--border))';
       }}
     >
-      {completions > 0 && (
-        <div 
-          className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center shadow-md z-20"
-          style={{
-            background: 'linear-gradient(135deg, var(--energy-orange), var(--energy-gold))',
-            border: '1.5px solid rgba(255, 255, 255, 0.25)',
-            minWidth: '22px',
-            minHeight: '22px'
-          }}
-        >
-          <span 
-            className="text-[10px] font-bold leading-none"
-            style={{ color: 'var(--badge-text)', lineHeight: 1 }}
+      {completions > 0 && (() => {
+        const tierStyles = completions >= 4
+          ? { bg: 'linear-gradient(135deg, #3B82F6, #06B6D4)', border: 'rgba(59,130,246,0.5)', shadow: '0 2px 8px rgba(59,130,246,0.5)' }
+          : completions === 3
+          ? { bg: 'linear-gradient(135deg, #F59E0B, #F97316)', border: 'rgba(245,158,11,0.5)', shadow: '0 2px 8px rgba(249,115,22,0.55)' }
+          : completions === 2
+          ? { bg: 'linear-gradient(135deg, #8B5CF6, #6366F1)', border: 'rgba(139,92,246,0.5)', shadow: '0 2px 8px rgba(139,92,246,0.55)' }
+          : { bg: 'linear-gradient(135deg, #22C55E, #10B981)', border: 'rgba(34,197,94,0.5)', shadow: '0 2px 8px rgba(34,197,94,0.5)' };
+        return (
+          <div
+            className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20"
+            style={{ background: tierStyles.bg, border: `1.5px solid ${tierStyles.border}`, boxShadow: tierStyles.shadow }}
           >
-            {completions}
-          </span>
-        </div>
-      )}
+            <span className="text-[10px] font-bold leading-none" style={{ color: '#fff', lineHeight: 1 }}>
+              {completions}
+            </span>
+          </div>
+        );
+      })()}
       <div className="relative z-10 flex items-center h-full">
         <div className={`flex flex-col w-full ${compact ? 'gap-1 pr-7' : 'gap-1.5 pr-8'}`}>
           <h3 className={`font-semibold text-foreground leading-tight whitespace-nowrap overflow-hidden text-ellipsis ${compact ? 'text-sm' : 'text-base'}`}>{book.name}</h3>
