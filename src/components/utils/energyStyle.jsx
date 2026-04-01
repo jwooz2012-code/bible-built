@@ -381,6 +381,14 @@ html.energy .bb-shimmer {
   100% { background-position: 0% 50%; }
 }
 
+/* Preserve badge coin gradient colors in energy mode */
+html.energy [data-badge-coin="true"] {
+  background: revert !important;
+  border: revert !important;
+  backdrop-filter: none !important;
+  box-shadow: revert !important;
+}
+
 html.energy button,
 html.energy a {
   transition: transform 140ms ease, filter 140ms ease, box-shadow 140ms ease;

@@ -212,6 +212,7 @@ export default function BadgeGrid({ achievements }) {
                     />
                   )}
                   <div
+                    data-badge-coin="true"
                     className={`w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                     style={{
                       background: isBW ? 'linear-gradient(145deg, #3a3a3a 0%, #111 50%, #2a2a2a 100%)' : undefined,
