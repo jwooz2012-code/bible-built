@@ -67,22 +67,28 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled, cha
       className={`relative aspect-square w-full rounded-xl flex items-center justify-center transition-all border shadow-sm ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
       style={energyMode ? getEnergyTileStyle() : getDefaultTileStyle()}>
 
-      {timesRead >= 1 &&
-      <div 
-        className="rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center times-read-badge"
-        style={{ 
-          backgroundColor: '#FFFFFF',
-          border: '1.5px solid #1a1a1a',
-          opacity: 1
-        }}
-      >
-          <span
-          className="text-[11px] font-bold leading-none"
-          style={{ color: '#1a1a1a' }}>
-            {timesRead}
-          </span>
-        </div>
-      }
+      {timesRead >= 1 && (() => {
+        // Color tiers: 1 = blue, 2 = purple, 3+ = gold
+        const tierStyles = timesRead >= 3
+          ? { bg: 'linear-gradient(135deg, #F59E0B, #F97316)', border: 'rgba(245,158,11,0.5)', text: '#fff', shadow: '0 2px 6px rgba(249,115,22,0.55)' }
+          : timesRead === 2
+          ? { bg: 'linear-gradient(135deg, #8B5CF6, #6366F1)', border: 'rgba(139,92,246,0.5)', text: '#fff', shadow: '0 2px 6px rgba(139,92,246,0.55)' }
+          : { bg: 'linear-gradient(135deg, #3B82F6, #06B6D4)', border: 'rgba(59,130,246,0.5)', text: '#fff', shadow: '0 2px 6px rgba(59,130,246,0.5)' };
+        return (
+          <div
+            className="rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center times-read-badge"
+            style={{
+              background: tierStyles.bg,
+              border: `1.5px solid ${tierStyles.border}`,
+              boxShadow: tierStyles.shadow,
+            }}
+          >
+            <span className="text-[10px] font-black leading-none" style={{ color: tierStyles.text }}>
+              {timesRead}
+            </span>
+          </div>
+        );
+      })()}
       
       <span
         className="text-base font-semibold leading-none"
