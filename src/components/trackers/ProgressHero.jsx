@@ -128,7 +128,6 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
   const r = (SIZE - SW) / 2;
   const [tapped, setTapped] = useState(false);
   const handleTap = useCallback(() => { setTapped(true); setTimeout(() => setTapped(false), 200); }, []);
-  const TierIcon = tier.Icon;
 
   return (
     <motion.div
@@ -146,7 +145,6 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
           animation: tapped ? 'ring-tap 0.2s ease-out' : 'none',
         }}
       >
-        {/* Breathing glow */}
         {readToday && (
           <div style={{
             position: 'absolute',
@@ -170,11 +168,9 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
               <stop offset="100%" stopColor={tier.color + 'CC'} />
             </linearGradient>
           </defs>
-          {/* Track ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
             stroke={isDark ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.07)'}
             strokeWidth={SW} />
-          {/* Tier-colored ring */}
           <circle cx={SIZE/2} cy={SIZE/2} r={r} fill="none"
             stroke={readToday ? `url(#tierGrad)` : `${tier.color}4D`}
             strokeWidth={SW} strokeLinecap="round"
@@ -182,9 +178,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
           />
         </svg>
 
-        {/* Content inside ring */}
         <div style={{ position: 'relative', zIndex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, paddingLeft: 8, paddingRight: 8 }}>
-          {/* Streak number — fire gradient */}
           <span style={{
             fontSize: 50, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums',
             background: 'linear-gradient(135deg, #F97316, #EF4444, #FDE047)',
@@ -193,7 +187,6 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
             {animatedStreak}
           </span>
 
-          {/* Day Streak label */}
           <span style={{
             fontSize: 9, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1.5px',
             color: isDark ? '#A1A1AA' : '#71717A', marginTop: 3, lineHeight: 1,
@@ -201,7 +194,6 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
             Day Streak
           </span>
 
-          {/* Read state */}
           {readToday ? (
             <motion.div
               initial={{ scale: 0, opacity: 0, y: 4 }}
@@ -226,7 +218,7 @@ function StreakRing({ animatedStreak, readToday, isDark, tier }) {
   );
 }
 
-// ─── Row 3: Tier progress bar ───────────────────────────────────────────────────────
+// ─── Row 3: Tier progress bar ─────────────────────────────────────────────────
 function TierProgressBar({ streak, tier, isDark }) {
   const TierIcon = tier.Icon;
   const [barWidth, setBarWidth] = useState(0);
@@ -251,7 +243,6 @@ function TierProgressBar({ streak, tier, isDark }) {
       style={{ width: '100%', marginBottom: 16 }}
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-        {/* Current tier: icon + label */}
         <motion.div
           key={tier.label}
           initial={{ opacity: 0 }}
@@ -262,7 +253,6 @@ function TierProgressBar({ streak, tier, isDark }) {
           <TierIcon style={{ width: 12, height: 12, color: tier.color }} />
           <span style={{ fontSize: 11, fontWeight: 600, color: tier.color }}>{tier.label}</span>
         </motion.div>
-        {/* Next tier: icon + label */}
         {tier.next && (() => {
           const NextTier = TIERS.find(t => t.label === tier.nextLabel);
           const NextIcon = NextTier?.Icon;
@@ -286,7 +276,6 @@ function TierProgressBar({ streak, tier, isDark }) {
           animate={{ width: `${barWidth}%` }}
           transition={{ duration: 0.6, ease: 'easeOut' }}
         >
-          {/* One-shot shimmer on load */}
           <div style={{
             position: 'absolute', inset: 0, width: '40%',
             background: `linear-gradient(90deg, transparent 30%, rgba(255,255,255,0.15) 50%, transparent 70%)`,
@@ -295,7 +284,6 @@ function TierProgressBar({ streak, tier, isDark }) {
           }} />
         </motion.div>
 
-        {/* Playhead dot */}
         {barWidth > 2 && (
           <motion.div
             style={{
@@ -342,7 +330,6 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark, energyMode }) {
     <div style={{ width: 1, height: 32, background: dividerColor, flexShrink: 0 }} />
   );
 
-  // This Week number style — fire gradient if new best, else emerald
   const twNumberStyle = isNewBest
     ? {
         fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums',
@@ -361,11 +348,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark, energyMode }) {
       transition={{ delay: 1.0, duration: 0.3 }}
       style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 0, marginBottom: 12 }}
     >
-      {/* THIS WEEK — emerald */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <div style={{ position: 'relative', display: 'inline-flex', alignItems: 'center' }}>
           <span style={twNumberStyle}>{twAnim}</span>
-          {/* Pulsing live dot upper-right */}
           <div style={{
             position: 'absolute', top: -1, right: -9,
             width: 5, height: 5, borderRadius: '50%', background: '#10B981',
@@ -380,7 +365,6 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark, energyMode }) {
 
       <Divider />
 
-      {/* BEST WEEK — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: numberColor }}>
           {bwAnim}
@@ -392,7 +376,6 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark, energyMode }) {
 
       <Divider />
 
-      {/* BEST MONTH — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
         <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: numberColor }}>
           {bmAnim}
@@ -417,21 +400,15 @@ function SectionDivider({ isDark }) {
   );
 }
 
-// ─── Bottom cards (side-by-side) ──────────────────────────────────────────────
+// ─── Bottom cards ─────────────────────────────────────────────────────────────
 function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
   const animYear = useCountUp(yearChapters, 1000, 1400);
   const year = new Date().getFullYear();
 
   const cardBase = {
-    flex: 1,
-    borderRadius: 16,
-    padding: '10px 12px 10px',
-    position: 'relative',
-    overflow: 'hidden',
-    minHeight: 80,
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'space-between',
+    flex: 1, borderRadius: 16, padding: '10px 12px 10px',
+    position: 'relative', overflow: 'hidden', minHeight: 80,
+    display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
     background: isDark
       ? `linear-gradient(135deg, rgba(255,255,255,0.04) 0%, ${tier.color}12 100%)`
       : `linear-gradient(135deg, rgba(255,255,255,0.9) 0%, ${tier.color}18 100%)`,
@@ -442,86 +419,45 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
   };
 
   const labelStyle = {
-    fontSize: 9,
-    fontWeight: 700,
-    letterSpacing: '1.2px',
-    textTransform: 'uppercase',
-    color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)',
-    marginBottom: 1,
+    fontSize: 9, fontWeight: 700, letterSpacing: '1.2px', textTransform: 'uppercase',
+    color: isDark ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.35)', marginBottom: 1,
   };
 
   const subtextStyle = {
-    fontSize: 9,
-    color: isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.30)',
-    marginTop: 2,
-    fontWeight: 500,
-    letterSpacing: '0.3px',
+    fontSize: 9, color: isDark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.30)',
+    marginTop: 2, fontWeight: 500, letterSpacing: '0.3px',
   };
 
-  const iconStyle = {
-    position: 'absolute',
-    top: 12,
-    right: 12,
-    width: 14,
-    height: 14,
-    color: tier.color,
-    opacity: 0.6,
-  };
+  const iconStyle = { position: 'absolute', top: 12, right: 12, width: 14, height: 14, color: tier.color, opacity: 0.6 };
 
   return (
     <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
-
-      {/* Card 1: This Year */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.35 }}
-        whileTap={{ scale: 0.97 }}
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.4, duration: 0.35 }} whileTap={{ scale: 0.97 }}
         style={{ ...cardBase, cursor: 'default' }}
       >
         <Calendar style={iconStyle} />
-
         <div>
           <div style={labelStyle}>{year}</div>
-          <div style={{
-            fontSize: 30,
-            fontWeight: 700,
-            lineHeight: 1,
-            fontVariantNumeric: 'tabular-nums',
-            color: tier.color,
-            marginTop: 1,
-          }}>
+          <div style={{ fontSize: 30, fontWeight: 700, lineHeight: 1, fontVariantNumeric: 'tabular-nums', color: tier.color, marginTop: 1 }}>
             {animYear}
           </div>
           <div style={{ ...subtextStyle, marginTop: 1 }}>chapters read</div>
         </div>
       </motion.div>
 
-      {/* Card 2: Most Read */}
       <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.5, duration: 0.35 }}
-        whileTap={{ scale: 0.97 }}
+        initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 1.5, duration: 0.35 }} whileTap={{ scale: 0.97 }}
         style={{ ...cardBase, cursor: 'default' }}
       >
         <BookOpen style={iconStyle} />
-
         <div>
           <div style={labelStyle}>Most Read</div>
-          <div style={{
-            fontSize: 18,
-            fontWeight: 700,
-            lineHeight: 1.15,
-            color: isDark ? '#ffffff' : '#18181B',
-            marginTop: 1,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}>
+          <div style={{ fontSize: 18, fontWeight: 700, lineHeight: 1.15, color: isDark ? '#ffffff' : '#18181B', marginTop: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {mostReadBook || '—'}
           </div>
-          {/* Stars */}
           <div style={{ display: 'flex', gap: 2, marginTop: 4 }}>
             {[...Array(5)].map((_, i) => (
               <Star key={i} style={{ width: 10, height: 10, color: tier.color, fill: tier.color }} />
@@ -529,7 +465,6 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
           </div>
         </div>
       </motion.div>
-
     </div>
   );
 }
@@ -537,29 +472,29 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
 // ─── Main export ──────────────────────────────────────────────────────────────
 export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0, yearChapters = 0 }) {
   injectStyles();
-  const isDark     = useIsDark();
+  const isDark = useIsDark();
   const { energyMode } = useTheme();
-  const tier       = getTier(currentStreak);
-  const readToday  = todayLogs.length > 0;
+  const tier = getTier(currentStreak);
+  const readToday = todayLogs.length > 0;
   const animStreak = useCountUp(currentStreak, 800, 200);
   const [tiersModalOpen, setTiersModalOpen] = useState(false);
 
   return (
     <>
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      style={{ marginBottom: 0 }}
-    >
-      <HeaderBar tier={tier} isDark={isDark} onTierPillClick={() => setTiersModalOpen(true)} />
-      <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
-      <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
-      <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} energyMode={energyMode} />
-      <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} tier={tier} />
-      <SectionDivider isDark={isDark} />
-    </motion.div>
-    <BadgeTiersModal open={tiersModalOpen} onClose={() => setTiersModalOpen(false)} currentTierLabel={tier.label} />
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        style={{ marginBottom: 0 }}
+      >
+        <HeaderBar tier={tier} isDark={isDark} onTierPillClick={() => setTiersModalOpen(true)} />
+        <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
+        <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
+        <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} energyMode={energyMode} />
+        <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} tier={tier} />
+        <SectionDivider isDark={isDark} />
+      </motion.div>
+      <BadgeTiersModal open={tiersModalOpen} onClose={() => setTiersModalOpen(false)} currentTierLabel={tier.label} />
     </>
   );
 }
