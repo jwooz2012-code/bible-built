@@ -68,14 +68,16 @@ export default function ChapterTile({ chapter, timesRead, onClick, disabled, cha
       style={energyMode ? getEnergyTileStyle() : getDefaultTileStyle()}>
 
       {timesRead >= 1 && (() => {
-        // Color tiers: 1=green, 2=purple, 3=orange, 4+=blue
-        const tierStyles = timesRead >= 4
+        // Color tiers: 1=black/white, 2=green, 3=purple, 4=orange, 5+=blue
+        const tierStyles = timesRead >= 5
           ? { bg: 'linear-gradient(135deg, #3B82F6, #06B6D4)', border: 'rgba(59,130,246,0.5)', text: '#fff', shadow: '0 2px 6px rgba(59,130,246,0.5)' }
-          : timesRead === 3
+          : timesRead === 4
           ? { bg: 'linear-gradient(135deg, #F59E0B, #F97316)', border: 'rgba(245,158,11,0.5)', text: '#fff', shadow: '0 2px 6px rgba(249,115,22,0.55)' }
-          : timesRead === 2
+          : timesRead === 3
           ? { bg: 'linear-gradient(135deg, #8B5CF6, #6366F1)', border: 'rgba(139,92,246,0.5)', text: '#fff', shadow: '0 2px 6px rgba(139,92,246,0.55)' }
-          : { bg: 'linear-gradient(135deg, #22C55E, #10B981)', border: 'rgba(34,197,94,0.5)', text: '#fff', shadow: '0 2px 6px rgba(34,197,94,0.5)' };
+          : timesRead === 2
+          ? { bg: 'linear-gradient(135deg, #22C55E, #10B981)', border: 'rgba(34,197,94,0.5)', text: '#fff', shadow: '0 2px 6px rgba(34,197,94,0.5)' }
+          : { bg: 'linear-gradient(135deg, #1a1a1a, #3a3a3a)', border: 'rgba(255,255,255,0.25)', text: '#fff', shadow: '0 2px 6px rgba(0,0,0,0.4)' };
         return (
           <div
             className="rounded-full absolute -top-1.5 -right-1.5 w-5 h-5 flex items-center justify-center times-read-badge"

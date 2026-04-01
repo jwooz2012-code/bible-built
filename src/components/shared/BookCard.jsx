@@ -25,13 +25,15 @@ export default function BookCard({ book, completions, onClick, compact = false }
       }}
     >
       {completions > 0 && (() => {
-        const tierStyles = completions >= 4
+        const tierStyles = completions >= 5
           ? { bg: 'linear-gradient(135deg, #3B82F6, #06B6D4)', border: 'rgba(59,130,246,0.5)', shadow: '0 2px 8px rgba(59,130,246,0.5)' }
-          : completions === 3
+          : completions === 4
           ? { bg: 'linear-gradient(135deg, #F59E0B, #F97316)', border: 'rgba(245,158,11,0.5)', shadow: '0 2px 8px rgba(249,115,22,0.55)' }
-          : completions === 2
+          : completions === 3
           ? { bg: 'linear-gradient(135deg, #8B5CF6, #6366F1)', border: 'rgba(139,92,246,0.5)', shadow: '0 2px 8px rgba(139,92,246,0.55)' }
-          : { bg: 'linear-gradient(135deg, #22C55E, #10B981)', border: 'rgba(34,197,94,0.5)', shadow: '0 2px 8px rgba(34,197,94,0.5)' };
+          : completions === 2
+          ? { bg: 'linear-gradient(135deg, #22C55E, #10B981)', border: 'rgba(34,197,94,0.5)', shadow: '0 2px 8px rgba(34,197,94,0.5)' }
+          : { bg: 'linear-gradient(135deg, #1a1a1a, #3a3a3a)', border: 'rgba(255,255,255,0.25)', shadow: '0 2px 8px rgba(0,0,0,0.4)' };
         return (
           <div
             className="absolute top-1.5 right-1.5 w-[22px] h-[22px] rounded-full flex items-center justify-center z-20"
