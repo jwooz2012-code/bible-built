@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 import { motion } from 'framer-motion';
 import { BookOpen, Check, Star, Shield, Crown, Sprout, Calendar, Layers } from 'lucide-react';
 
@@ -316,7 +317,7 @@ function TierProgressBar({ streak, tier, isDark }) {
 }
 
 // ─── Row 4: Stats ribbon ──────────────────────────────────────────────────────
-function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
+function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark, energyMode }) {
   const [isNewBest, setIsNewBest] = useState(false);
   const twAnim = useCountUp(thisWeek,  600, 1000);
   const bwAnim = useCountUp(isNewBest ? thisWeek : bestWeek, 600, 1100);
@@ -330,8 +331,9 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
     }
   }, [thisWeek, bestWeek, isNewBest]);
 
-  const labelColor   = isDark ? '#71717A' : '#A1A1AA';
+  const labelColor   = energyMode ? 'rgba(255,255,255,0.55)' : (isDark ? '#71717A' : '#A1A1AA');
   const dividerColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+  const numberColor  = energyMode ? '#ffffff' : (isDark ? '#ffffff' : '#18181B');
 
   const Divider = () => (
     <div style={{ width: 1, height: 32, background: dividerColor, flexShrink: 0 }} />
@@ -377,7 +379,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST WEEK — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: numberColor }}>
           {bwAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -389,7 +391,7 @@ function StatsRibbon({ thisWeek, bestWeek, bestMonth, isDark }) {
 
       {/* BEST MONTH — foreground */}
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3, flex: 1, paddingLeft: 8, paddingRight: 8 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: isDark ? '#ffffff' : '#18181B' }}>
+        <span style={{ fontSize: 28, fontWeight: 700, lineHeight: 1.15, fontVariantNumeric: 'tabular-nums', color: numberColor }}>
           {bmAnim}
         </span>
         <span style={{ fontSize: 9, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '1px', color: labelColor }}>
@@ -533,6 +535,7 @@ function BottomCards({ yearChapters, mostReadBook, isDark, tier }) {
 export default function ProgressHero({ currentStreak, records, todayLogs = [], thisWeekChapters = 0, yearChapters = 0 }) {
   injectStyles();
   const isDark     = useIsDark();
+  const { energyMode } = useTheme();
   const tier       = getTier(currentStreak);
   const readToday  = todayLogs.length > 0;
   const animStreak = useCountUp(currentStreak, 800, 200);
@@ -547,7 +550,7 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
       <HeaderBar tier={tier} isDark={isDark} />
       <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
-      <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} />
+      <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} energyMode={energyMode} />
       <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} tier={tier} />
       <SectionDivider isDark={isDark} />
     </motion.div>
