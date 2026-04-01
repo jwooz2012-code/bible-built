@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -17,6 +18,7 @@ function useIsDark() {
 export default function WeekView({ logs = [], tierColor }) {
   const navigate = useNavigate();
   const isDark = useIsDark();
+  const { energyMode } = useTheme();
   const today = new Date();
 
   const startOfWeek = new Date(today);
@@ -63,7 +65,22 @@ export default function WeekView({ logs = [], tierColor }) {
                 whileTap={{ scale: 1.05 }}
                 onClick={() => navigate(createPageUrl('Calendar'))}
                 className="relative flex flex-col items-center justify-center rounded-xl py-1.5 px-1 gap-0.5 transition-colors border"
-                style={{
+                style={energyMode ? {
+                  minHeight: 54,
+                  background: isToday
+                    ? 'rgba(28,32,38,0.6)'
+                    : hasActivity
+                    ? 'rgba(28,32,38,0.9)'
+                    : 'hsl(var(--card))',
+                  borderColor: isToday
+                    ? 'hsl(var(--primary))'
+                    : hasActivity
+                    ? 'hsla(var(--primary)/0.4)'
+                    : 'hsl(var(--border))',
+                  borderWidth: isToday ? '2px' : hasActivity ? '1.5px' : '1px',
+                  boxShadow: isToday ? '0 0 0 1px hsla(var(--primary)/0.2)' : hasActivity ? 'inset 0 0 8px hsla(var(--primary)/0.1)' : 'none',
+                  opacity: (!isToday && !hasActivity) ? 0.45 : 1,
+                } : {
                   minHeight: 54,
                   background: isToday
                     ? 'transparent'
@@ -76,7 +93,6 @@ export default function WeekView({ logs = [], tierColor }) {
                     ? 'hsl(var(--accent))'
                     : isDark ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)',
                   opacity: (!isToday && !hasActivity) ? 0.55 : 1,
-                  // Today gets a fire gradient bg via inline style
                   ...(isToday ? {
                     background: tierColor
                       ? `${tierColor}22`
@@ -91,19 +107,19 @@ export default function WeekView({ logs = [], tierColor }) {
                     className="absolute inset-0 rounded-xl pointer-events-none"
                     animate={{ opacity: [0.08, 0.16, 0.08] }}
                     transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{ background: tierColor || '#F97316' }}
+                    style={{ background: energyMode ? 'hsl(var(--primary))' : (tierColor || '#F97316') }}
                   />
                 )}
 
                 <span
                   className="text-[10px] font-semibold tracking-wide"
-                  style={{ color: isToday ? (tierColor || '#F97316') : 'hsl(var(--muted-foreground))' }}
+                  style={{ color: energyMode ? 'hsl(var(--muted-foreground))' : (isToday ? (tierColor || '#F97316') : 'hsl(var(--muted-foreground))') }}
                 >
                   {date.toLocaleDateString('en-US', { weekday: 'short' })}
                 </span>
                 <span
                   className="text-sm font-bold"
-                  style={{ color: isToday ? (tierColor || '#F97316') : 'hsl(var(--foreground))' }}
+                  style={{ color: energyMode ? 'hsl(var(--foreground))' : (isToday ? (tierColor || '#F97316') : 'hsl(var(--foreground))') }}
                 >
                   {date.getDate()}
                 </span>
@@ -112,12 +128,12 @@ export default function WeekView({ logs = [], tierColor }) {
                 <div className="h-4 flex flex-col items-center justify-center gap-0.5">
                   {hasActivity ? (
                     <>
-                      <span className="text-[11px] font-bold" style={{ color: isToday ? (tierColor || '#10B981') : '#10B981' }}>
+                      <span className="text-[11px] font-bold" style={{ color: energyMode ? 'hsl(var(--accent))' : (isToday ? (tierColor || '#10B981') : '#10B981') }}>
                         {count}
                       </span>
                       <div
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: isToday ? (tierColor || '#10B981') : '#10B981' }}
+                        style={{ background: energyMode ? 'hsl(var(--accent))' : (isToday ? (tierColor || '#10B981') : '#10B981') }}
                       />
                     </>
                   ) : (
