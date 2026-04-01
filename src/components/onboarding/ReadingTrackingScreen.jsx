@@ -216,7 +216,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
             book={DEMO_BOOK}
             chapter={readerState.chapter}
             userId={userId}
-            onClose={() => setReaderState(null)}
+            onClose={() => { setHasReadChapter(true); setReaderState(null); }}
             onMarkRead={({ chapter: c }) => handleReaderMarkRead({ chapter: c })}
             demoMode
           />

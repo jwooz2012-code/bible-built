@@ -87,14 +87,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     if (chapter < book.chapters) prefetchChapter(book.index, chapter + 1);
   }, [book.index, book.chapters, chapter]);
 
-  // In demo mode, auto-mark as read once chapter loads
-  useEffect(() => {
-    if (demoMode && !isLoading && !loadError && !isMarked) {
-      const chapterId = generateChapterId(book.index, chapter);
-      setIsMarked(true);
-      onMarkRead?.({ book, chapter, chapterId, testament: book.testament });
-    }
-  }, [demoMode, isLoading, loadError]);
+
 
   // Auto-scroll to highlighted verse
   useEffect(() => {
