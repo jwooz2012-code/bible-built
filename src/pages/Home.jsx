@@ -379,22 +379,38 @@ export default function Home() {
             )}
 
             <div className="flex gap-2 mb-5">
-              <Button
-                variant={selectedTestamentFilter === 'OT' ? 'secondary' : 'ghost'}
-                size="sm"
+              <button
                 onClick={() => setSelectedTestamentFilter('OT')}
-                className="flex-1 h-10 text-sm font-medium"
+                className="flex-1 h-10 text-sm font-semibold rounded-xl transition-all"
+                style={selectedTestamentFilter === 'OT' ? {
+                  background: 'rgba(34,197,94,0.12)',
+                  border: '2px solid #22C55E',
+                  color: '#16A34A',
+                  boxShadow: '0 0 0 1px rgba(34,197,94,0.2)'
+                } : {
+                  background: 'hsl(var(--muted))',
+                  border: '2px solid transparent',
+                  color: 'hsl(var(--muted-foreground))'
+                }}
               >
                 Old Testament
-              </Button>
-              <Button
-                variant={selectedTestamentFilter === 'NT' ? 'secondary' : 'ghost'}
-                size="sm"
+              </button>
+              <button
                 onClick={() => setSelectedTestamentFilter('NT')}
-                className="flex-1 h-10 text-sm font-medium"
+                className="flex-1 h-10 text-sm font-semibold rounded-xl transition-all"
+                style={selectedTestamentFilter === 'NT' ? {
+                  background: 'rgba(34,197,94,0.12)',
+                  border: '2px solid #22C55E',
+                  color: '#16A34A',
+                  boxShadow: '0 0 0 1px rgba(34,197,94,0.2)'
+                } : {
+                  background: 'hsl(var(--muted))',
+                  border: '2px solid transparent',
+                  color: 'hsl(var(--muted-foreground))'
+                }}
               >
                 New Testament
-              </Button>
+              </button>
             </div>
           </>
         )}
