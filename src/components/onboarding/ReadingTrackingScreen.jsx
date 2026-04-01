@@ -87,7 +87,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
             )}
             <h1 className="text-3xl font-black text-foreground">{isNewFeature ? 'Track Your Reading' : 'Log Your Reading'}</h1>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              {isNewFeature ? 'You can now log chapters two ways — mark them complete instantly, or open and read them right here in the app.' : 'Try both modes below before continuing — mark a chapter complete, then open one to read it.'}
+              {isNewFeature ? 'You can now log chapters two ways — mark them complete instantly, or open and read them right here in the app.' : (<>1. Select <strong>Mark Complete</strong> → tap a chapter.<br/>2. Select <strong>Read Chapter</strong> → tap a chapter, then close the reader.</>)}
             </p>
             <p className="text-xs text-muted-foreground/70 italic">🧪 Just a demo — nothing here will be saved to your account.</p>
           </div>
