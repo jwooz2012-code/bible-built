@@ -20,18 +20,24 @@ import {
 } from 'lucide-react';
 
 // ── Streak Ring ───────────────────────────────────────────────────────────────
-const RING_R = 42;
+const RING_R = 48;
 const RING_CIRC = 2 * Math.PI * RING_R;
 function StreakRing({ streak, children }) {
   const fill = Math.min(streak / 30, 1);
   const dash = fill * RING_CIRC;
   return (
-    <div className="relative" style={{ width: 104, height: 104 }}>
-      <svg width={104} height={104} className="absolute inset-0 -rotate-90">
-        <circle cx={52} cy={52} r={RING_R} fill="none" stroke="currentColor" strokeWidth={3} className="text-border" />
+    <div className="relative" style={{ width: 116, height: 116 }}>
+      <svg width={116} height={116} className="absolute inset-0 -rotate-90">
+        <defs>
+          <linearGradient id="streakGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="rgb(251,146,60)" />
+            <stop offset="100%" stopColor="rgb(239,68,68)" />
+          </linearGradient>
+        </defs>
+        <circle cx={58} cy={58} r={RING_R} fill="none" stroke="currentColor" strokeWidth={4} className="text-border" />
         {streak > 0 && (
-          <circle cx={52} cy={52} r={RING_R} fill="none"
-            stroke="rgb(251,146,60)" strokeWidth={3}
+          <circle cx={58} cy={58} r={RING_R} fill="none"
+            stroke="url(#streakGrad)" strokeWidth={4}
             strokeDasharray={`${dash} ${RING_CIRC}`} strokeLinecap="round"
           />
         )}
@@ -41,7 +47,7 @@ function StreakRing({ streak, children }) {
   );
 }
 
-// ── Tap-animated row ──────────────────────────────────────────────────────────
+// ── Tap-animated row ───────────────────────────────────────────────────────────────
 function TapRow({ children, onPress, className = '' }) {
   return (
     <motion.button whileTap={{ scale: 0.97 }}
@@ -225,15 +231,18 @@ export default function Profile() {
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.25 }}
-            className="relative overflow-hidden rounded-3xl p-6 mb-2"
+            className="relative overflow-hidden rounded-3xl mb-2"
             style={{
-              background: 'linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%)',
+              background: 'linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%)',
               border: '1px solid hsl(var(--border))',
             }}
           >
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
+            {/* Background glows */}
+            <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full bg-orange-400/10 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-10 -left-10 w-40 h-40 rounded-full bg-blue-400/8 blur-3xl pointer-events-none" />
 
-            <div className="flex flex-col items-center pt-2 pb-2">
+            {/* Top section: avatar + name */}
+            <div className="flex flex-col items-center pt-8 pb-5 px-6">
               <StreakRing streak={currentStreak}>
                 <AvatarPicker
                   initials={initials}
@@ -241,116 +250,33 @@ export default function Profile() {
                   onUpdate={(data) => setAvatarData(prev => ({ ...prev, ...data }))}
                 />
               </StreakRing>
-
-              <h1 className="text-[22px] font-bold text-foreground mt-4 mb-5">{displayName}</h1>
-
-              <div className="flex items-center gap-8">
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" />
-                    <span className="text-[20px] font-bold text-foreground">{currentStreak}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Day Streak</span>
-                </div>
-                <div className="w-px h-8 bg-border" />
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="w-4 h-4 text-blue-400" />
-                    <span className="text-[20px] font-bold text-foreground">{totalChapters}</span>
-                  </div>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Chapters</span>
-                </div>
-                <div className="w-px h-8 bg-border" />
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[20px] font-bold text-foreground">{earnedBadges.length}</span>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Badges</span>
-                </div>
+              <h1 className="text-[24px] font-bold text-foreground mt-3 mb-1">{displayName}</h1>
+              {/* Streak label tight under name */}
+              <div className="flex items-center gap-1.5 mb-1">
+                <Flame className="w-4 h-4 text-orange-400" />
+                <span className="text-[15px] font-semibold text-orange-400">{currentStreak}-day streak</span>
               </div>
             </div>
-          </motion.div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.25, delay: 0.08 }}
-          >
-            {/* ── Progress Summaries ── */}
-            <SectionHeader title="Progress" />
-            <div className="space-y-2">
-              <SummaryRow icon={CalendarDays} label="This Week" chapters={weekChapters} streak={currentStreak} onPress={() => navigateToSummary('weekly')} />
-              <SummaryRow icon={CalendarRange} label="This Month" chapters={monthChapters} streak={0} onPress={() => navigateToSummary('monthly')} />
-              <SummaryRow icon={Calendar} label="This Year" chapters={yearChapters} streak={0} onPress={() => navigateToSummary('yearly')} />
-            </div>
+            {/* Divider */}
+            <div className="mx-6" style={{ height: 1, background: 'hsl(var(--border))' }} />
 
-            {/* ── Badges Preview ── */}
-            <SectionHeader title="Badges" />
-            <TapRow
-              onPress={() => navigate('/stats#badges-section')}
-              className="w-full px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  {lastEarned ? (
-                    <div className={`w-9 h-9 flex items-center justify-center rounded-full flex-shrink-0 ${isBlackWhite ? 'bg-gray-900' : `bg-gradient-to-br ${lastEarnedColor}`}`}>
-                      {getAchievementIcon(lastEarned.title, true, 'default')}
-                    </div>
-                  ) : (
-                    <div className="w-9 h-9 flex items-center justify-center rounded-full bg-secondary flex-shrink-0">
-                      <span className="text-lg">🏅</span>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-[15px] font-medium text-foreground block">
-                      {lastEarned ? lastEarned.title : 'No badges yet'}
-                    </span>
-                    {nextBadge && (
-                      <div className="flex items-center gap-1.5 mt-0.5">
-                        <div className="w-16 h-1 bg-border rounded-full overflow-hidden">
-                          <div className="h-full bg-blue-400 rounded-full" style={{ width: `${nextBadgePct * 100}%` }} />
-                        </div>
-                        <span className="text-[11px] text-muted-foreground">{nextBadge.current}/{nextBadge.target} → {nextBadge.title}</span>
-                      </div>
-                    )}
-                  </div>
+            {/* Bottom section: big stats */}
+            <div className="grid grid-cols-2 divide-x divide-border">
+              <div className="flex flex-col items-center py-4 px-4 gap-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <BookOpen className="w-4 h-4 text-blue-400" />
+                  <span className="text-[28px] font-black text-foreground leading-none">{totalChapters}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
+                <span className="text-[11px] text-muted-foreground uppercase tracking-widest font-medium">Chapters Read</span>
               </div>
-            </TapRow>
-
-            {/* ── Accountability ── */}
-            <SectionHeader title="Accountability" />
-            <div className="space-y-2">
-              <TapRow onPress={() => setShowShareSheet(true)}
-                className="w-full flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Share2 className="text-muted-foreground" style={{ width: 18, height: 18 }} />
-                  <span className="text-[15px] font-medium text-foreground">Share My Progress</span>
+              <div className="flex flex-col items-center py-4 px-4 gap-0.5">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <span className="text-[18px] leading-none">🏅</span>
+                  <span className="text-[28px] font-black text-foreground leading-none">{earnedBadges.length}</span>
                 </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </TapRow>
-              <Link
-                to={createPageUrl('accountability')}
-                className="flex items-center justify-between px-4 py-3.5 bg-card border border-border/60 rounded-xl hover:bg-accent/30 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <Users className="text-muted-foreground" style={{ width: 18, height: 18 }} />
-                  <span className="text-[15px] font-medium text-foreground">Accountability</span>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground/50" />
-              </Link>
-            </div>
-
-            {/* ── Community ── */}
-            <SectionHeader title="Community" />
-            <div className="space-y-2">
-              <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
-            </div>
-
-            {/* ── Settings ── */}
-            <SectionHeader title="Settings" />
-            <div className="space-y-2">
-              <ProfileRow icon={Settings} label="Preferences" onPress={() => navigate('/settings')} />
+                <span className="text-[11px] text-muted-foreground uppercase tracking-widest font-medium">Badges Earned</span>
+              </div>
             </div>
           </motion.div>
         </div>
