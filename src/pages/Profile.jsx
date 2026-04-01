@@ -234,36 +234,35 @@ export default function Profile() {
             <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-orange-400/10 blur-2xl pointer-events-none" />
 
             <div className="flex flex-col items-center pt-2 pb-2">
-              <StreakRing streak={currentStreak}>
-                <AvatarPicker
-                  initials={initials}
-                  avatarData={avatarData}
-                  onUpdate={(data) => setAvatarData(prev => ({ ...prev, ...data }))}
-                />
-              </StreakRing>
+              <AvatarPicker
+                initials={initials}
+                avatarData={avatarData}
+                onUpdate={(data) => setAvatarData(prev => ({ ...prev, ...data }))}
+              />
 
-              <h1 className="text-[22px] font-bold text-foreground mt-4 mb-5">{displayName}</h1>
+              <h1 className="text-[22px] font-bold text-foreground mt-3 mb-2">{displayName}</h1>
 
-              <div className="flex items-center gap-8">
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex items-center gap-1">
-                    <Flame className="w-4 h-4 text-orange-400" />
-                    <span className="text-[20px] font-bold text-foreground">{currentStreak}</span>
+              {/* Streak pill */}
+              <div className="flex items-center gap-1.5 px-3.5 py-1 rounded-full mb-5" style={{ background: 'rgba(251,146,60,0.12)' }}>
+                <Flame className="w-3.5 h-3.5 text-orange-400" />
+                <span className="text-[13px] font-semibold text-orange-400">{currentStreak}-day streak</span>
+              </div>
+
+              {/* Stats row */}
+              <div className="flex items-stretch gap-3 w-full">
+                <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <BookOpen className="w-3.5 h-3.5 text-blue-400" />
+                    <span className="text-[22px] font-bold text-foreground">{totalChapters}</span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Day Streak</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chapters Read</span>
                 </div>
-                <div className="w-px h-8 bg-border" />
-                <div className="flex flex-col items-center gap-0.5">
-                  <div className="flex items-center gap-1">
-                    <BookOpen className="w-4 h-4 text-blue-400" />
-                    <span className="text-[20px] font-bold text-foreground">{totalChapters}</span>
+                <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[18px]">🏅</span>
+                    <span className="text-[22px] font-bold text-foreground">{earnedBadges.length}</span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Chapters</span>
-                </div>
-                <div className="w-px h-8 bg-border" />
-                <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[20px] font-bold text-foreground">{earnedBadges.length}</span>
-                  <span className="text-[11px] text-muted-foreground uppercase tracking-wide">Badges</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges Earned</span>
                 </div>
               </div>
             </div>
