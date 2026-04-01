@@ -383,10 +383,11 @@ html.energy .bb-shimmer {
 
 /* Preserve badge coin gradient colors in energy mode */
 html.energy [data-badge-coin="true"] {
-  background: revert !important;
-  border: revert !important;
+  background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)) !important;
+  background-color: transparent !important;
+  border: 1.5px solid rgba(255,255,255,0.25) !important;
   backdrop-filter: none !important;
-  box-shadow: revert !important;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.2), inset 0 2px 0 rgba(255,255,255,0.45) !important;
 }
 
 html.energy button,
