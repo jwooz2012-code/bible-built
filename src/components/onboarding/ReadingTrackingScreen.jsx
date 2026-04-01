@@ -44,7 +44,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
     if (markedChapter) {
       setReaderMarkedChapters(prev => new Set([...prev, markedChapter]));
     }
-    setReaderState(null);
+    // Don't close the reader here — let the user close via X or Mark as Read button
   };
 
   const canContinue = hasMarkedComplete && hasReadChapter;
