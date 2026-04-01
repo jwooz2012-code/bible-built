@@ -65,7 +65,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.3 }}
-        className="min-h-screen flex flex-col items-center justify-center px-6 pb-24 pt-8"
+        className="flex flex-col items-center px-6 pb-24 pt-6"
       >
         <motion.div
           initial={{ y: 24, opacity: 0 }}
