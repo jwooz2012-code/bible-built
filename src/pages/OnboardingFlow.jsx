@@ -60,12 +60,14 @@ export default function OnboardingFlow() {
   const handleFinish = () => {
     triggerHaptic();
     // Update local state immediately so App.jsx doesn't redirect back to onboarding
-    updateUser({ displayName: responses.displayName, onboardingComplete: true });
+    // Also mark hasSeenReadingTrackingFeature so new users skip the intro
+    updateUser({ displayName: responses.displayName, onboardingComplete: true, hasSeenReadingTrackingFeature: true });
     // Navigate instantly — save in background
     navigate('/home', { replace: true });
     base44.auth.updateMe({ 
       displayName: responses.displayName,
-      onboardingComplete: true 
+      onboardingComplete: true,
+      hasSeenReadingTrackingFeature: true
     }).catch((error) => console.error('Failed to save onboarding:', error));
   };
 
