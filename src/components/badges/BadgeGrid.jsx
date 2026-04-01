@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAchievementIcon, getAchievementColor } from './badgeIcons';
 import { X, Lock, Award } from 'lucide-react';
@@ -46,10 +46,10 @@ function BadgeModal({ badge, onClose }) {
                 <div
                   className={`absolute inset-0 rounded-full ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                   style={{
-                    filter: 'blur(12px)',
-                    opacity: 0.5,
-                    transform: 'scale(1.18)',
-                    background: isBW ? 'rgba(180,180,180,0.35)' : undefined,
+                    filter: 'blur(8px)',
+                    opacity: 0.25,
+                    transform: 'scale(1.15)',
+                    background: isBW ? 'rgba(180,180,180,0.2)' : undefined,
                   }}
                 />
               )}
@@ -97,6 +97,42 @@ function BadgeModal({ badge, onClose }) {
         </motion.div>
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+function TiltBadge({ children, isLocked }) {
+  const ref = useRef(null);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const [hovering, setHovering] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current || isLocked) return;
+    const rect = ref.current.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    setTilt({ x: -dy * 14, y: dx * 14 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+    setHovering(false);
+  };
+
+  return (
+    <div
+      ref={ref}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => !isLocked && setHovering(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        transform: `perspective(400px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${hovering ? 1.08 : 1})`,
+        transition: hovering ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out',
+      }}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -153,22 +189,23 @@ export default function BadgeGrid({ achievements }) {
                 initial={{ opacity: 0, scale: 0.85 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: idx * 0.03, duration: 0.22, ease: [0.25, 0.46, 0.45, 0.94] }}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.88 }}
                 onClick={() => setSelectedBadge(badge)}
                 className="flex flex-col items-center gap-2 text-center"
                 style={{ opacity: isLocked ? 0.38 : 1 }}
               >
                 {/* Circular coin medal */}
+                <TiltBadge isLocked={isLocked}>
                 <div className="relative">
                   {/* Glow ring for earned badges */}
                   {!isLocked && (
                     <div
                       className={`absolute inset-0 rounded-full ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                       style={{
-                        filter: 'blur(8px)',
-                        opacity: 0.55,
-                        transform: 'scale(1.15)',
-                        background: isBW ? 'rgba(200,200,200,0.4)' : undefined,
+                        filter: 'blur(5px)',
+                        opacity: 0.28,
+                        transform: 'scale(1.12)',
+                        background: isBW ? 'rgba(200,200,200,0.2)' : undefined,
                       }}
                     />
                   )}
@@ -204,14 +241,15 @@ export default function BadgeGrid({ achievements }) {
                       <Lock className="w-2 h-2 text-muted-foreground/60" />
                     </div>
                   )}
-                </div>
-                <span
+                  </div>
+                  </TiltBadge>
+                  <span
                   className="text-[10px] font-semibold leading-tight line-clamp-2 px-0.5"
                   style={{ color: isLocked ? 'hsl(var(--muted-foreground))' : 'hsl(var(--foreground)/0.85)' }}
-                >
+                  >
                   {badge.title}
-                </span>
-              </motion.button>
+                  </span>
+                  </motion.button>
             );
           })}
         </div>
