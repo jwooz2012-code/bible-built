@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -26,6 +27,7 @@ const getTotalScreens = (experienceType) => {
 export default function OnboardingFlow() {
   const navigate = useNavigate();
   const { updateUser } = useAuth();
+  const { triggerCelebration } = useCelebration();
   const [currentStep, setCurrentStep] = useState(0);
   const [responses, setResponses] = useState({
     displayName: '',
@@ -62,6 +64,14 @@ export default function OnboardingFlow() {
     // Update local state immediately so App.jsx doesn't redirect back to onboarding
     // Also mark hasSeenReadingTrackingFeature so new users skip the intro
     updateUser({ displayName: responses.displayName, onboardingComplete: true, hasSeenReadingTrackingFeature: true });
+    // Trigger Battle badge celebration before navigating
+    triggerCelebration(CELEBRATION_TYPES.BADGE, {
+      badge: {
+        title: 'Battle',
+        subtitle: 'You showed up knowing the Christian life is a fight. The Word of God is your weapon — and this is where faithfulness begins.',
+      },
+      userName: responses.displayName,
+    }, { dedupKey: 'onboarding-battle-badge' });
     // Navigate instantly — save in background
     navigate('/home', { replace: true });
     base44.auth.updateMe({ 
