@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
-  const sizeClass = iconSize === 'large' ? 'w-5 h-5' : 'w-4 h-4';
+  const sizeClass = iconSize === 'large' ? 'w-12 h-12' : 'w-4 h-4';
   const iconProps = { className: sizeClass, strokeWidth: 2 };
   const color = achieved ? '#FFFFFF' : '#9CA3AF';
   
