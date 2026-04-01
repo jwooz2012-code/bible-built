@@ -89,6 +89,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
             <p className="text-sm text-muted-foreground leading-relaxed">
               {isNewFeature ? 'You can now log chapters two ways — mark them complete instantly, or open and read them right here in the app.' : 'Try both modes below before continuing — mark a chapter complete, then open one to read it.'}
             </p>
+            <p className="text-xs text-muted-foreground/70 italic">🧪 Just a demo — nothing here will be saved to your account.</p>
           </div>
 
           {/* Book Card */}
