@@ -122,7 +122,7 @@ export default function OnboardingFlow() {
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+    <div className="min-h-screen bg-background overflow-hidden" style={{ paddingTop: 'max(env(safe-area-inset-top), 44px)' }}>
 
       {/* Progress indicator - hidden on welcome and final screens */}
       {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
