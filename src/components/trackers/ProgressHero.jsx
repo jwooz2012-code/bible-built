@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import BadgeTiersModal from '@/components/badges/BadgeTiersModal';
 import { useTheme } from '@/components/ThemeProvider';
 import { motion } from 'framer-motion';
 import { BookOpen, Check, Star, Shield, Crown, Sprout, Calendar, Layers } from 'lucide-react';
@@ -90,7 +91,7 @@ function injectStyles() {
 }
 
 // ─── Row 1: Header ────────────────────────────────────────────────────────────
-function HeaderBar({ tier, isDark }) {
+function HeaderBar({ tier, isDark, onTierPillClick }) {
   const TierIcon = tier.Icon;
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
@@ -101,6 +102,7 @@ function HeaderBar({ tier, isDark }) {
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.3 }}
+        onClick={onTierPillClick}
         style={{
           paddingLeft: 10, paddingRight: 10, height: 28,
           borderRadius: 9999,
@@ -109,6 +111,7 @@ function HeaderBar({ tier, isDark }) {
           backgroundColor: tier.bg,
           border: `1px solid ${tier.border}`,
           display: 'flex', alignItems: 'center', gap: 5,
+          cursor: 'pointer',
         }}
       >
         <TierIcon style={{ width: 11, height: 11 }} />
@@ -539,20 +542,24 @@ export default function ProgressHero({ currentStreak, records, todayLogs = [], t
   const tier       = getTier(currentStreak);
   const readToday  = todayLogs.length > 0;
   const animStreak = useCountUp(currentStreak, 800, 200);
+  const [tiersModalOpen, setTiersModalOpen] = useState(false);
 
   return (
+    <>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       style={{ marginBottom: 0 }}
     >
-      <HeaderBar tier={tier} isDark={isDark} />
+      <HeaderBar tier={tier} isDark={isDark} onTierPillClick={() => setTiersModalOpen(true)} />
       <StreakRing animatedStreak={animStreak} readToday={readToday} isDark={isDark} tier={tier} />
       <TierProgressBar streak={currentStreak} tier={tier} isDark={isDark} />
       <StatsRibbon thisWeek={thisWeekChapters} bestWeek={records.bestRolling7} bestMonth={records.bestMonth} isDark={isDark} energyMode={energyMode} />
       <BottomCards yearChapters={yearChapters} mostReadBook={records.mostReadBook?.name} isDark={isDark} tier={tier} />
       <SectionDivider isDark={isDark} />
     </motion.div>
+    <BadgeTiersModal open={tiersModalOpen} onClose={() => setTiersModalOpen(false)} currentTierLabel={tier.label} />
+    </>
   );
 }
