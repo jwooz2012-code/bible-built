@@ -364,11 +364,9 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
             <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
           </button>
 
-          {/* Mark as Read — hidden in demo mode (auto-triggered) */}
-          {!demoMode && (
           <button
             onClick={handleMarkRead}
-            disabled={isMarkingRead || isMarked || !userId}
+            disabled={isMarkingRead || isMarked || (!demoMode && !userId)}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-2xl font-semibold text-sm transition-all
               ${isMarked
                 ? 'bg-green-500/20 text-green-600 border border-green-500/30'
@@ -378,7 +376,6 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
             <BookOpen className="w-4 h-4" />
             {isMarked ? 'Marked as Read ✓' : isMarkingRead ? 'Saving...' : 'Mark as Read'}
           </button>
-          )}
 
           {/* Audio toggle */}
           <button
