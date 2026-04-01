@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import { useTheme } from '@/components/ThemeProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getAchievementIcon, getAchievementColor } from './badgeIcons';
 import { X, Lock, Award } from 'lucide-react';
@@ -139,6 +140,7 @@ function TiltBadge({ children, isLocked }) {
 export default function BadgeGrid({ achievements }) {
   const [selectedBadge, setSelectedBadge] = useState(null);
   const [view, setView] = useState('earned');
+  const { energyMode } = useTheme();
 
   const earned = achievements.filter(b => b.achieved);
   const visible = view === 'earned' ? earned : achievements;
@@ -202,9 +204,9 @@ export default function BadgeGrid({ achievements }) {
                     <div
                       className={`absolute inset-0 rounded-full ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                       style={{
-                        filter: 'blur(5px)',
-                        opacity: 0.28,
-                        transform: 'scale(1.12)',
+                        filter: energyMode ? 'blur(7px)' : 'blur(5px)',
+                        opacity: energyMode ? 0.6 : 0.28,
+                        transform: energyMode ? 'scale(1.2)' : 'scale(1.12)',
                         background: isBW ? 'rgba(200,200,200,0.2)' : undefined,
                       }}
                     />
@@ -215,9 +217,11 @@ export default function BadgeGrid({ achievements }) {
                       background: isBW ? 'linear-gradient(145deg, #3a3a3a 0%, #111 50%, #2a2a2a 100%)' : undefined,
                       boxShadow: isLocked
                         ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.3)'
-                        : '0 6px 20px rgba(0,0,0,0.35), 0 0 0 2px rgba(255,255,255,0.12), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.2)',
-                      border: isLocked ? '1.5px solid rgba(255,255,255,0.06)' : '1.5px solid rgba(255,255,255,0.2)',
-                      filter: isLocked ? 'grayscale(1) brightness(0.7)' : 'none',
+                        : energyMode
+                          ? '0 6px 24px rgba(0,0,0,0.5), 0 0 0 2px rgba(255,255,255,0.2), inset 0 2px 0 rgba(255,255,255,0.45), inset 0 -2px 0 rgba(0,0,0,0.25)'
+                          : '0 6px 20px rgba(0,0,0,0.35), 0 0 0 2px rgba(255,255,255,0.12), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.2)',
+                      border: isLocked ? '1.5px solid rgba(255,255,255,0.06)' : '1.5px solid rgba(255,255,255,0.25)',
+                      filter: isLocked ? 'grayscale(1) brightness(0.6)' : energyMode ? 'brightness(1.15) saturate(1.25)' : 'none',
                     }}
                   >
                     {/* Chrome highlight sweep */}

@@ -161,7 +161,7 @@ export default function Stats() {
         >
           <div className="absolute -top-10 -right-10 w-40 h-40 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
 
-          <div className="flex items-center gap-3 mb-5">
+          <div className="relative z-10 flex items-center gap-3 mb-5">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
               <CalendarCheck className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
             </div>
@@ -231,12 +231,13 @@ export default function Stats() {
           style={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border)/0.7)', boxShadow: '0 2px 12px rgba(0,0,0,0.06)' }}
         >
           <div className="absolute -top-10 -right-10 w-44 h-44 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
-          <div className="flex items-center gap-3 mb-5">
+          <div className="relative z-10 flex items-center gap-3 mb-5">
             <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
               <BarChart2 className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
             </div>
             <p className="text-[13px] font-semibold text-muted-foreground uppercase tracking-widest">Total Chapters Read</p>
           </div>
+          <div className="relative z-10">
           <motion.p
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -245,6 +246,7 @@ export default function Stats() {
             style={{ textShadow: '0 0 30px rgba(34,197,94,0.15)' }}
           >{lifetimeLogs.length}</motion.p>
           <p className="text-[13px] font-medium mt-2" style={{ color: 'hsl(var(--muted-foreground))' }}>Includes every chapter logged, including repeated readings.</p>
+          </div>
         </motion.div>
 
         {/* Reading Velocity Section */}
@@ -297,7 +299,7 @@ export default function Stats() {
         >
           <div className="absolute -top-10 -right-10 w-48 h-48 rounded-full pointer-events-none" style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
 
-          <div className="flex items-center justify-between mb-5">
+          <div className="relative z-10 flex items-center justify-between mb-5">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: 'rgba(34,197,94,0.12)' }}>
                 <RefreshCw className="w-4 h-4" style={{ color: 'rgb(34,197,94)' }} />
@@ -312,6 +314,7 @@ export default function Stats() {
             </button>
           </div>
 
+          <div className="relative z-10">
           {lifetimeLoading ? (
             <div className="flex justify-center py-8"><LoadingSpinner /></div>
           ) : (
@@ -337,6 +340,7 @@ export default function Stats() {
               </div>
             </>
           )}
+          </div>
         </motion.div>
       </div>
 
