@@ -173,7 +173,7 @@ function CollectibleBadge({ badge, color, isBlackWhite, rarity }) {
             />
             {/* Icon */}
             <div style={{ position: 'relative', zIndex: 2 }}>
-              {getAchievementIcon(badge?.title, true, 'large')}
+              {getAchievementIcon(badge?.title, true, 'xl')}
             </div>
           </div>
         </div>
