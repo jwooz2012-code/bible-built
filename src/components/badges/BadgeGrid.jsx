@@ -42,19 +42,33 @@ function BadgeModal({ badge, onClose }) {
 
           <div className="flex flex-col items-center text-center">
             <div className="relative mb-5">
+              {!isLocked && (
+                <div
+                  className={`absolute inset-0 rounded-full ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
+                  style={{
+                    filter: 'blur(12px)',
+                    opacity: 0.5,
+                    transform: 'scale(1.18)',
+                    background: isBW ? 'rgba(180,180,180,0.35)' : undefined,
+                  }}
+                />
+              )}
               <div
-                className={`w-20 h-20 rounded-full flex items-center justify-center ${isBW ? 'bg-gray-900' : `bg-gradient-to-br ${color}`}`}
+                className={`w-20 h-20 rounded-full flex items-center justify-center relative overflow-hidden ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                 style={{
+                  background: isBW ? 'linear-gradient(145deg, #3a3a3a 0%, #111 50%, #2a2a2a 100%)' : undefined,
                   boxShadow: isLocked
-                    ? 'none'
-                    : '0 0 28px rgba(0,0,0,0.2), 0 0 0 3px rgba(255,255,255,0.08), inset 0 1px 0 rgba(255,255,255,0.2)',
-                  border: '2px solid rgba(255,255,255,0.12)',
+                    ? 'inset 0 1px 0 rgba(255,255,255,0.05)'
+                    : '0 8px 28px rgba(0,0,0,0.35), 0 0 0 3px rgba(255,255,255,0.12), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.2)',
+                  border: isLocked ? '2px solid rgba(255,255,255,0.06)' : '2px solid rgba(255,255,255,0.2)',
                   opacity: isLocked ? 0.4 : 1,
-                  filter: isLocked ? 'grayscale(1)' : 'none'
+                  filter: isLocked ? 'grayscale(1)' : 'none',
                 }}
               >
-                <div style={{ color: '#fff', transform: 'scale(1.5)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.3))' }}>
-                  {getAchievementIcon(badge.title, true)}
+                <div className="absolute inset-0 rounded-full pointer-events-none" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.08) 100%)' }} />
+                <div className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b-full pointer-events-none" style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.18))' }} />
+                <div style={{ position: 'relative', zIndex: 2, color: '#fff', transform: 'scale(1.8)', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}>
+                  {getAchievementIcon(badge.title, true, 'large')}
                 </div>
               </div>
               {isLocked && (
@@ -146,18 +160,43 @@ export default function BadgeGrid({ achievements }) {
               >
                 {/* Circular coin medal */}
                 <div className="relative">
+                  {/* Glow ring for earned badges */}
+                  {!isLocked && (
+                    <div
+                      className={`absolute inset-0 rounded-full ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
+                      style={{
+                        filter: 'blur(8px)',
+                        opacity: 0.55,
+                        transform: 'scale(1.15)',
+                        background: isBW ? 'rgba(200,200,200,0.4)' : undefined,
+                      }}
+                    />
+                  )}
                   <div
-                    className={`w-14 h-14 rounded-full flex items-center justify-center ${isBW ? 'bg-gray-900' : `bg-gradient-to-br ${color}`}`}
+                    className={`w-16 h-16 rounded-full flex items-center justify-center relative overflow-hidden ${isBW ? '' : `bg-gradient-to-br ${color}`}`}
                     style={{
+                      background: isBW ? 'linear-gradient(145deg, #3a3a3a 0%, #111 50%, #2a2a2a 100%)' : undefined,
                       boxShadow: isLocked
-                        ? 'inset 0 1px 0 rgba(255,255,255,0.05)'
-                        : '0 4px 16px rgba(0,0,0,0.22), 0 0 0 2.5px rgba(255,255,255,0.07), inset 0 1px 0 rgba(255,255,255,0.18)',
-                      border: isLocked ? '2px solid rgba(255,255,255,0.06)' : '2px solid rgba(255,255,255,0.13)',
-                      filter: isLocked ? 'grayscale(1)' : 'none',
+                        ? 'inset 0 1px 0 rgba(255,255,255,0.05), 0 2px 8px rgba(0,0,0,0.3)'
+                        : '0 6px 20px rgba(0,0,0,0.35), 0 0 0 2px rgba(255,255,255,0.12), inset 0 2px 0 rgba(255,255,255,0.35), inset 0 -2px 0 rgba(0,0,0,0.2)',
+                      border: isLocked ? '1.5px solid rgba(255,255,255,0.06)' : '1.5px solid rgba(255,255,255,0.2)',
+                      filter: isLocked ? 'grayscale(1) brightness(0.7)' : 'none',
                     }}
                   >
-                    <div style={{ color: '#fff', transform: 'scale(1.2)', filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.25))' }}>
-                      {getAchievementIcon(badge.title, true)}
+                    {/* Chrome highlight sweep */}
+                    <div
+                      className="absolute inset-0 rounded-full pointer-events-none"
+                      style={{
+                        background: 'linear-gradient(135deg, rgba(255,255,255,0.55) 0%, rgba(255,255,255,0.1) 40%, rgba(255,255,255,0) 60%, rgba(255,255,255,0.08) 100%)',
+                      }}
+                    />
+                    {/* Bottom shadow inner */}
+                    <div
+                      className="absolute bottom-0 left-0 right-0 h-1/2 rounded-b-full pointer-events-none"
+                      style={{ background: 'linear-gradient(to bottom, transparent, rgba(0,0,0,0.18))' }}
+                    />
+                    <div style={{ position: 'relative', zIndex: 2, color: '#fff', transform: 'scale(1.6)', filter: 'drop-shadow(0 1px 3px rgba(0,0,0,0.4))' }}>
+                      {getAchievementIcon(badge.title, true, 'large')}
                     </div>
                   </div>
                   {isLocked && (
