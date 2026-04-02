@@ -84,10 +84,9 @@ export default function TodayAssignmentCard({
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
 
-    // Check progress only from logs on or after plan start date
-    const planStartDate = plan?.startDate || '2000-01-01';
-    const relevantLogs = allTimeLogs.filter((log) => log.dateKey >= planStartDate);
-    const completedIds = new Set(relevantLogs.map((log) => log.chapterId));
+    // A day is complete when today's logs contain all assigned chapters
+    const todayLogs = allTimeLogs.filter((log) => log.dateKey === todayKey);
+    const completedIds = new Set(todayLogs.map((log) => log.chapterId));
     const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignedToday.length;
 

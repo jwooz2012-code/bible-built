@@ -19,10 +19,9 @@ export function useCompleteTodaysAssignment() {
         return { added: 0, createdLogs: [] };
       }
 
-      // Only consider logs on or after plan start date (same logic as the UI)
-      const planStartDate = plan.startDate || '2000-01-01';
-      const relevantLogs = allTimeLogs.filter(log => log.dateKey >= planStartDate);
-      const completedIds = new Set(relevantLogs.map(log => log.chapterId));
+      // Only skip chapters already logged FOR TODAY specifically
+      const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
+      const completedIds = new Set(todayLogs.map(log => log.chapterId));
 
       // Filter to only missing chapters
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
@@ -58,29 +57,14 @@ export function useCompleteTodaysAssignment() {
 
       const { createdLogs, userId, todayKey } = data;
 
-      // A) Update today's cache
-      queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => {
-        const combined = [...createdLogs, ...old];
-        const seen = new Set();
-        return combined.filter(log => {
-          if (seen.has(log.chapterId)) return false;
-          seen.add(log.chapterId);
-          return true;
-        });
-      });
+      // A) Update today's cache — just prepend new logs
+      queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => [...createdLogs, ...(old || [])]);
 
-      // B) Update all cached range logs
+      // B) Update all cached range logs — prepend new logs, no deduplication by chapterId
+      // (same chapter can be logged on different days)
       queryClient.setQueriesData(
         { predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId },
-        (old = []) => {
-          const combined = [...createdLogs, ...old];
-          const seen = new Set();
-          return combined.filter(log => {
-            if (seen.has(log.chapterId)) return false;
-            seen.add(log.chapterId);
-            return true;
-          });
-        }
+        (old = []) => [...createdLogs, ...(old || [])]
       );
 
       // Invalidate as backup
