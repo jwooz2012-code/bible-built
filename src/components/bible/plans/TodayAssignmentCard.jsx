@@ -161,7 +161,7 @@ export default function TodayAssignmentCard({
       });
     } else {
       // Use existing hook for other plans
-      completeToday({ userId, plan, logs: allTimeLogs, todayKey });
+      completeToday({ userId, plan, allTimeLogs, todayKey });
     }
   };
 
