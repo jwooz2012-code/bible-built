@@ -21,8 +21,9 @@ export function useMarkTodayComplete() {
       const todayKey = getDateKey(now);
       const timestamp = now.toISOString();
       
-      // Skip chapters already logged
-      const completedIds = new Set(allTimeLogs.map(l => l.chapterId));
+      // Only skip chapters already logged TODAY (not all-time — same chapter can be read in multiple plans)
+      const todayLogs = allTimeLogs.filter(l => l.dateKey === todayKey);
+      const completedIds = new Set(todayLogs.map(l => l.chapterId));
       const logsToCreate = [];
       
       todayAssignments.forEach(assignment => {
@@ -67,9 +68,11 @@ export function useMarkTodayComplete() {
       // Optimistically update today's logs cache
       queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => [...logsToCreate, ...old]);
 
-      // Invalidate to refetch fresh data
-      queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+      // Delay refetch to avoid race with server write propagation
+      setTimeout(() => {
+        queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+      }, 800);
 
       toast.success(`Marked ${count} chapter${count !== 1 ? 's' : ''} complete`);
     },
