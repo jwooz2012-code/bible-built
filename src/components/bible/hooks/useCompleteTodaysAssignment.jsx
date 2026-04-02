@@ -7,21 +7,28 @@ export function useCompleteTodaysAssignment() {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: async ({ userId, plan, allTimeLogs, todayKey }) => {
+    mutationFn: async ({ userId, plan, allTimeLogs, todayKey, assignedChapters }) => {
       if (!plan?.startDate || !plan?.endDate) {
         throw new Error('No active plan');
       }
 
-      // Get today's assigned chapters
-      const assignedToday = getAssignmentForDate({ plan, dateKey: todayKey });
+      // Use the chapters passed in from the card (same ones being displayed)
+      // Fallback to getAssignmentForDate if not provided
+      const assignedToday = assignedChapters?.length > 0
+        ? assignedChapters
+        : getAssignmentForDate({ plan, dateKey: todayKey });
+      
+      console.log('[completeToday] assignedToday:', assignedToday.map(c => `${c.book} ${c.chapter} (${c.chapterId})`));
       
       if (!assignedToday.length) {
+        console.warn('[completeToday] No chapters assigned for today - returning early');
         return { added: 0, createdLogs: [] };
       }
 
       // Only skip chapters already logged FOR TODAY specifically
       const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
       const completedIds = new Set(todayLogs.map(log => log.chapterId));
+      console.log('[completeToday] todayLogs count:', todayLogs.length, 'completedIds:', [...completedIds]);
 
       // Filter to only missing chapters
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
@@ -67,14 +74,16 @@ export function useCompleteTodaysAssignment() {
         (old = []) => [...createdLogs, ...(old || [])]
       );
 
-      // Invalidate as backup
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
-      queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
-      queryClient.invalidateQueries({ predicate: q => q.queryKey?.some(k => typeof k === 'string' && k.includes('Logs') && q.queryKey?.includes(userId)) });
+      // Delay refetch to avoid race with server write propagation
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+        queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+      }, 800);
 
       toast.success(`Marked ${data.added} chapter${data.added > 1 ? 's' : ''} complete`);
     },
     onError: (error) => {
+      console.error('[completeToday] ERROR:', error);
       toast.error(error?.message || 'Failed to complete assignment');
     }
   });

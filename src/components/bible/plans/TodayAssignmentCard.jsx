@@ -39,7 +39,7 @@ export default function TodayAssignmentCard({
   userId
 }) {
   const hasPlan = !!plan?.startDate && !!plan?.endDate && plan?.scope !== 'NONE';
-  const { completeToday, isPending: isCompleting } = useCompleteTodaysAssignment();
+  const { completeToday, isCompleting } = useCompleteTodaysAssignment();
   const { markTodayComplete, isPending: isMarkingToday } = useMarkTodayComplete();
   const [showTomorrow, setShowTomorrow] = useState(false);
   
@@ -159,8 +159,8 @@ export default function TodayAssignmentCard({
         })),
       });
     } else {
-      // Use existing hook for other plans
-      completeToday({ userId, plan, allTimeLogs, todayKey });
+      // Use existing hook for other plans — pass the exact chapters being displayed
+      completeToday({ userId, plan, allTimeLogs, todayKey, assignedChapters: assignedToday });
     }
   };
 
