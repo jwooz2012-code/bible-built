@@ -19,8 +19,10 @@ export function useCompleteTodaysAssignment() {
         return { added: 0, createdLogs: [] };
       }
 
-      // Find which chapters are already logged (from any date)
-      const completedIds = new Set(allTimeLogs.map(log => log.chapterId));
+      // Only consider logs on or after plan start date (same logic as the UI)
+      const planStartDate = plan.startDate || '2000-01-01';
+      const relevantLogs = allTimeLogs.filter(log => log.dateKey >= planStartDate);
+      const completedIds = new Set(relevantLogs.map(log => log.chapterId));
 
       // Filter to only missing chapters
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
