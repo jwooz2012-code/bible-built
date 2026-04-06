@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Zap, CheckCircle, Lock } from 'lucide-react';
+import { Zap, CheckCircle2 } from 'lucide-react';
 
 export default function BibleBoostCard({ user }) {
   const versesRead = user?.versesReadToday ?? 0;
@@ -9,8 +9,43 @@ export default function BibleBoostCard({ user }) {
 
   const progress = goalMet ? 1 : Math.min(versesRead / target, 1);
   const percent = Math.round(progress * 100);
+
+  if (goalMet) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, scale: 0.97 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="rounded-2xl border border-border bg-card p-4 mb-5 shadow-sm"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
+            <CheckCircle2 className="w-5 h-5" style={{ color: '#16A34A' }} />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">Daily Goal Met! ✨</p>
+            <p className="text-xs text-muted-foreground mt-0.5">{target} verses read · +100 bonus XP earned</p>
+          </div>
+          <div className="shrink-0 text-right">
+            <p className="text-xs font-bold" style={{ color: '#16A34A' }}>100%</p>
+          </div>
+        </div>
+        {/* Full green bar */}
+        <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(var(--muted))' }}>
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: 'linear-gradient(90deg,#16A34A,#22C55E)' }}
+            initial={{ width: 0 }}
+            animate={{ width: '100%' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
+        </div>
+      </motion.div>
+    );
+  }
+
+  // In-progress state
   const segments = 10;
-  const filled = goalMet ? segments : Math.floor(progress * segments);
+  const filled = Math.floor(progress * segments);
 
   return (
     <motion.div
@@ -18,26 +53,16 @@ export default function BibleBoostCard({ user }) {
       animate={{ opacity: 1, y: 0 }}
       className="rounded-2xl border border-border bg-card p-4 mb-5 shadow-sm"
     >
-      {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: 'rgba(34,197,94,0.12)' }}>
-            {goalMet
-              ? <CheckCircle className="w-4 h-4" style={{ color: '#16A34A' }} />
-              : <Zap className="w-4 h-4" style={{ color: '#16A34A' }} />
-            }
+            <Zap className="w-4 h-4" style={{ color: '#16A34A' }} />
           </div>
           <span className="text-sm font-semibold text-foreground">Daily Momentum</span>
-          {goalMet && (
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full" style={{ background: 'rgba(34,197,94,0.15)', color: '#16A34A' }}>
-              Daily Goal Met! ✨
-            </span>
-          )}
         </div>
-        <span className="text-xs font-medium text-muted-foreground">{Math.min(versesRead, target)} / {target} verses</span>
+        <span className="text-xs font-medium text-muted-foreground">{versesRead} / {target} verses</span>
       </div>
 
-      {/* Segmented bar */}
       <div className="flex gap-1 mb-3">
         {Array.from({ length: segments }).map((_, i) => (
           <motion.div
@@ -56,19 +81,10 @@ export default function BibleBoostCard({ user }) {
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
-          {goalMet
-            ? '+100 bonus XP earned today'
-            : `${Math.max(0, target - versesRead)} verses to reach daily goal`}
+          {Math.max(0, target - versesRead)} verses to earn +100 bonus XP
         </span>
         <span className="text-xs font-bold" style={{ color: '#16A34A' }}>{percent}%</span>
       </div>
-
-      {!goalMet && (
-        <div className="flex items-center gap-2 px-3 py-2 mt-3 rounded-xl border border-dashed border-border">
-          <Lock className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-          <p className="text-xs text-muted-foreground">Reach {target} verses to earn +100 bonus XP</p>
-        </div>
-      )}
     </motion.div>
   );
 }
