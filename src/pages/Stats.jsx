@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { base44 } from '@/api/base44Client';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
-import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
+import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import { TOTAL_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { Pencil, CalendarCheck, RefreshCw, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -61,8 +61,8 @@ export default function Stats() {
 
   const today = getDateKey();
   
-  // Single source of truth for current streak
-  const currentStreak = useCurrentStreak(lifetimeLogs);
+  // Grace-aware streak — matches Home and Profile pages
+  const { currentStreak } = useStreakWithGrace(lifetimeLogs, userId);
 
   const trackerStats = useMemo(() => {
     if (!lifetimeLogs.length) {
