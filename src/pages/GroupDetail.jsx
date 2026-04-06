@@ -164,7 +164,7 @@ export default function GroupDetail() {
   const handleEncourage = async (member) => {
     triggerHaptic();
     setEncouraged(prev => ({ ...prev, [member.id]: true }));
-    await base44.functions.invoke('sendEncouragement', { recipientId: member.id });
+    await base44.functions.invoke('sendNudge', { receiverId: member.id });
     toast('🙏 Encouragement sent!', { duration: 1500 });
   };
 

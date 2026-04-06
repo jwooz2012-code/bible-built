@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, User, Users } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
+import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import CelebrationRenderer from '@/components/celebration/CelebrationRenderer';
@@ -38,6 +39,10 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
+      {/* Top bar with bell */}
+      <div className="fixed top-0 left-0 right-0 z-50 flex items-center justify-end px-4" style={{ height: 'calc(env(safe-area-inset-top) + 56px)', paddingTop: 'env(safe-area-inset-top)' }}>
+        <NotificationsBell />
+      </div>
       <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}>
         <AnimatePresence mode="wait">
           <motion.div

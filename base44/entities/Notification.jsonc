@@ -1,0 +1,53 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Recipient user ID"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "friend_request",
+        "group_invite",
+        "nudge",
+        "league_promotion"
+      ],
+      "description": "Type of notification"
+    },
+    "message": {
+      "type": "string",
+      "description": "Notification text"
+    },
+    "isRead": {
+      "type": "boolean",
+      "default": false
+    },
+    "relatedId": {
+      "type": "string",
+      "description": "Related entity ID (Friendship, Group, etc.)"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "userId",
+    "type",
+    "message"
+  ],
+  "rls": {
+    "create": true,
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

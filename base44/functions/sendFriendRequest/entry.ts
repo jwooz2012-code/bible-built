@@ -13,7 +13,6 @@ Deno.serve(async (req) => {
   if (targetUserId === user.id) return Response.json({ error: 'Cannot send friend request to yourself' }, { status: 400 });
 
   try {
-    // Check existing in both directions separately
     const [sent, received] = await Promise.all([
       base44.asServiceRole.entities.Friendship.filter({ user1Id: user.id, user2Id: targetUserId }),
       base44.asServiceRole.entities.Friendship.filter({ user1Id: targetUserId, user2Id: user.id }),
@@ -28,6 +27,17 @@ Deno.serve(async (req) => {
       user2Id: targetUserId,
       status: 'pending',
       requestedById: user.id,
+    });
+
+    // Create notification for the target user
+    const senderName = user.full_name ?? user.displayName ?? 'Someone';
+    await base44.asServiceRole.entities.Notification.create({
+      userId: targetUserId,
+      type: 'friend_request',
+      message: `${senderName} sent you a friend request!`,
+      isRead: false,
+      relatedId: friendship.id,
+      createdAt: new Date().toISOString(),
     });
 
     return Response.json({ friendship });
