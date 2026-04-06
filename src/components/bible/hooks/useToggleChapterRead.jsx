@@ -9,8 +9,45 @@ import { detectNewCelebrations } from '@/components/celebration/useCelebrationTr
 import { getVerseCount } from '@/utils/verseCount';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
+import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 
 const BASE_XP_PER_VERSE = 5;
+
+// Returns { multiplier, bonuses } for display
+function calcXpMultipliers(book, chapter, user) {
+  const now = new Date();
+  const hour = now.getHours();
+  const dayOfWeek = now.getDay(); // 0=Sun, 6=Sat
+  const streak = user?.streakDays ?? user?.streak ?? 0;
+  const verseCount = getVerseCount(book, chapter);
+
+  const bonuses = [];
+  let multiplier = 1.0;
+
+  if (streak >= 7) { multiplier += 0.10; bonuses.push('🔥 Streak Bonus +10%'); }
+  if (hour < 8) { multiplier += 0.15; bonuses.push('🌅 Early Bird +15%'); }
+  if (verseCount > 50) { multiplier += 0.20; bonuses.push('📖 Deep Dive +20%'); }
+  if (dayOfWeek === 0 || dayOfWeek === 6) { multiplier += 0.25; bonuses.push('⚔️ Weekend Warrior +25%'); }
+
+  return { multiplier, bonuses };
+}
+
+// Book completion bonus scaled by chapter count (100-500 XP)
+function getBookCompletionBonus(book) {
+  const bookData = BIBLE_BOOKS.find(b => b.name === book);
+  if (!bookData) return 0;
+  const chapters = bookData.chapters;
+  // Scale: 1-chapter books = 100, 150-chapter books = 500
+  return Math.round(100 + Math.min(400, (chapters / 150) * 400));
+}
+
+// Check if completing this chapter finishes the entire book
+function isBookComplete(book, chapter, allLogs, newLog) {
+  const bookData = BIBLE_BOOKS.find(b => b.name === book);
+  if (!bookData) return false;
+  const allRead = new Set([...(allLogs ?? []).filter(l => l.book === book).map(l => l.chapter), chapter]);
+  return allRead.size >= bookData.chapters;
+}
 
 export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
@@ -67,15 +104,20 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       // XP & momentum update
       if (user?.id) {
         const verseCount = getVerseCount(variables.book, variables.chapter);
-        const xpGained = Math.round(verseCount * BASE_XP_PER_VERSE);
+        const { multiplier, bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
+        const xpGained = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier);
         const currentXp = user.xp ?? 0;
         const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
         const target = user.dailyVerseTarget ?? 30;
         const wasGoalMet = user.hasActivatedBibleBoost ?? false;
         const goalJustMet = !wasGoalMet && newVersesReadToday >= target;
 
+        // Book completion bonus
+        const bookFinished = isBookComplete(variables.book, variables.chapter, allLogs);
+        const bookBonus = bookFinished ? getBookCompletionBonus(variables.book) : 0;
+
         const bonusXp = goalJustMet ? 100 : 0;
-        const newXp = currentXp + xpGained + bonusXp;
+        const newXp = currentXp + xpGained + bonusXp + bookBonus;
         const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
 
         const updatePayload = {
@@ -91,6 +133,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
             title: 'Daily Goal Met! ✨',
             message: '+100 bonus XP earned!',
           });
+        }
+
+        if (bookFinished) {
+          triggerHaptic();
+          toast.success(`📕 ${variables.book} complete! +${bookBonus} XP`, { duration: 3000 });
+        } else if (bonuses.length > 0) {
+          toast(`+${xpGained} XP · ${bonuses[0]}`, { duration: 2000 });
         }
 
         // Optimistic update first so context is immediately current
