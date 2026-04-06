@@ -86,21 +86,26 @@
     },
     "dailyVerseTarget": {
       "type": "number",
-      "default": 100,
-      "description": "Target number of verses to read per day to unlock the daily revelation"
+      "default": 30,
+      "description": "Target number of verses to read per day to activate the Bible Boost"
     },
-    "hasUnlockedDailyRevelation": {
+    "hasActivatedBibleBoost": {
       "type": "boolean",
       "default": false,
-      "description": "Whether the user has unlocked the daily revelation for the current day"
+      "description": "Whether the user has activated the Bible Boost for the current day"
     },
-    "dailyRevelationContent": {
+    "bibleBoostContent": {
       "type": "string",
-      "description": "The text content of the daily revelation"
+      "description": "The content shown when the Bible Boost is activated"
+    },
+    "bibleBoostActiveUntil": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of when the 1.5x XP multiplier expires"
     },
     "dailyScriptureFocus": {
       "type": "object",
-      "description": "The daily scripture focus (book, chapter, etc.)",
+      "description": "The daily scripture focus",
       "properties": {
         "book": {
           "type": "string"

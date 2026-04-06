@@ -60,9 +60,10 @@ Deno.serve(async (req) => {
     for (const u of users) {
       await base44.asServiceRole.entities.User.update(u.id, {
         versesReadToday: 0,
-        hasUnlockedDailyRevelation: false,
+        hasActivatedBibleBoost: false,
+        bibleBoostActiveUntil: null,
+        bibleBoostContent: CURATED_REVELATIONS[revelationIndex],
         dailyScriptureFocus,
-        dailyRevelationContent,
       });
       resetCount++;
     }
