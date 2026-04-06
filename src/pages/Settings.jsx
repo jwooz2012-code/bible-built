@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2 } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2, Shield } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
@@ -299,6 +299,34 @@ export default function Settings() {
                 <Mail className="w-4 h-4 mr-2" />
                 Resend Verification Email
               </Button>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2"><Shield className="w-5 h-5" />Privacy</CardTitle>
+              <CardDescription>Control how others see you</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {[
+                { key: 'showOnLeaderboards', label: 'Show me on public leaderboards', desc: 'Others can see your rank' },
+                { key: 'allowFriendRequests', label: 'Allow friend requests', desc: 'Anyone can send you a friend request' },
+                { key: 'shareReadingActivity', label: 'Share my reading activity', desc: 'Friends see your chapter completions' },
+              ].map(({ key, label, desc }) => (
+                <div key={key} className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{label}</p>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                  </div>
+                  <Switch
+                    checked={user?.[key] ?? true}
+                    onCheckedChange={async (val) => {
+                      await base44.auth.updateMe({ [key]: val });
+                      setUser(u => ({ ...u, [key]: val }));
+                    }}
+                  />
+                </div>
+              ))}
             </CardContent>
           </Card>
 

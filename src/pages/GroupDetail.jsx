@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Copy, Check, Flame, BookOpen, Zap, HandHeart } from 'lucide-react';
+import { ArrowLeft, Users, Copy, Check, Flame, BookOpen, Zap, HandHeart, Target } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -200,6 +200,33 @@ export default function GroupDetail() {
             {copied ? 'Copied!' : 'Invite'}
           </button>
         </div>
+
+        {/* Community Goal */}
+        {group?.communityGoalTarget > 0 && (() => {
+          const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
+          const monthLogs = allLogs.filter(l => new Date(l.created_date ?? l.timestamp) >= monthStart);
+          const uniqueMonthChapters = new Set(monthLogs.map(l => l.chapterId)).size;
+          const pct = Math.min(100, Math.round((uniqueMonthChapters / group.communityGoalTarget) * 100));
+          const hit = pct >= 100;
+          return (
+            <div className={`mt-4 rounded-2xl border p-4 ${hit ? 'border-amber-300 dark:border-amber-700' : 'border-border'} bg-card`}>
+              <div className="flex items-center gap-2 mb-2">
+                <Target className="w-4 h-4 text-muted-foreground" />
+                <p className="text-sm font-semibold text-foreground">Community Goal</p>
+                {hit && <span className="text-xs font-bold text-amber-500">🏆 Goal hit!</span>}
+              </div>
+              <p className="text-xs text-muted-foreground mb-2">{group.communityGoal ?? `Read ${group.communityGoalTarget} chapters together`}</p>
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div className="h-full rounded-full transition-all duration-500"
+                  style={{ width: `${pct}%`, background: hit ? '#F59E0B' : '#22C55E' }} />
+              </div>
+              <div className="flex justify-between mt-1">
+                <span className="text-xs text-muted-foreground">{uniqueMonthChapters} chapters</span>
+                <span className="text-xs text-muted-foreground">{pct}%</span>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Leaderboard section */}
         <div className="mt-5 mb-2">

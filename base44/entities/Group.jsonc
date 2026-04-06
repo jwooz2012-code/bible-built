@@ -22,6 +22,19 @@
       "type": "boolean",
       "default": true,
       "description": "Whether the group is private"
+    },
+    "communityGoal": {
+      "type": "string",
+      "description": "Description of the community goal (e.g. Read 1,000 chapters together this month)"
+    },
+    "communityGoalTarget": {
+      "type": "number",
+      "description": "Target chapter count for the community goal"
+    },
+    "communityGoalBadgeAwarded": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the goal badge has been awarded"
     }
   },
   "required": [

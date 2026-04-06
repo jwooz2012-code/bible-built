@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -60,7 +61,30 @@ export default function Social() {
   const [feedItems, setFeedItems] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
 
+  // Recap & suggested
+  const [recapNotif, setRecapNotif] = useState(null);
+  const [suggestedUsers, setSuggestedUsers] = useState([]);
+
   // ── Data loading ───────────────────────────────────────────
+  const loadRecap = useCallback(async () => {
+    if (!user?.id) return;
+    const notifs = await base44.entities.Notification.filter({ userId: user.id, type: 'league_promotion', isRead: false });
+    if (notifs.length > 0) {
+      notifs.sort((a, b) => new Date(b.createdAt ?? b.created_date) - new Date(a.createdAt ?? a.created_date));
+      setRecapNotif(notifs[0]);
+    }
+  }, [user?.id]);
+
+  const loadSuggested = useCallback(async () => {
+    if (!user?.id) return;
+    const friendIds = user.friendIds ?? [];
+    const allUsers = await base44.entities.User.list();
+    const suggestions = allUsers
+      .filter(u => u.id !== user.id && !friendIds.includes(u.id))
+      .slice(0, 5);
+    setSuggestedUsers(suggestions);
+  }, [user?.id, user?.friendIds]);
+
   const loadFriends = useCallback(async () => {
     if (!user?.id) return;
     const [sent, received] = await Promise.all([
@@ -70,8 +94,7 @@ export default function Social() {
     const all = [...sent, ...received];
     const friendUserIds = all.map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
     if (friendUserIds.length === 0) { setFriends([]); return; }
-    // Fetch user objects
-    const allUsers = await base44.asServiceRole?.entities?.User?.filter({}) ?? [];
+    const allUsers = await base44.entities.User.list() ?? [];
     setFriends(allUsers.filter(u => friendUserIds.includes(u.id)));
   }, [user?.id]);
 
@@ -103,6 +126,8 @@ export default function Social() {
     allUsers.forEach(u => { map[u.id] = u; });
     setFeedUsers(map);
   }, [user?.id, user?.friendIds]);
+
+  useEffect(() => { loadRecap(); loadSuggested(); }, [loadRecap, loadSuggested]);
 
   useEffect(() => {
     if (tab === 'friends') { loadFriends(); loadPending(); }
@@ -177,6 +202,31 @@ export default function Social() {
   // ── Tab content ────────────────────────────────────────────
   const renderFriends = () => (
     <div className="space-y-5">
+      {friends.length === 0 && pendingRequests.length === 0 && suggestedUsers.length > 0 && (
+        <div className="rounded-2xl border border-border bg-card p-5">
+          <div className="flex flex-col items-center gap-1 mb-4">
+            <span className="text-3xl">🤝</span>
+            <p className="text-sm font-semibold text-foreground">Find your first friend</p>
+            <p className="text-xs text-muted-foreground text-center">Connect with others on the same reading journey</p>
+          </div>
+          <p className="text-xs font-semibold text-muted-foreground mb-2">SUGGESTED</p>
+          <div className="space-y-2">
+            {suggestedUsers.map(u => (
+              <div key={u.id} className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
+                  {(u.full_name ?? u.displayName ?? '?')[0].toUpperCase()}
+                </div>
+                <p className="flex-1 text-sm text-foreground truncate">{u.full_name ?? u.displayName ?? u.email}</p>
+                <button onClick={() => sendRequest(u.id)}
+                  className="h-7 px-3 rounded-lg text-xs font-semibold"
+                  style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}>
+                  Add
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       {/* Search */}
       <div>
         <SectionHeader title="Find Friends" />
@@ -274,6 +324,18 @@ export default function Social() {
 
   const renderGroups = () => (
     <div className="space-y-5">
+      {groups.length === 0 && !showCreateGroup && (
+        <div className="rounded-2xl border border-dashed border-border bg-card p-6 flex flex-col items-center gap-2 mb-1">
+          <span className="text-3xl">✨</span>
+          <p className="text-sm font-semibold text-foreground">Create a Spiritual Circle</p>
+          <p className="text-xs text-muted-foreground text-center">Start a group and invite your community to read together</p>
+          <button onClick={() => setShowCreateGroup(true)}
+            className="mt-1 h-9 px-5 rounded-xl text-sm font-semibold"
+            style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', color: '#fff' }}>
+            Create a Group
+          </button>
+        </div>
+      )}
       {/* Create */}
       <div>
         <SectionHeader
@@ -438,6 +500,15 @@ export default function Social() {
           ))}
         </div>
 
+        {recapNotif && (
+          <WeeklyRecapCard
+            message={recapNotif.message}
+            onDismiss={async () => {
+              await base44.entities.Notification.update(recapNotif.id, { isRead: true });
+              setRecapNotif(null);
+            }}
+          />
+        )}
         {tab === 'friends' && renderFriends()}
         {tab === 'groups' && renderGroups()}
         {tab === 'feed' && renderFeed()}
