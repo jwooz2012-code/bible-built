@@ -9,10 +9,16 @@ const BOLLS_BOOK_NUMBERS = [
 ];
 
 /**
- * Strip Strong's concordance numbers (e.g. "love25", "truth225") from verse text.
+ * Strip Strong's concordance markup from verse text.
+ * Handles both <S>1234</S> HTML tags and inline number suffixes like "love25".
  */
 function stripStrongs(text) {
-  return text.replace(/([a-zA-Z])(\d+)/g, '$1').replace(/\s+/g, ' ').trim();
+  return text
+    .replace(/<S>\d+<\/S>/g, '')      // remove <S>1234</S> tags
+    .replace(/<[^>]+>/g, '')            // remove any other HTML tags
+    .replace(/\b(\w+?)\d+\b/g, '$1')   // remove trailing numbers from words
+    .replace(/\s+/g, ' ')
+    .trim();
 }
 
 /**
