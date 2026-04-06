@@ -210,7 +210,7 @@ export default function Social() {
             {searchResults.map(u => (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
-                  {(u.full_name ?? u.displayName ?? '?')[0].toUpperCase()}
+                  {(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{u.full_name ?? u.displayName}</p>
@@ -274,7 +274,7 @@ export default function Social() {
             {friends.map(f => (
               <div key={f.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
-                  {(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()}
+                  {(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
