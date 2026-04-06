@@ -190,11 +190,25 @@ export default function GroupDetail() {
     chapters: { label: 'Chapters', icon: BookOpen, stat: r => r.weekChapters, unit: 'this week' },
   };
 
-  const copyInvite = () => {
-    navigator.clipboard.writeText(groupId);
-    setCopied(true);
-    toast.success('Group ID copied!');
-    setTimeout(() => setCopied(false), 2000);
+  const shareInvite = async () => {
+    const link = `${window.location.origin}/group-detail?id=${groupId}`;
+    const shareData = {
+      title: `Join "${group?.name ?? groupName}" on BibleBuilt`,
+      text: `Come read the Bible with me in our group "${group?.name ?? groupName}"!`,
+      url: link,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (e) {
+        // user cancelled — do nothing
+      }
+    } else {
+      navigator.clipboard.writeText(link);
+      setCopied(true);
+      toast.success('Invite link copied!');
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   const handleEncourage = async (member) => {
@@ -229,7 +243,7 @@ export default function GroupDetail() {
             <p className="text-xs text-muted-foreground">{members.length} members</p>
           </div>
           <button
-            onClick={copyInvite}
+            onClick={shareInvite}
             className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors"
           >
             {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
