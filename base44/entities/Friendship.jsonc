@@ -1,0 +1,39 @@
+{
+  "name": "Friendship",
+  "type": "object",
+  "properties": {
+    "user1Id": {
+      "type": "string",
+      "description": "First user in the friendship"
+    },
+    "user2Id": {
+      "type": "string",
+      "description": "Second user in the friendship"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "accepted"
+      ],
+      "default": "pending",
+      "description": "Status of the friendship request"
+    },
+    "requestedById": {
+      "type": "string",
+      "description": "User ID of who sent the friend request"
+    }
+  },
+  "required": [
+    "user1Id",
+    "user2Id",
+    "status",
+    "requestedById"
+  ],
+  "rls": {
+    "create": true,
+    "update": true,
+    "delete": true,
+    "read": true
+  }
+}

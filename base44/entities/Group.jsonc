@@ -1,0 +1,39 @@
+{
+  "name": "Group",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Group name"
+    },
+    "ownerId": {
+      "type": "string",
+      "description": "User ID of the group owner"
+    },
+    "memberIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of member User IDs",
+      "default": []
+    },
+    "isPrivate": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether the group is private"
+    }
+  },
+  "required": [
+    "name",
+    "ownerId"
+  ],
+  "rls": {
+    "create": true,
+    "update": true,
+    "delete": {
+      "data.ownerId": "{{user.id}}"
+    },
+    "read": true
+  }
+}

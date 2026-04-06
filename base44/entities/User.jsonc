@@ -10,124 +10,21 @@
       ],
       "default": "user"
     },
-    "displayName": {
-      "type": "string",
-      "description": "User's chosen display name"
-    },
-    "motivation": {
+    "friendIds": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Array of motivation reasons selected during onboarding"
+      "description": "Array of friend User IDs",
+      "default": []
     },
-    "habitLevel": {
-      "type": "string",
-      "enum": [
-        "just_starting",
-        "few_times_week",
-        "almost_daily",
-        "every_day"
-      ],
-      "description": "Current Bible reading habit level"
-    },
-    "experienceType": {
-      "type": "string",
-      "enum": [
-        "read_freely",
-        "follow_plan"
-      ],
-      "description": "Preferred reading experience type"
-    },
-    "goal": {
-      "type": "string",
-      "enum": [
-        "consistency",
-        "bible_knowledge",
-        "stronger_walk",
-        "discipline"
-      ],
-      "description": "Primary goal for reading"
-    },
-    "dailyCommitment": {
-      "type": "string",
-      "enum": [
-        "5",
-        "10",
-        "15",
-        "20plus"
-      ],
-      "description": "Daily time commitment in minutes"
-    },
-    "onboardingComplete": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether user has completed onboarding"
-    },
-    "hasSeenReadingTrackingFeature": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether an existing user has seen the reading tracking feature introduction"
-    },
-    "xp": {
-      "type": "number",
-      "default": 0,
-      "description": "Total experience points earned from reading"
-    },
-    "level": {
-      "type": "number",
-      "default": 1,
-      "description": "Current user level derived from XP"
-    },
-    "versesReadToday": {
-      "type": "number",
-      "default": 0,
-      "description": "Verses read since the last daily reset"
-    },
-    "dailyVerseTarget": {
-      "type": "number",
-      "default": 30,
-      "description": "Target number of verses to read per day to activate the Bible Boost"
-    },
-    "hasActivatedBibleBoost": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether the user has activated the Bible Boost for the current day"
-    },
-    "bibleBoostContent": {
-      "type": "string",
-      "description": "The content shown when the Bible Boost is activated"
-    },
-    "bibleBoostActiveUntil": {
-      "type": "string",
-      "format": "date-time",
-      "description": "ISO timestamp of when the 1.5x XP multiplier expires"
-    },
-    "dailyScriptureFocus": {
-      "type": "object",
-      "description": "The daily scripture focus",
-      "properties": {
-        "book": {
-          "type": "string"
-        },
-        "chapter": {
-          "type": "number"
-        },
-        "label": {
-          "type": "string"
-        },
-        "theme": {
-          "type": "string"
-        }
-      }
+    "groupIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of Group IDs the user belongs to",
+      "default": []
     }
-  },
-  "required": [
-    "displayName",
-    "motivation",
-    "habitLevel",
-    "experienceType",
-    "goal",
-    "dailyCommitment"
-  ]
+  }
 }
