@@ -93,9 +93,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           });
         }
 
-        base44.auth.updateMe(updatePayload)
-          .then(() => { updateUser(updatePayload); })
-          .catch(() => {});
+        // Optimistic update first so context is immediately current
+        updateUser(updatePayload);
+        base44.auth.updateMe(updatePayload).catch(() => {});
       }
 
       // Celebration checks — after successful persistence
@@ -135,30 +135,32 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       // Delete the log first
       await base44.entities.ReadingLog.delete(latestLog.id);
 
-      // Compute versesReadToday from remaining logs (ground truth — avoids stale counter)
+      // Compute versesReadToday from remaining logs (ground truth)
       const todayKey = getDateKey();
       const remainingTodayLogs = await base44.entities.ReadingLog.filter({ userId, dateKey: todayKey });
       const uniqueToday = [...new Map(remainingTodayLogs.map(l => [l.chapterId, l])).values()];
       const actualVersesReadToday = uniqueToday.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
 
-      // Fetch fresh user for XP
-      const freshUser = await base44.auth.me();
+      // Use context user for XP (kept current by optimistic updates in markRead)
       const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
       const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
-      let newXp = Math.max(0, (freshUser?.xp ?? 0) - xpToSubtract);
-      const target = freshUser?.dailyVerseTarget ?? 30;
-      let hasActivatedBibleBoost = actualVersesReadToday >= target;
+      const currentXp = user?.xp ?? 0;
+      let newXp = Math.max(0, currentXp - xpToSubtract);
+      const target = user?.dailyVerseTarget ?? 30;
+      const wasBoostActive = user?.hasActivatedBibleBoost ?? false;
+      const hasActivatedBibleBoost = actualVersesReadToday >= target;
 
-      // If boost was previously active but now below target, reverse the +100 bonus
-      if ((freshUser?.hasActivatedBibleBoost ?? false) && !hasActivatedBibleBoost) {
+      // Reverse the +100 bonus if boost was active but now below target
+      if (wasBoostActive && !hasActivatedBibleBoost) {
         newXp = Math.max(0, newXp - 100);
       }
 
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
       const updatePayload = { xp: newXp, level: newLevel, versesReadToday: actualVersesReadToday, hasActivatedBibleBoost };
 
-      await base44.auth.updateMe(updatePayload);
+      // Optimistic update first
       updateUser(updatePayload);
+      await base44.auth.updateMe(updatePayload);
 
       return { deletedId: latestLog.id, chapterId, dateKey: latestLog.dateKey };
     },
