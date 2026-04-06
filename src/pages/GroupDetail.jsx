@@ -22,19 +22,45 @@ function getThisWeekStart() {
   return d;
 }
 
-function calcStreak(logs, userId) {
+function calcStreakWithGrace(logs, userId, graceDayRecords) {
   const userLogs = logs.filter(l => l.userId === userId);
-  const days = [...new Set(userLogs.map(l => l.dateKey))].sort().reverse();
-  if (days.length === 0) return 0;
-  const today = new Date();
+  const daySet = new Set(userLogs.map(l => l.dateKey));
+  if (daySet.size === 0) return 0;
+
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+
+  // Build grace budget per month from DB records
+  const graceUsed = {};
+  (graceDayRecords[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
+
+  // Track grace consumed during this calculation (separate from DB so we don't mutate)
+  const graceConsumed = {};
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
   let streak = 0;
   let cursor = new Date(today);
-  for (let i = 0; i < days.length; i++) {
-    const expected = fmt(cursor);
-    if (days[i] === expected) { streak++; cursor.setDate(cursor.getDate() - 1); }
-    else if (days[i] === fmt(new Date(cursor.getTime() - 86400000))) { cursor.setDate(cursor.getDate() - 1); continue; }
-    else break;
+  const MAX_DAYS = 730; // safety limit
+
+  for (let i = 0; i < MAX_DAYS; i++) {
+    const key = fmt(cursor);
+    if (daySet.has(key)) {
+      streak++;
+    } else {
+      // Try to use a grace day for this month
+      const mk = monthKey(cursor);
+      const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
+      if (used < 2) {
+        graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
+        // grace day consumed — streak continues but don't increment
+      } else {
+        // Check if it's today or yesterday with no log yet — don't break streak
+        if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+    }
+    cursor.setDate(cursor.getDate() - 1);
   }
   return streak;
 }
@@ -99,6 +125,7 @@ export default function GroupDetail() {
   const [copied, setCopied] = useState(false);
   const [encouraged, setEncouraged] = useState({}); // memberId -> bool
   const [loading, setLoading] = useState(true);
+  const [graceDayRecords, setGraceDayRecords] = useState({});
 
   const load = useCallback(async () => {
     if (!groupId) return;
@@ -112,8 +139,8 @@ export default function GroupDetail() {
     if (memberIds.length === 0) { setLoading(false); return; }
 
     // Fetch members + their logs
-    const allUsers = await base44.entities.User.list();
-    const grpMembers = allUsers.filter(u => memberIds.includes(u.id));
+    const usersRes = await base44.functions.invoke('getUsersByIds', { ids: memberIds });
+    const grpMembers = usersRes.data?.users ?? [];
     setMembers(grpMembers);
     const uMap = {};
     grpMembers.forEach(u => { uMap[u.id] = u; });
@@ -122,6 +149,15 @@ export default function GroupDetail() {
     const logsAll = await base44.entities.ReadingLog.list('-created_date', 500);
     const memberLogs = logsAll.filter(l => memberIds.includes(l.userId));
     setAllLogs(memberLogs);
+
+    // Fetch grace day records for all members via backend function
+    const graceRes = await base44.functions.invoke('getGraceDaysByIds', { ids: memberIds });
+    const graceMap = {};
+    (graceRes.data?.graceDays ?? []).forEach(g => {
+      if (!graceMap[g.userId]) graceMap[g.userId] = [];
+      graceMap[g.userId].push(g);
+    });
+    setGraceDayRecords(graceMap);
 
     // Feed: last 30 logs for these members
     setFeedLogs(memberLogs.slice(0, 30));
@@ -137,7 +173,7 @@ export default function GroupDetail() {
   const withStats = members.map(m => {
     const weekLogs = allLogs.filter(l => l.userId === m.id && new Date(l.created_date ?? l.timestamp) >= weekStart);
     const uniqueWeekChapters = new Set(weekLogs.map(l => l.chapterId)).size;
-    const streak = calcStreak(allLogs, m.id);
+    const streak = calcStreakWithGrace(allLogs, m.id, graceDayRecords);
     const xp = m.xp ?? 0;
     return { member: m, weekChapters: uniqueWeekChapters, streak, xp };
   });
