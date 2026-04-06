@@ -13,7 +13,7 @@ Deno.serve(async (req) => {
   const allUsers = await base44.asServiceRole.entities.User.list();
   const filtered = allUsers
     .filter(u => ids.includes(u.id))
-    .map(u => ({ id: u.id, full_name: u.full_name, displayName: u.displayName, email: u.email }));
+    .map(u => ({ id: u.id, full_name: u.full_name, displayName: u.displayName, email: u.email, xp: u.xp ?? 0 }));
 
   return Response.json({ users: filtered });
 });
