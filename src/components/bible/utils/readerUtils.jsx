@@ -14,9 +14,10 @@ const BOLLS_BOOK_NUMBERS = [
  */
 function stripStrongs(text) {
   return text
-    .replace(/<S>\d+<\/S>/g, '')      // remove <S>1234</S> tags
-    .replace(/<[^>]+>/g, '')            // remove any other HTML tags
-    .replace(/\b(\w+?)\d+\b/g, '$1')   // remove trailing numbers from words
+    .replace(/<S>\d+<\/S>/g, '')        // remove <S>1234</S> tags
+    .replace(/<[^>]+>/g, '')              // remove any other HTML tags
+    .replace(/\b\d+\b/g, '')             // remove standalone numbers like "853"
+    .replace(/([a-zA-Z]+)\d+/g, '$1')    // remove trailing numbers from words like "God430"
     .replace(/\s+/g, ' ')
     .trim();
 }
