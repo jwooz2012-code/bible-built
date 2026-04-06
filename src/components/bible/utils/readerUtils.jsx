@@ -8,7 +8,7 @@ export async function fetchChapter(bookIndex, chapterNum) {
   const bookEntry = BIBLE_BOOKS[bookIndex];
   if (!bookEntry) throw new Error('Unknown book index: ' + bookIndex);
 
-  const url = `https://bible-api.com/${encodeURIComponent(bookEntry.name)}+${chapterNum}:1-999?translation=kjv`;
+  const url = `https://bible-api.com/${encodeURIComponent(bookEntry.name + ' ' + chapterNum)}?translation=kjv`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Could not load ${bookEntry.name} ${chapterNum}`);
   const data = await res.json();
