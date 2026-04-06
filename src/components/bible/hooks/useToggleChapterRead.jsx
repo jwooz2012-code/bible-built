@@ -1,4 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -13,6 +14,7 @@ const BASE_XP_PER_VERSE = 5;
 
 export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
+  const { updateUser } = useAuth();
   const { triggerCelebration } = useCelebration();
   const undoReadRef = useRef(null);
 
@@ -93,7 +95,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           });
         }
 
-        base44.auth.updateMe(updatePayload).catch(() => {});
+        base44.auth.updateMe(updatePayload)
+          .then(() => { updateUser(updatePayload); })
+          .catch(() => {});
       }
 
       // Celebration checks — after successful persistence

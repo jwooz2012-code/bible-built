@@ -27,7 +27,7 @@ import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
-import SpiritualMomentumCard from '@/components/home/SpiritualMomentumCard';
+import BibleBoostCard from '@/components/home/BibleBoostCard';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
@@ -350,11 +350,11 @@ export default function Home() {
               yearChapters={yearChaptersRead}
             />
 
-            <SpiritualMomentumCard user={user} />
+            <BibleBoostCard user={user} />
 
             {energyMode && (
               <div className="mb-5">
-                <XPBar todayCount={todayLogs.length} />
+                <XPBar user={user} />
               </div>
             )}
 
