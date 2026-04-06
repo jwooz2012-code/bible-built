@@ -132,27 +132,31 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 
-      // Fetch fresh user to avoid stale closure values
-      const freshUser = await base44.auth.me();
+      // Delete the log first
+      await base44.entities.ReadingLog.delete(latestLog.id);
 
-      // Calculate XP/momentum to reverse
+      // Compute versesReadToday from remaining logs (ground truth — avoids stale counter)
+      const todayKey = getDateKey();
+      const remainingTodayLogs = await base44.entities.ReadingLog.filter({ userId, dateKey: todayKey });
+      const uniqueToday = [...new Map(remainingTodayLogs.map(l => [l.chapterId, l])).values()];
+      const actualVersesReadToday = uniqueToday.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
+
+      // Fetch fresh user for XP
+      const freshUser = await base44.auth.me();
       const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
       const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
       let newXp = Math.max(0, (freshUser?.xp ?? 0) - xpToSubtract);
-      let newVersesReadToday = Math.max(0, (freshUser?.versesReadToday ?? 0) - verseCount);
       const target = freshUser?.dailyVerseTarget ?? 30;
-      let hasActivatedBibleBoost = freshUser?.hasActivatedBibleBoost ?? false;
+      let hasActivatedBibleBoost = actualVersesReadToday >= target;
 
-      // Reverse the daily bonus if dropping below target
-      if (hasActivatedBibleBoost && newVersesReadToday < target) {
-        hasActivatedBibleBoost = false;
+      // If boost was previously active but now below target, reverse the +100 bonus
+      if ((freshUser?.hasActivatedBibleBoost ?? false) && !hasActivatedBibleBoost) {
         newXp = Math.max(0, newXp - 100);
       }
 
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
-      const updatePayload = { xp: newXp, level: newLevel, versesReadToday: newVersesReadToday, hasActivatedBibleBoost };
+      const updatePayload = { xp: newXp, level: newLevel, versesReadToday: actualVersesReadToday, hasActivatedBibleBoost };
 
-      await base44.entities.ReadingLog.delete(latestLog.id);
       await base44.auth.updateMe(updatePayload);
       updateUser(updatePayload);
 
