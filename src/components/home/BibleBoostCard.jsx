@@ -2,10 +2,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, CheckCircle2 } from 'lucide-react';
 
-export default function BibleBoostCard({ user }) {
-  const versesRead = user?.versesReadToday ?? 0;
+export default function BibleBoostCard({ user, versesReadTodayOverride }) {
+  const versesRead = versesReadTodayOverride ?? user?.versesReadToday ?? 0;
   const target = user?.dailyVerseTarget ?? 30;
-  const goalMet = user?.hasActivatedBibleBoost ?? false;
+  const goalMet = versesRead >= target;
 
   const progress = goalMet ? 1 : Math.min(versesRead / target, 1);
   const percent = Math.round(progress * 100);

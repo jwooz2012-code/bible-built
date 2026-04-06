@@ -21,6 +21,7 @@ import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterR
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { getVerseCount } from '@/utils/verseCount';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
@@ -179,6 +180,12 @@ export default function Home() {
 
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead({ user, allLogs: allTimeLogs });
   const { markAllRead, isMarkingAll } = useMarkAllRead({ user, allLogs: allTimeLogs });
+
+  // Derive versesReadToday from actual logs (ground truth — never relies on stored counter)
+  const actualVersesReadToday = useMemo(() => {
+    const unique = [...new Map(todayLogs.map(l => [l.chapterId, l])).values()];
+    return unique.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
+  }, [todayLogs]);
 
   const recentBooks = useMostRecentBooks(allTimeLogs);
 
@@ -350,7 +357,7 @@ export default function Home() {
               yearChapters={yearChaptersRead}
             />
 
-            <BibleBoostCard user={user} />
+            <BibleBoostCard user={user} versesReadTodayOverride={actualVersesReadToday} />
 
             {energyMode && (
               <div className="mb-5">
