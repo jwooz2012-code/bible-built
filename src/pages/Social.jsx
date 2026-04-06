@@ -85,8 +85,8 @@ export default function Social() {
     const all = [...sent, ...received];
     const friendUserIds = all.map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
     if (friendUserIds.length === 0) { setFriends([]); return; }
-    const allUsers = await base44.entities.User.list() ?? [];
-    setFriends(allUsers.filter(u => friendUserIds.includes(u.id)));
+    const res = await base44.functions.invoke('getUsersByIds', { ids: friendUserIds });
+    setFriends(res.data?.users ?? []);
   }, [user?.id]);
 
   const loadPending = useCallback(async () => {
@@ -94,9 +94,10 @@ export default function Social() {
     const requests = await base44.entities.Friendship.filter({ user2Id: user.id, status: 'pending' });
     setPendingRequests(requests);
     if (requests.length > 0) {
-      const allUsers = await base44.entities.User.list() ?? [];
+      const requesterIds = requests.map(r => r.requestedById).filter(Boolean);
+      const res = await base44.functions.invoke('getUsersByIds', { ids: requesterIds });
       const map = {};
-      allUsers.forEach(u => { map[u.id] = u; });
+      (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
       setPendingUsers(map);
     }
   }, [user?.id]);
@@ -118,9 +119,9 @@ export default function Social() {
     const friendLogs = logs.filter(l => friendIds.includes(l.userId));
     setFeedItems(friendLogs.slice(0, 20));
     // Load friend user info
-    const allUsers = await base44.entities.User.list() ?? [];
+    const res = await base44.functions.invoke('getUsersByIds', { ids: friendIds });
     const map = {};
-    allUsers.forEach(u => { map[u.id] = u; });
+    (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
     setFeedUsers(map);
   }, [user?.id, user?.friendIds]);
 
