@@ -1,19 +1,35 @@
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 
+// bolls.life book numbers (1-indexed, canonical order matching BIBLE_BOOKS)
+const BOLLS_BOOK_NUMBERS = [
+  1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,
+  21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,
+  40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,
+  59,60,61,62,63,64,65,66
+];
+
 /**
- * Fetch chapter verses from bible-api.com (KJV).
+ * Strip Strong's concordance numbers (e.g. "love25", "truth225") from verse text.
+ */
+function stripStrongs(text) {
+  return text.replace(/([a-zA-Z])(\d+)/g, '$1').replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Fetch chapter verses from bolls.life (KJV).
  * Returns array of { number, text }
  */
 export async function fetchChapter(bookIndex, chapterNum) {
   const bookEntry = BIBLE_BOOKS[bookIndex];
   if (!bookEntry) throw new Error('Unknown book index: ' + bookIndex);
 
-  const url = `https://bible-api.com/${encodeURIComponent(bookEntry.name + ' ' + chapterNum)}?translation=kjv`;
+  const bookNum = BOLLS_BOOK_NUMBERS[bookIndex];
+  const url = `https://bolls.life/get-chapter/KJV/${bookNum}/${chapterNum}/`;
   const res = await fetch(url);
   if (!res.ok) throw new Error(`Could not load ${bookEntry.name} ${chapterNum}`);
   const data = await res.json();
-  if (!data.verses || !data.verses.length) throw new Error(`No verses returned for ${bookEntry.name} ${chapterNum}`);
-  return data.verses.map(v => ({ number: v.verse, text: v.text.trim() }));
+  if (!Array.isArray(data) || !data.length) throw new Error(`No verses returned for ${bookEntry.name} ${chapterNum}`);
+  return data.map(v => ({ number: v.verse, text: stripStrongs(v.text) }));
 }
 
 /** No-op prefetch */
