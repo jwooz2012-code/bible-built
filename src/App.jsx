@@ -4,6 +4,8 @@ import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import Profile from './pages/Profile';
+import Social from './pages/Social';
+import GroupDetail from './pages/GroupDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
@@ -90,6 +92,8 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
+      <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
+      <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

@@ -1,0 +1,447 @@
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
+import { triggerHaptic } from '@/components/utils/haptics';
+import { toast } from 'sonner';
+
+// ── helpers ────────────────────────────────────────────────────
+function timeAgo(isoString) {
+  const diff = (Date.now() - new Date(isoString)) / 1000;
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
+  return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// ── Sub-components ─────────────────────────────────────────────
+function SectionHeader({ title, action }) {
+  return (
+    <div className="flex items-center justify-between mb-3">
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      {action}
+    </div>
+  );
+}
+
+function EmptyState({ icon: Icon, text }) {
+  return (
+    <div className="flex flex-col items-center gap-2 py-6 text-center">
+      <Icon className="w-6 h-6 text-muted-foreground/40" />
+      <p className="text-sm text-muted-foreground">{text}</p>
+    </div>
+  );
+}
+
+// ── Main Page ──────────────────────────────────────────────────
+export default function Social() {
+  const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
+
+  const [tab, setTab] = useState('friends'); // 'friends' | 'groups' | 'feed'
+
+  // Friends state
+  const [friends, setFriends] = useState([]);
+  const [pendingRequests, setPendingRequests] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [searching, setSearching] = useState(false);
+
+  // Groups state
+  const [groups, setGroups] = useState([]);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
+  const [joinGroupId, setJoinGroupId] = useState('');
+  const [creatingGroup, setCreatingGroup] = useState(false);
+  const [joiningGroup, setJoiningGroup] = useState(false);
+
+  // Feed state
+  const [feedItems, setFeedItems] = useState([]);
+  const [feedUsers, setFeedUsers] = useState({});
+
+  // ── Data loading ───────────────────────────────────────────
+  const loadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    const [sent, received] = await Promise.all([
+      base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
+      base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
+    ]);
+    const all = [...sent, ...received];
+    const friendUserIds = all.map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
+    if (friendUserIds.length === 0) { setFriends([]); return; }
+    // Fetch user objects
+    const allUsers = await base44.asServiceRole?.entities?.User?.filter({}) ?? [];
+    setFriends(allUsers.filter(u => friendUserIds.includes(u.id)));
+  }, [user?.id]);
+
+  const loadPending = useCallback(async () => {
+    if (!user?.id) return;
+    const requests = await base44.entities.Friendship.filter({ user2Id: user.id, status: 'pending' });
+    setPendingRequests(requests);
+  }, [user?.id]);
+
+  const loadGroups = useCallback(async () => {
+    if (!user?.id) return;
+    const groupIds = user.groupIds ?? [];
+    if (groupIds.length === 0) { setGroups([]); return; }
+    const all = await base44.entities.Group.filter({});
+    setGroups(all.filter(g => groupIds.includes(g.id)));
+  }, [user?.id, user?.groupIds]);
+
+  const loadFeed = useCallback(async () => {
+    if (!user?.id) return;
+    const friendIds = user.friendIds ?? [];
+    if (friendIds.length === 0) { setFeedItems([]); return; }
+    // Get recent logs from friends (last 50)
+    const logs = await base44.entities.ReadingLog.list('-created_date', 50);
+    const friendLogs = logs.filter(l => friendIds.includes(l.userId));
+    setFeedItems(friendLogs.slice(0, 20));
+    // Load friend user info
+    const allUsers = await base44.entities.User.list() ?? [];
+    const map = {};
+    allUsers.forEach(u => { map[u.id] = u; });
+    setFeedUsers(map);
+  }, [user?.id, user?.friendIds]);
+
+  useEffect(() => {
+    if (tab === 'friends') { loadFriends(); loadPending(); }
+    if (tab === 'groups') loadGroups();
+    if (tab === 'feed') loadFeed();
+  }, [tab, loadFriends, loadPending, loadGroups, loadFeed]);
+
+  // ── Search ─────────────────────────────────────────────────
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    const t = setTimeout(async () => {
+      setSearching(true);
+      const res = await base44.functions.invoke('searchUsers', { query: searchQuery });
+      setSearchResults(res.data?.users ?? []);
+      setSearching(false);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
+
+  // ── Actions ────────────────────────────────────────────────
+  const sendRequest = async (targetUserId) => {
+    await base44.functions.invoke('sendFriendRequest', { targetUserId });
+    toast.success('Friend request sent!');
+    setSearchResults(prev => prev.filter(u => u.id !== targetUserId));
+  };
+
+  const acceptRequest = async (friendship) => {
+    await base44.functions.invoke('acceptFriendRequest', { friendshipId: friendship.id });
+    triggerHaptic();
+    toast.success('Friend accepted!');
+    loadPending();
+    loadFriends();
+  };
+
+  const declineRequest = async (friendship) => {
+    await base44.entities.Friendship.delete(friendship.id);
+    toast('Request declined');
+    loadPending();
+  };
+
+  const handleCreateGroup = async () => {
+    if (!newGroupName.trim()) return;
+    setCreatingGroup(true);
+    const res = await base44.functions.invoke('createGroup', { name: newGroupName.trim() });
+    const newGroup = res.data?.group;
+    if (newGroup) {
+      updateUser({ groupIds: [...(user.groupIds ?? []), newGroup.id] });
+      toast.success('Group created!');
+      setShowCreateGroup(false);
+      setNewGroupName('');
+      loadGroups();
+    }
+    setCreatingGroup(false);
+  };
+
+  const handleJoinGroup = async () => {
+    if (!joinGroupId.trim()) return;
+    setJoiningGroup(true);
+    await base44.functions.invoke('joinGroup', { groupId: joinGroupId.trim() });
+    updateUser({ groupIds: [...(user.groupIds ?? []), joinGroupId.trim()] });
+    toast.success('Joined group!');
+    setJoinGroupId('');
+    loadGroups();
+    setJoiningGroup(false);
+  };
+
+  const sendHighFive = (log) => {
+    triggerHaptic();
+    toast('🙌 High five sent!', { duration: 1200 });
+  };
+
+  // ── Tab content ────────────────────────────────────────────
+  const renderFriends = () => (
+    <div className="space-y-5">
+      {/* Search */}
+      <div>
+        <SectionHeader title="Find Friends" />
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={e => setSearchQuery(e.target.value)}
+            placeholder="Search by name or email…"
+            className="w-full h-10 pl-9 pr-4 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
+        {searchResults.length > 0 && (
+          <div className="mt-2 rounded-xl border border-border bg-card overflow-hidden">
+            {searchResults.map(u => (
+              <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
+                  {(u.full_name ?? u.displayName ?? '?')[0].toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{u.full_name ?? u.displayName}</p>
+                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
+                </div>
+                <button
+                  onClick={() => sendRequest(u.id)}
+                  className="h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1"
+                  style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
+                >
+                  <UserPlus className="w-3.5 h-3.5" /> Add
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        {searching && <p className="text-xs text-muted-foreground mt-2 text-center">Searching…</p>}
+      </div>
+
+      {/* Pending */}
+      {pendingRequests.length > 0 && (
+        <div>
+          <SectionHeader title={`Pending Requests (${pendingRequests.length})`} />
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            {pendingRequests.map(fr => (
+              <div key={fr.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <p className="flex-1 text-sm text-foreground truncate">{fr.user1Id}</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => acceptRequest(fr)}
+                    className="h-8 w-8 flex items-center justify-center rounded-lg"
+                    style={{ background: 'rgba(34,197,94,0.12)' }}
+                  >
+                    <Check className="w-4 h-4" style={{ color: '#16A34A' }} />
+                  </button>
+                  <button
+                    onClick={() => declineRequest(fr)}
+                    className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted"
+                  >
+                    <X className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Friends list */}
+      <div>
+        <SectionHeader title={`Friends${friends.length ? ` (${friends.length})` : ''}`} />
+        {friends.length === 0 ? (
+          <div className="rounded-2xl border border-border bg-card">
+            <EmptyState icon={Users} text="No friends yet. Search to add some!" />
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            {friends.map(f => (
+              <div key={f.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
+                  {(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const renderGroups = () => (
+    <div className="space-y-5">
+      {/* Create */}
+      <div>
+        <SectionHeader
+          title="My Groups"
+          action={
+            <button
+              onClick={() => setShowCreateGroup(true)}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold"
+              style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
+            >
+              <Plus className="w-3.5 h-3.5" /> Create
+            </button>
+          }
+        />
+
+        {showCreateGroup && (
+          <div className="rounded-2xl border border-border bg-card p-4 mb-3">
+            <p className="text-sm font-semibold text-foreground mb-2">New Group</p>
+            <input
+              type="text"
+              value={newGroupName}
+              onChange={e => setNewGroupName(e.target.value)}
+              placeholder="Group name…"
+              className="w-full h-10 px-3 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-3"
+            />
+            <div className="flex gap-2">
+              <button
+                onClick={handleCreateGroup}
+                disabled={creatingGroup || !newGroupName.trim()}
+                className="flex-1 h-9 rounded-xl text-sm font-semibold disabled:opacity-50"
+                style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)', color: '#fff' }}
+              >
+                {creatingGroup ? 'Creating…' : 'Create'}
+              </button>
+              <button
+                onClick={() => { setShowCreateGroup(false); setNewGroupName(''); }}
+                className="h-9 px-4 rounded-xl text-sm bg-muted text-muted-foreground"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        {groups.length === 0 ? (
+          <div className="rounded-2xl border border-border bg-card">
+            <EmptyState icon={Users} text="No groups yet. Create one or join with an ID." />
+          </div>
+        ) : (
+          <div className="rounded-2xl border border-border bg-card overflow-hidden">
+            {groups.map(g => (
+              <button
+                key={g.id}
+                onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
+                className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors text-left"
+              >
+                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{g.name}</p>
+                  <p className="text-xs text-muted-foreground">{(g.memberIds ?? []).length} members</p>
+                </div>
+                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Join */}
+      <div>
+        <SectionHeader title="Join a Group" />
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={joinGroupId}
+            onChange={e => setJoinGroupId(e.target.value)}
+            placeholder="Enter Group ID…"
+            className="flex-1 h-10 px-3 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+          <button
+            onClick={handleJoinGroup}
+            disabled={joiningGroup || !joinGroupId.trim()}
+            className="h-10 px-4 rounded-xl text-sm font-semibold disabled:opacity-50"
+            style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
+          >
+            {joiningGroup ? '…' : 'Join'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderFeed = () => (
+    <div>
+      <SectionHeader title="Friends' Activity" />
+      {feedItems.length === 0 ? (
+        <div className="rounded-2xl border border-border bg-card">
+          <EmptyState icon={Flame} text="Add friends to see their reading activity here." />
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          {feedItems.map(log => {
+            const friendUser = feedUsers[log.userId];
+            const name = friendUser?.full_name ?? friendUser?.displayName ?? 'A friend';
+            return (
+              <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
+                  {name[0].toUpperCase()}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm text-foreground">
+                    <span className="font-semibold">{name}</span>
+                    {' finished '}
+                    <span className="font-medium">{log.book} {log.chapter}</span>
+                    {' 🔥'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
+                </div>
+                <button
+                  onClick={() => sendHighFive(log)}
+                  className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted hover:bg-muted/80 transition-colors shrink-0"
+                >
+                  <Heart className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-background pb-24">
+      <div className="max-w-lg mx-auto px-5 pt-2">
+        {/* Header */}
+        <div className="mb-5">
+          <h1 className="text-2xl font-bold text-foreground">Spiritual Circles</h1>
+          <p className="text-sm text-muted-foreground mt-0.5">Friends, groups &amp; activity</p>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 mb-5 bg-muted rounded-xl p-1">
+          {[
+            { key: 'friends', label: 'Friends' },
+            { key: 'groups', label: 'Groups' },
+            { key: 'feed', label: 'Activity' },
+          ].map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="flex-1 h-8 rounded-lg text-sm font-semibold transition-all"
+              style={tab === t.key
+                ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                : { color: 'hsl(var(--muted-foreground))' }
+              }
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {tab === 'friends' && renderFriends()}
+        {tab === 'groups' && renderGroups()}
+        {tab === 'feed' && renderFeed()}
+      </div>
+    </div>
+  );
+}
