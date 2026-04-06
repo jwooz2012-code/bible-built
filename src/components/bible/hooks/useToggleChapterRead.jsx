@@ -131,7 +131,28 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const logs = await base44.entities.ReadingLog.filter({ userId, chapterId });
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
+      // Calculate XP/momentum to reverse before deleting
+      const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
+      const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
+      let newXp = Math.max(0, (user?.xp ?? 0) - xpToSubtract);
+      let newVersesReadToday = Math.max(0, (user?.versesReadToday ?? 0) - verseCount);
+      const target = user?.dailyVerseTarget ?? 30;
+      let hasActivatedBibleBoost = user?.hasActivatedBibleBoost ?? false;
+
+      // Reverse the daily bonus if dropping below target
+      if (hasActivatedBibleBoost && newVersesReadToday < target) {
+        hasActivatedBibleBoost = false;
+        newXp = Math.max(0, newXp - 100);
+      }
+
+      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+      const updatePayload = { xp: newXp, level: newLevel, versesReadToday: newVersesReadToday, hasActivatedBibleBoost };
+
       await base44.entities.ReadingLog.delete(latestLog.id);
+      await base44.auth.updateMe(updatePayload);
+      updateUser(updatePayload);
+
       return { deletedId: latestLog.id, chapterId, dateKey: latestLog.dateKey };
     },
     onSuccess: (data, variables) => {
