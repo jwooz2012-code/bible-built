@@ -147,8 +147,17 @@ export default function Social() {
 
   // ── Actions ────────────────────────────────────────────────
   const sendRequest = async (targetUserId) => {
-    await base44.functions.invoke('sendFriendRequest', { targetUserId });
-    toast.success('Friend request sent!');
+    try {
+      await base44.functions.invoke('sendFriendRequest', { targetUserId });
+      toast.success('Friend request sent!');
+    } catch (err) {
+      const status = err?.response?.status;
+      if (status === 409) {
+        toast('Already friends or request pending');
+      } else {
+        toast.error('Could not send request. Try again.');
+      }
+    }
     setSearchResults(prev => prev.filter(u => u.id !== targetUserId));
   };
 
