@@ -27,7 +27,7 @@ export default function Layout({ children }) {
   const navItems = [
     { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
-    { name: 'Circles', icon: Users, path: '/social', pageName: 'social' },
+    { name: 'Builders', icon: Users, path: '/social', pageName: 'social' },
     { name: 'Stats', icon: BarChart3, path: '/stats', pageName: 'stats' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];

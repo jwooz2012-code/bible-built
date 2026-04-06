@@ -441,7 +441,7 @@ export default function Social() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Spiritual Circles</h1>
+            <h1 className="text-2xl font-bold text-foreground">Builder Community</h1>
             <p className="text-sm text-muted-foreground mt-0.5">Friends, groups &amp; activity</p>
           </div>
           <NotificationsBell />
