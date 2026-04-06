@@ -16,7 +16,7 @@ import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Zap,
 } from 'lucide-react';
 
 // ── Streak Ring ───────────────────────────────────────────────────────────────
@@ -255,14 +255,21 @@ export default function Profile() {
                     <BookOpen className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[22px] font-bold text-foreground">{totalChapters}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chapters Read</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chapters</span>
                 </div>
                 <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[18px]">🏅</span>
                     <span className="text-[22px] font-bold text-foreground">{earnedBadges.length}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges Earned</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges</span>
+                </div>
+                <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                    <span className="text-[22px] font-bold text-foreground">{((user?.xp ?? 0) / 1000 >= 1 ? ((user?.xp ?? 0) / 1000).toFixed(1) + 'k' : (user?.xp ?? 0).toLocaleString())}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Total XP</span>
                 </div>
               </div>
             </div>
