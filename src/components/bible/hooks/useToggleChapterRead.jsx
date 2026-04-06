@@ -67,16 +67,16 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       // XP & momentum update
       if (user?.id) {
         const verseCount = getVerseCount(variables.book, variables.chapter);
-        const boostUntil = user.bibleBoostActiveUntil ? new Date(user.bibleBoostActiveUntil) : null;
-        const boostActive = boostUntil && boostUntil > new Date();
-        const xpGained = Math.round(verseCount * BASE_XP_PER_VERSE * (boostActive ? 1.5 : 1));
+        const xpGained = Math.round(verseCount * BASE_XP_PER_VERSE);
         const currentXp = user.xp ?? 0;
-        const newXp = currentXp + xpGained;
-        const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
         const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
         const target = user.dailyVerseTarget ?? 30;
-        const wasBoostActive = user.hasActivatedBibleBoost ?? false;
-        const shouldActivateBoost = !wasBoostActive && newVersesReadToday >= target;
+        const wasGoalMet = user.hasActivatedBibleBoost ?? false;
+        const goalJustMet = !wasGoalMet && newVersesReadToday >= target;
+
+        const bonusXp = goalJustMet ? 100 : 0;
+        const newXp = currentXp + xpGained + bonusXp;
+        const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
 
         const updatePayload = {
           xp: newXp,
@@ -84,14 +84,12 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           versesReadToday: newVersesReadToday,
         };
 
-        if (shouldActivateBoost) {
-          const boostExpiry = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+        if (goalJustMet) {
           updatePayload.hasActivatedBibleBoost = true;
-          updatePayload.bibleBoostActiveUntil = boostExpiry;
-          triggerHaptic('heavy');
+          triggerHaptic();
           triggerCelebration(CELEBRATION_TYPES.BIBLE_BOOST_ACTIVATED, {
-            title: 'Bible Boost Activated!',
-            message: '1.5× XP for the next 15 minutes!',
+            title: 'Daily Goal Met! ✨',
+            message: '+100 bonus XP earned!',
           });
         }
 

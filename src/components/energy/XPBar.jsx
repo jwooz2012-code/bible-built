@@ -21,7 +21,7 @@ export default function XPBar({ user }) {
   return (
     <div className="bb-energy-card rounded-xl px-4 py-3">
       <div className="text-center mb-2">
-        <span className="text-xs font-bold text-primary block mb-0.5">LEVEL {level}</span>
+        <span className="text-xs font-bold text-primary block mb-0.5">SPIRITUAL GROWTH — Level {level}</span>
         <span className="text-base font-mono text-foreground">{xpIntoLevel} / {xpNeeded} XP to next level</span>
       </div>
       <div className="relative h-3 rounded-full overflow-hidden" style={{ backgroundColor: colors.track }}>
