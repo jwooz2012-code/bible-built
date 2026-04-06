@@ -217,7 +217,7 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <div className="max-w-lg mx-auto px-5 pt-4">
+      <div className="max-w-lg mx-auto px-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-1">
