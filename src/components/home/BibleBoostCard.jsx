@@ -2,10 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, CheckCircle2 } from 'lucide-react';
 
-export default function BibleBoostCard({ user, versesReadTodayOverride }) {
+export default function BibleBoostCard({ user, versesReadTodayOverride, xpEarnedToday }) {
   const versesRead = versesReadTodayOverride ?? user?.versesReadToday ?? 0;
   const target = user?.dailyVerseTarget ?? 30;
   const goalMet = versesRead >= target;
+  const todayXp = xpEarnedToday ?? Math.round(versesRead * 5);
 
   const progress = goalMet ? 1 : Math.min(versesRead / target, 1);
   const percent = Math.round(progress * 100);
@@ -26,7 +27,8 @@ export default function BibleBoostCard({ user, versesReadTodayOverride }) {
             <p className="text-xs text-muted-foreground mt-0.5">{target} verses read · +100 bonus XP earned</p>
           </div>
           <div className="shrink-0 text-right">
-            <p className="text-xs font-bold" style={{ color: '#16A34A' }}>100%</p>
+            <p className="text-lg font-bold" style={{ color: '#16A34A' }}>+{(todayXp + 100).toLocaleString()}</p>
+            <p className="text-[10px] text-muted-foreground">XP today</p>
           </div>
         </div>
         {/* Full green bar */}
@@ -81,9 +83,12 @@ export default function BibleBoostCard({ user, versesReadTodayOverride }) {
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
-          {Math.max(0, target - versesRead)} verses to earn +100 bonus XP
+          {Math.max(0, target - versesRead)} verses to +100 bonus XP
         </span>
-        <span className="text-xs font-bold" style={{ color: '#16A34A' }}>{percent}%</span>
+        <div className="text-right">
+          <span className="text-sm font-bold" style={{ color: '#16A34A' }}>+{todayXp.toLocaleString()} XP</span>
+          <span className="text-xs text-muted-foreground ml-1">today</span>
+        </div>
       </div>
     </motion.div>
   );
