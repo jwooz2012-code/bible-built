@@ -60,15 +60,23 @@ export default function NotificationsBell() {
   };
 
   const acceptFriendRequest = async (notif) => {
-    await base44.functions.invoke('acceptFriendRequest', { friendshipId: notif.relatedId });
+    try {
+      await base44.functions.invoke('acceptFriendRequest', { friendshipId: notif.relatedId });
+      toast.success('Friend accepted!');
+    } catch {
+      toast('Request no longer available');
+    }
     await markRead(notif);
-    toast.success('Friend accepted!');
     load();
   };
 
   const declineFriendRequest = async (notif) => {
-    if (notif.relatedId) await base44.entities.Friendship.delete(notif.relatedId);
-    await base44.entities.Notification.delete(notif.id);
+    try {
+      if (notif.relatedId) await base44.entities.Friendship.delete(notif.relatedId);
+    } catch { /* already gone */ }
+    try {
+      await base44.entities.Notification.delete(notif.id);
+    } catch { /* ignore */ }
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
     toast('Request declined');
   };
