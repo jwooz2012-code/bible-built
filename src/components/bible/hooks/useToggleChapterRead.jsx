@@ -5,6 +5,9 @@ import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
 import { detectNewCelebrations } from '@/components/celebration/useCelebrationTrigger';
+import { getVerseCount } from '@/utils/verseCount';
+
+const BASE_XP_PER_VERSE = 5;
 
 export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
@@ -57,24 +60,22 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
       
-      // Celebration checks — after successful persistence
-      if (allLogs && createdLog) {
-        const prevLogs = allLogs.filter(l => l.id !== createdLog.id);
-        const newLogs = [...prevLogs, createdLog];
-        const celebrations = detectNewCelebrations({
-          prevLogs,
-          newLogs,
-          newLog: createdLog,
-          user: user || null,
-        });
-        for (const c of celebrations) {
-          triggerCelebration(c.type, c.data, { dedupKey: c.dedupKey });
-        }
+      // XP & momentum update
+      if (user?.id) {
+        const verseCount = getVerseCount(variables.book, variables.chapter);
+        const xpGained = verseCount * BASE_XP_PER_VERSE;
+        const currentXp = user.xp ?? 0;
+        const newXp = currentXp + xpGained;
+        const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+        const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
+        base44.auth.updateMe({
+          xp: newXp,
+          level: newLevel,
+          versesReadToday: newVersesReadToday,
+        }).catch(() => {});
       }
 
-      // Fire micro-celebration event for ChapterTile
-      window.dispatchEvent(new CustomEvent('biblebuilt:chapterRead', { detail: { chapterId: variables.chapterId } }));
-
+      // Celebration checks — after successful persistence
       base44.analytics.track({
         eventName: 'chapter_read_completed',
         properties: {

@@ -68,6 +68,53 @@
       "type": "boolean",
       "default": false,
       "description": "Whether an existing user has seen the reading tracking feature introduction"
+    },
+    "xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total experience points earned from reading"
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "description": "Current user level derived from XP"
+    },
+    "versesReadToday": {
+      "type": "number",
+      "default": 0,
+      "description": "Verses read since the last daily reset"
+    },
+    "dailyVerseTarget": {
+      "type": "number",
+      "default": 100,
+      "description": "Target number of verses to read per day to unlock the daily revelation"
+    },
+    "hasUnlockedDailyRevelation": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has unlocked the daily revelation for the current day"
+    },
+    "dailyRevelationContent": {
+      "type": "string",
+      "description": "The text content of the daily revelation"
+    },
+    "dailyScriptureFocus": {
+      "type": "object",
+      "description": "The daily scripture focus (book, chapter, etc.)",
+      "properties": {
+        "book": {
+          "type": "string"
+        },
+        "chapter": {
+          "type": "number"
+        },
+        "label": {
+          "type": "string"
+        },
+        "theme": {
+          "type": "string"
+        }
+      }
     }
   },
   "required": [

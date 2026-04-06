@@ -4,6 +4,7 @@ export const CELEBRATION_TYPES = {
   BADGE: 'badge',
   BOOK: 'book',
   STREAK: 'streak',
+  DAILY_REVELATION_UNLOCKED: 'daily_revelation_unlocked',
 };
 
 const PRIORITIES = { badge: 1, book: 2, streak: 3 };
