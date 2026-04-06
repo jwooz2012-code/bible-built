@@ -46,6 +46,7 @@ export default function Social() {
   // Friends state
   const [friends, setFriends] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
+  const [pendingUsers, setPendingUsers] = useState({});
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const [searching, setSearching] = useState(false);
@@ -92,6 +93,12 @@ export default function Social() {
     if (!user?.id) return;
     const requests = await base44.entities.Friendship.filter({ user2Id: user.id, status: 'pending' });
     setPendingRequests(requests);
+    if (requests.length > 0) {
+      const allUsers = await base44.entities.User.list() ?? [];
+      const map = {};
+      allUsers.forEach(u => { map[u.id] = u; });
+      setPendingUsers(map);
+    }
   }, [user?.id]);
 
   const loadGroups = useCallback(async () => {
@@ -240,7 +247,7 @@ export default function Social() {
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
                   <Users className="w-4 h-4 text-muted-foreground" />
                 </div>
-                <p className="flex-1 text-sm text-foreground truncate">{fr.user1Id}</p>
+                <p className="flex-1 text-sm font-medium text-foreground truncate">{pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.email || 'Someone'}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => acceptRequest(fr)}
