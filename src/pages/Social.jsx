@@ -214,7 +214,7 @@ export default function Social() {
             {suggestedUsers.map(u => (
               <div key={u.id} className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-                  {(u.full_name ?? u.displayName ?? '?')[0].toUpperCase()}
+                  {(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()}
                 </div>
                 <p className="flex-1 text-sm text-foreground truncate">{u.full_name ?? u.displayName ?? u.email}</p>
                 <button onClick={() => sendRequest(u.id)}
