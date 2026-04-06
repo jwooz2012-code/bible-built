@@ -132,13 +132,16 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       if (logs.length === 0) throw new Error('No matching log found');
       const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 
-      // Calculate XP/momentum to reverse before deleting
+      // Fetch fresh user to avoid stale closure values
+      const freshUser = await base44.auth.me();
+
+      // Calculate XP/momentum to reverse
       const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
       const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
-      let newXp = Math.max(0, (user?.xp ?? 0) - xpToSubtract);
-      let newVersesReadToday = Math.max(0, (user?.versesReadToday ?? 0) - verseCount);
-      const target = user?.dailyVerseTarget ?? 30;
-      let hasActivatedBibleBoost = user?.hasActivatedBibleBoost ?? false;
+      let newXp = Math.max(0, (freshUser?.xp ?? 0) - xpToSubtract);
+      let newVersesReadToday = Math.max(0, (freshUser?.versesReadToday ?? 0) - verseCount);
+      const target = freshUser?.dailyVerseTarget ?? 30;
+      let hasActivatedBibleBoost = freshUser?.hasActivatedBibleBoost ?? false;
 
       // Reverse the daily bonus if dropping below target
       if (hasActivatedBibleBoost && newVersesReadToday < target) {
