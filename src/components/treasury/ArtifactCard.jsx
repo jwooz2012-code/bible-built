@@ -1,12 +1,37 @@
 import React from 'react';
 import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
 
-const RARITY_BG = {
-  common: 'bg-amber-900/20 border-amber-700/60',
-  rare: 'bg-slate-500/20 border-slate-400/60',
-  epic: 'bg-yellow-500/20 border-yellow-400/60',
-  legendary: 'bg-purple-600/20 border-purple-500/60',
-  mythic: 'bg-white/10 border-white/40',
+const RARITY_STYLES = {
+  common: {
+    border: 'border-amber-700/50',
+    glow: 'shadow-[0_0_18px_rgba(180,120,50,0.18)]',
+    badge: 'bg-amber-500/20 text-amber-200 border-amber-400/30',
+    frame: 'from-amber-950/80 via-stone-900/95 to-black'
+  },
+  rare: {
+    border: 'border-sky-400/50',
+    glow: 'shadow-[0_0_20px_rgba(125,211,252,0.22)]',
+    badge: 'bg-sky-400/20 text-sky-200 border-sky-300/30',
+    frame: 'from-slate-900 via-slate-800 to-sky-950/80'
+  },
+  epic: {
+    border: 'border-violet-400/50',
+    glow: 'shadow-[0_0_22px_rgba(167,139,250,0.24)]',
+    badge: 'bg-violet-400/20 text-violet-200 border-violet-300/30',
+    frame: 'from-slate-950 via-violet-950/70 to-black'
+  },
+  legendary: {
+    border: 'border-yellow-300/60',
+    glow: 'shadow-[0_0_26px_rgba(250,204,21,0.30)]',
+    badge: 'bg-yellow-400/20 text-yellow-100 border-yellow-300/40',
+    frame: 'from-yellow-950/80 via-stone-950 to-black'
+  },
+  mythic: {
+    border: 'border-white/70',
+    glow: 'shadow-[0_0_30px_rgba(255,255,255,0.25)]',
+    badge: 'bg-white/15 text-white border-white/30',
+    frame: 'from-slate-950 via-zinc-900 to-black'
+  }
 };
 
 const EMOJI_MAP = {
@@ -30,39 +55,124 @@ const EMOJI_MAP = {
 };
 
 export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick }) {
+  const rarityStyle = RARITY_STYLES[artifact.rarity] || RARITY_STYLES.common;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
-  const emoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
+  const fallbackEmoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
+  const imageSrc = artifact.image || artifact.artwork || null;
 
   return (
-    <div
+    <button
       onClick={onClick}
-      className={`relative w-full aspect-square rounded-xl border-2 cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95 overflow-hidden group ${RARITY_BG[artifact.rarity]}`}
+      className={[
+        'group relative w-full overflow-hidden rounded-2xl border text-left',
+        'aspect-[0.74] transition-all duration-300',
+        'hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]',
+        'bg-gradient-to-b',
+        rarityStyle.border,
+        rarityStyle.glow,
+        isOwned ? 'opacity-100' : 'opacity-90'
+      ].join(' ')}
     >
-      <div className="absolute inset-0 bg-gradient-to-br from-transparent to-black/50" />
+      {/* Card background */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${rarityStyle.frame}`} />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.12),transparent_35%)]" />
+      <div className="absolute inset-[1px] rounded-[15px] border border-white/10" />
 
-      <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
-        <div className={`text-4xl mb-2 ${!isOwned ? 'grayscale opacity-40' : ''}`}>{emoji}</div>
-        <h3 className={`font-bold text-xs leading-tight line-clamp-2 ${isOwned ? 'text-white' : 'text-slate-400'}`}>
-          {artifact.name}
-        </h3>
-        <div className="mt-1.5 text-xs font-semibold" style={{ color: rarityColor }}>
-          {artifact.rarity.charAt(0).toUpperCase() + artifact.rarity.slice(1)}
+      {/* Foil shimmer */}
+      <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+        <div className="absolute inset-y-0 -left-1/2 w-1/2 rotate-12 bg-gradient-to-r from-transparent via-white/14 to-transparent transition-transform duration-1000 group-hover:translate-x-[240%]" />
+      </div>
+
+      {/* Top badges */}
+      <div className="absolute left-2 top-2 right-2 z-20 flex items-start justify-between gap-2">
+        <div className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm ${rarityStyle.badge}`}>
+          {artifact.rarity}
         </div>
-        <div className="mt-1 text-xs text-yellow-300 font-mono">
-          {artifact.xpCost.toLocaleString()} XP
+
+        <div className="flex flex-col items-end gap-1">
+          {boostPct ? (
+            <div className="rounded-full bg-orange-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+              +{boostPct}%
+            </div>
+          ) : null}
+
+          {isEquipped ? (
+            <div className="rounded-full bg-blue-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+              Equipped
+            </div>
+          ) : null}
         </div>
       </div>
 
+      {/* Art area */}
+      <div className="relative z-10 flex h-[68%] items-center justify-center px-3 pt-10">
+        <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/25">
+          {/* Background texture glow */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),transparent_60%)]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/30" />
+
+          {imageSrc ? (
+            <img
+              src={imageSrc}
+              alt={artifact.name}
+              className={[
+                'relative z-10 h-full w-full object-cover transition-all duration-300',
+                isOwned ? 'scale-100' : 'scale-95 grayscale opacity-40'
+              ].join(' ')}
+            />
+          ) : (
+            <div
+              className={[
+                'relative z-10 text-6xl transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)]',
+                isOwned ? 'opacity-100' : 'grayscale opacity-30'
+              ].join(' ')}
+            >
+              {fallbackEmoji}
+            </div>
+          )}
+
+          {!isOwned && (
+            <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
+              <div className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[11px] font-semibold text-slate-200">
+                Locked
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Bottom info plate */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 p-3">
+        <div className="rounded-xl border border-white/10 bg-black/35 px-3 py-2 backdrop-blur-sm">
+          <h3 className={`line-clamp-2 text-sm font-bold leading-tight ${isOwned ? 'text-white' : 'text-slate-300'}`}>
+            {artifact.name}
+          </h3>
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span
+              className="text-[11px] font-semibold uppercase tracking-wide"
+              style={{ color: rarityColor }}
+            >
+              {artifact.category}
+            </span>
+
+            <span className="text-[11px] font-mono text-yellow-300">
+              {artifact.xpCost.toLocaleString()} XP
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Owned corner check */}
       {isOwned && (
-        <div className="absolute top-1.5 right-1.5 bg-green-500 rounded-full w-5 h-5 flex items-center justify-center text-white text-xs font-bold">✓</div>
+        <div className="absolute bottom-16 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-emerald-500 text-xs font-bold text-white shadow-lg">
+          ✓
+        </div>
       )}
-      {isEquipped && (
-        <div className="absolute bottom-1.5 left-1.5 bg-blue-500 rounded px-1.5 py-0.5 text-xs font-semibold text-white">⚡</div>
-      )}
-      {boostPct && (
-        <div className="absolute top-1.5 left-1.5 bg-orange-500 rounded px-1.5 py-0.5 text-xs font-semibold text-white">+{boostPct}%</div>
-      )}
+    </button>
+  );
+}
     </div>
   );
 }
