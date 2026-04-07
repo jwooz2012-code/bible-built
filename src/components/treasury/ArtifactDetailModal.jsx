@@ -174,7 +174,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
             className="absolute w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 z-[70] transition-all"
             style={{
               top: 'calc(48px + var(--sat))',
-              right: 'calc(24px + var(--sar))'
+              right: 'calc(48px + var(--sar))'
             }}
           >
             <X className="w-5 h-5" />
