@@ -6,17 +6,15 @@
 export const ARTIFACT_RARITY_COLORS = {
   common: '#A0826D',
   rare: '#C0C0C0',
-  epic: '#6366F1',
+  elite: '#6366F1',
   legendary: '#FBBF24',
-  mythic: '#F0F0F0',
 };
 
 export const ARTIFACT_RARITY_LABELS = {
   common: 'Common',
   rare: 'Rare',
-  epic: 'Epic',
+  elite: 'Elite',
   legendary: 'Legendary',
-  mythic: 'Mythic',
 };
 
 export const artifacts = [
@@ -694,7 +692,7 @@ export const getArtifactsByRarity = (rarity) => artifacts.filter(a => a.rarity =
 
 export const getArtifactsByCategory = (category) => artifacts.filter(a => a.category === category);
 
-export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary', 'mythic'];
+export const RARITY_ORDER = ['common', 'rare', 'elite', 'legendary'];
 
 export const sortByRarity = (arts) =>
   [...arts].sort((a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity));
