@@ -59,8 +59,41 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
   const fallbackEmoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
-  const imageSrc = artifact.image || artifact.artwork || null;
 
+  // If a finished PNG card exists, render it directly
+  if (artifact.image) {
+    return (
+      <button
+        onClick={onClick}
+        className={[
+          'group relative w-full overflow-hidden rounded-2xl text-left',
+          'aspect-[0.74] transition-all duration-300',
+          'hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]',
+          isOwned ? 'opacity-100' : 'opacity-50 grayscale'
+        ].join(' ')}
+      >
+        <img
+          src={artifact.image}
+          alt={artifact.name}
+          className="w-full h-full object-cover rounded-2xl"
+        />
+        {!isOwned && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-slate-950/50 backdrop-blur-[1px]">
+            <div className="rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] font-semibold text-slate-200">
+              Locked
+            </div>
+          </div>
+        )}
+        {isEquipped && (
+          <div className="absolute top-2 right-2 z-20 rounded-full bg-blue-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
+            Equipped
+          </div>
+        )}
+      </button>
+    );
+  }
+
+  // Fallback card for artifacts without a PNG yet
   return (
     <button
       onClick={onClick}
@@ -89,14 +122,12 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
         <div className={`rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-wide backdrop-blur-sm ${rarityStyle.badge}`}>
           {artifact.rarity}
         </div>
-
         <div className="flex flex-col items-end gap-1">
           {boostPct ? (
             <div className="rounded-full bg-orange-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
               +{boostPct}%
             </div>
           ) : null}
-
           {isEquipped ? (
             <div className="rounded-full bg-blue-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
               Equipped
@@ -108,30 +139,15 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
       {/* Art area */}
       <div className="relative z-10 flex h-[68%] items-center justify-center px-3 pt-10">
         <div className="relative flex h-full w-full items-center justify-center overflow-hidden rounded-xl border border-white/10 bg-black/25">
-          {/* Background texture glow */}
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.10),transparent_60%)]" />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/5 via-transparent to-black/30" />
-
-          {imageSrc ? (
-            <img
-              src={imageSrc}
-              alt={artifact.name}
-              className={[
-                'relative z-10 h-full w-full object-cover transition-all duration-300',
-                isOwned ? 'scale-100' : 'scale-95 grayscale opacity-40'
-              ].join(' ')}
-            />
-          ) : (
-            <div
-              className={[
-                'relative z-10 text-6xl transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)]',
-                isOwned ? 'opacity-100' : 'grayscale opacity-30'
-              ].join(' ')}
-            >
-              {fallbackEmoji}
-            </div>
-          )}
-
+          <div
+            className={[
+              'relative z-10 text-6xl transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)]',
+              isOwned ? 'opacity-100' : 'grayscale opacity-30'
+            ].join(' ')}
+          >
+            {fallbackEmoji}
+          </div>
           {!isOwned && (
             <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/45 backdrop-blur-[1px]">
               <div className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-[11px] font-semibold text-slate-200">
@@ -148,15 +164,10 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
           <h3 className={`line-clamp-2 text-sm font-bold leading-tight ${isOwned ? 'text-white' : 'text-slate-300'}`}>
             {artifact.name}
           </h3>
-
           <div className="mt-2 flex items-center justify-between gap-2">
-            <span
-              className="text-[11px] font-semibold uppercase tracking-wide"
-              style={{ color: rarityColor }}
-            >
+            <span className="text-[11px] font-semibold uppercase tracking-wide" style={{ color: rarityColor }}>
               {artifact.category}
             </span>
-
             <span className="text-[11px] font-mono text-yellow-300">
               {artifact.xpCost.toLocaleString()} XP
             </span>
@@ -164,7 +175,6 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
         </div>
       </div>
 
-      {/* Owned corner check */}
       {isOwned && (
         <div className="absolute bottom-16 right-2 z-20 flex h-6 w-6 items-center justify-center rounded-full border border-white/20 bg-emerald-500 text-xs font-bold text-white shadow-lg">
           ✓

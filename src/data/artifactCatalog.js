@@ -26,6 +26,7 @@ export const artifacts = [
     name: "David's Sling",
     rarity: 'rare',
     xpCost: 3500,
+    image: '/cards/slingofdavid-epic.png',
     scripture: {
       reference: '1 Samuel 17:40',
       passage: "And he took his staff in his hand, and chose him five smooth stones out of the brook, and put them in a shepherd's bag which he had, even in a scrip; and his sling was in his hand: and he drew near to the Philistine.",
@@ -78,6 +79,7 @@ export const artifacts = [
     name: 'The Sword of Goliath',
     rarity: 'mythic',
     xpCost: 15000,
+    image: '/cards/goliathsword-legendary.png',
     scripture: {
       reference: '1 Samuel 21:9',
       passage: "And the priest said, The sword of Goliath the Philistine, whom thou slewest in the valley of Elah, behold, it is here wrapped in a cloth behind the ephod. And David said, There is none like that; give it me.",
@@ -92,6 +94,7 @@ export const artifacts = [
     name: "Moses' Staff",
     rarity: 'mythic',
     xpCost: 18000,
+    image: '/cards/staff-common.png',
     scripture: {
       reference: 'Exodus 4:17',
       passage: "And thou shalt take this rod in thine hand, wherewith thou shalt do signs.",
@@ -162,11 +165,12 @@ export const artifacts = [
     name: 'The Ark of the Covenant',
     rarity: 'mythic',
     xpCost: 25000,
+    image: '/cards/ark-legendary.png',
     scripture: {
       reference: 'Exodus 25:10-16',
       passage: "And they shall make an ark of shittim wood: two cubits and a half shall be the length thereof, and a cubit and a half the breadth thereof, and a cubit and a half the height thereof. And thou shalt overlay it with pure gold.",
     },
-    lore: "The holiest object in Israel, containing the tablets of the law. The ultimate artifact in the treasury.",
+    lore: 'The holiest object in Israel, containing the tablets of the law. The ultimate artifact in the treasury.',
     visualDescription: 'A golden chest radiating divine presence, with cherubim on the mercy seat.',
     category: 'temple',
     xpBoost: 1.25,
@@ -450,6 +454,7 @@ export const artifacts = [
     name: "David's Harp",
     rarity: 'legendary',
     xpCost: 10500,
+    image: '/cards/harp-rare.png',
     scripture: {
       reference: '1 Samuel 16:23',
       passage: "And it came to pass, when the evil spirit from God was upon Saul, that David took an harp, and played with his hand: so Saul was refreshed, and was well, and the evil spirit departed from him.",
