@@ -1,0 +1,53 @@
+{
+  "name": "ArtifactOwnership",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID who owns the artifact"
+    },
+    "artifactId": {
+      "type": "string",
+      "description": "Artifact ID being owned"
+    },
+    "acquiredAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when artifact was acquired"
+    },
+    "isEquipped": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the artifact is currently equipped for XP boost"
+    },
+    "equippedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when artifact was last equipped"
+    }
+  },
+  "required": [
+    "userId",
+    "artifactId",
+    "acquiredAt"
+  ],
+  "rls": {
+    "create": true,
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "$or": [
+        {
+          "data.userId": "{{user.id}}"
+        },
+        {
+          "user.role": "admin"
+        }
+      ]
+    }
+  }
+}

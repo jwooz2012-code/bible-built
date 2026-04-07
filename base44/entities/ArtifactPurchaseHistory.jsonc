@@ -1,0 +1,44 @@
+{
+  "name": "ArtifactPurchaseHistory",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID who made the purchase"
+    },
+    "artifactId": {
+      "type": "string",
+      "description": "Artifact ID that was purchased"
+    },
+    "xpSpent": {
+      "type": "number",
+      "description": "Amount of XP spent on this purchase"
+    },
+    "purchasedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of purchase"
+    }
+  },
+  "required": [
+    "userId",
+    "artifactId",
+    "xpSpent",
+    "purchasedAt"
+  ],
+  "rls": {
+    "create": true,
+    "update": false,
+    "delete": false,
+    "read": {
+      "$or": [
+        {
+          "data.userId": "{{user.id}}"
+        },
+        {
+          "user.role": "admin"
+        }
+      ]
+    }
+  }
+}

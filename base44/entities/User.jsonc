@@ -25,6 +25,62 @@
       },
       "description": "Array of Group IDs the user belongs to",
       "default": []
+    },
+    "displayName": {
+      "type": "string",
+      "description": "User's display name"
+    },
+    "onboardingComplete": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has completed onboarding"
+    },
+    "hasSeenReadingTrackingFeature": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has seen the reading tracking intro"
+    },
+    "xp": {
+      "type": "number",
+      "default": 0,
+      "description": "Total XP accumulated by user"
+    },
+    "level": {
+      "type": "number",
+      "default": 1,
+      "description": "User level based on XP"
+    },
+    "dailyGoal": {
+      "type": "number",
+      "default": 3,
+      "description": "Chapters per day goal"
+    },
+    "dailyGoalMet": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether daily goal was met today"
+    },
+    "lastGoalDate": {
+      "type": "string",
+      "description": "Date key (YYYY-MM-DD) of last goal check"
+    },
+    "totalArtifactsOwned": {
+      "type": "number",
+      "default": 0,
+      "description": "Total number of artifacts owned"
+    },
+    "equippedArtifactIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Array of equipped artifact IDs for XP boosts"
+    },
+    "lastArtifactPurchaseAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of last artifact purchase"
     }
   }
 }
