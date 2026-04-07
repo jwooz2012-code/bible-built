@@ -28,22 +28,7 @@ export default function CollectionTracker({ stats }) {
         <p className="text-xs text-slate-400 mt-1">{stats.completionPercentage}% complete</p>
       </div>
 
-      {/* By rarity */}
-      <div className="grid grid-cols-5 gap-1.5">
-        {Object.entries(RARITY_CONFIG).map(([rarity, cfg]) => {
-          const data = stats.byRarity?.[rarity] ?? { owned: 0, total: 0 };
-          const pct = data.total > 0 ? (data.owned / data.total) * 100 : 0;
-          return (
-            <div key={rarity} className={`${cfg.bg} rounded-lg p-2 text-center border border-white/5`}>
-              <div className="text-xs font-bold mb-1" style={{ color: cfg.color }}>{cfg.label}</div>
-              <div className="text-xs text-white font-semibold">{data.owned}/{data.total}</div>
-              <div className="w-full bg-black/30 rounded-full h-1 mt-1 overflow-hidden">
-                <div className={`h-full ${cfg.bar} rounded-full transition-all`} style={{ width: `${pct}%` }} />
-              </div>
-            </div>
-          );
-        })}
-      </div>
+
     </div>
   );
 }
