@@ -61,7 +61,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
     <div className="fixed inset-0 bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4 z-50" onClick={onClose}>
       <div
         className="bg-slate-900 rounded-t-2xl sm:rounded-2xl border border-slate-700 w-full sm:max-w-md max-h-[92vh] overflow-y-auto shadow-2xl"
-        style={{ paddingBottom: 'calc(var(--sab) + 80px)' }}
+        style={{ paddingTop: '60px', paddingBottom: 'calc(var(--sab) + 80px)' }}
         onClick={e => e.stopPropagation()}
       >
         {/* Header */}
