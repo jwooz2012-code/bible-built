@@ -28,6 +28,7 @@ import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
+import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 import BibleBoostCard from '@/components/home/BibleBoostCard';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
@@ -358,6 +359,8 @@ export default function Home() {
             />
 
             <BibleBoostCard user={user} versesReadTodayOverride={actualVersesReadToday} />
+
+            <TreasuryEntryCard />
 
             {energyMode && (
               <div className="mb-5">
