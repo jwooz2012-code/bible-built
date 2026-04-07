@@ -47,6 +47,7 @@ export default function Layout({ children }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
+            style={{ paddingTop: 'var(--sat)' }}
           >
             {children}
           </motion.div>
