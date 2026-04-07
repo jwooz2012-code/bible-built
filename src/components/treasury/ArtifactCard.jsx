@@ -60,13 +60,13 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
   const fallbackEmoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
 
-  // If a finished PNG card exists, render it directly
+  // If a finished PNG card exists, display it directly as the full card
   if (artifact.image) {
     return (
       <button
         onClick={onClick}
         className={[
-          'group relative w-full overflow-hidden rounded-2xl text-left',
+          'group relative w-full text-left',
           'aspect-[0.74] transition-all duration-300',
           'hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]',
           isOwned ? 'opacity-100' : 'opacity-50 grayscale'
@@ -75,10 +75,10 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
         <img
           src={artifact.image}
           alt={artifact.name}
-          className="w-full h-full object-cover rounded-2xl"
+          className="w-full h-full object-contain"
         />
         {!isOwned && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-slate-950/50 backdrop-blur-[1px]">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/50 backdrop-blur-[1px]">
             <div className="rounded-full border border-white/15 bg-black/50 px-3 py-1 text-[11px] font-semibold text-slate-200">
               Locked
             </div>
