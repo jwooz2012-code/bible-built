@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Search, Zap } from 'lucide-react';
+import { ArrowLeft, Zap } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { artifacts, ARTIFACT_RARITY_COLORS } from '../data/artifactCatalog.js';
@@ -9,8 +9,7 @@ import ArtifactDetailModal from '@/components/treasury/ArtifactDetailModal';
 import CollectionTracker from '@/components/treasury/CollectionTracker';
 import { toast } from 'sonner';
 
-const CATEGORIES = ['all', 'weapon', 'temple', 'prophetic', 'royal', 'testament'];
-const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary', 'mythic'];
+const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 
 export default function Treasury() {
   const navigate = useNavigate();
@@ -21,8 +20,6 @@ export default function Treasury() {
   const [collectionStats, setCollectionStats] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const [search, setSearch] = useState('');
-  const [category, setCategory] = useState('all');
   const [rarity, setRarity] = useState('all');
   const [selected, setSelected] = useState(null);
 
@@ -46,19 +43,14 @@ export default function Treasury() {
 
   useEffect(() => { loadCollection(); }, [loadCollection]);
 
-  // Filter artifacts
+  // Filter artifacts by rarity
   const filtered = artifacts.filter(a => {
-    if (category !== 'all' && a.category !== category) return false;
     if (rarity !== 'all' && a.rarity !== rarity) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase();
-      if (!a.name.toLowerCase().includes(q) && !a.lore.toLowerCase().includes(q)) return false;
-    }
     return true;
   });
 
   // Sort: owned first, then by rarity
-  const RARITY_ORDER = { mythic: 0, legendary: 1, epic: 2, rare: 3, common: 4 };
+  const RARITY_ORDER = { elite: 0, legendary: 1, epic: 2, rare: 3, common: 4 };
   filtered.sort((a, b) => {
     const aOwned = !!ownedMap[a.artifactId];
     const bOwned = !!ownedMap[b.artifactId];
@@ -110,33 +102,8 @@ export default function Treasury() {
         {/* Collection tracker */}
         {!loading && <CollectionTracker stats={collectionStats} />}
 
-        {/* Search */}
-        <div className="relative mt-4">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search artifacts…"
-            value={search}
-            onChange={e => setSearch(e.target.value)}
-            className="w-full bg-slate-800 border border-slate-700 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-slate-500"
-          />
-        </div>
-
-        {/* Category filter */}
-        <div className="flex gap-1.5 mt-3 overflow-x-auto pb-1 scrollbar-none">
-          {CATEGORIES.map(cat => (
-            <button
-              key={cat}
-              onClick={() => setCategory(cat)}
-              className={`shrink-0 px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all ${category === cat ? 'bg-white text-black' : 'bg-slate-800 text-slate-400 hover:text-white'}`}
-            >
-              {cat}
-            </button>
-          ))}
-        </div>
-
         {/* Rarity filter */}
-        <div className="flex gap-1.5 mt-2 overflow-x-auto pb-1 scrollbar-none">
+        <div className="flex gap-1.5 mt-4 overflow-x-auto pb-1 scrollbar-none">
           {RARITIES.map(r => (
             <button
               key={r}
@@ -155,24 +122,25 @@ export default function Treasury() {
             <div className="w-7 h-7 border-4 border-slate-700 border-t-slate-300 rounded-full animate-spin" />
           </div>
         ) : (
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          {filtered.map(artifact => (
-              <ArtifactCard
-                key={artifact.artifactId}
-                artifact={artifact}
-                isOwned={!!ownedMap[artifact.artifactId]}
-                isEquipped={equippedSet.has(artifact.artifactId)}
-                onClick={() => setSelected(artifact)}
-              />
-            ))}
-          </div>
-        )}
-
-        {filtered.length === 0 && !loading && (
-          <div className="text-center py-16 text-slate-500">
-            <p className="text-4xl mb-3">🏛️</p>
-            <p className="text-sm">No artifacts match your search</p>
-          </div>
+          <>
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              {filtered.map(artifact => (
+                <ArtifactCard
+                  key={artifact.artifactId}
+                  artifact={artifact}
+                  isOwned={!!ownedMap[artifact.artifactId]}
+                  isEquipped={equippedSet.has(artifact.artifactId)}
+                  onClick={() => setSelected(artifact)}
+                />
+              ))}
+            </div>
+            {filtered.length === 0 && (
+              <div className="text-center py-16 text-slate-500">
+                <p className="text-4xl mb-3">🏛️</p>
+                <p className="text-sm">No artifacts found</p>
+              </div>
+            )}
+          </>
         )}
       </div>
 
