@@ -166,14 +166,8 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
 
       {fullCardView && artifact.image && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-sm overflow-hidden flex flex-col"
           onClick={() => setFullCardView(false)}
-          style={{
-            paddingTop: 'calc(24px + var(--sat))',
-            paddingRight: 'calc(24px + var(--sar))',
-            paddingBottom: 'calc(24px + var(--sab))',
-            paddingLeft: 'calc(24px + var(--sal))'
-          }}
         >
           <button
             onClick={() => setFullCardView(false)}
@@ -185,12 +179,22 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
           >
             <X className="w-5 h-5" />
           </button>
-          <img
-            src={artifact.image}
-            alt={artifact.name}
-            className="w-auto h-auto max-w-[100%] max-h-[100%] object-contain drop-shadow-2xl"
-            onClick={e => e.stopPropagation()}
-          />
+          <div
+            className="flex-1 flex items-center justify-center overflow-auto p-4"
+            style={{
+              paddingTop: 'calc(60px + var(--sat))',
+              paddingRight: 'calc(16px + var(--sar))',
+              paddingBottom: 'calc(120px + var(--sab))',
+              paddingLeft: 'calc(16px + var(--sal))'
+            }}
+          >
+            <img
+              src={artifact.image}
+              alt={artifact.name}
+              className="max-w-full max-h-full object-contain drop-shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
         </div>
       )}
     </div>
