@@ -1,4 +1,5 @@
 import React from 'react';
+import { Lock } from 'lucide-react';
 import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
 
 const RARITY_STYLES = {
@@ -83,8 +84,11 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
             <div className="absolute inset-0 z-10 bg-gradient-to-br from-slate-950/60 to-slate-950/70 backdrop-blur-sm" />
             <div className="absolute inset-0 z-20 flex items-center justify-center">
               <div className="rounded-xl border border-slate-400/30 bg-slate-950/50 px-4 py-2 text-xs font-bold text-slate-300 shadow-lg">
-                Locked
+                {artifact.name}
               </div>
+            </div>
+            <div className="absolute top-2 right-2 z-30 w-6 h-6 flex items-center justify-center rounded-full bg-slate-950/70 border border-slate-400/40">
+              <Lock className="w-3.5 h-3.5 text-slate-300" />
             </div>
           </>
         )}
@@ -157,8 +161,11 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
               <div className="absolute inset-0 z-15 bg-gradient-to-br from-slate-950/50 to-slate-950/60 backdrop-blur-sm" />
               <div className="absolute inset-0 z-20 flex items-center justify-center">
                 <div className="rounded-xl border border-slate-400/30 bg-slate-950/50 px-4 py-2 text-xs font-bold text-slate-300 shadow-lg">
-                  Locked
+                  {artifact.name}
                 </div>
+              </div>
+              <div className="absolute top-2 right-2 z-30 w-6 h-6 flex items-center justify-center rounded-full bg-slate-950/70 border border-slate-400/40">
+                <Lock className="w-3.5 h-3.5 text-slate-300" />
               </div>
             </>
           )}
