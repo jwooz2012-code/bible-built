@@ -60,16 +60,18 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
   const fallbackEmoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
 
-  // If a finished PNG card exists, display it directly as the full card
+  // If a finished PNG card exists, display it with consistent styling
   if (artifact.image) {
     return (
       <button
         onClick={onClick}
         className={[
-          'group relative w-full text-left',
+          'group relative w-full overflow-hidden rounded-2xl border text-left',
           'aspect-[0.74] transition-all duration-300',
           'hover:-translate-y-1 hover:scale-[1.02] active:scale-[0.98]',
-          isOwned ? 'opacity-100' : 'opacity-50 grayscale'
+          rarityStyle.border,
+          rarityStyle.glow,
+          isOwned ? 'opacity-100' : 'opacity-90'
         ].join(' ')}
       >
         <img
