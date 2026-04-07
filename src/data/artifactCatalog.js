@@ -507,6 +507,7 @@ export const artifacts = [
     name: 'Jar of Manna',
     rarity: 'rare',
     xpCost: 4600,
+    image: '/cards/manna-rare.png',
     scripture: {
       reference: 'Exodus 16:32-34',
       passage: "And Moses said, This is the thing which the Lord commandeth, Fill an omer of it to be kept for your generations; that they may see the bread which I have fed you in the wilderness.",
@@ -652,6 +653,7 @@ export const artifacts = [
     name: 'Clay Lamp',
     rarity: 'common',
     xpCost: 800,
+    image: '/cards/lamp-common.png',
     scripture: {
       reference: 'Matthew 5:15',
       passage: "Neither do men light a candle, and put it under a bushel, but on a candlestick; and it giveth light unto all that are in the house.",

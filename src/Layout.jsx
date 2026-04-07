@@ -39,11 +39,7 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background" style={{
-        paddingTop: 'var(--sat)',
-        paddingLeft: 'var(--sal)',
-        paddingRight: 'var(--sar)'
-      }}>
+      <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--sat)' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
@@ -51,7 +47,6 @@ export default function Layout({ children }) {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -20 }}
             transition={{ duration: 0.2, ease: 'easeInOut' }}
-            style={{ paddingTop: 'var(--sat)' }}
           >
             {children}
           </motion.div>
@@ -61,61 +56,60 @@ export default function Layout({ children }) {
       <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]" style={{
         paddingBottom: 'var(--sab)',
         paddingLeft: 'var(--sal)',
-        paddingRight: 'var(--sar)',
-        paddingTop: '16px'
+        paddingRight: 'var(--sar)'
       }}>
-        <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
-          {navItems.map((item) => {
-            const isActive = currentPath === item.path || 
-              (item.path === '/home' && (currentPath === '/' || currentPath === '/home'));
-            return (
-              <button
-                key={item.name}
-                onClick={() => {
-                  if (item.path === '/home') {
-                    window.dispatchEvent(new Event('biblebuilt:homeTap'));
-                    if (currentPath !== '/home') {
-                      navigate('/home', { replace: true });
-                    }
-                  } else {
-                    navigate(item.path);
-                  }
-                }}
-                className="flex flex-col items-center justify-center gap-1 transition-all relative"
-              >
-                <item.icon 
-                  className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground'}`}
-                />
-                <span 
-                  className={`text-[10px] ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
-                >
-                  {item.name}
-                </span>
-                {isActive && (
-                  <div 
-                    className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-border"
-                  />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-      <CelebrationRenderer />
-      <Toaster
-        position="bottom-center"
-        expand={false}
-        closeButton={false}
-        toastOptions={{
+          <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
+              {navItems.map((item) => {
+                const isActive = currentPath === item.path || 
+                  (item.path === '/home' && (currentPath === '/' || currentPath === '/home'));
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => {
+                      if (item.path === '/home') {
+                        window.dispatchEvent(new Event('biblebuilt:homeTap'));
+                        if (currentPath !== '/home') {
+                          navigate('/home', { replace: true });
+                        }
+                      } else {
+                        navigate(item.path);
+                      }
+                    }}
+                    className="flex flex-col items-center justify-center gap-1 transition-all relative"
+                  >
+                    <item.icon 
+                      className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground'}`}
+                    />
+                    <span 
+                      className={`text-[10px] ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
+                    >
+                      {item.name}
+                    </span>
+                    {isActive && (
+                      <div 
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-border"
+                      />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </nav>
+          <CelebrationRenderer />
+          <Toaster
+          position="bottom-center"
+          expand={false}
+          closeButton={false}
+          toastOptions={{
           duration: 1600,
           style: {
-            pointerEvents: 'auto'
+          pointerEvents: 'auto'
           }
-        }}
-        style={{
+          }}
+          style={{
           zIndex: 9999
-        }}
-      />
-    </ThemeProvider>
-  );
-  }
+          }}
+          />
+          </ThemeProvider>
+          );
+          }

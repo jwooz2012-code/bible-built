@@ -454,7 +454,7 @@ export default function Social() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-lg mx-auto px-5 pt-4">
+      <div className="max-w-lg mx-auto px-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 64px)' }}>
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>

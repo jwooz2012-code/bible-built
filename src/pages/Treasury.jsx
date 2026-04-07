@@ -80,7 +80,7 @@ export default function Treasury() {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28">
-      <div className="max-w-lg mx-auto px-4 pt-4">
+      <div className="max-w-lg mx-auto px-4 pt-14">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
