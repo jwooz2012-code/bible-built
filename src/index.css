@@ -87,6 +87,7 @@
   }
 
   :root {
+    --sat: env(safe-area-inset-top);
     --sab: env(safe-area-inset-bottom);
     --btn-inactive-bg: #F3F4F6;
     --btn-inactive-text: #374151;

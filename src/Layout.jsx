@@ -39,7 +39,7 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-background" style={{ paddingTop: 'var(--sat)' }}>
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
