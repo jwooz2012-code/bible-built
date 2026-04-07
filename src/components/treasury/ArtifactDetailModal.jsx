@@ -77,7 +77,15 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
         <div className="p-5 space-y-4">
           {/* Artifact visual */}
           <div className="flex flex-col items-center py-4">
-            <div className="text-7xl mb-2">{emoji}</div>
+            {artifact.image ? (
+              <img
+                src={artifact.image}
+                alt={artifact.name}
+                className="w-56 object-contain mb-2"
+              />
+            ) : (
+              <div className="text-7xl mb-2">{emoji}</div>
+            )}
             <div className="flex gap-3 text-sm">
               <span className="text-yellow-400 font-bold">{artifact.xpCost.toLocaleString()} XP</span>
               {boostPct && <span className="text-orange-400 font-semibold">+{boostPct}% XP Boost</span>}
