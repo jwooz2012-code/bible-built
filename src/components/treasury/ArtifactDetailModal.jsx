@@ -113,9 +113,9 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
             <p className="text-xs text-blue-100/80 italic leading-relaxed">"{artifact.scripture.passage}"</p>
           </div>
 
-          {/* Lore */}
+          {/* Story */}
           <div className="bg-slate-800/50 rounded-xl p-4">
-            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Lore</p>
+            <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Story</p>
             <p className="text-sm text-slate-200 leading-relaxed">{artifact.lore}</p>
           </div>
 
