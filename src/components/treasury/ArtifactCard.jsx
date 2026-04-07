@@ -173,6 +173,3 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
     </button>
   );
 }
-    </div>
-  );
-}
