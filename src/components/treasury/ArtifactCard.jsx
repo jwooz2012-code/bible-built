@@ -63,7 +63,6 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
   // If a finished PNG card exists, display it with consistent styling
   if (artifact.image) {
     return (
-      <>
       <button
         onClick={onClick}
         className={[
@@ -95,10 +94,6 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
           </div>
         )}
       </button>
-      <div className="mt-2 px-1 py-1">
-        <p className="line-clamp-2 text-sm font-bold text-white leading-tight">{artifact.name}</p>
-      </div>
-      </>
     );
   }
 
