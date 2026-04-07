@@ -191,7 +191,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
             <img
               src={artifact.image}
               alt={artifact.name}
-              className={`max-w-full max-h-full object-contain drop-shadow-2xl ${!isOwned ? 'grayscale blur-lg' : ''}`}
+              className={`max-w-full max-h-full object-contain drop-shadow-2xl ${!isOwned ? 'grayscale blur-sm' : ''}`}
               onClick={e => e.stopPropagation()}
             />
             {!isOwned && (
