@@ -26,6 +26,7 @@ const EMOJI_MAP = {
 export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [fullCardView, setFullCardView] = useState(false);
 
   const canAfford = userXP >= artifact.xpCost;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
@@ -78,11 +79,21 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
           {/* Artifact visual */}
           <div className="flex flex-col items-center py-4">
             {artifact.image ? (
-              <img
-                src={artifact.image}
-                alt={artifact.name}
-                className="w-56 object-contain mb-2"
-              />
+              <button
+                onClick={() => setFullCardView(true)}
+                className="group relative mb-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
+              >
+                <img
+                  src={artifact.image}
+                  alt={artifact.name}
+                  className="w-56 object-contain drop-shadow-lg"
+                />
+                <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-all group-hover:bg-black/10">
+                  <div className="scale-0 transition-transform group-hover:scale-100">
+                    <div className="rounded-full bg-white/20 backdrop-blur-sm px-3 py-1 text-xs font-semibold text-white">Click to expand</div>
+                  </div>
+                </div>
+              </button>
             ) : (
               <div className="text-7xl mb-2">{emoji}</div>
             )}
@@ -152,6 +163,26 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
           <p className="text-center text-xs text-slate-500">Your XP: <span className="text-yellow-400 font-semibold">{userXP?.toLocaleString()}</span></p>
         </div>
       </div>
+
+      {fullCardView && artifact.image && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+          onClick={() => setFullCardView(false)}
+        >
+          <button
+            onClick={() => setFullCardView(false)}
+            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 z-[70]"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img
+            src={artifact.image}
+            alt={artifact.name}
+            className="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl"
+            onClick={e => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   );
 }
