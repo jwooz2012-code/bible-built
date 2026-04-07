@@ -166,19 +166,29 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
 
       {fullCardView && artifact.image && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-sm"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 backdrop-blur-sm p-6"
           onClick={() => setFullCardView(false)}
+          style={{
+            paddingTop: 'calc(6px + var(--sat))',
+            paddingRight: 'calc(6px + var(--sar))',
+            paddingBottom: 'calc(6px + var(--sab))',
+            paddingLeft: 'calc(6px + var(--sal))'
+          }}
         >
           <button
             onClick={() => setFullCardView(false)}
-            className="absolute top-4 right-4 w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 z-[70]"
+            className="absolute w-8 h-8 flex items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 z-[70] transition-all"
+            style={{
+              top: 'calc(12px + var(--sat))',
+              right: 'calc(12px + var(--sar))'
+            }}
           >
             <X className="w-5 h-5" />
           </button>
           <img
             src={artifact.image}
             alt={artifact.name}
-            className="w-auto h-auto max-w-[90vw] max-h-[90vh] object-contain drop-shadow-2xl"
+            className="w-auto h-auto max-w-[min(90vw,100%)] max-h-[min(90vh,100%)] object-contain drop-shadow-2xl"
             onClick={e => e.stopPropagation()}
           />
         </div>
