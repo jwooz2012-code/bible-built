@@ -76,17 +76,17 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
         <img
           src={artifact.image}
           alt={artifact.name}
-          className={`w-full h-full object-contain ${!isOwned ? 'grayscale opacity-40' : ''}`}
+          className="w-full h-full object-contain"
         />
         {!isOwned && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-slate-950/80 backdrop-blur-xl">
-            <div className="rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-semibold text-slate-200">
-              Locked
+          <>
+            <div className="absolute inset-0 z-10 bg-gradient-to-br from-slate-950/60 to-slate-950/70 backdrop-blur-sm" />
+            <div className="absolute inset-0 z-20 flex items-center justify-center">
+              <div className="rounded-xl border border-slate-400/30 bg-slate-950/50 px-4 py-2 text-xs font-bold text-slate-300 shadow-lg">
+                Locked
+              </div>
             </div>
-          </div>
-        )}
-        {!isOwned && (
-          <div className="absolute inset-0 z-5 grayscale" />
+          </>
         )}
         {isEquipped && (
           <div className="absolute top-2 right-2 z-20 rounded-full bg-blue-500/85 px-2 py-1 text-[10px] font-bold text-white shadow-lg">
@@ -147,17 +147,20 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
           <div
             className={[
               'relative z-10 text-6xl transition-all duration-300 drop-shadow-[0_8px_16px_rgba(0,0,0,0.55)]',
-              isOwned ? 'opacity-100' : 'grayscale opacity-20'
+              isOwned ? 'opacity-100' : 'opacity-40'
             ].join(' ')}
           >
             {fallbackEmoji}
           </div>
           {!isOwned && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/80 backdrop-blur-xl">
-              <div className="rounded-full border border-white/15 bg-black/70 px-3 py-1 text-[11px] font-semibold text-slate-200">
-                Locked
+            <>
+              <div className="absolute inset-0 z-15 bg-gradient-to-br from-slate-950/50 to-slate-950/60 backdrop-blur-sm" />
+              <div className="absolute inset-0 z-20 flex items-center justify-center">
+                <div className="rounded-xl border border-slate-400/30 bg-slate-950/50 px-4 py-2 text-xs font-bold text-slate-300 shadow-lg">
+                  Locked
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </div>
