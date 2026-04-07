@@ -155,8 +155,8 @@ export default function Treasury() {
             <div className="w-7 h-7 border-4 border-slate-700 border-t-slate-300 rounded-full animate-spin" />
           </div>
         ) : (
-          <div className="grid grid-cols-3 gap-3 mt-4">
-            {filtered.map(artifact => (
+        <div className="grid grid-cols-2 gap-4 mt-4">
+          {filtered.map(artifact => (
               <ArtifactCard
                 key={artifact.artifactId}
                 artifact={artifact}
