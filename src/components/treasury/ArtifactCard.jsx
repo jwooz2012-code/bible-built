@@ -2,7 +2,18 @@ import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
 
-const EMOJI_MAP
+const EMOJI_MAP = {
+  'ark-of-the-covenant': '📦',
+  'sword-goliath': '⚔️',
+  'coat-of-many-colors': '🌈',
+  'sling-of-david': '🏹',
+  'davids-harp': '🎵',
+  'jar-of-manna': '🫙',
+  'noahs-hammer': '🔨',
+  'clay-lamp': '🕯️',
+  'rod-of-peter': '🎣',
+  'shepherds-staff': '🪄',
+};
 
 const RARITY_STYLES = {
   common: {
