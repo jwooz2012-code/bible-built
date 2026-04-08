@@ -4,29 +4,24 @@ import { base44 } from '@/api/base44Client';
 import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
 
 const EMOJI_MAP = {
-  'davids-sling': '🏹', 'samsons-jawbone': '💀', 'sauls-spear': '🗡️',
-  'jonathans-bow': '🏹', 'goliaths-sword': '⚔️', 'moses-staff': '🔱',
-  'elijah-staff': '🔱', 'peter-keys': '🔑', 'shield-of-faith': '🛡️',
-  'sword-of-spirit': '✨', 'ark-covenant': '📦', 'golden-lampstand': '🕯️',
-  'altar-incense': '🔥', 'stone-tablets': '📜', 'temple-veil': '🧵',
-  'priestly-breastplate': '👑', 'bronze-serpent': '🐍', 'urim-thummim': '💎',
-  'table-shewbread': '🍞', 'golden-calf': '🐄', 'isaiah-scroll': '📜',
-  'jeremiahs-clay': '🫙', 'elijahs-mantle': '👔', 'ezekiels-wheel': '⚙️',
-  'daniels-lions': '🦁', 'jonahs-fish': '🐋', 'burning-bush': '🌿',
-  'hoseas-scroll': '📜', 'amos-plumb-line': '📏', 'zechariahs-lamp': '🔦',
-  'solomons-crown': '👑', 'davids-harp': '🎵', 'queens-scepter': '🔱',
-  'solomons-ring': '💍', 'davidic-throne': '🪨', 'josephs-coat': '🌈',
-  'cyrus-decree': '📋', 'nehemiahs-cup': '🏺', 'absalom-hair': '💇',
-  'jeroboam-altar': '🪨', 'crown-of-thorns': '🌿', 'lords-cup': '🍷',
-  'five-loaves': '🍞', 'emmaus-bread': '🥖', 'widows-mite': '🪙',
-  'alabaster-jar': '🫙', 'fishing-net': '🎣', 'prodigal-ring': '💍',
-  'mustard-seed': '🌱', 'revelation-scroll': '📜',
+  'ark-of-the-covenant': '📦',
+  'sword-goliath': '⚔️',
+  'coat-of-many-colors': '🌈',
+  'sling-of-david': '🏹',
+  'davids-harp': '🎵',
+  'jar-of-manna': '🫙',
+  'noahs-hammer': '🔨',
+  'clay-lamp': '🕯️',
+  'rod-of-peter': '🎣',
+  'shepherds-staff': '🪄',
 };
 
 export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fullCardView, setFullCardView] = useState(false);
+  const [imgError, setImgError] = useState(false);
+  const [fullImgError, setFullImgError] = useState(false);
 
   const canAfford = userXP >= artifact.xpCost;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
@@ -78,7 +73,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
         <div className="p-5 space-y-4">
           {/* Artifact visual */}
           <div className="flex flex-col items-center py-4">
-            {artifact.image ? (
+            {artifact.image && !imgError ? (
               <button
                 onClick={() => setFullCardView(true)}
                 className="group relative mb-2 cursor-pointer transition-transform hover:scale-105 active:scale-95"
@@ -87,6 +82,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
                   src={artifact.image}
                   alt={artifact.name}
                   className={`w-56 object-contain drop-shadow-lg ${!isOwned ? 'grayscale blur-sm' : ''}`}
+                  onError={() => setImgError(true)}
                 />
                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-all group-hover:bg-black/10">
                   <div className="scale-0 transition-transform group-hover:scale-100">
@@ -116,7 +112,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
           {/* Story */}
           <div className="bg-slate-800/50 rounded-xl p-4">
             <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Story</p>
-            <p className="text-sm text-slate-200 leading-relaxed">{artifact.lore}</p>
+            <p className="text-sm text-slate-200 leading-relaxed">{artifact.story}</p>
           </div>
 
           {/* Appearance */}
@@ -164,7 +160,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
         </div>
       </div>
 
-      {fullCardView && artifact.image && (
+      {fullCardView && artifact.image && !fullImgError && (
         <div
           className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-sm overflow-hidden flex flex-col"
           onClick={() => setFullCardView(false)}
@@ -192,6 +188,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
               src={artifact.image}
               alt={artifact.name}
               className={`max-w-full max-h-full object-contain drop-shadow-2xl ${!isOwned ? 'grayscale blur-sm' : ''}`}
+              onError={() => setFullImgError(true)}
               onClick={e => e.stopPropagation()}
             />
             {!isOwned && (

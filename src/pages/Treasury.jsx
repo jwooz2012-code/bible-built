@@ -50,7 +50,7 @@ export default function Treasury() {
   });
 
   // Sort: owned first, then by rarity
-  const RARITY_ORDER = { elite: 0, legendary: 1, epic: 2, rare: 3, common: 4 };
+  const RARITY_ORDER = { legendary: 0, epic: 1, rare: 2, common: 3 };
   filtered.sort((a, b) => {
     const aOwned = !!ownedMap[a.artifactId];
     const bOwned = !!ownedMap[b.artifactId];

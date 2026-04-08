@@ -5,7 +5,6 @@ const RARITY_CONFIG = {
   rare:      { label: 'Rare',      color: '#C0C0C0', bg: 'bg-slate-500/20',  bar: 'bg-slate-400' },
   epic:      { label: 'Epic',      color: '#FFD700', bg: 'bg-yellow-500/20', bar: 'bg-yellow-400' },
   legendary: { label: 'Legendary', color: '#9D4EDD', bg: 'bg-purple-600/20', bar: 'bg-purple-500' },
-  mythic:    { label: 'Mythic',    color: '#F0F0F0', bg: 'bg-white/10',      bar: 'bg-white' },
 };
 
 export default function CollectionTracker({ stats }) {

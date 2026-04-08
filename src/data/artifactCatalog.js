@@ -1,6 +1,5 @@
 /**
  * BibleBuilt Artifact Treasury Catalog
- * Bible-themed artifacts organized by rarity tier
  */
 
 export const ARTIFACT_RARITY_COLORS = {
@@ -8,7 +7,6 @@ export const ARTIFACT_RARITY_COLORS = {
   rare: '#C0C0C0',
   epic: '#6366F1',
   legendary: '#FBBF24',
-  elite: '#F0F0F0',
 };
 
 export const ARTIFACT_RARITY_LABELS = {
@@ -16,7 +14,6 @@ export const ARTIFACT_RARITY_LABELS = {
   rare: 'Rare',
   epic: 'Epic',
   legendary: 'Legendary',
-  elite: 'Elite',
 };
 
 export const artifacts = [
@@ -25,7 +22,7 @@ export const artifacts = [
     name: 'Ark of the Covenant',
     rarity: 'legendary',
     xpCost: 18000,
-    image: '/cards/ark-of-the-covenant-legendary.png',
+    image: '/cards/ark-legendary.png',
     scripture: {
       reference: 'Exodus 25:10-22',
       passage: "And they shall make an ark of shittim wood: two cubits and a half shall be the length thereof, and a cubit and a half the breadth thereof, and a cubit and a half the height thereof.",
@@ -49,6 +46,36 @@ export const artifacts = [
     visualDescription: 'A colossal iron blade, notched and weathered from ancient battles, radiating power.',
     category: 'weapon',
     xpBoost: 1.15,
+  },
+  {
+    artifactId: 'coat-of-many-colors',
+    name: 'Coat of Many Colors',
+    rarity: 'epic',
+    xpCost: 9500,
+    image: '/cards/coat-of-many-colors-epic.png',
+    scripture: {
+      reference: 'Genesis 37:3',
+      passage: "Now Israel loved Joseph more than all his children, because he was the son of his old age: and he made him a coat of many colours.",
+    },
+    story: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
+    visualDescription: 'A vibrant robe woven with threads of every color, radiating noble lineage.',
+    category: 'royal',
+    xpBoost: 1.11,
+  },
+  {
+    artifactId: 'sling-of-david',
+    name: 'Sling of David',
+    rarity: 'epic',
+    xpCost: 12000,
+    image: '/cards/sling-of-david-epic.png',
+    scripture: {
+      reference: '1 Samuel 17:40',
+      passage: "And he took his staff in his hand, and chose him five smooth stones out of the brook, and put them in a shepherd's bag which he had, even in a scrip; and his sling was in his hand: and he drew near to the Philistine.",
+    },
+    story: "The humble sling used by young David to defeat the giant Goliath. A symbol of faith over strength.",
+    visualDescription: 'A weathered leather sling with five smooth, glowing stones.',
+    category: 'weapon',
+    xpBoost: 1.12,
   },
   {
     artifactId: 'davids-harp',
@@ -81,64 +108,6 @@ export const artifacts = [
     xpBoost: 1.08,
   },
   {
-    artifactId: 'clay-lamp',
-    name: 'Clay Lamp',
-    rarity: 'common',
-    xpCost: 800,
-    image: '/cards/lamp-common.png',
-    scripture: {
-      reference: 'Matthew 5:15',
-      passage: "Neither do men light a candle, and put it under a bushel, but on a candlestick; and it giveth light unto all that are in the house.",
-    },
-    story: "A simple oil lamp. Light that cannot be hidden.",
-    visualDescription: 'A small clay lamp glowing with eternal flame.',
-    category: 'temple',
-  },
-  {
-    artifactId: 'sling-of-david',
-    name: 'Sling of David',
-    rarity: 'epic',
-    xpCost: 12000,
-    image: '/cards/sling-of-david-epic.png',
-    scripture: {
-      reference: '1 Samuel 17:40',
-      passage: "And he took his staff in his hand, and chose him five smooth stones out of the brook, and put them in a shepherd's bag which he had, even in a scrip; and his sling was in his hand: and he drew near to the Philistine.",
-    },
-    story: "The humble sling used by young David to defeat the giant Goliath. A symbol of faith over strength.",
-    visualDescription: 'A weathered leather sling with five smooth, glowing stones.',
-    category: 'weapon',
-    xpBoost: 1.12,
-  },
-  {
-    artifactId: 'shepherds-staff',
-    name: "Shepherd's Staff",
-    rarity: 'common',
-    xpCost: 1500,
-    image: '/cards/shepherds-staff-common.png',
-    scripture: {
-      reference: 'Hebrews 11:13',
-      passage: "These all died in faith, not having received the promises, but having seen them afar off, and were persuaded of them, and embraced them.",
-    },
-    story: "A simple staff for the journey. Every pilgrim carries one toward the promised land.",
-    visualDescription: 'A gnarled wooden staff, well-worn by faithful hands.',
-    category: 'weapon',
-  },
-  {
-    artifactId: 'coat-of-many-colors',
-    name: 'Coat of Many Colors',
-    rarity: 'epic',
-    xpCost: 9500,
-    image: '/cards/coat-of-many-colors-epic.png',
-    scripture: {
-      reference: 'Genesis 37:3',
-      passage: "Now Israel loved Joseph more than all his children, because he was the son of his old age: and he made him a coat of many colours.",
-    },
-    story: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
-    visualDescription: 'A vibrant robe woven with threads of every color, radiating noble lineage.',
-    category: 'royal',
-    xpBoost: 1.11,
-  },
-  {
     artifactId: 'noahs-hammer',
     name: "Noah's Hammer",
     rarity: 'rare',
@@ -154,8 +123,22 @@ export const artifacts = [
     xpBoost: 1.09,
   },
   {
-    artifactId: 'fishing-rod-of-peter',
-    name: 'Fishing Rod of Peter',
+    artifactId: 'clay-lamp',
+    name: 'Clay Lamp',
+    rarity: 'common',
+    xpCost: 800,
+    image: '/cards/lamp-common.png',
+    scripture: {
+      reference: 'Matthew 5:15',
+      passage: "Neither do men light a candle, and put it under a bushel, but on a candlestick; and it giveth light unto all that are in the house.",
+    },
+    story: "A simple oil lamp. Light that cannot be hidden.",
+    visualDescription: 'A small clay lamp glowing with eternal flame.',
+    category: 'temple',
+  },
+  {
+    artifactId: 'rod-of-peter',
+    name: 'Rod of Peter',
     rarity: 'common',
     xpCost: 2100,
     image: '/cards/rod-of-peter-common.png',
@@ -167,6 +150,20 @@ export const artifacts = [
     visualDescription: 'A simple wooden fishing rod with a worn cord line.',
     category: 'tool',
   },
+  {
+    artifactId: 'shepherds-staff',
+    name: "Shepherd's Staff",
+    rarity: 'common',
+    xpCost: 1500,
+    image: '/cards/shepherds-staff-common.png',
+    scripture: {
+      reference: 'Hebrews 11:13',
+      passage: "These all died in faith, not having received the promises, but having seen them afar off, and were persuaded of them, and embraced them.",
+    },
+    story: "A simple staff for the journey. Every pilgrim carries one toward the promised land.",
+    visualDescription: 'A gnarled wooden staff, well-worn by faithful hands.',
+    category: 'weapon',
+  },
 ];
 
 export const getArtifactById = (id) => artifacts.find(a => a.artifactId === id);
@@ -175,7 +172,7 @@ export const getArtifactsByRarity = (rarity) => artifacts.filter(a => a.rarity =
 
 export const getArtifactsByCategory = (category) => artifacts.filter(a => a.category === category);
 
-export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary', 'elite'];
+export const RARITY_ORDER = ['common', 'rare', 'epic', 'legendary'];
 
 export const sortByRarity = (arts) =>
   [...arts].sort((a, b) => RARITY_ORDER.indexOf(b.rarity) - RARITY_ORDER.indexOf(a.rarity));

@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Lock } from 'lucide-react';
 import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
+
+const EMOJI_MAP
 
 const RARITY_STYLES = {
   common: {
@@ -27,42 +29,17 @@ const RARITY_STYLES = {
     badge: 'bg-yellow-400/20 text-yellow-100 border-yellow-300/40',
     frame: 'from-yellow-950/80 via-stone-950 to-black'
   },
-  mythic: {
-    border: 'border-white/70',
-    glow: 'shadow-[0_0_30px_rgba(255,255,255,0.25)]',
-    badge: 'bg-white/15 text-white border-white/30',
-    frame: 'from-slate-950 via-zinc-900 to-black'
-  }
-};
-
-const EMOJI_MAP = {
-  'davids-sling': '🏹', 'samsons-jawbone': '💀', 'sauls-spear': '🗡️',
-  'jonathans-bow': '🏹', 'goliaths-sword': '⚔️', 'moses-staff': '🔱',
-  'elijah-staff': '🔱', 'peter-keys': '🔑', 'shield-of-faith': '🛡️',
-  'sword-of-spirit': '✨', 'ark-covenant': '📦', 'golden-lampstand': '🕯️',
-  'altar-incense': '🔥', 'stone-tablets': '📜', 'temple-veil': '🧵',
-  'priestly-breastplate': '👑', 'bronze-serpent': '🐍', 'urim-thummim': '💎',
-  'table-shewbread': '🍞', 'golden-calf': '🐄', 'isaiah-scroll': '📜',
-  'jeremiahs-clay': '🫙', 'elijahs-mantle': '👔', 'ezekiels-wheel': '⚙️',
-  'daniels-lions': '🦁', 'jonahs-fish': '🐋', 'burning-bush': '🌿',
-  'hoseas-scroll': '📜', 'amos-plumb-line': '📏', 'zechariahs-lamp': '🔦',
-  'solomons-crown': '👑', 'davids-harp': '🎵', 'queens-scepter': '🔱',
-  'solomons-ring': '💍', 'davidic-throne': '🪨', 'josephs-coat': '🌈',
-  'cyrus-decree': '📋', 'nehemiahs-cup': '🏺', 'absalom-hair': '💇',
-  'jeroboam-altar': '🪨', 'crown-of-thorns': '🌿', 'lords-cup': '🍷',
-  'five-loaves': '🍞', 'emmaus-bread': '🥖', 'widows-mite': '🪙',
-  'alabaster-jar': '🫙', 'fishing-net': '🎣', 'prodigal-ring': '💍',
-  'mustard-seed': '🌱', 'revelation-scroll': '📜',
 };
 
 export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick }) {
+  const [imgError, setImgError] = useState(false);
   const rarityStyle = RARITY_STYLES[artifact.rarity] || RARITY_STYLES.common;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
   const fallbackEmoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
 
-  // If a finished PNG card exists, display it with consistent styling
-  if (artifact.image) {
+  // If a finished PNG card exists and loaded successfully, display it
+  if (artifact.image && !imgError) {
     return (
       <button
         onClick={onClick}
@@ -78,6 +55,7 @@ export default function ArtifactCard({ artifact, isOwned, isEquipped, onClick })
           src={artifact.image}
           alt={artifact.name}
           className="w-full h-full object-contain"
+          onError={() => setImgError(true)}
         />
         {!isOwned && (
           <>
