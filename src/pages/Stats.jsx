@@ -143,7 +143,7 @@ export default function Stats() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 pb-8">
+      <div className="max-w-2xl mx-auto px-5 pt-4 pb-8">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}

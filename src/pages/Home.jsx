@@ -328,7 +328,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-6xl mx-auto px-5 pb-8">
+      <div className="max-w-6xl mx-auto px-5 pt-4 pb-8">
         {!selectedBook && (
           <>
             {showWelcome && (
