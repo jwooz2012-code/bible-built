@@ -360,8 +360,6 @@ export default function Home() {
 
             <BibleBoostCard user={user} versesReadTodayOverride={actualVersesReadToday} />
 
-            <TreasuryEntryCard />
-
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
 
             {recentBooks.length > 0 && (

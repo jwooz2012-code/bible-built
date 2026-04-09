@@ -1,6 +1,7 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, UserPlus, Star, Landmark, ChevronRight, Lock } from 'lucide-react';
+import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 
 const PREVIEW_CARDS = [
   {
@@ -32,6 +33,7 @@ const PREVIEW_CARDS = [
 export default function BuildersLocked() {
   const navigate = useNavigate();
   const treasuryRef = useRef(null);
+  const [activeTab, setActiveTab] = useState('builders');
 
   const scrollToTreasury = () => {
     treasuryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -39,6 +41,32 @@ export default function BuildersLocked() {
 
   return (
     <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0px)' }}>
+      {/* Tab bar */}
+      <div className="sticky top-0 z-10 bg-background border-b border-border px-5 pt-4 pb-0">
+        <div className="flex gap-1 max-w-lg mx-auto">
+          {[{ id: 'builders', label: 'Friends' }, { id: 'treasury', label: 'Treasury' }].map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-1 py-2.5 text-sm font-semibold rounded-t-xl transition-all ${
+                activeTab === tab.id
+                  ? 'text-foreground border-b-2 border-foreground'
+                  : 'text-muted-foreground'
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      {activeTab === 'treasury' && (
+        <div className="max-w-lg mx-auto px-5 pt-6">
+          <TreasuryEntryCard />
+          <p className="text-xs text-muted-foreground text-center mt-2">Full Treasury launches with the Builders ecosystem.</p>
+        </div>
+      )}
+
+      {activeTab === 'builders' && <>
       {/* Hero */}
       <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-background px-5 pt-16 pb-12 text-center">
         {/* Background glow */}
@@ -139,12 +167,14 @@ export default function BuildersLocked() {
           Keep Building
         </button>
         <button
-          onClick={scrollToTreasury}
+          onClick={() => setActiveTab('treasury')}
           className="w-full py-3.5 rounded-2xl font-semibold text-sm text-slate-300 border border-white/10 bg-white/5 hover:bg-white/8 active:scale-95 transition-all"
         >
           Preview Treasury
         </button>
       </div>
+      </>
+      }
     </div>
   );
 }
