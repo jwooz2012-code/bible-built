@@ -360,13 +360,7 @@ export default function Home() {
 
             <BibleBoostCard user={user} versesReadTodayOverride={actualVersesReadToday} />
 
-            <TreasuryEntryCard />
 
-            {energyMode && (
-              <div className="mb-5">
-                <XPBar user={user} />
-              </div>
-            )}
 
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
 

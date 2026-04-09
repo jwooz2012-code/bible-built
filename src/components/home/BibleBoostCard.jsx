@@ -19,19 +19,14 @@ export default function BibleBoostCard({ user, versesReadTodayOverride, xpEarned
         className="rounded-2xl border border-border bg-card p-4 mb-5 shadow-sm"
       >
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
-            <CheckCircle2 className="w-5 h-5" style={{ color: '#16A34A' }} />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold text-foreground">Daily Goal Met! ✨</p>
-            <p className="text-xs text-muted-foreground mt-0.5">{target} verses read · +100 bonus XP earned</p>
-          </div>
-          <div className="shrink-0 text-right">
-            <p className="text-lg font-bold" style={{ color: '#16A34A' }}>+{(todayXp + 100).toLocaleString()}</p>
-            <p className="text-[10px] text-muted-foreground">XP today</p>
-          </div>
+        <div className="w-10 h-10 rounded-full flex items-center justify-center shrink-0" style={{ background: 'rgba(34,197,94,0.12)' }}>
+          <CheckCircle2 className="w-5 h-5" style={{ color: '#16A34A' }} />
         </div>
-        {/* Full green bar */}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-foreground">Daily Goal Met! ✨</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{target} verses read today</p>
+        </div>
+        </div>
         <div className="mt-3 h-1.5 rounded-full overflow-hidden" style={{ background: 'hsl(var(--muted))' }}>
           <motion.div
             className="h-full rounded-full"
@@ -83,12 +78,9 @@ export default function BibleBoostCard({ user, versesReadTodayOverride, xpEarned
 
       <div className="flex items-center justify-between">
         <span className="text-xs text-muted-foreground">
-          {Math.max(0, target - versesRead)} verses to +100 bonus XP
+          {Math.max(0, target - versesRead)} verses to reach daily goal
         </span>
-        <div className="text-right">
-          <span className="text-sm font-bold" style={{ color: '#16A34A' }}>+{todayXp.toLocaleString()} XP</span>
-          <span className="text-xs text-muted-foreground ml-1">today</span>
-        </div>
+        <span className="text-xs font-semibold" style={{ color: '#16A34A' }}>{percent}%</span>
       </div>
     </motion.div>
   );
