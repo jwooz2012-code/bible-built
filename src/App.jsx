@@ -6,6 +6,7 @@ import { pagesConfig } from './pages.config'
 import Profile from './pages/Profile';
 import Treasury from './pages/Treasury';
 import Social from './pages/Social';
+import BuildersLocked from './pages/BuildersLocked';
 import GroupDetail from './pages/GroupDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
@@ -93,9 +94,13 @@ const AuthenticatedApp = () => {
         />
       ))}
       <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-      <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
+      <Route path="/social" element={
+        <LayoutWrapper currentPageName="social">
+          {user?.role === 'admin' ? <Social /> : <BuildersLocked />}
+        </LayoutWrapper>
+      } />
       <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
+      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' ? <Treasury /> : <BuildersLocked />}</LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
