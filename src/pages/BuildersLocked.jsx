@@ -40,9 +40,9 @@ export default function BuildersLocked() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0px)' }}>
+    <div className="min-h-screen bg-background pb-28">
       {/* Tab bar */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-5 pt-4 pb-0">
+      <div className="sticky z-10 bg-background border-b border-border px-5 pt-4 pb-0" style={{ top: 'var(--sat)' }}>
         <div className="flex gap-1 max-w-lg mx-auto">
           {[{ id: 'builders', label: 'Friends' }, { id: 'treasury', label: 'Treasury' }].map(tab => (
             <button
