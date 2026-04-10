@@ -1,4 +1,5 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
+import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { Shield, Users, UserPlus, Star, Landmark, Lock, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -33,6 +34,32 @@ const PREVIEW_CARDS = [
 export default function BuildersLocked() {
   const navigate = useNavigate();
   const treasuryRef = useRef(null);
+  const [earlyAccessCode, setEarlyAccessCode] = useState('');
+  const [isSubmittingCode, setIsSubmittingCode] = useState(false);
+
+  const handleCodeSubmit = async () => {
+    if (!earlyAccessCode.trim()) {
+      toast.error('Please enter a code');
+      return;
+    }
+
+    setIsSubmittingCode(true);
+    try {
+      const response = await base44.functions.invoke('applyEarlyAccessCode', {
+        code: earlyAccessCode.toUpperCase()
+      });
+
+      if (response.data.success) {
+        toast.success('Early access granted!');
+        setEarlyAccessCode('');
+        setTimeout(() => navigate('/social'), 500);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.error || 'Invalid code');
+    } finally {
+      setIsSubmittingCode(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
@@ -137,6 +164,31 @@ export default function BuildersLocked() {
               </p>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Early Access Code Section */}
+      <div className="max-w-lg mx-auto px-5 mt-6 space-y-3">
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">
+          Have an Early Access Code?
+        </p>
+        <div className="flex gap-2">
+          <input
+            type="text"
+            placeholder="Enter code"
+            className="flex-1 px-4 py-3 rounded-xl bg-input border border-border text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+            value={earlyAccessCode}
+            onChange={(e) => setEarlyAccessCode(e.target.value)}
+            disabled={isSubmittingCode}
+            onKeyDown={(e) => e.key === 'Enter' && handleCodeSubmit()}
+          />
+          <button
+            onClick={handleCodeSubmit}
+            disabled={isSubmittingCode}
+            className="px-6 py-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isSubmittingCode ? 'Applying...' : 'Apply'}
+          </button>
         </div>
       </div>
 

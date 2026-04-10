@@ -98,7 +98,7 @@ const AuthenticatedApp = () => {
       <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
       <Route path="/social" element={
         <LayoutWrapper currentPageName="social">
-          {user?.role === 'admin' ? <Social /> : <BuildersLocked />}
+          {user?.role === 'admin' || user?.hasEarlyAccess ? <Social /> : <BuildersLocked />}
         </LayoutWrapper>
       } />
       <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />

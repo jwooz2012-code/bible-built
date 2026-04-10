@@ -14,6 +14,12 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the user has a premium subscription"
+    },
+    "hasEarlyAccess": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether the user has early access to restricted features"
     }
-  }
+  },
+  "required": []
 }

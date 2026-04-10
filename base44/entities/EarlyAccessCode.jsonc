@@ -1,0 +1,33 @@
+{
+  "name": "EarlyAccessCode",
+  "type": "object",
+  "properties": {
+    "code": {
+      "type": "string",
+      "description": "The early access code string (e.g. EARLYACCESS2026)"
+    },
+    "isUsed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether this code has been claimed"
+    },
+    "usedByUserId": {
+      "type": "string",
+      "description": "User ID who claimed this code (if used)"
+    },
+    "usedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp when the code was claimed"
+    }
+  },
+  "required": [
+    "code"
+  ],
+  "rls": {
+    "create": false,
+    "update": false,
+    "delete": false,
+    "read": false
+  }
+}
