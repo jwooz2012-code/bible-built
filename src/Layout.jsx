@@ -74,7 +74,7 @@ export default function Layout({ children }) {
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
                     <item.icon 
-                      className={`w-6 h-6 transition-all ${item.color ? item.color : (isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground')}`}
+                      className={`w-6 h-6 stroke-[2] transition-all ${item.color ? item.color : (isActive ? 'text-foreground' : 'text-muted-foreground')}`}
                     />
                     <span 
                       className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
