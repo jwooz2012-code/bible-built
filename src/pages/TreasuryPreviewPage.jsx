@@ -50,12 +50,12 @@ export default function TreasuryPreviewPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden pb-28" style={{ background: 'linear-gradient(135deg, rgba(34, 197, 94, 0.08), rgba(33, 150, 243, 0.08))' }}>
+    <div className="min-h-screen relative overflow-x-hidden pb-28" style={{ background: 'linear-gradient(160deg, #1a0533 0%, #120825 40%, #0d0618 100%)' }}>
       {/* Background radial glow */}
-      <div className="pointer-events-none absolute inset-0 opacity-50">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, #FF9500 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] rounded-full" style={{ background: 'radial-gradient(circle, #2196F3 0%, transparent 70%)' }} />
-        <div className="absolute top-1/2 left-0 w-[300px] h-[300px] rounded-full" style={{ background: 'radial-gradient(circle, #22C55E 0%, transparent 70%)' }} />
+      <div className="pointer-events-none absolute inset-0">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-25" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #a855f7 0%, transparent 70%)' }} />
+        <div className="absolute top-1/2 left-0 w-[200px] h-[200px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }} />
       </div>
 
 
@@ -69,17 +69,17 @@ export default function TreasuryPreviewPage() {
           className="flex flex-col items-center text-center mb-10"
         >
           <motion.div
-            animate={{ boxShadow: ['0 0 30px 8px rgba(255, 149, 0, 0.3)', '0 0 50px 16px rgba(255, 149, 0, 0.5)', '0 0 30px 8px rgba(255, 149, 0, 0.3)'] }}
+            animate={{ boxShadow: ['0 0 30px 8px rgba(124,58,237,0.3)', '0 0 50px 16px rgba(124,58,237,0.5)', '0 0 30px 8px rgba(124,58,237,0.3)'] }}
             transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-            className="w-24 h-24 rounded-3xl border-2 flex items-center justify-center mb-7" style={{ borderColor: '#FF9500', backgroundColor: 'rgba(255, 149, 0, 0.12)' }}
+            className="w-24 h-24 rounded-3xl bg-violet-900/30 border border-violet-500/30 flex items-center justify-center mb-7"
           >
-            <Landmark className="w-12 h-12" style={{ color: '#FF9500' }} />
+            <Landmark className="w-12 h-12 text-violet-300" />
           </motion.div>
 
-          <h1 className="text-4xl font-extrabold text-foreground mb-3 tracking-tight leading-tight">
+          <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight leading-tight">
             Treasury Is Coming
           </h1>
-          <p className="text-base text-foreground/80 max-w-xs leading-relaxed">
+          <p className="text-base text-violet-200/80 max-w-xs leading-relaxed">
             Unearth ancient power. Collect divine relics.<br />Forge your spiritual legacy.
           </p>
         </motion.div>
@@ -92,26 +92,26 @@ export default function TreasuryPreviewPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
-              className="flex items-center gap-4 p-4 rounded-2xl border-2"
-              style={{ borderColor: 'rgba(255, 255, 255, 0.2)', background: 'linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02))' }}
+              className="flex items-center gap-4 p-4 rounded-2xl border border-white/10"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
             >
-              <div className="w-14 h-20 rounded-xl shrink-0 overflow-hidden shadow-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <div className={`w-14 h-20 rounded-xl shrink-0 overflow-hidden shadow-lg ${art.glow} bg-white/5 flex items-center justify-center`}>
                 <img src={art.image} alt={art.name} className="w-full h-full object-contain grayscale" />
               </div>
 
               <div className="flex-grow min-w-0">
                 <div className="flex items-center gap-2 mb-0.5">
-                  <h3 className="text-sm font-bold text-foreground">{art.name}</h3>
-                  <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: art.tierColor }}>{art.tier}</span>
+                  <h3 className="text-sm font-bold text-white">{art.name}</h3>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${art.tierColor}`}>{art.tier}</span>
                 </div>
-                <p className="text-xs text-foreground/70 leading-tight">{art.desc}</p>
+                <p className="text-xs text-slate-300 leading-tight">{art.desc}</p>
               </div>
 
               <div className="shrink-0 flex flex-col items-center gap-0.5">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full border-2" style={{ borderColor: '#FF9500', backgroundColor: 'rgba(255, 149, 0, 0.15)' }}>
-                  <Lock className="w-3.5 h-3.5" style={{ color: '#FF9500' }} />
+                <div className="flex items-center justify-center w-8 h-8 rounded-full border border-yellow-500/30 bg-yellow-500/10">
+                  <Lock className="w-3.5 h-3.5 text-yellow-400" />
                 </div>
-                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: 'rgba(255, 149, 0, 0.7)' }}>Locked</span>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-yellow-500/70">Locked</span>
               </div>
             </motion.div>
           ))}
@@ -124,18 +124,18 @@ export default function TreasuryPreviewPage() {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="mt-10 w-full max-w-md text-center"
         >
-          <p className="text-xs text-foreground/60 italic leading-relaxed mb-6 px-4">
+          <p className="text-xs text-violet-300/60 italic leading-relaxed mb-6 px-4">
             "Your journey to greatness continues. Every chapter read, every challenge overcome, brings you closer to unlocking the Treasury's secrets."
           </p>
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/home')}
-              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm active:scale-95 transition-all shadow-lg" style={{ backgroundColor: '#22C55E', boxShadow: '0 10px 25px rgba(34, 197, 94, 0.3)' }}>
+              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg shadow-violet-900/40">
               Back to Home
             </button>
             <button
               onClick={() => navigate('/social')}
-              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm active:scale-95 transition-all shadow-lg" style={{ backgroundColor: '#FF9500', boxShadow: '0 10px 25px rgba(255, 149, 0, 0.3)' }}>
+              className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
               Back to Friends
             </button>
           </div>
