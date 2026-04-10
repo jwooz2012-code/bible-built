@@ -16,6 +16,7 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
 import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
+import TreasuryPreviewPage from './pages/TreasuryPreviewPage';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -101,6 +102,7 @@ const AuthenticatedApp = () => {
       } />
       <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
       <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' ? <Treasury /> : <BuildersLocked />}</LayoutWrapper>} />
+      <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
