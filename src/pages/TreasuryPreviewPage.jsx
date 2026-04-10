@@ -40,7 +40,7 @@ export default function TreasuryPreviewPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen relative overflow-hidden pb-28" style={{ background: 'linear-gradient(160deg, #0a0a14 0%, #0f0f1e 40%, #12101a 100%)' }}>
+    <div className="min-h-screen relative overflow-x-hidden pb-28" style={{ background: 'linear-gradient(160deg, #0a0a14 0%, #0f0f1e 40%, #12101a 100%)' }}>
       {/* Background radial glow */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
