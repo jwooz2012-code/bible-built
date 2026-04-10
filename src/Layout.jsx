@@ -27,7 +27,7 @@ export default function Layout({ children }) {
   const navItems = [
     { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
-    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: true },
+    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: true, color: 'text-blue-500' },
     { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];
@@ -74,7 +74,7 @@ export default function Layout({ children }) {
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
                     <item.icon 
-                      className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground'}`}
+                      className={`w-6 h-6 transition-all ${item.color ? item.color : (isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground')}`}
                     />
                     <span 
                       className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
