@@ -144,7 +144,7 @@ export default function BuildersLocked() {
       <div className="max-w-lg mx-auto px-5 mt-8 flex gap-2">
         <button
           onClick={() => navigate('/home')}
-          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-slate-700 hover:bg-slate-600">
+          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-black hover:bg-slate-900 border border-white/20">
           Home
         </button>
         <button
@@ -169,8 +169,9 @@ export default function BuildersLocked() {
         </button>
         <button
           onClick={() => navigate('/treasury')}
-          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-500/30">
-          Treasury
+          className="relative flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-amber-900 active:scale-95 transition-all bg-gradient-to-br from-yellow-950/90 via-amber-950/80 to-amber-950 border border-yellow-600/60 overflow-hidden">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),transparent_60%)]" />
+          <span className="relative">Preview Treasury</span>
         </button>
       </div>
     </div>);
