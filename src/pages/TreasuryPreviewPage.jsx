@@ -74,22 +74,18 @@ export default function TreasuryPreviewPage() {
         </motion.div>
 
         {/* Artifact List */}
-        <div className="w-full max-w-md space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-4 px-1">
-            A Glimpse of What Awaits
-          </p>
-
+        <div className="w-full max-w-md rounded-2xl border border-white/10 backdrop-blur-md p-3 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
           {previewArtifacts.map((art, i) => (
             <motion.div
               key={i}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: 0.15 + i * 0.08 }}
-              className="flex items-center gap-4 p-4 rounded-2xl border border-white/10 backdrop-blur-md"
-              style={{ background: 'rgba(255,255,255,0.04)' }}
+              className="flex items-center gap-4 p-4 rounded-2xl border border-white/10"
+              style={{ background: 'rgba(255,255,255,0.03)' }}
             >
               <div className={`w-14 h-14 rounded-xl shrink-0 overflow-hidden shadow-lg ${art.glow} bg-white/5 flex items-center justify-center`}>
-                <img src={art.image} alt={art.name} className="w-full h-full object-cover" />
+                <img src={art.image} alt={art.name} className="w-full h-full object-cover grayscale" />
               </div>
 
               <div className="flex-grow min-w-0">
