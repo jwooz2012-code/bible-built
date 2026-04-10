@@ -74,7 +74,7 @@ export default function TreasuryPreviewPage() {
         </motion.div>
 
         {/* Artifact List */}
-        <div className="w-full max-w-md rounded-2xl border border-white/10 backdrop-blur-md p-3 space-y-3" style={{ background: 'rgba(255,255,255,0.04)' }}>
+        <div className="w-full max-w-md space-y-3">
           {previewArtifacts.map((art, i) => (
             <motion.div
               key={i}
