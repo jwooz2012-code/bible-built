@@ -4,31 +4,31 @@ import { Shield, Users, UserPlus, Star, Landmark, Lock } from 'lucide-react';
 import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 
 const PREVIEW_CARDS = [
-  {
-    icon: Users,
-    title: 'Groups',
-    description: 'Form a circle. Read together. Hold each other accountable.',
-    color: 'from-blue-900/70 to-blue-950/90',
-    border: 'border-blue-600/50',
-    iconColor: 'text-blue-300',
-  },
-  {
-    icon: UserPlus,
-    title: 'Friends',
-    description: 'Add friends, see their progress, and cheer each other on.',
-    color: 'from-emerald-900/70 to-emerald-950/90',
-    border: 'border-emerald-600/50',
-    iconColor: 'text-emerald-300',
-  },
-  {
-    icon: Star,
-    title: 'Community',
-    description: 'Compete, celebrate milestones, and rise in the standings.',
-    color: 'from-violet-900/70 to-violet-950/90',
-    border: 'border-violet-600/50',
-    iconColor: 'text-violet-300',
-  },
-];
+{
+  icon: Users,
+  title: 'Groups',
+  description: 'Form a circle. Read together. Hold each other accountable.',
+  color: 'from-blue-900/70 to-blue-950/90',
+  border: 'border-blue-600/50',
+  iconColor: 'text-blue-300'
+},
+{
+  icon: UserPlus,
+  title: 'Friends',
+  description: 'Add friends, see their progress, and cheer each other on.',
+  color: 'from-emerald-900/70 to-emerald-950/90',
+  border: 'border-emerald-600/50',
+  iconColor: 'text-emerald-300'
+},
+{
+  icon: Star,
+  title: 'Community',
+  description: 'Compete, celebrate milestones, and rise in the standings.',
+  color: 'from-violet-900/70 to-violet-950/90',
+  border: 'border-violet-600/50',
+  iconColor: 'text-violet-300'
+}];
+
 
 export default function BuildersLocked() {
   const navigate = useNavigate();
@@ -40,28 +40,28 @@ export default function BuildersLocked() {
       {/* Tab bar */}
       <div className="sticky z-10 bg-background border-b border-border px-5 pt-4 pb-0" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex gap-1 max-w-lg mx-auto">
-          {[{ id: 'builders', label: 'Friends' }, { id: 'treasury', label: 'Treasury' }].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`flex-1 py-2.5 text-sm font-semibold rounded-t-xl transition-all ${
-                activeTab === tab.id
-                  ? 'text-foreground border-b-2 border-foreground'
-                  : 'text-muted-foreground'
-              }`}
-            >
+          {[{ id: 'builders', label: 'Friends' }, { id: 'treasury', label: 'Treasury' }].map((tab) =>
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            className={`flex-1 py-2.5 text-sm font-semibold rounded-t-xl transition-all ${
+            activeTab === tab.id ?
+            'text-foreground border-b-2 border-foreground' :
+            'text-muted-foreground'}`
+            }>
+            
               {tab.label}
             </button>
-          ))}
+          )}
         </div>
       </div>
 
-      {activeTab === 'treasury' && (
-        <div className="max-w-lg mx-auto px-5 pt-6">
+      {activeTab === 'treasury' &&
+      <div className="max-w-lg mx-auto px-5 pt-6">
           <TreasuryEntryCard />
           <p className="text-xs text-muted-foreground text-center mt-2">Full Treasury launches with the Builders ecosystem.</p>
         </div>
-      )}
+      }
 
       {activeTab === 'builders' && <>
         {/* Hero */}
@@ -79,7 +79,7 @@ export default function BuildersLocked() {
             <Shield className="h-9 w-9 text-white" />
           </div>
 
-          <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">Builders Is Coming</h1>
+          <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">It's Almost Ready!</h1>
           <p className="text-base text-slate-200 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
             A new way to build, connect, compete, and collect is being forged right now.
           </p>
@@ -89,17 +89,17 @@ export default function BuildersLocked() {
 
           <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-white/15 bg-white/8 px-5 py-4 text-left backdrop-blur-sm mx-auto">
             {[
-              'Build your standing',
-              'Add friends',
-              'Join groups',
-              'Unlock exclusive rewards',
-              'Grow your artifact collection',
-            ].map((item) => (
-              <div key={item} className="flex items-center gap-2.5 text-sm text-white font-semibold">
+            'Build your standing',
+            'Add friends',
+            'Join groups',
+            'Unlock exclusive rewards',
+            'Grow your artifact collection'].
+            map((item) =>
+            <div key={item} className="flex items-center gap-2.5 text-sm text-white font-semibold">
                 <div className="h-2 w-2 rounded-full bg-violet-400 shrink-0" />
                 {item}
               </div>
-            ))}
+            )}
           </div>
         </div>
 
@@ -107,11 +107,11 @@ export default function BuildersLocked() {
         <div className="max-w-lg mx-auto px-5 mt-6 space-y-3">
           <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-4">What's Coming</p>
 
-          {PREVIEW_CARDS.map((card) => (
-            <div
-              key={card.title}
-              className={`relative rounded-2xl border ${card.border} bg-gradient-to-br ${card.color} p-4 flex items-center gap-4 overflow-hidden`}
-            >
+          {PREVIEW_CARDS.map((card) =>
+          <div
+            key={card.title}
+            className={`relative rounded-2xl border ${card.border} bg-gradient-to-br ${card.color} p-4 flex items-center gap-4 overflow-hidden`}>
+            
               {/* Subtle overlay for text clarity */}
               <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/25 via-transparent to-transparent" />
 
@@ -129,13 +129,13 @@ export default function BuildersLocked() {
                 <Lock className="h-4 w-4 text-white/80" />
               </div>
             </div>
-          ))}
+          )}
 
           {/* Treasury preview card */}
           <div
             ref={treasuryRef}
-            className="relative rounded-2xl border border-yellow-600/60 bg-gradient-to-br from-yellow-950/80 via-amber-950/70 to-black p-4 overflow-hidden"
-          >
+            className="relative rounded-2xl border border-yellow-600/60 bg-gradient-to-br from-yellow-950/80 via-amber-950/70 to-black p-4 overflow-hidden">
+            
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.10),transparent_60%)]" />
             {/* Dark overlay for text contrast */}
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/30 via-transparent to-transparent" />
@@ -170,18 +170,18 @@ export default function BuildersLocked() {
         <div className="max-w-lg mx-auto px-5 mt-8 space-y-3">
           <button
             onClick={() => navigate('/home')}
-            className="w-full py-4 rounded-2xl font-bold text-white text-base bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 active:scale-95 transition-all shadow-lg"
-          >
+            className="w-full py-4 rounded-2xl font-bold text-white text-base bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 active:scale-95 transition-all shadow-lg">
+            
             Keep Building
           </button>
           <button
             onClick={() => setActiveTab('treasury')}
-            className="w-full py-3.5 rounded-2xl font-semibold text-sm text-slate-200 border border-white/15 bg-white/8 hover:bg-white/10 active:scale-95 transition-all"
-          >
+            className="w-full py-3.5 rounded-2xl font-semibold text-sm text-slate-200 border border-white/15 bg-white/8 hover:bg-white/10 active:scale-95 transition-all">
+            
             Preview Treasury
           </button>
         </div>
       </>}
-    </div>
-  );
+    </div>);
+
 }
