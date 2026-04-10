@@ -84,8 +84,8 @@ export default function TreasuryPreviewPage() {
               className="flex items-center gap-4 p-4 rounded-2xl border border-white/10"
               style={{ background: 'rgba(255,255,255,0.03)' }}
             >
-              <div className={`w-14 h-14 rounded-xl shrink-0 overflow-hidden shadow-lg ${art.glow} bg-white/5 flex items-center justify-center`}>
-                <img src={art.image} alt={art.name} className="w-full h-full object-cover grayscale" />
+              <div className={`w-14 h-20 rounded-xl shrink-0 overflow-hidden shadow-lg ${art.glow} bg-white/5 flex items-center justify-center`}>
+                <img src={art.image} alt={art.name} className="w-full h-full object-contain grayscale" />
               </div>
 
               <div className="flex-grow min-w-0">
