@@ -231,7 +231,7 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <div className="max-w-lg mx-auto px-5 pt-[max(6rem,env(safe-area-inset-top))]>">
+      <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]>">
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-1">

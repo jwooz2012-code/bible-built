@@ -454,7 +454,7 @@ export default function Social() {
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-lg mx-auto px-5 pt-[max(6rem,env(safe-area-inset-top))]>">
+      <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]>">
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
