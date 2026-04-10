@@ -80,7 +80,7 @@ export default function Layout({ children }) {
                       className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
                     >
                       {item.name}
-                      {item.locked && <Lock className="w-2.5 h-2.5 text-muted-foreground/60" />}
+                      {item.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                     </span>
                     {isActive && (
                       <div 
