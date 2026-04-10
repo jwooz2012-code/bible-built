@@ -358,7 +358,7 @@ export default function Home() {
               yearChapters={yearChaptersRead}
             />
 
-            <BibleBoostCard user={user} versesReadTodayOverride={actualVersesReadToday} />
+            {/* BibleBoostCard hidden until Treasury/Builders launch */}
 
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
 
