@@ -135,7 +135,7 @@ export default function TreasuryPreviewPage() {
             </button>
             <button
               onClick={() => navigate('/social')}
-              className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
+              className="flex-1 py-4 rounded-2xl font-bold text-sm text-white active:scale-95 transition-all bg-blue-500 hover:bg-blue-400 shadow-lg shadow-blue-900/20">
               Back to Friends
             </button>
           </div>
