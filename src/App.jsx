@@ -101,7 +101,7 @@ const AuthenticatedApp = () => {
         </LayoutWrapper>
       } />
       <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' ? <Treasury /> : <BuildersLocked />}</LayoutWrapper>} />
+      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
       <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
