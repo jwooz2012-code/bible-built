@@ -80,7 +80,7 @@ export default function Treasury() {
 
   return (
     <div className="min-h-screen bg-slate-950 pb-28">
-      <div className="max-w-lg mx-auto px-4 pt-14">
+      <div className="max-w-lg mx-auto px-4" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)' }}>
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">

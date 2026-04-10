@@ -49,7 +49,7 @@ export default function TreasuryPreviewPage() {
 
 
 
-      <div className="relative z-10 flex flex-col items-center px-5 pt-16">
+      <div className="relative z-10 flex flex-col items-center px-5" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 4rem)' }}>
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
