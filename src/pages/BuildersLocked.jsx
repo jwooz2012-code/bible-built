@@ -48,7 +48,7 @@ export default function BuildersLocked() {
 
         <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/15 shadow-2xl backdrop-blur-sm relative">
           <Users className="h-9 w-9 text-blue-200" />
-          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-red-500 border-2 border-blue-950 flex items-center justify-center">
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-black border-2 border-white flex items-center justify-center">
             <Lock className="h-3 w-3 text-white" />
           </div>
         </div>
