@@ -112,18 +112,21 @@ export default function Social() {
 
   const loadFeed = useCallback(async () => {
     if (!user?.id) return;
-    const friendIds = user.friendIds ?? [];
+    const [sent, received] = await Promise.all([
+      base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
+      base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
+    ]);
+    const all = [...sent, ...received];
+    const friendIds = all.map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
     if (friendIds.length === 0) { setFeedItems([]); return; }
-    // Get recent logs from friends (last 50)
     const logs = await base44.entities.ReadingLog.list('-created_date', 50);
     const friendLogs = logs.filter(l => friendIds.includes(l.userId));
     setFeedItems(friendLogs.slice(0, 20));
-    // Load friend user info
     const res = await base44.functions.invoke('getUsersByIds', { ids: friendIds });
     const map = {};
     (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
     setFeedUsers(map);
-  }, [user?.id, user?.friendIds]);
+  }, [user?.id]);
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
 
