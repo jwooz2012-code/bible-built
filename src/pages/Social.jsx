@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart } from 'lucide-react';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -62,6 +62,7 @@ export default function Social() {
   // Feed state
   const [feedItems, setFeedItems] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
+  const [refreshing, setRefreshing] = useState(false);
 
   // Recap
   const [recapNotif, setRecapNotif] = useState(null);
@@ -415,9 +416,26 @@ export default function Social() {
     </div>
   );
 
+  const handleRefreshFeed = async () => {
+    setRefreshing(true);
+    await loadFeed();
+    setRefreshing(false);
+  };
+
   const renderFeed = () => (
     <div>
-      <SectionHeader title="Friends' Activity" />
+      <SectionHeader
+        title="Friends' Activity"
+        action={
+          <button
+            onClick={handleRefreshFeed}
+            disabled={refreshing}
+            className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          </button>
+        }
+      />
       {feedItems.length === 0 ? (
         <div className="rounded-2xl border border-border bg-card">
           <EmptyState icon={Flame} text="Add friends to see their reading activity here." />
