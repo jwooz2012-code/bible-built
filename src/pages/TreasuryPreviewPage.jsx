@@ -47,14 +47,7 @@ export default function TreasuryPreviewPage() {
         <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #4f46e5 0%, transparent 70%)' }} />
       </div>
 
-      {/* Back Button */}
-      <button
-        onClick={() => navigate('/home')}
-        className="absolute z-10 p-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm"
-        style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)', left: '16px' }}
-      >
-        <ArrowLeft className="w-5 h-5 text-slate-300" />
-      </button>
+
 
       <div className="relative z-10 flex flex-col items-center px-5 pt-16">
         {/* Header */}
