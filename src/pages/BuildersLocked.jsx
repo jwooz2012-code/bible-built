@@ -117,7 +117,7 @@ export default function BuildersLocked() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1.5">
-                <p className="text-sm font-extrabold text-yellow-100 tracking-wide">Treasury</p>
+                <p className="text-sm font-extrabold text-white tracking-wide">Treasury</p>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full border border-yellow-500/50 bg-yellow-500/15 px-2 py-0.5 text-[10px] font-bold text-yellow-200 uppercase tracking-wider">Builders</span>
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 border border-white/25">
@@ -125,10 +125,10 @@ export default function BuildersLocked() {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-amber-100 font-semibold leading-relaxed">
+              <p className="text-xs text-white font-semibold leading-relaxed">
                 Spend XP. Unlock artifacts. Build your collection.
               </p>
-              <p className="text-xs text-amber-200/75 mt-1.5 font-medium leading-relaxed">
+              <p className="text-xs text-white/80 mt-1.5 font-medium leading-relaxed">
                 Your XP is accumulating now. Every chapter read gets you closer to your first artifact.
               </p>
             </div>
