@@ -15,7 +15,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid code format' }, { status: 400 });
     }
 
-    // Check if code exists and is unused (case-insensitive)
+    // Check if code exists and usage limit not reached (case-insensitive)
     const allCodes = await base44.asServiceRole.entities.EarlyAccessCode.list();
     const codeRecord = allCodes.filter(c => c.code.toUpperCase() === code.toUpperCase());
 
@@ -24,16 +24,16 @@ Deno.serve(async (req) => {
     }
 
     const earlyAccessCode = codeRecord[0];
+    const usageCount = earlyAccessCode.usageCount || 0;
+    const usageLimit = earlyAccessCode.usageLimit || 10;
 
-    if (earlyAccessCode.isUsed) {
-      return Response.json({ error: 'Code already used' }, { status: 400 });
+    if (usageCount >= usageLimit) {
+      return Response.json({ error: 'Code usage limit reached' }, { status: 400 });
     }
 
-    // Mark code as used
+    // Increment usage count
     await base44.asServiceRole.entities.EarlyAccessCode.update(earlyAccessCode.id, {
-      isUsed: true,
-      usedByUserId: user.id,
-      usedAt: new Date().toISOString()
+      usageCount: usageCount + 1
     });
 
     // Grant early access to user

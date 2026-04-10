@@ -6,19 +6,15 @@
       "type": "string",
       "description": "The early access code string (e.g. MATTHEW 7:25)"
     },
-    "isUsed": {
-      "type": "boolean",
-      "default": false,
-      "description": "Whether this code has been claimed"
+    "usageCount": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of times this code has been used"
     },
-    "usedByUserId": {
-      "type": "string",
-      "description": "User ID who claimed this code (if used)"
-    },
-    "usedAt": {
-      "type": "string",
-      "format": "date-time",
-      "description": "ISO timestamp when the code was claimed"
+    "usageLimit": {
+      "type": "number",
+      "default": 10,
+      "description": "Maximum number of times this code can be used"
     }
   },
   "required": [
