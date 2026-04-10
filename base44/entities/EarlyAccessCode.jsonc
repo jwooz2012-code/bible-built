@@ -4,7 +4,7 @@
   "properties": {
     "code": {
       "type": "string",
-      "description": "The early access code string (e.g. EARLYACCESS2026)"
+      "description": "The early access code string (e.g. MATTHEW 7:25)"
     },
     "isUsed": {
       "type": "boolean",
@@ -28,6 +28,6 @@
     "create": false,
     "update": false,
     "delete": false,
-    "read": false
+    "read": true
   }
 }

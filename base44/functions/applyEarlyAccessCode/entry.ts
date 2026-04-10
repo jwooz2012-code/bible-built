@@ -15,10 +15,9 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Invalid code format' }, { status: 400 });
     }
 
-    // Check if code exists and is unused
-    const codeRecord = await base44.asServiceRole.entities.EarlyAccessCode.filter({
-      code: code.toUpperCase()
-    });
+    // Check if code exists and is unused (case-insensitive)
+    const allCodes = await base44.asServiceRole.entities.EarlyAccessCode.list();
+    const codeRecord = allCodes.filter(c => c.code.toUpperCase() === code.toUpperCase());
 
     if (codeRecord.length === 0) {
       return Response.json({ error: 'Code not found' }, { status: 404 });
