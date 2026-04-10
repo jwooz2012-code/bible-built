@@ -36,29 +36,32 @@ export default function BuildersLocked() {
   return (
     <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-violet-950 via-indigo-950 to-background px-5 pt-8 pb-12 text-center">
+      <div className="relative overflow-hidden bg-gradient-to-b from-blue-950 via-blue-900 to-background px-5 pt-8 pb-12 text-center">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-72 w-72 rounded-full bg-violet-500/15 blur-3xl" />
+          <div className="h-72 w-72 rounded-full bg-blue-500/15 blur-3xl" />
         </div>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-400/10 px-3 py-1 mb-6">
-          <div className="h-1.5 w-1.5 rounded-full bg-violet-300 animate-pulse" />
-          <span className="text-xs font-bold text-violet-200 uppercase tracking-widest">Coming Soon</span>
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-400/40 bg-blue-400/10 px-3 py-1 mb-6">
+          <div className="h-1.5 w-1.5 rounded-full bg-blue-300 animate-pulse" />
+          <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Coming Soon</span>
         </div>
 
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/15 shadow-2xl backdrop-blur-sm">
-          <Shield className="h-9 w-9 text-violet-200" />
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/15 shadow-2xl backdrop-blur-sm relative">
+          <Users className="h-9 w-9 text-blue-200" />
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-red-500 border-2 border-blue-950 flex items-center justify-center">
+            <Lock className="h-3 w-3 text-white" />
+          </div>
         </div>
 
         <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">It's Almost Ready!</h1>
-        <p className="text-base text-violet-100 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
+        <p className="text-base text-blue-100 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
           A new way to build, connect, compete, and collect is being forged right now.
         </p>
-        <p className="text-sm text-violet-200/70 max-w-xs mx-auto">Keep tracking what matters. Your progress now will matter when this section opens.
-
+        <p className="text-sm text-blue-200/70 max-w-xs mx-auto">
+          Keep tracking what matters. Your progress now will matter when Builders opens.
         </p>
 
-        <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-5 py-4 text-left backdrop-blur-sm mx-auto">
+        <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-blue-400/20 bg-blue-500/10 px-5 py-4 text-left backdrop-blur-sm mx-auto">
           {[
           'Add friends',
           'Join groups',
@@ -66,7 +69,7 @@ export default function BuildersLocked() {
           'Grow your artifact collection'].
           map((item) =>
           <div key={item} className="flex items-center gap-2.5 text-sm text-white font-semibold">
-              <div className="h-2 w-2 rounded-full bg-violet-300 shrink-0" />
+              <div className="h-2 w-2 rounded-full bg-blue-300 shrink-0" />
               {item}
             </div>
           )}
@@ -117,7 +120,7 @@ export default function BuildersLocked() {
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center justify-between mb-1.5">
-                <p className="text-sm font-extrabold text-yellow-100 tracking-wide">Treasury</p>
+                <p className="text-sm font-extrabold text-white tracking-wide">Treasury</p>
                 <div className="flex items-center gap-2">
                   <span className="rounded-full border border-yellow-500/50 bg-yellow-500/15 px-2 py-0.5 text-[10px] font-bold text-yellow-200 uppercase tracking-wider">Builders</span>
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-black/50 border border-white/25">
