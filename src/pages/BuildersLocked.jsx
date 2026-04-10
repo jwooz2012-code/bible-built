@@ -46,8 +46,11 @@ export default function BuildersLocked() {
           <span className="text-xs font-bold text-blue-200 uppercase tracking-widest">Coming Soon</span>
         </div>
 
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/15 shadow-2xl backdrop-blur-sm">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-blue-400/20 bg-blue-500/15 shadow-2xl backdrop-blur-sm relative">
           <Users className="h-9 w-9 text-blue-200" />
+          <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-red-500 border-2 border-blue-950 flex items-center justify-center">
+            <Lock className="h-3 w-3 text-white" />
+          </div>
         </div>
 
         <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">It's Almost Ready!</h1>

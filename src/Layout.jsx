@@ -73,14 +73,20 @@ export default function Layout({ children }) {
                     }}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
-                    <item.icon 
-                      className={`w-6 h-6 stroke-[2] transition-all ${item.color ? item.color : (isActive ? 'text-foreground' : 'text-muted-foreground')}`}
-                    />
+                    <div className="relative w-6 h-6">
+                      <item.icon 
+                        className={`w-6 h-6 stroke-[2] transition-all ${item.color ? item.color : (isActive ? 'text-foreground' : 'text-muted-foreground')}`}
+                      />
+                      {item.locked && (
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 border border-white flex items-center justify-center">
+                          <Lock className="w-1.5 h-1.5 text-white" />
+                        </div>
+                      )}
+                    </div>
                     <span 
                       className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
                     >
                       {item.name}
-                      {item.locked && <Lock className="w-3.5 h-3.5 text-muted-foreground" />}
                     </span>
                     {isActive && (
                       <div 
