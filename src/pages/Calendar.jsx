@@ -256,7 +256,7 @@ export default function Calendar() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4">
+      <div className="max-w-2xl mx-auto px-4 pt-[max(6rem,env(safe-area-inset-top))] pb-4">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
         <GraceDaysBanner tierColor={tierColor} graceDaysUsed={graceDaysUsed} />
