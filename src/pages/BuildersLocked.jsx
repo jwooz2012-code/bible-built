@@ -141,16 +141,11 @@ export default function BuildersLocked() {
       </div>
 
       {/* CTAs */}
-      <div className="max-w-lg mx-auto px-5 mt-8 flex gap-3">
+      <div className="max-w-lg mx-auto px-5 mt-8 flex gap-2">
         <button
           onClick={() => navigate('/home')}
-          className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg shadow-violet-900/30">
-          Back to Home
-        </button>
-        <button
-          onClick={() => navigate('/treasury')}
-          className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
-          Preview Treasury
+          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-slate-700 hover:bg-slate-600">
+          Home
         </button>
         <button
           onClick={() => {
@@ -168,9 +163,14 @@ export default function BuildersLocked() {
               toast.success('Link copied to clipboard!');
             }
           }}
-          className="flex-1 py-4 rounded-2xl font-bold text-sm text-blue-900 active:scale-95 transition-all bg-blue-400 hover:bg-blue-300 shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
-          <Share2 className="w-4 h-4" />
-          Share
+          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-blue-600 hover:bg-blue-500 flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/30">
+          <Share2 className="w-3.5 h-3.5" />
+          Share with Friend
+        </button>
+        <button
+          onClick={() => navigate('/treasury')}
+          className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-500/30">
+          Treasury
         </button>
       </div>
     </div>);
