@@ -126,13 +126,18 @@ export default function TreasuryPreviewPage() {
           <p className="text-xs text-slate-400 italic leading-relaxed mb-6 px-4">
             "Your journey to greatness continues. Every chapter read, every challenge overcome, brings you closer to unlocking the Treasury's secrets."
           </p>
-          <button
-            onClick={() => navigate('/home')}
-            className="w-full py-4 rounded-2xl font-bold text-white text-base transition-all active:scale-95"
-            style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 8px 32px rgba(124,58,237,0.45)' }}
-          >
-            Can't Wait!
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => navigate('/home')}
+              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg">
+              Back to Home
+            </button>
+            <button
+              onClick={() => navigate('/social')}
+              className="flex-1 py-4 rounded-2xl font-bold text-sm text-white/80 active:scale-95 transition-all border border-white/20 bg-white/8 hover:bg-white/12">
+              Back to Friends
+            </button>
+          </div>
         </motion.div>
       </div>
     </div>

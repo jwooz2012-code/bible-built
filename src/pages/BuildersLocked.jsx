@@ -137,15 +137,15 @@ export default function BuildersLocked() {
       </div>
 
       {/* CTAs */}
-      <div className="max-w-lg mx-auto px-5 mt-8 space-y-3">
+      <div className="max-w-lg mx-auto px-5 mt-8 flex gap-3">
         <button
           onClick={() => navigate('/home')}
-          className="w-full py-4 rounded-2xl font-bold text-white text-base bg-gradient-to-r from-violet-600 to-violet-500 hover:from-violet-500 hover:to-violet-400 active:scale-95 transition-all shadow-lg">
+          className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg">
           Back to Home
         </button>
         <button
           onClick={() => navigate('/treasury')}
-          className="w-full py-4 rounded-2xl font-bold text-base text-white active:scale-95 transition-all border border-yellow-500/50 bg-yellow-500/15 hover:bg-yellow-500/25">
+          className="flex-1 py-4 rounded-2xl font-bold text-sm text-yellow-200 active:scale-95 transition-all border border-yellow-500/40 bg-yellow-500/10 hover:bg-yellow-500/20">
           Preview Treasury
         </button>
       </div>
