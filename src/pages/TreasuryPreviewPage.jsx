@@ -11,7 +11,6 @@ const previewArtifacts = [
     glow: 'shadow-amber-500/20',
     tier: 'Common',
     tierColor: 'text-slate-400',
-    showImage: true,
   },
   {
     name: "David's Harp",
@@ -96,7 +95,7 @@ export default function TreasuryPreviewPage() {
               style={{ background: 'rgba(255,255,255,0.03)' }}
             >
               <div className={`w-14 h-20 rounded-xl shrink-0 overflow-hidden shadow-lg ${art.glow} bg-white/5 flex items-center justify-center`}>
-                <img src={art.image} alt={art.name} className={`w-full h-full object-contain ${art.showImage ? '' : 'grayscale'}`} />
+                <img src={art.image} alt={art.name} className="w-full h-full object-contain grayscale" />
               </div>
 
               <div className="flex-grow min-w-0">
