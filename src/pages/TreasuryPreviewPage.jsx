@@ -9,30 +9,40 @@ const previewArtifacts = [
     desc: "The sacred chest containing the Ten Commandments. The holiest relic of Israel.",
     image: '/cards/ark-legendary.png',
     glow: 'shadow-yellow-500/30',
+    tier: 'Legendary',
+    tierColor: 'text-yellow-400',
   },
   {
     name: 'Sword of Goliath',
     desc: "The massive iron sword of the giant Goliath, defeated by David's faith. An endgame collectible.",
     image: '/cards/sword-of-goliath-legendary.png',
-    glow: 'shadow-slate-400/20',
+    glow: 'shadow-yellow-500/30',
+    tier: 'Legendary',
+    tierColor: 'text-yellow-400',
   },
   {
     name: 'Coat of Many Colors',
     desc: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
     image: '/cards/coat-of-many-colors-epic.png',
     glow: 'shadow-purple-500/30',
+    tier: 'Epic',
+    tierColor: 'text-purple-400',
   },
   {
     name: "David's Harp",
     desc: "The harp of the shepherd-king whose music drove away evil spirits and pleased God.",
     image: '/cards/davids-harp-rare.png',
     glow: 'shadow-blue-500/30',
+    tier: 'Rare',
+    tierColor: 'text-blue-400',
   },
   {
     name: 'Clay Lamp',
     desc: "A simple oil lamp. Light that cannot be hidden.",
     image: '/cards/lamp-common.png',
     glow: 'shadow-amber-500/20',
+    tier: 'Common',
+    tierColor: 'text-slate-400',
   },
 ];
 
@@ -89,8 +99,11 @@ export default function TreasuryPreviewPage() {
               </div>
 
               <div className="flex-grow min-w-0">
-                <h3 className="text-sm font-bold text-white">{art.name}</h3>
-                <p className="text-xs text-slate-300 leading-tight mt-0.5">{art.desc}</p>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <h3 className="text-sm font-bold text-white">{art.name}</h3>
+                  <span className={`text-[10px] font-bold uppercase tracking-wider ${art.tierColor}`}>{art.tier}</span>
+                </div>
+                <p className="text-xs text-slate-300 leading-tight">{art.desc}</p>
               </div>
 
               <div className="shrink-0 flex flex-col items-center gap-0.5">
