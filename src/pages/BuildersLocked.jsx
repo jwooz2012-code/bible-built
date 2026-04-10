@@ -36,7 +36,7 @@ export default function BuildersLocked() {
   const [activeTab, setActiveTab] = useState('builders');
 
   return (
-    <div className="min-h-screen bg-background pb-28">
+    <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Tab bar */}
       <div className="sticky z-10 bg-background border-b border-border px-5 pt-4 pb-0" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex gap-1 max-w-lg mx-auto">
