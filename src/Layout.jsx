@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Calendar, BarChart3, User, Users, Landmark } from 'lucide-react';
+import { Home, Calendar, BarChart3, User, Users, Landmark, Lock } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
 import { Toaster } from 'sonner';
@@ -27,7 +27,7 @@ export default function Layout({ children }) {
   const navItems = [
     { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
-    { name: 'Friends', icon: Users, path: '/social', pageName: 'social' },
+    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: true },
     { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];
@@ -77,9 +77,10 @@ export default function Layout({ children }) {
                       className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground'}`}
                     />
                     <span 
-                      className={`text-[10px] ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
+                      className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
                     >
                       {item.name}
+                      {item.locked && <Lock className="w-2.5 h-2.5 text-muted-foreground/60" />}
                     </span>
                     {isActive && (
                       <div 
