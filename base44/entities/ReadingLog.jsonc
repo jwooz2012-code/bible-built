@@ -58,15 +58,6 @@
     "delete": {
       "data.userId": "{{user.id}}"
     },
-    "read": {
-      "$or": [
-        {
-          "data.userId": "{{user.id}}"
-        },
-        {
-          "user.role": "admin"
-        }
-      ]
-    }
+    "read": true
   }
 }
