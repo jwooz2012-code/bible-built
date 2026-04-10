@@ -1,6 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 import { Shield, Users, UserPlus, Star, Landmark, Lock, Share2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -37,6 +38,8 @@ export default function BuildersLocked() {
   const [earlyAccessCode, setEarlyAccessCode] = useState('');
   const [isSubmittingCode, setIsSubmittingCode] = useState(false);
 
+  const { refreshUser } = useAuth();
+
   const handleCodeSubmit = async () => {
     if (!earlyAccessCode.trim()) {
       toast.error('Please enter a code');
@@ -52,6 +55,8 @@ export default function BuildersLocked() {
       if (response.data.success) {
         toast.success('Early access granted!');
         setEarlyAccessCode('');
+        // Refresh user context and navigate
+        await refreshUser();
         setTimeout(() => navigate('/social'), 500);
       }
     } catch (error) {

@@ -41,7 +41,10 @@ Deno.serve(async (req) => {
       hasEarlyAccess: true
     });
 
-    return Response.json({ success: true, message: 'Early access granted!' });
+    // Get updated user data
+    const updatedUser = await base44.auth.me();
+
+    return Response.json({ success: true, message: 'Early access granted!', user: updatedUser });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }
