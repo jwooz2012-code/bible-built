@@ -150,7 +150,7 @@ export default function BuildersLocked() {
         <button
           onClick={() => {
             const shareText = "Join me on Bible Built - track your scripture reading, build streaks, and connect with friends on a spiritual journey!";
-            const url = window.location.origin;
+            const url = "https://apps.apple.com/us/app/bible-built/id6757266415";
             
             if (navigator.share) {
               navigator.share({
