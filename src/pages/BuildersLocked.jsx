@@ -89,7 +89,6 @@ export default function BuildersLocked() {
 
           <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-white/15 bg-white/8 px-5 py-4 text-left backdrop-blur-sm mx-auto">
             {[
-            'Build your standing',
             'Add friends',
             'Join groups',
             'Unlock exclusive rewards',
