@@ -36,29 +36,29 @@ export default function BuildersLocked() {
   return (
     <div className="min-h-screen bg-background pb-28" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-background px-5 pt-8 pb-12 text-center">
+      <div className="relative overflow-hidden bg-gradient-to-b from-violet-950 via-indigo-950 to-background px-5 pt-8 pb-12 text-center">
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-          <div className="h-72 w-72 rounded-full bg-violet-600/10 blur-3xl" />
+          <div className="h-72 w-72 rounded-full bg-violet-500/15 blur-3xl" />
         </div>
 
-        <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-500/50 bg-violet-500/15 px-3 py-1 mb-6">
-          <div className="h-1.5 w-1.5 rounded-full bg-violet-400 animate-pulse" />
+        <div className="inline-flex items-center gap-1.5 rounded-full border border-violet-400/40 bg-violet-400/10 px-3 py-1 mb-6">
+          <div className="h-1.5 w-1.5 rounded-full bg-violet-300 animate-pulse" />
           <span className="text-xs font-bold text-violet-200 uppercase tracking-widest">Coming Soon</span>
         </div>
 
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-white/15 bg-white/8 shadow-2xl backdrop-blur-sm">
-          <Shield className="h-9 w-9 text-white" />
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-2xl border border-violet-400/20 bg-violet-500/15 shadow-2xl backdrop-blur-sm">
+          <Shield className="h-9 w-9 text-violet-200" />
         </div>
 
         <h1 className="text-3xl font-extrabold text-white mb-3 tracking-tight">It's Almost Ready!</h1>
-        <p className="text-base text-slate-200 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
+        <p className="text-base text-violet-100 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
           A new way to build, connect, compete, and collect is being forged right now.
         </p>
-        <p className="text-sm text-slate-300 max-w-xs mx-auto">
+        <p className="text-sm text-violet-200/70 max-w-xs mx-auto">
           Keep tracking what matters. Your progress now will matter when Builders opens.
         </p>
 
-        <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-white/15 bg-white/8 px-5 py-4 text-left backdrop-blur-sm mx-auto">
+        <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-5 py-4 text-left backdrop-blur-sm mx-auto">
           {[
           'Add friends',
           'Join groups',
@@ -66,7 +66,7 @@ export default function BuildersLocked() {
           'Grow your artifact collection'].
           map((item) =>
           <div key={item} className="flex items-center gap-2.5 text-sm text-white font-semibold">
-              <div className="h-2 w-2 rounded-full bg-violet-400 shrink-0" />
+              <div className="h-2 w-2 rounded-full bg-violet-300 shrink-0" />
               {item}
             </div>
           )}
@@ -140,12 +140,12 @@ export default function BuildersLocked() {
       <div className="max-w-lg mx-auto px-5 mt-8 flex gap-3">
         <button
           onClick={() => navigate('/home')}
-          className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg">
+          className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg shadow-violet-900/30">
           Back to Home
         </button>
         <button
           onClick={() => navigate('/treasury')}
-          className="flex-1 py-4 rounded-2xl font-bold text-sm text-yellow-200 active:scale-95 transition-all border border-yellow-500/40 bg-yellow-500/10 hover:bg-yellow-500/20">
+          className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
           Preview Treasury
         </button>
       </div>

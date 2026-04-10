@@ -50,11 +50,12 @@ export default function TreasuryPreviewPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen relative overflow-x-hidden pb-28" style={{ background: 'linear-gradient(160deg, #0a0a14 0%, #0f0f1e 40%, #12101a 100%)' }}>
+    <div className="min-h-screen relative overflow-x-hidden pb-28" style={{ background: 'linear-gradient(160deg, #1a0533 0%, #120825 40%, #0d0618 100%)' }}>
       {/* Background radial glow */}
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
-        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #4f46e5 0%, transparent 70%)' }} />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full opacity-25" style={{ background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 right-0 w-[300px] h-[300px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, #a855f7 0%, transparent 70%)' }} />
+        <div className="absolute top-1/2 left-0 w-[200px] h-[200px] rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #f59e0b 0%, transparent 70%)' }} />
       </div>
 
 
@@ -78,7 +79,7 @@ export default function TreasuryPreviewPage() {
           <h1 className="text-4xl font-extrabold text-white mb-3 tracking-tight leading-tight">
             Treasury Is Coming
           </h1>
-          <p className="text-base text-slate-300 max-w-xs leading-relaxed">
+          <p className="text-base text-violet-200/80 max-w-xs leading-relaxed">
             Unearth ancient power. Collect divine relics.<br />Forge your spiritual legacy.
           </p>
         </motion.div>
@@ -123,18 +124,18 @@ export default function TreasuryPreviewPage() {
           transition={{ delay: 0.8, duration: 0.5 }}
           className="mt-10 w-full max-w-md text-center"
         >
-          <p className="text-xs text-slate-400 italic leading-relaxed mb-6 px-4">
+          <p className="text-xs text-violet-300/60 italic leading-relaxed mb-6 px-4">
             "Your journey to greatness continues. Every chapter read, every challenge overcome, brings you closer to unlocking the Treasury's secrets."
           </p>
           <div className="flex gap-3">
             <button
               onClick={() => navigate('/home')}
-              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg">
+              className="flex-1 py-4 rounded-2xl font-bold text-white text-sm bg-violet-600 hover:bg-violet-500 active:scale-95 transition-all shadow-lg shadow-violet-900/40">
               Back to Home
             </button>
             <button
               onClick={() => navigate('/social')}
-              className="flex-1 py-4 rounded-2xl font-bold text-sm text-white/80 active:scale-95 transition-all border border-white/20 bg-white/8 hover:bg-white/12">
+              className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
               Back to Friends
             </button>
           </div>
