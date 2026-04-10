@@ -54,8 +54,8 @@ export default function BuildersLocked() {
         <p className="text-base text-violet-100 leading-relaxed max-w-xs mx-auto mb-2 font-medium">
           A new way to build, connect, compete, and collect is being forged right now.
         </p>
-        <p className="text-sm text-violet-200/70 max-w-xs mx-auto">
-          Keep tracking what matters. Your progress now will matter when Builders opens.
+        <p className="text-sm text-violet-200/70 max-w-xs mx-auto">Keep tracking what matters. Your progress now will matter when this section opens.
+
         </p>
 
         <div className="mt-8 inline-flex flex-col items-start gap-2.5 rounded-2xl border border-violet-400/20 bg-violet-500/10 px-5 py-4 text-left backdrop-blur-sm mx-auto">
