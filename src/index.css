@@ -112,22 +112,21 @@
   }
 }
 
-@layer components {
-  .app-safe-shell {
-    min-height: 100dvh;
-    padding-top: var(--sat);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-    background: hsl(var(--background));
-  }
+/* Safe-area shell — non-layered so it beats all Tailwind layers */
+.app-safe-shell {
+  min-height: 100dvh;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  background: hsl(var(--background));
+}
 
-  .app-page {
-    min-height: calc(100dvh - var(--sat));
-  }
+.app-page {
+  min-height: calc(100dvh - env(safe-area-inset-top, 0px));
+}
 
-  .app-bottom-nav {
-    padding-bottom: var(--sab);
-    padding-left: var(--sal);
-    padding-right: var(--sar);
-  }
+.app-bottom-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
 }
