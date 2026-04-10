@@ -135,6 +135,8 @@ export default function WeekView({ logs = [], tierColor }) {
                         className="w-1.5 h-1.5 rounded-full"
                         style={{ background: isToday ? (tierColor || '#10B981') : '#10B981' }}
                       />
+                    </>
+                  ) : (
                     <div className="w-1.5 h-1.5" />
                   )}
                 </div>
