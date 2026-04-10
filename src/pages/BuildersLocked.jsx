@@ -165,13 +165,13 @@ export default function BuildersLocked() {
           }}
           className="flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-blue-600 hover:bg-blue-500 flex items-center justify-center gap-1.5 shadow-lg shadow-blue-600/30">
           <Share2 className="w-3.5 h-3.5" />
-          Share with Friend
+          Share
         </button>
         <button
           onClick={() => navigate('/treasury')}
-          className="relative flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-amber-900 active:scale-95 transition-all bg-gradient-to-br from-yellow-950/90 via-amber-950/80 to-amber-950 border border-yellow-600/60 overflow-hidden">
+          className="relative flex-1 py-3 px-3 rounded-xl font-semibold text-xs text-white active:scale-95 transition-all bg-gradient-to-br from-yellow-950/90 via-amber-950/80 to-amber-950 border border-yellow-600/60 overflow-hidden">
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.15),transparent_60%)]" />
-          <span className="relative">Preview Treasury</span>
+          <span className="relative">Treasury</span>
         </button>
       </div>
     </div>);
