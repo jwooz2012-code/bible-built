@@ -10,14 +10,15 @@ const BOLLS_BOOK_NUMBERS = [
 
 /**
  * Strip Strong's concordance markup from verse text.
- * Handles both <S>1234</S> HTML tags and inline number suffixes like "love25".
+ * bolls.life KJV returns Strong's numbers appended directly to words (e.g. "God430", "LORD3068")
+ * and sometimes as <S>1234</S> tags. We strip them carefully in order.
  */
 function stripStrongs(text) {
   return text
-    .replace(/<S>\d+<\/S>/g, '')        // remove <S>1234</S> tags
-    .replace(/<[^>]+>/g, '')              // remove any other HTML tags
-    .replace(/\b\d+\b/g, '')             // remove standalone numbers like "853"
-    .replace(/([a-zA-Z]+)\d+/g, '$1')    // remove trailing numbers from words like "God430"
+    .replace(/<S>\d+<\/S>/g, '')         // remove <S>1234</S> tags
+    .replace(/<[^>]+>/g, '')               // remove any remaining HTML tags
+    .replace(/([A-Za-z])'(\d+)/g, "$1'")  // handle apostrophe+number (e.g. LORD'S3068)
+    .replace(/([A-Za-z])\d+/g, '$1')      // strip numbers glued to words (e.g. God430 → God)
     .replace(/\s+/g, ' ')
     .trim();
 }
