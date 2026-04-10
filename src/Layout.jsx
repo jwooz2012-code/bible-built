@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useAuth } from '@/lib/AuthContext';
 import { Home, Calendar, BarChart3, User, Users, Landmark, Lock } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 
@@ -12,6 +13,7 @@ export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const { user } = useAuth();
 
   useEffect(() => {
     // Root-only landing fix. Do not affect deep links.
@@ -27,7 +29,7 @@ export default function Layout({ children }) {
   const navItems = [
     { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-black' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar', color: 'text-black' },
-    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: true, color: 'text-blue-500' },
+    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: !(user?.role === 'admin' || user?.hasEarlyAccess), color: 'text-blue-500' },
     { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats', color: 'text-black' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile', color: 'text-black' },
   ];
