@@ -49,7 +49,7 @@ export default function TreasuryPreviewPage() {
 
       {/* Back Button */}
       <button
-        onClick={() => navigate(-1)}
+        onClick={() => navigate('/home')}
         className="absolute z-10 p-2 rounded-xl border border-white/10 bg-white/5 backdrop-blur-sm"
         style={{ top: 'calc(env(safe-area-inset-top, 0px) + 16px)', left: '16px' }}
       >
