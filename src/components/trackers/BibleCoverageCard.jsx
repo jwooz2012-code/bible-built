@@ -85,7 +85,7 @@ export default function BibleCoverageCard({ sectionData, bookProgressLifetime })
         style={{ background: 'radial-gradient(circle, rgba(34,197,94,0.07) 0%, transparent 70%)' }} />
 
       {/* ── Hero ── */}
-      <div className="mb-6">
+      <div className="relative z-10 mb-6">
         <p className="text-[2.6rem] font-black text-foreground leading-none tracking-tight"
           style={{ textShadow: '0 0 30px rgba(34,197,94,0.18)' }}>
           {overallPercent}%

@@ -75,7 +75,7 @@ export default function Layout({ children }) {
                   >
                     <div className="relative w-6 h-6">
                       <item.icon 
-                        className={`w-6 h-6 stroke-[2] transition-all ${item.color ? item.color : (isActive ? 'text-foreground' : 'text-muted-foreground')}`}
+                        className={`w-6 h-6 stroke-[2] transition-all ${isActive ? 'text-foreground' : 'text-muted-foreground'}`}
                       />
                       {item.locked && (
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
