@@ -128,15 +128,13 @@ export default function WeekView({ logs = [], tierColor }) {
                 <div className="h-4 flex flex-col items-center justify-center gap-0.5">
                   {hasActivity ? (
                     <>
-                      <span className="text-[11px] font-bold" style={{ color: energyMode ? 'hsl(var(--accent))' : (isToday ? (tierColor || '#10B981') : '#10B981') }}>
+                      <span className="text-[11px] font-bold" style={{ color: isToday ? (tierColor || '#10B981') : '#10B981' }}>
                         {count}
                       </span>
                       <div
                         className="w-1.5 h-1.5 rounded-full"
-                        style={{ background: energyMode ? 'hsl(var(--accent))' : (isToday ? (tierColor || '#10B981') : '#10B981') }}
+                        style={{ background: isToday ? (tierColor || '#10B981') : '#10B981' }}
                       />
-                    </>
-                  ) : (
                     <div className="w-1.5 h-1.5" />
                   )}
                 </div>
