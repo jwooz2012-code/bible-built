@@ -125,10 +125,10 @@ export default function BuildersLocked() {
                   </div>
                 </div>
               </div>
-              <p className="text-xs text-white font-semibold leading-relaxed">
+              <p className="text-xs text-amber-100 font-semibold leading-relaxed">
                 Spend XP. Unlock artifacts. Build your collection.
               </p>
-              <p className="text-xs text-white/80 mt-1.5 font-medium leading-relaxed">
+              <p className="text-xs text-amber-200/75 mt-1.5 font-medium leading-relaxed">
                 Your XP is accumulating now. Every chapter read gets you closer to your first artifact.
               </p>
             </div>
