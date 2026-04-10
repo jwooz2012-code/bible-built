@@ -78,8 +78,8 @@ export default function Layout({ children }) {
                         className={`w-6 h-6 stroke-[2] transition-all ${item.color ? item.color : (isActive ? 'text-foreground' : 'text-muted-foreground')}`}
                       />
                       {item.locked && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-red-500 border border-white flex items-center justify-center">
-                          <Lock className="w-1.5 h-1.5 text-white" />
+                        <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-blue-400/90 border border-blue-600/80 flex items-center justify-center shadow-lg shadow-blue-500/50">
+                          <Lock className="w-1.5 h-1.5 text-blue-900 font-bold" />
                         </div>
                       )}
                     </div>
