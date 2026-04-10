@@ -134,7 +134,8 @@ export default function BuildersLocked() {
           {/* Treasury preview card */}
           <div
             ref={treasuryRef}
-            className="relative rounded-2xl border border-yellow-600/60 bg-gradient-to-br from-yellow-950/80 via-amber-950/70 to-black p-4 overflow-hidden">
+            onClick={() => navigate('/treasury')}
+            className="relative rounded-2xl border border-yellow-600/60 cursor-pointer active:scale-95 transition-transform bg-gradient-to-br from-yellow-950/80 via-amber-950/70 to-black p-4 overflow-hidden">
             
             <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.10),transparent_60%)]" />
             {/* Dark overlay for text contrast */}
