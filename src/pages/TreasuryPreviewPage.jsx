@@ -7,7 +7,7 @@ const previewArtifacts = [
   {
     name: "Peter's Fishing Rod",
     desc: "The humble rod of a fisherman called to catch men. A reminder that God uses ordinary things.",
-    image: '/cards/peters-fishing-rod-common.png',
+    image: '/cards/rod-of-peter-common.png',
     glow: 'shadow-amber-500/20',
     tier: 'Common',
     tierColor: 'text-slate-400',
