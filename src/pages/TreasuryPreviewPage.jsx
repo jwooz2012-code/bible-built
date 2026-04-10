@@ -5,9 +5,9 @@ import { motion } from 'framer-motion';
 
 const previewArtifacts = [
   {
-    name: 'Clay Lamp',
-    desc: "A simple oil lamp. Light that cannot be hidden.",
-    image: '/cards/lamp-common.png',
+    name: "Peter's Fishing Rod",
+    desc: "The humble rod of a fisherman called to catch men. A reminder that God uses ordinary things.",
+    image: '/cards/peters-fishing-rod-common.png',
     glow: 'shadow-amber-500/20',
     tier: 'Common',
     tierColor: 'text-slate-400',
