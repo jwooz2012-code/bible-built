@@ -5,6 +5,30 @@ import { motion } from 'framer-motion';
 
 const previewArtifacts = [
   {
+    name: 'Clay Lamp',
+    desc: "A simple oil lamp. Light that cannot be hidden.",
+    image: '/cards/lamp-common.png',
+    glow: 'shadow-amber-500/20',
+    tier: 'Common',
+    tierColor: 'text-slate-400',
+  },
+  {
+    name: "David's Harp",
+    desc: "The harp of the shepherd-king whose music drove away evil spirits and pleased God.",
+    image: '/cards/davids-harp-rare.png',
+    glow: 'shadow-blue-500/30',
+    tier: 'Rare',
+    tierColor: 'text-blue-400',
+  },
+  {
+    name: 'Coat of Many Colors',
+    desc: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
+    image: '/cards/coat-of-many-colors-epic.png',
+    glow: 'shadow-purple-500/30',
+    tier: 'Epic',
+    tierColor: 'text-purple-400',
+  },
+  {
     name: 'Ark of the Covenant',
     desc: "The sacred chest containing the Ten Commandments. The holiest relic of Israel.",
     image: '/cards/ark-legendary.png',
@@ -19,30 +43,6 @@ const previewArtifacts = [
     glow: 'shadow-yellow-500/30',
     tier: 'Legendary',
     tierColor: 'text-yellow-400',
-  },
-  {
-    name: 'Coat of Many Colors',
-    desc: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
-    image: '/cards/coat-of-many-colors-epic.png',
-    glow: 'shadow-purple-500/30',
-    tier: 'Epic',
-    tierColor: 'text-purple-400',
-  },
-  {
-    name: "David's Harp",
-    desc: "The harp of the shepherd-king whose music drove away evil spirits and pleased God.",
-    image: '/cards/davids-harp-rare.png',
-    glow: 'shadow-blue-500/30',
-    tier: 'Rare',
-    tierColor: 'text-blue-400',
-  },
-  {
-    name: 'Clay Lamp',
-    desc: "A simple oil lamp. Light that cannot be hidden.",
-    image: '/cards/lamp-common.png',
-    glow: 'shadow-amber-500/20',
-    tier: 'Common',
-    tierColor: 'text-slate-400',
   },
 ];
 
