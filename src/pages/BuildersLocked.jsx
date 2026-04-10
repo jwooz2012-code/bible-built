@@ -1,6 +1,7 @@
 import React, { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Shield, Users, UserPlus, Star, Landmark, Lock } from 'lucide-react';
+import { Shield, Users, UserPlus, Star, Landmark, Lock, Share2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 const PREVIEW_CARDS = [
 {
@@ -150,6 +151,26 @@ export default function BuildersLocked() {
           onClick={() => navigate('/treasury')}
           className="flex-1 py-4 rounded-2xl font-bold text-sm text-amber-900 active:scale-95 transition-all bg-amber-400 hover:bg-amber-300 shadow-lg shadow-amber-900/20">
           Preview Treasury
+        </button>
+        <button
+          onClick={() => {
+            const shareText = "Join me on Bible Built - track your scripture reading, build streaks, and connect with friends on a spiritual journey!";
+            const url = window.location.origin;
+            
+            if (navigator.share) {
+              navigator.share({
+                title: 'Bible Built',
+                text: shareText,
+                url: url
+              }).catch(() => {});
+            } else {
+              navigator.clipboard.writeText(`${shareText}\n\n${url}`);
+              toast.success('Link copied to clipboard!');
+            }
+          }}
+          className="flex-1 py-4 rounded-2xl font-bold text-sm text-blue-900 active:scale-95 transition-all bg-blue-400 hover:bg-blue-300 shadow-lg shadow-blue-900/20 flex items-center justify-center gap-2">
+          <Share2 className="w-4 h-4" />
+          Share
         </button>
       </div>
     </div>);
