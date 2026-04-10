@@ -129,7 +129,7 @@ export default function TreasuryPreviewPage() {
             className="w-full py-4 rounded-2xl font-bold text-white text-base transition-all active:scale-95"
             style={{ background: 'linear-gradient(135deg, #7c3aed, #4f46e5)', boxShadow: '0 8px 32px rgba(124,58,237,0.45)' }}
           >
-            Can't Wait
+            Can't Wait!
           </button>
         </motion.div>
       </div>
