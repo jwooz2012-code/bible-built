@@ -87,8 +87,11 @@
   }
 
   :root {
-    --sat: env(safe-area-inset-top);
-    --sab: env(safe-area-inset-bottom);
+    --sat: env(safe-area-inset-top, 0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left, 0px);
+    --sar: env(safe-area-inset-right, 0px);
+    --app-top-bar-offset: 0px;
     --btn-inactive-bg: #F3F4F6;
     --btn-inactive-text: #374151;
   }
@@ -106,5 +109,25 @@
 
   [data-sonner-toast] {
     pointer-events: auto !important;
+  }
+}
+
+@layer components {
+  .app-safe-shell {
+    min-height: 100dvh;
+    padding-top: calc(var(--sat) + var(--app-top-bar-offset));
+    padding-left: var(--sal);
+    padding-right: var(--sar);
+    background: hsl(var(--background));
+  }
+
+  .app-page {
+    min-height: calc(100dvh - var(--sat) - var(--app-top-bar-offset));
+  }
+
+  .app-bottom-nav {
+    padding-bottom: var(--sab);
+    padding-left: var(--sal);
+    padding-right: var(--sar);
   }
 }

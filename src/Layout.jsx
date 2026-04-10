@@ -39,7 +39,7 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="min-h-screen bg-background" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="app-safe-shell">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentPath}
@@ -53,11 +53,7 @@ export default function Layout({ children }) {
         </AnimatePresence>
       </div>
 
-      <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]" style={{
-          paddingBottom: 'env(safe-area-inset-bottom)',
-          paddingLeft: 'env(safe-area-inset-left)',
-          paddingRight: 'env(safe-area-inset-right)'
-      }}>
+      <nav className="app-bottom-nav fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]">
           <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
               {navItems.map((item) => {
                 const isActive = currentPath === item.path || 
