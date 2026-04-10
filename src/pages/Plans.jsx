@@ -101,7 +101,7 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24">
+    <div className="min-h-screen bg-background pb-24" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="px-6 pb-6">
         <h1 className="text-3xl font-bold text-foreground mb-1">Choose Your Reading Path</h1>
         <p className="text-sm text-muted-foreground">Pick the approach that fits this season.</p>
