@@ -42,7 +42,7 @@ export default function BuildersLocked() {
   return (
     <div className="min-h-screen bg-background pb-28">
       {/* Tab bar */}
-      <div className="sticky top-0 z-10 bg-background border-b border-border px-5 pt-4 pb-0">
+      <div className="sticky z-10 bg-background border-b border-border px-5 pt-4 pb-0" style={{ top: 'env(safe-area-inset-top, 0px)' }}>
         <div className="flex gap-1 max-w-lg mx-auto">
           {[{ id: 'builders', label: 'Friends' }, { id: 'treasury', label: 'Treasury' }].map(tab => (
             <button
@@ -68,7 +68,7 @@ export default function BuildersLocked() {
 
       {activeTab === 'builders' && <>
       {/* Hero */}
-      <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-background px-5 pt-16 pb-12 text-center">
+      <div className="relative overflow-hidden bg-gradient-to-b from-slate-900 via-slate-900 to-background px-5 pt-8 pb-12 text-center">
         {/* Background glow */}
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="h-72 w-72 rounded-full bg-violet-600/10 blur-3xl" />
