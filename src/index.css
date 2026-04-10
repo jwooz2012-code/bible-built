@@ -115,14 +115,14 @@
 @layer components {
   .app-safe-shell {
     min-height: 100dvh;
-    padding-top: calc(var(--sat) + var(--app-top-bar-offset));
+    padding-top: var(--sat);
     padding-left: var(--sal);
     padding-right: var(--sar);
     background: hsl(var(--background));
   }
 
   .app-page {
-    min-height: calc(100dvh - var(--sat) - var(--app-top-bar-offset));
+    min-height: calc(100dvh - var(--sat));
   }
 
   .app-bottom-nav {
