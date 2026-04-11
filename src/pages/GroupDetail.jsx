@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Copy, Check, Flame, BookOpen, Zap, HandHeart, Target } from 'lucide-react';
+import { ArrowLeft, Users, Copy, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -111,10 +111,11 @@ function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged }) 
 // ── Main ──────────────────────────────────────────────────────────────────────
 export default function GroupDetail() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const params = new URLSearchParams(window.location.search);
   const groupId = params.get('id');
   const groupName = params.get('name') ?? 'Group';
+  const shouldAutoJoin = params.get('join') === 'true';
 
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
@@ -126,6 +127,9 @@ export default function GroupDetail() {
   const [encouraged, setEncouraged] = useState({}); // memberId -> bool
   const [loading, setLoading] = useState(true);
   const [graceDayRecords, setGraceDayRecords] = useState({});
+  const [friends, setFriends] = useState([]);
+  const [showInviteFriends, setShowInviteFriends] = useState(false);
+  const [friendSearch, setFriendSearch] = useState('');
 
   const load = useCallback(async () => {
     if (!groupId) return;
@@ -167,6 +171,30 @@ export default function GroupDetail() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Auto-join if arriving via invite link
+  useEffect(() => {
+    if (!shouldAutoJoin || !groupId || !user?.id || !group) return;
+    const alreadyMember = (group.memberIds ?? []).includes(user.id);
+    if (alreadyMember) return;
+    base44.functions.invoke('joinGroup', { groupId }).then(() => {
+      updateUser({ groupIds: [...(user.groupIds ?? []), groupId] });
+      toast.success('You joined the group!');
+      load();
+    });
+  }, [shouldAutoJoin, groupId, user?.id, group]);
+
+  const loadFriends = useCallback(async () => {
+    if (!user?.id) return;
+    const [sent, received] = await Promise.all([
+      base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
+      base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
+    ]);
+    const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
+    if (friendIds.length === 0) { setFriends([]); return; }
+    const res = await base44.functions.invoke('getUsersByIds', { ids: friendIds });
+    setFriends(res.data?.users ?? []);
+  }, [user?.id]);
+
   const weekStart = getThisWeekStart();
 
   // Build leaderboard data
@@ -190,25 +218,41 @@ export default function GroupDetail() {
     chapters: { label: 'Chapters', icon: BookOpen, stat: r => r.weekChapters, unit: 'this week' },
   };
 
+  const inviteLink = `${window.location.origin}/group-detail?id=${groupId}&join=true`;
+
   const shareInvite = async () => {
-    const link = `${window.location.origin}/group-detail?id=${groupId}`;
     const shareData = {
       title: `Join "${group?.name ?? groupName}" on BibleBuilt`,
       text: `Come read the Bible with me in our group "${group?.name ?? groupName}"!`,
-      url: link,
+      url: inviteLink,
     };
     if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-      } catch (e) {
-        // user cancelled — do nothing
-      }
+      try { await navigator.share(shareData); } catch (e) {}
     } else {
-      navigator.clipboard.writeText(link);
+      navigator.clipboard.writeText(inviteLink);
       setCopied(true);
       toast.success('Invite link copied!');
       setTimeout(() => setCopied(false), 2000);
     }
+  };
+
+  const handleInviteFriend = async (friend) => {
+    const shareData = {
+      title: `Join "${group?.name ?? groupName}" on BibleBuilt`,
+      text: `Hey ${friend.full_name ?? friend.displayName ?? 'friend'}, come read the Bible with me in our group "${group?.name ?? groupName}"!`,
+      url: inviteLink,
+    };
+    if (navigator.share) {
+      try { await navigator.share(shareData); } catch (e) {}
+    } else {
+      navigator.clipboard.writeText(inviteLink);
+      toast.success('Invite link copied!');
+    }
+  };
+
+  const toggleInviteFriends = () => {
+    if (!showInviteFriends) loadFriends();
+    setShowInviteFriends(p => !p);
   };
 
   const handleEncourage = async (member) => {
@@ -242,14 +286,74 @@ export default function GroupDetail() {
             <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
             <p className="text-xs text-muted-foreground">{members.length} members</p>
           </div>
-          <button
-            onClick={shareInvite}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors"
-          >
-            {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Copy className="w-3.5 h-3.5" />}
-            {copied ? 'Copied!' : 'Invite'}
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={toggleInviteFriends}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" /> Friends
+            </button>
+            <button
+              onClick={shareInvite}
+              className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors"
+            >
+              {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Share2 className="w-3.5 h-3.5" />}
+              {copied ? 'Copied!' : 'Share'}
+            </button>
+          </div>
         </div>
+
+        {/* Invite Friends Panel */}
+        {showInviteFriends && (
+          <div className="mt-3 rounded-2xl border border-border bg-card p-4">
+            <p className="text-sm font-semibold text-foreground mb-3">Invite a Friend</p>
+            <input
+              type="text"
+              value={friendSearch}
+              onChange={e => setFriendSearch(e.target.value)}
+              placeholder="Search friends…"
+              className="w-full h-9 px-3 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring mb-3"
+            />
+            {friends.filter(f =>
+              !friendSearch.trim() ||
+              (f.full_name ?? f.displayName ?? f.email ?? '').toLowerCase().includes(friendSearch.toLowerCase())
+            ).length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-3">No friends found</p>
+            ) : (
+              <div className="space-y-1">
+                {friends
+                  .filter(f =>
+                    !friendSearch.trim() ||
+                    (f.full_name ?? f.displayName ?? f.email ?? '').toLowerCase().includes(friendSearch.toLowerCase())
+                  )
+                  .map(f => {
+                    const alreadyMember = (group?.memberIds ?? []).includes(f.id);
+                    return (
+                      <div key={f.id} className="flex items-center gap-3 py-2">
+                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
+                          {(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
+                        </div>
+                        {alreadyMember ? (
+                          <span className="text-xs text-muted-foreground">In group</span>
+                        ) : (
+                          <button
+                            onClick={() => handleInviteFriend(f)}
+                            className="h-8 px-3 rounded-lg text-xs font-semibold"
+                            style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}
+                          >
+                            Invite
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Community Goal */}
         {group?.communityGoalTarget > 0 && (() => {
