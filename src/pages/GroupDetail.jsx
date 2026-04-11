@@ -149,9 +149,11 @@ export default function GroupDetail() {
     const uMap = {};
     grpMembers.forEach(u => { uMap[u.id] = u; });
 
-    // Fetch recent logs for all members (for streaks + week chapters)
-    const logsAll = await base44.entities.ReadingLog.list('-created_date', 3000);
-    const memberLogs = logsAll.filter(l => memberIds.includes(l.userId));
+    // Fetch logs per member in parallel to ensure sufficient history per user
+    const logsByMember = await Promise.all(
+      memberIds.map(id => base44.entities.ReadingLog.filter({ userId: id }, '-created_date', 1000))
+    );
+    const memberLogs = logsByMember.flat();
     setAllLogs(memberLogs);
 
     // Fetch grace day records for all members via backend function
