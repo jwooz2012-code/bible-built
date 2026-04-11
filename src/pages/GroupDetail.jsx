@@ -237,16 +237,20 @@ export default function GroupDetail() {
   };
 
   const handleInviteFriend = async (friend) => {
-    const shareData = {
-      title: `Join "${group?.name ?? groupName}" on BibleBuilt`,
-      text: `Hey ${friend.full_name ?? friend.displayName ?? 'friend'}, come read the Bible with me in our group "${group?.name ?? groupName}"!`,
-      url: inviteLink,
-    };
+    const name = friend.full_name ?? friend.displayName ?? 'friend';
+    const text = `Hey ${name}, come read the Bible with me in our group "${group?.name ?? groupName}"! Join here: ${inviteLink}`;
     if (navigator.share) {
-      try { await navigator.share(shareData); } catch (e) {}
-    } else {
-      navigator.clipboard.writeText(inviteLink);
-      toast.success('Invite link copied!');
+      try {
+        await navigator.share({ title: `Join ${group?.name ?? groupName}`, text, url: inviteLink });
+        return;
+      } catch (e) {}
+    }
+    // Fallback: copy to clipboard
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(`Invite link copied for ${name}!`);
+    } catch (e) {
+      toast.error('Could not copy link');
     }
   };
 
