@@ -172,6 +172,7 @@ export default function Treasury() {
           artifact={selected}
           isOwned={!!ownedMap[selected.artifactId]}
           isEquipped={equippedSet.has(selected.artifactId)}
+          hasOtherEquipped={equippedSet.size > 0 && !equippedSet.has(selected.artifactId)}
           userXP={userXP}
           onClose={() => setSelected(null)}
           onPurchaseSuccess={handlePurchaseSuccess}

@@ -16,7 +16,7 @@ const EMOJI_MAP = {
   'shepherds-staff': '🪄',
 };
 
-export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
+export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fullCardView, setFullCardView] = useState(false);
@@ -159,7 +159,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
                 disabled={loading}
                 className={`w-full py-3.5 rounded-xl font-bold text-white transition-all active:scale-95 ${isEquipped ? 'bg-slate-700 hover:bg-slate-600' : 'bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400'}`}
               >
-                {loading ? 'Updating…' : isEquipped ? 'Unequip' : '⚡ Equip for XP Boost'}
+                {loading ? 'Updating…' : isEquipped ? 'Unequip' : hasOtherEquipped ? '⚡ Swap & Equip' : '⚡ Equip for XP Boost'}
               </button>
             )}
           </div>
