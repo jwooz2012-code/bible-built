@@ -5,6 +5,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
+import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 function timeAgo(isoString) {
@@ -30,32 +31,26 @@ function calcStreakWithGrace(logs, userId, graceDayRecords) {
   const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
   const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
 
-  // Build grace budget per month from DB records
   const graceUsed = {};
   (graceDayRecords[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
-
-  // Track grace consumed during this calculation (separate from DB so we don't mutate)
   const graceConsumed = {};
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   let streak = 0;
   let cursor = new Date(today);
-  const MAX_DAYS = 730; // safety limit
+  const MAX_DAYS = 730;
 
   for (let i = 0; i < MAX_DAYS; i++) {
     const key = fmt(cursor);
     if (daySet.has(key)) {
       streak++;
     } else {
-      // Try to use a grace day for this month
       const mk = monthKey(cursor);
       const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
       if (used < 2) {
         graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
-        // grace day consumed — streak continues but don't increment
       } else {
-        // Check if it's today or yesterday with no log yet — don't break streak
         if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
         break;
       }
@@ -77,22 +72,12 @@ function RankBadge({ rank }) {
 function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile }) {
   const name = member.full_name ?? member.displayName ?? 'Unknown';
   return (
-    <div
-      className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}
-    >
+    <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}>
       <div className="w-7 flex items-center justify-center shrink-0">
         <RankBadge rank={rank} />
       </div>
-      <button
-        onClick={onViewProfile}
-        className="flex items-center gap-2 flex-1 min-w-0 text-left"
-      >
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-          style={{ background: isMe ? 'rgba(34,197,94,0.15)' : 'hsl(var(--muted))', color: isMe ? '#16A34A' : 'hsl(var(--muted-foreground))' }}
-        >
-          {name[0].toUpperCase()}
-        </div>
+      <button onClick={onViewProfile} className="flex items-center gap-2 flex-1 min-w-0 text-left">
+        <AvatarDisplay initials={name[0].toUpperCase()} avatarData={member} size={36} />
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-semibold truncate ${isMe ? 'text-primary' : 'text-foreground'}`}>
             {name} {isMe && <span className="text-xs font-normal text-muted-foreground">(you)</span>}
@@ -127,9 +112,9 @@ export default function GroupDetail() {
   const [allLogs, setAllLogs] = useState([]);
   const [feedLogs, setFeedLogs] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
-  const [tab, setTab] = useState('xp'); // 'xp' | 'streak' | 'chapters'
+  const [tab, setTab] = useState('xp');
   const [copied, setCopied] = useState(false);
-  const [encouraged, setEncouraged] = useState({}); // memberId -> bool
+  const [encouraged, setEncouraged] = useState({});
   const [loading, setLoading] = useState(true);
   const [graceDayRecords, setGraceDayRecords] = useState({});
   const [friends, setFriends] = useState([]);
@@ -147,21 +132,18 @@ export default function GroupDetail() {
     const memberIds = grp.memberIds ?? [];
     if (memberIds.length === 0) { setLoading(false); return; }
 
-    // Fetch members + their logs
     const usersRes = await base44.functions.invoke('getUsersByIds', { ids: memberIds });
     const grpMembers = usersRes.data?.users ?? [];
     setMembers(grpMembers);
     const uMap = {};
     grpMembers.forEach(u => { uMap[u.id] = u; });
 
-    // Fetch logs per member in parallel to ensure sufficient history per user
     const logsByMember = await Promise.all(
       memberIds.map(id => base44.entities.ReadingLog.filter({ userId: id }, '-created_date', 1000))
     );
     const memberLogs = logsByMember.flat();
     setAllLogs(memberLogs);
 
-    // Fetch grace day records for all members via backend function
     const graceRes = await base44.functions.invoke('getGraceDaysByIds', { ids: memberIds });
     const graceMap = {};
     (graceRes.data?.graceDays ?? []).forEach(g => {
@@ -170,7 +152,6 @@ export default function GroupDetail() {
     });
     setGraceDayRecords(graceMap);
 
-    // Feed: last 30 logs for these members
     setFeedLogs(memberLogs.slice(0, 30));
     setFeedUsers(uMap);
     setLoading(false);
@@ -178,7 +159,6 @@ export default function GroupDetail() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Auto-join if arriving via invite link
   useEffect(() => {
     if (!shouldAutoJoin || !groupId || !user?.id || !group) return;
     const alreadyMember = (group.memberIds ?? []).includes(user.id);
@@ -202,19 +182,14 @@ export default function GroupDetail() {
     setFriends(res.data?.users ?? []);
   }, [user?.id]);
 
-  const weekStart = getThisWeekStart();
-
-  // Build leaderboard data
   const withStats = members.map(m => {
-    // Match the same logic as computeWeeklySummary in deriveStats — Sunday to today, all logs
     const now = new Date();
     now.setHours(0, 0, 0, 0);
-    now.setDate(now.getDate() - now.getDay()); // most recent Sunday
+    now.setDate(now.getDate() - now.getDay());
     const weekKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
     const todayKey = (() => { const t = new Date(); return `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; })();
     const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= todayKey);
     const uniqueWeekChapters = weekLogs.length;
-    // Use stored streak from user object; fall back to calculation only if missing
     const streak = m.streak ?? calcStreakWithGrace(allLogs, m.id, graceDayRecords);
     const xp = m.xp ?? 0;
     return { member: m, weekChapters: uniqueWeekChapters, streak, xp };
@@ -347,9 +322,7 @@ export default function GroupDetail() {
                     const alreadyMember = (group?.memberIds ?? []).includes(f.id);
                     return (
                       <div key={f.id} className="flex items-center gap-3 py-2">
-                        <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground shrink-0">
-                          {(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()}
-                        </div>
+                        <AvatarDisplay initials={(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()} avatarData={f} size={32} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
                         </div>
@@ -405,7 +378,6 @@ export default function GroupDetail() {
         <div className="mt-5 mb-2">
           <h2 className="text-base font-semibold text-foreground mb-3">Leaderboard</h2>
 
-          {/* Tabs */}
           <div className="flex gap-1 mb-4 bg-muted rounded-xl p-1">
             {Object.entries(tabConfig).map(([key, { label, icon: Icon }]) => (
               <button
@@ -459,18 +431,12 @@ export default function GroupDetail() {
               {feedLogs.map(log => {
                 const fu = feedUsers[log.userId];
                 const name = fu?.full_name ?? fu?.displayName ?? 'A member';
-                const isMe = log.userId === user?.id;
                 return (
                   <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                    <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-                      style={{ background: isMe ? 'rgba(34,197,94,0.15)' : 'hsl(var(--muted))', color: isMe ? '#16A34A' : 'hsl(var(--muted-foreground))' }}
-                    >
-                      {name[0].toUpperCase()}
-                    </div>
+                    <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={32} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm text-foreground">
-                        <span className="font-semibold">{isMe ? 'You' : name}</span>
+                        <span className="font-semibold">{log.userId === user?.id ? 'You' : name}</span>
                         {' finished '}
                         <span className="font-medium">{log.book} {log.chapter}</span>
                         {' 🔥'}

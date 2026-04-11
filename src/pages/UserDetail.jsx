@@ -6,6 +6,7 @@ import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_LABELS } from '@/data/artifactCatalog';
+import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 
 function calcStreakFromLogs(logs, userId, graceMap) {
   const userLogs = logs.filter(l => l.userId === userId);
@@ -183,8 +184,8 @@ export default function UserDetail() {
         </button>
 
         <div className="flex flex-col items-center pt-4">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-3xl font-black text-white shadow-2xl mb-3 ring-4 ring-white/20">
-            {initials}
+          <div className="mb-3 ring-4 ring-white/20 rounded-full">
+            <AvatarDisplay initials={initials} avatarData={targetUser} size={96} />
           </div>
           <h1 className="text-2xl font-black text-white">{name}</h1>
           {isMe && <span className="mt-1 text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-semibold">That's you!</span>}

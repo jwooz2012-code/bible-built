@@ -4,6 +4,7 @@ import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
 import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
+import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
@@ -230,9 +231,7 @@ export default function Social() {
           <div className="mt-2 rounded-xl border border-border bg-card overflow-hidden">
             {searchResults.map(u => (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
-                  {(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()}
-                </div>
+                <AvatarDisplay initials={(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()} avatarData={u} size={32} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{u.full_name ?? u.displayName}</p>
                   <p className="text-xs text-muted-foreground truncate">{u.email}</p>
@@ -298,9 +297,7 @@ export default function Social() {
                   onClick={() => navigate(`/user-detail?id=${f.id}`)}
                   className="flex items-center gap-3 flex-1 min-w-0 text-left"
                 >
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
-                    {(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()}
-                  </div>
+                  <AvatarDisplay initials={(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()} avatarData={f} size={32} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-foreground truncate">{f.full_name ?? f.displayName}</p>
                     <p className="text-xs text-muted-foreground">View profile →</p>
@@ -453,9 +450,7 @@ export default function Social() {
             const name = friendUser?.full_name ?? friendUser?.displayName ?? 'A friend';
             return (
               <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
-                  {name[0].toUpperCase()}
-                </div>
+                <AvatarDisplay initials={name[0].toUpperCase()} avatarData={friendUser} size={32} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-foreground">
                     <span className="font-semibold">{name}</span>
