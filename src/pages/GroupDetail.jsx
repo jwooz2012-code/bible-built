@@ -201,8 +201,15 @@ export default function GroupDetail() {
 
   // Build leaderboard data
   const withStats = members.map(m => {
-    const weekStart7 = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
-    const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekStart7);
+    const weekStart7 = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return d; })();
+    const weekLogs = allLogs.filter(l => {
+      if (l.userId !== m.id) return false;
+      if (l.dateKey) {
+        const weekKey = `${weekStart7.getFullYear()}-${String(weekStart7.getMonth()+1).padStart(2,'0')}-${String(weekStart7.getDate()).padStart(2,'0')}`;
+        return l.dateKey >= weekKey;
+      }
+      return new Date(l.created_date ?? l.timestamp) >= weekStart7;
+    });
     const uniqueWeekChapters = new Set(weekLogs.map(l => l.chapterId)).size;
     // Use stored streak from user object; fall back to calculation only if missing
     const streak = m.streak ?? calcStreakWithGrace(allLogs, m.id, graceDayRecords);
