@@ -41,16 +41,16 @@ export default function DailyVerseGoalBar({ versesReadToday = 0, user }) {
           : hasBoost
           ? 'linear-gradient(135deg, rgba(234,179,8,0.1), rgba(245,158,11,0.06))'
           : 'hsl(var(--card))',
-        borderColor: isComplete ? 'rgba(34,197,94,0.4)' : hasBoost ? 'rgba(234,179,8,0.35)' : 'hsl(var(--border))',
+        borderColor: isComplete ? 'rgba(34,197,94,0.4)' : hasBoost ? 'rgba(234,179,8,0.4)' : 'hsl(var(--border))',
       }}
     >
       <div className="px-4 pt-3 pb-3">
-        {/* Header */}
+        {/* Header row */}
         <div className="flex items-center justify-between mb-2.5">
           <div className="flex items-center gap-2">
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center"
-              style={{ background: isComplete ? 'rgba(34,197,94,0.2)' : 'rgba(234,179,8,0.18)' }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+              style={{ background: isComplete ? 'rgba(34,197,94,0.2)' : 'rgba(234,179,8,0.2)' }}
             >
               {isComplete ? (
                 <Flame className="w-4 h-4 text-green-500" />
@@ -58,33 +58,32 @@ export default function DailyVerseGoalBar({ versesReadToday = 0, user }) {
                 <Zap className="w-4 h-4 text-yellow-400" />
               )}
             </div>
-            <div>
-              <span className="text-sm font-bold text-foreground">Daily Verse Goal</span>
-              {hasBoost && !isComplete && (
-                <span className="ml-2 text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                  style={{ background: 'rgba(234,179,8,0.18)', color: '#D97706' }}>
-                  +{boostPct}% BOOST ACTIVE
-                </span>
-              )}
-            </div>
+            <span className="text-sm font-bold text-foreground">Daily Verse Goal</span>
           </div>
-          <div className="text-right">
-            {isComplete ? (
-              <span className="text-sm font-bold text-green-500">
-                +{hasBoost ? boostedXP : DAILY_XP_REWARD} XP 🎉
-              </span>
-            ) : (
-              <span className="text-xs font-semibold text-muted-foreground">
-                {versesReadToday} / {DAILY_VERSE_GOAL}
+
+          {/* XP reward — always visible */}
+          <div className="flex items-center gap-1.5">
+            {hasBoost && (
+              <span
+                className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                style={{ background: 'rgba(234,179,8,0.22)', color: '#B45309' }}
+              >
+                +{boostPct}% boost
               </span>
             )}
+            <span
+              className="text-sm font-bold"
+              style={{ color: isComplete ? '#16A34A' : hasBoost ? '#D97706' : 'hsl(var(--foreground))' }}
+            >
+              {isComplete ? '🎉' : ''} {hasBoost ? boostedXP : DAILY_XP_REWARD} XP
+            </span>
           </div>
         </div>
 
         {/* Progress bar */}
         <div className="h-3 rounded-full overflow-hidden" style={{ background: 'hsl(var(--muted))' }}>
           <motion.div
-            className="h-full rounded-full relative overflow-hidden"
+            className="h-full rounded-full"
             style={{
               background: isComplete
                 ? 'linear-gradient(90deg, #16A34A, #22C55E)'
@@ -93,30 +92,19 @@ export default function DailyVerseGoalBar({ versesReadToday = 0, user }) {
             initial={{ width: 0 }}
             animate={{ width: `${pct}%` }}
             transition={{ duration: 0.7, ease: 'easeOut' }}
-          >
-            {/* shimmer */}
-            {!isComplete && (
-              <div
-                className="absolute inset-0 opacity-40"
-                style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%)',
-                  animation: 'shimmer 2s infinite',
-                }}
-              />
-            )}
-          </motion.div>
+          />
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between mt-2">
           <span className="text-[11px] text-muted-foreground">
-            {isComplete ? 'Goal complete! Come back tomorrow.' : `${DAILY_VERSE_GOAL - versesReadToday} verses to go`}
+            {isComplete ? 'Goal complete! Come back tomorrow.' : `${versesReadToday} / ${DAILY_VERSE_GOAL} verses`}
           </span>
-          <span className="text-[11px] font-semibold" style={{ color: hasBoost ? '#D97706' : 'hsl(var(--muted-foreground))' }}>
-            {hasBoost
-              ? `${DAILY_XP_REWARD} × ${multiplier.toFixed(2)}× = ${boostedXP} XP`
-              : `${DAILY_XP_REWARD} XP reward`}
-          </span>
+          {hasBoost && (
+            <span className="text-[11px] text-muted-foreground">
+              {DAILY_XP_REWARD} × {multiplier.toFixed(2)}× = <span className="font-semibold" style={{ color: '#D97706' }}>{boostedXP} XP</span>
+            </span>
+          )}
         </div>
       </div>
     </div>
