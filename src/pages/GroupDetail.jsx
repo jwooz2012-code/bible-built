@@ -202,7 +202,8 @@ export default function GroupDetail() {
     const weekStart7 = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
     const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekStart7);
     const uniqueWeekChapters = new Set(weekLogs.map(l => l.chapterId)).size;
-    const streak = calcStreakWithGrace(allLogs, m.id, graceDayRecords);
+    // Use stored streak from user object; fall back to calculation only if missing
+    const streak = m.streak ?? calcStreakWithGrace(allLogs, m.id, graceDayRecords);
     const xp = m.xp ?? 0;
     return { member: m, weekChapters: uniqueWeekChapters, streak, xp };
   });
