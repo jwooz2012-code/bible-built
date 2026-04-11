@@ -143,76 +143,7 @@ export default function ShareSummary() {
     displaySubtitle = 'Reading Summary';
   }
 
-  // Fetch reading logs for the period (for display stats)
-  const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', startDate, endDate],
-    queryFn: async () => {
-      const logs = await base44.entities.ReadingLog.filter(
-        { dateKey: { $gte: startDate, $lte: endDate } },
-        '-dateKey',
-        1000
-      );
-      return logs || [];
-    },
-  });
-
-  // Fetch LIFETIME reading logs (for accurate badge determination)
-  const { data: lifetimeLogs = [] } = useQuery({
-    queryKey: ['lifetimeReadingLogs'],
-    queryFn: async () => {
-      const logs = await base44.entities.ReadingLog.list('-dateKey', 10000);
-      return logs || [];
-    },
-  });
-
-  // Calculate stats
-  const totalChapters = readingLogs.length;
-  const uniqueDays = new Set(readingLogs.map((l) => l.dateKey)).size;
-  const booksRead = new Set(readingLogs.map((l) => l.bookIndex)).size;
-  const otChapters = readingLogs.filter((l) => l.testament === 'OT').length;
-  const ntChapters = readingLogs.filter((l) => l.testament === 'NT').length;
-
-  // Calculate consecutive days (streak within the period)
-  let longestStreak = 0;
-  if (readingLogs.length > 0) {
-    const sortedDates = Array.from(
-      new Set(readingLogs.map((l) => l.dateKey))
-    ).sort();
-    let currentStreak = 1;
-    for (let i = 1; i < sortedDates.length; i++) {
-      const prevDate = new Date(sortedDates[i - 1]);
-      const currDate = new Date(sortedDates[i]);
-      const diffDays = Math.floor(
-        (currDate - prevDate) / (1000 * 60 * 60 * 24)
-      );
-      if (diffDays === 1) {
-        currentStreak++;
-        longestStreak = Math.max(longestStreak, currentStreak);
-      } else {
-        currentStreak = 1;
-      }
-    }
-  }
-
-  // Calculate best day (most chapters in one day)
-  const chaptersPerDay = {};
-  readingLogs.forEach((log) => {
-    chaptersPerDay[log.dateKey] = (chaptersPerDay[log.dateKey] || 0) + 1;
-  });
-  const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
-
-  // Calculate unique chapters for the timeframe
-  const uniqueChapters = new Set(readingLogs.map((l) => l.chapterId)).size;
-
-  // Calculate most completed book count for timeframe
-  const bookCompletionCounts = {};
-  readingLogs.forEach((log) => {
-    const key = log.book;
-    bookCompletionCounts[key] = (bookCompletionCounts[key] || 0) + 1;
-  });
-  const mostCompletedBookCount = Math.max(0, ...Object.values(bookCompletionCounts));
-
-  // Fetch user data for badges
+  // Fetch user first so other queries can use user?.id
   const { data: user } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
@@ -223,6 +154,44 @@ export default function ShareSummary() {
       }
     },
   });
+
+  // Fetch reading logs for the period (for display stats)
+  const { data: readingLogs = [] } = useQuery({
+    queryKey: ['readingLogs', startDate, endDate, user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const logs = await base44.entities.ReadingLog.filter(
+        { userId: user.id, dateKey: { $gte: startDate, $lte: endDate } },
+        '-dateKey',
+        1000
+      );
+      return logs || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  // Fetch LIFETIME reading logs (for accurate badge determination)
+  const { data: lifetimeLogs = [] } = useQuery({
+    queryKey: ['lifetimeReadingLogs', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      const logs = await base44.entities.ReadingLog.filter({ userId: user.id }, '-dateKey', 10000);
+      return logs || [];
+    },
+    enabled: !!user?.id,
+  });
+
+  // Calculate stats
+  const totalChapters = readingLogs.length;
+  const uniqueDays = new Set(readingLogs.map((l) => l.dateKey)).size;
+  const booksRead = new Set(readingLogs.map((l) => l.bookIndex)).size;
+
+  // Calculate best day (most chapters in one day)
+  const chaptersPerDay = {};
+  readingLogs.forEach((log) => {
+    chaptersPerDay[log.dateKey] = (chaptersPerDay[log.dateKey] || 0) + 1;
+  });
+  const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
 
   // Weekly: Most Read Book
   const mostReadBook = useMemo(() => {
