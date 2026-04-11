@@ -60,8 +60,7 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
-    loadCollection();
-    setSelected(null);
+    loadCollection(); // reload so isOwned becomes true — modal stays open to show unlocked artifact
   };
 
   const handleEquipSuccess = (data) => {
