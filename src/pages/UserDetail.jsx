@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Flame, BookOpen, Zap, Gem, Star, Trophy, Lock } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
@@ -22,7 +22,7 @@ function StatCard({ label, value, unit, icon: Icon, gradient }) {
 
 function BadgePill({ badge }) {
   return (
-    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium transition-all ${
+    <div className={`flex items-center gap-2 px-3 py-2 rounded-xl border text-sm font-medium ${
       badge.achieved
         ? 'bg-amber-50 border-amber-200 text-amber-800 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-300'
         : 'bg-muted border-border text-muted-foreground opacity-50'
@@ -36,16 +36,14 @@ function BadgePill({ badge }) {
   );
 }
 
-function ArtifactChip({ artifact, rarity }) {
+function ArtifactChip({ artifact }) {
+  const rarity = artifact.rarity;
   const color = ARTIFACT_RARITY_COLORS[rarity] || '#888';
   const label = ARTIFACT_RARITY_LABELS[rarity] || rarity;
+  const emoji = rarity === 'legendary' ? '🏆' : rarity === 'epic' ? '💎' : rarity === 'rare' ? '⭐' : '🔸';
   return (
     <div className="flex items-center gap-2 px-3 py-2.5 rounded-xl border border-border bg-card text-sm">
-      <span className="text-lg">{
-        rarity === 'legendary' ? '🏆' :
-        rarity === 'epic' ? '💎' :
-        rarity === 'rare' ? '⭐' : '🔸'
-      }</span>
+      <span className="text-lg">{emoji}</span>
       <div className="min-w-0">
         <p className="font-semibold text-foreground text-xs truncate">{artifact.name}</p>
         <p className="text-[10px]" style={{ color }}>{label}</p>
@@ -85,9 +83,9 @@ export default function UserDetail() {
 
   const isLoading = loadingUser || loadingLogs;
 
-  // Compute stats
   const totalChapters = readingLogs.length;
   const xp = targetUser?.xp ?? 0;
+  const streak = targetUser?.streak ?? 0;
 
   const now = new Date();
   const sundayDate = new Date(now);
@@ -97,20 +95,16 @@ export default function UserDetail() {
   const todayKey = now.toISOString().split('T')[0];
   const weekChapters = readingLogs.filter(l => l.dateKey >= weekKey && l.dateKey <= todayKey).length;
 
-  const streak = targetUser?.streak ?? 0;
-
-  // Badge state
   const { badges } = computeBadgeState(readingLogs, targetUser);
   const earnedBadges = badges.filter(b => b.achieved);
-  const unearnedBadges = badges.filter(b => !b.achieved).slice(0, 6); // show a few locked
+  const unearnedBadges = badges.filter(b => !b.achieved).slice(0, 6);
 
-  // Artifacts
   const ownedArtifacts = ownerships
     .map(o => ({ ownership: o, artifact: artifactCatalog.find(a => a.artifactId === o.artifactId) }))
     .filter(({ artifact }) => !!artifact)
     .sort((a, b) => {
-      const rarityOrder = ['legendary', 'epic', 'rare', 'common'];
-      return rarityOrder.indexOf(a.artifact.rarity) - rarityOrder.indexOf(b.artifact.rarity);
+      const order = ['legendary', 'epic', 'rare', 'common'];
+      return order.indexOf(a.artifact.rarity) - order.indexOf(b.artifact.rarity);
     });
 
   const name = targetUser?.full_name || targetUser?.email?.split('@')[0] || 'Builder';
@@ -137,15 +131,12 @@ export default function UserDetail() {
         </button>
 
         <div className="flex flex-col items-center pt-4">
-          {/* Avatar */}
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-3xl font-black text-white shadow-2xl mb-3 ring-4 ring-white/20">
             {initials}
           </div>
-
           <h1 className="text-2xl font-black text-white">{name}</h1>
           {isMe && <span className="mt-1 text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-semibold">That's you!</span>}
 
-          {/* Quick hero stats */}
           <div className="flex gap-6 mt-4">
             <div className="flex flex-col items-center">
               <span className="text-2xl font-black text-white">{streak}</span>
@@ -166,50 +157,23 @@ export default function UserDetail() {
       </div>
 
       <div className="max-w-lg mx-auto px-5 mt-5 space-y-6">
-
         {/* Stat Cards */}
         <div className="grid grid-cols-2 gap-3">
-          <StatCard
-            label="Streak"
-            value={streak}
-            unit="days in a row 🔥"
-            icon={Flame}
-            gradient="bg-gradient-to-br from-orange-400 to-red-500"
-          />
-          <StatCard
-            label="This Week"
-            value={weekChapters}
-            unit="chapters read 📖"
-            icon={BookOpen}
-            gradient="bg-gradient-to-br from-blue-500 to-violet-600"
-          />
-          <StatCard
-            label="Total Chapters"
-            value={totalChapters.toLocaleString()}
-            unit="all time"
-            icon={Star}
-            gradient="bg-gradient-to-br from-emerald-400 to-teal-600"
-          />
-          <StatCard
-            label="XP Earned"
-            value={(xp || 0).toLocaleString()}
-            unit="experience points ⚡"
-            icon={Zap}
-            gradient="bg-gradient-to-br from-amber-400 to-yellow-500"
-          />
+          <StatCard label="Streak" value={streak} unit="days in a row 🔥" icon={Flame} gradient="bg-gradient-to-br from-orange-400 to-red-500" />
+          <StatCard label="This Week" value={weekChapters} unit="chapters read 📖" icon={BookOpen} gradient="bg-gradient-to-br from-blue-500 to-violet-600" />
+          <StatCard label="Total Chapters" value={totalChapters.toLocaleString()} unit="all time" icon={Star} gradient="bg-gradient-to-br from-emerald-400 to-teal-600" />
+          <StatCard label="XP Earned" value={xp.toLocaleString()} unit="experience points ⚡" icon={Zap} gradient="bg-gradient-to-br from-amber-400 to-yellow-500" />
         </div>
 
         {/* Badges */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-amber-500" />
-              Badges
-              <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-semibold">
-                {earnedBadges.length}/{badges.length}
-              </span>
-            </h2>
-          </div>
+          <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-3">
+            <Trophy className="w-4 h-4 text-amber-500" />
+            Badges
+            <span className="text-xs bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-full font-semibold">
+              {earnedBadges.length}/{badges.length}
+            </span>
+          </h2>
           {earnedBadges.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-card py-6 flex flex-col items-center gap-1">
               <Trophy className="w-6 h-6 text-muted-foreground/30" />
@@ -225,15 +189,13 @@ export default function UserDetail() {
 
         {/* Treasury */}
         <div>
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Gem className="w-4 h-4 text-teal-500" />
-              Treasury
-              <span className="text-xs bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-full font-semibold">
-                {ownedArtifacts.length} artifacts
-              </span>
-            </h2>
-          </div>
+          <h2 className="text-base font-bold text-foreground flex items-center gap-2 mb-3">
+            <Gem className="w-4 h-4 text-teal-500" />
+            Treasury
+            <span className="text-xs bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-full font-semibold">
+              {ownedArtifacts.length} artifacts
+            </span>
+          </h2>
           {loadingArtifacts ? (
             <div className="h-16 rounded-2xl bg-muted animate-pulse" />
           ) : ownedArtifacts.length === 0 ? (
@@ -244,12 +206,11 @@ export default function UserDetail() {
           ) : (
             <div className="grid grid-cols-2 gap-2">
               {ownedArtifacts.map(({ artifact, ownership }) => (
-                <ArtifactChip key={ownership.id} artifact={artifact} rarity={artifact.rarity} />
+                <ArtifactChip key={ownership.id} artifact={artifact} />
               ))}
             </div>
           )}
         </div>
-
       </div>
     </div>
   );
