@@ -89,7 +89,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
                 <img
                   src={artifact.image}
                   alt={artifact.name}
-                  className={`w-56 object-contain drop-shadow-lg`}
+                  className={`w-56 object-contain drop-shadow-lg ${!isOwned ? 'grayscale' : ''}`}
                   onError={() => setImgError(true)}
                 />
                 <div className="absolute inset-0 flex items-center justify-center rounded-lg bg-black/0 transition-all group-hover:bg-black/10">
@@ -195,7 +195,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
             <img
               src={artifact.image}
               alt={artifact.name}
-              className={`max-w-full max-h-full object-contain drop-shadow-2xl`}
+              className={`max-w-full max-h-full object-contain drop-shadow-2xl ${!isOwned ? 'grayscale' : ''}`}
               onError={() => setFullImgError(true)}
               onClick={e => e.stopPropagation()}
             />
