@@ -85,24 +85,44 @@ export default function Treasury() {
       <div className="max-w-lg mx-auto px-4" style={{ paddingTop: 'calc(max(4rem, env(safe-area-inset-top, 0px)) + 0rem)' }}>
 
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
+        <div className="flex items-center gap-3 mb-5">
           <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-800 text-slate-300 hover:text-white">
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <div className="flex-1">
-            <h1 className="text-xl font-bold text-white">Artifact Treasury</h1>
-            <p className="text-xs text-slate-400">{userXP.toLocaleString()} XP available</p>
-          </div>
-          {boostPct > 0 && (
-            <div className="flex items-center gap-1 bg-orange-500/20 border border-orange-500/40 rounded-xl px-3 py-1.5">
-              <Zap className="w-3.5 h-3.5 text-orange-400" />
-              <span className="text-xs font-bold text-orange-300">+{boostPct}%</span>
-            </div>
-          )}
+          <h1 className="text-xl font-bold text-white">Artifact Treasury</h1>
         </div>
 
-        {/* Collection tracker */}
-        {!loading && <CollectionTracker stats={collectionStats} />}
+        {/* XP Hero Card */}
+        <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800 to-slate-900 p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Your Balance</p>
+              <div className="flex items-end gap-2">
+                <span className="text-4xl font-extrabold text-white">{userXP.toLocaleString()}</span>
+                <span className="text-lg font-bold text-yellow-400 mb-1">XP</span>
+              </div>
+              {boostPct > 0 && (
+                <div className="flex items-center gap-1 mt-1.5">
+                  <Zap className="w-3.5 h-3.5 text-orange-400" />
+                  <span className="text-xs font-bold text-orange-300">+{boostPct}% XP Boost Active</span>
+                </div>
+              )}
+            </div>
+            {!loading && collectionStats && (
+              <div className="text-right">
+                <p className="text-xs text-slate-400 mb-1 uppercase tracking-widest font-semibold">Collection</p>
+                <p className="text-2xl font-bold text-white">{collectionStats.totalOwned}<span className="text-sm text-slate-400 font-normal"> / {collectionStats.totalAvailable}</span></p>
+                <div className="w-24 bg-slate-700 rounded-full h-1.5 mt-1.5 ml-auto">
+                  <div
+                    className="h-full bg-gradient-to-r from-yellow-500 to-amber-400 rounded-full transition-all duration-500"
+                    style={{ width: `${collectionStats.completionPercentage}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-slate-500 mt-0.5">{collectionStats.completionPercentage}% complete</p>
+              </div>
+            )}
+          </div>
+        </div>
 
         {/* Rarity filter */}
         <div className="flex gap-1.5 mt-4 overflow-x-auto pb-1 scrollbar-none">
