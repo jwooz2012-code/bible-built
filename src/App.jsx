@@ -7,7 +7,7 @@ import Profile from './pages/Profile';
 import Treasury from './pages/Treasury';
 import Social from './pages/Social';
 import BuildersLocked from './pages/BuildersLocked';
-import GroupDetail from './pages/GroupDetail.jsx';
+import GroupDetail from './pages/GroupDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
@@ -18,7 +18,7 @@ import { CelebrationProvider } from '@/components/celebration/CelebrationContext
 import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
 import TreasuryPreviewPage from './pages/TreasuryPreviewPage';
 import ComingSoonPage from './pages/ComingSoonPage';
-import UserDetail from './pages/UserDetail.jsx';
+import UserDetail from './pages/UserDetail';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
