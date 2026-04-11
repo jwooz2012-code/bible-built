@@ -1,16 +1,17 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 
+// XP boosts by rarity: common=5%, rare=10%, epic=15%, legendary=25%
 const artifacts = [
-  { artifactId: 'ark-of-the-covenant', xpBoost: 1.20 },
-  { artifactId: 'sword-goliath', xpBoost: 1.15 },
-  { artifactId: 'coat-of-many-colors', xpBoost: 1.11 },
-  { artifactId: 'sling-of-david', xpBoost: 1.12 },
-  { artifactId: 'davids-harp', xpBoost: 1.13 },
-  { artifactId: 'jar-of-manna', xpBoost: 1.08 },
-  { artifactId: 'noahs-hammer', xpBoost: 1.09 },
-  { artifactId: 'clay-lamp', xpBoost: undefined },
-  { artifactId: 'rod-of-peter', xpBoost: undefined },
-  { artifactId: 'shepherds-staff', xpBoost: undefined },
+  { artifactId: 'ark-of-the-covenant', xpBoost: 1.25 },
+  { artifactId: 'sword-goliath', xpBoost: 1.25 },
+  { artifactId: 'coat-of-many-colors', xpBoost: 1.15 },
+  { artifactId: 'sling-of-david', xpBoost: 1.15 },
+  { artifactId: 'davids-harp', xpBoost: 1.10 },
+  { artifactId: 'jar-of-manna', xpBoost: 1.10 },
+  { artifactId: 'noahs-hammer', xpBoost: 1.10 },
+  { artifactId: 'clay-lamp', xpBoost: 1.05 },
+  { artifactId: 'rod-of-peter', xpBoost: 1.05 },
+  { artifactId: 'shepherds-staff', xpBoost: 1.05 },
 ];
 
 Deno.serve(async (req) => {

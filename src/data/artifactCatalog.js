@@ -2,6 +2,13 @@
  * BibleBuilt Artifact Treasury Catalog
  */
 
+export const RARITY_XP_BOOST = {
+  common: 1.05,
+  rare: 1.10,
+  epic: 1.15,
+  legendary: 1.25,
+};
+
 export const ARTIFACT_RARITY_COLORS = {
   common: '#A0826D',
   rare: '#C0C0C0',
@@ -30,7 +37,7 @@ export const artifacts = [
     story: "The sacred chest containing the Ten Commandments. The holiest relic of Israel.",
     visualDescription: 'An ornate wooden chest with golden accents and a radiant inner glow.',
     category: 'sacred',
-    xpBoost: 1.20,
+    xpBoost: 1.25,
   },
   {
     artifactId: 'sword-goliath',
@@ -45,7 +52,7 @@ export const artifacts = [
     story: "The massive iron sword of the giant Goliath, defeated by David's faith. An endgame collectible.",
     visualDescription: 'A colossal iron blade, notched and weathered from ancient battles, radiating power.',
     category: 'weapon',
-    xpBoost: 1.15,
+    xpBoost: 1.25,
   },
   {
     artifactId: 'coat-of-many-colors',
@@ -60,7 +67,7 @@ export const artifacts = [
     story: "Joseph's cherished coat, a symbol of divine favor and the promise of restoration.",
     visualDescription: 'A vibrant robe woven with threads of every color, radiating noble lineage.',
     category: 'royal',
-    xpBoost: 1.11,
+    xpBoost: 1.15,
   },
   {
     artifactId: 'sling-of-david',
@@ -75,7 +82,7 @@ export const artifacts = [
     story: "The humble sling used by young David to defeat the giant Goliath. A symbol of faith over strength.",
     visualDescription: 'A weathered leather sling with five smooth, glowing stones.',
     category: 'weapon',
-    xpBoost: 1.12,
+    xpBoost: 1.15,
   },
   {
     artifactId: 'davids-harp',
@@ -90,7 +97,7 @@ export const artifacts = [
     story: "The harp of the shepherd-king whose music drove away evil spirits and pleased God.",
     visualDescription: 'A beautifully carved wooden harp strung with golden strings.',
     category: 'royal',
-    xpBoost: 1.13,
+    xpBoost: 1.10,
   },
   {
     artifactId: 'jar-of-manna',
@@ -105,7 +112,7 @@ export const artifacts = [
     story: "The manna preserved in a golden pot. God's supernatural provision in the wilderness.",
     visualDescription: 'A stone jar filled with shimmering white manna.',
     category: 'temple',
-    xpBoost: 1.08,
+    xpBoost: 1.10,
   },
   {
     artifactId: 'noahs-hammer',
@@ -120,7 +127,7 @@ export const artifacts = [
     story: "The tool used by Noah to build the ark during the great flood. A symbol of faithfulness and obedience.",
     visualDescription: 'A weathered wooden hammer with worn brass bands.',
     category: 'tool',
-    xpBoost: 1.09,
+    xpBoost: 1.10,
   },
   {
     artifactId: 'clay-lamp',
@@ -135,6 +142,7 @@ export const artifacts = [
     story: "A simple oil lamp. Light that cannot be hidden.",
     visualDescription: 'A small clay lamp glowing with eternal flame.',
     category: 'temple',
+    xpBoost: 1.05,
   },
   {
     artifactId: 'rod-of-peter',
@@ -149,6 +157,7 @@ export const artifacts = [
     story: "Peter's humble fishing rod, a tool of provision transformed into a symbol of service.",
     visualDescription: 'A simple wooden fishing rod with a worn cord line.',
     category: 'tool',
+    xpBoost: 1.05,
   },
   {
     artifactId: 'shepherds-staff',
@@ -163,6 +172,7 @@ export const artifacts = [
     story: "A simple staff for the journey. Every pilgrim carries one toward the promised land.",
     visualDescription: 'A gnarled wooden staff, well-worn by faithful hands.',
     category: 'weapon',
+    xpBoost: 1.05,
   },
 ];
 
