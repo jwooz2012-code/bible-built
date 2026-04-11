@@ -167,7 +167,7 @@ export default function UserDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
-      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-10 px-5" style={{ paddingTop: 'calc(env(safe-area-inset-top, 0px) + 3.5rem)' }}>
+      <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-10 px-5" style={{ paddingTop: 'max(4rem, calc(env(safe-area-inset-top, 0px) + 1rem))' }}>
         <button onClick={() => navigate(-1)}
           style={{ top: 'calc(env(safe-area-inset-top, 0px) + 0.75rem)' }}
           className="absolute left-4 h-9 w-9 flex items-center justify-center rounded-xl bg-white/10 text-white hover:bg-white/20 transition-colors">
