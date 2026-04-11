@@ -236,22 +236,21 @@ export default function GroupDetail() {
     }
   };
 
+  const [invitedFriends, setInvitedFriends] = useState({});
+
   const handleInviteFriend = async (friend) => {
-    const name = friend.full_name ?? friend.displayName ?? 'friend';
-    const text = `Hey ${name}, come read the Bible with me in our group "${group?.name ?? groupName}"! Join here: ${inviteLink}`;
-    if (navigator.share) {
-      try {
-        await navigator.share({ title: `Join ${group?.name ?? groupName}`, text, url: inviteLink });
-        return;
-      } catch (e) {}
-    }
-    // Fallback: copy to clipboard
-    try {
-      await navigator.clipboard.writeText(text);
-      toast.success(`Invite link copied for ${name}!`);
-    } catch (e) {
-      toast.error('Could not copy link');
-    }
+    const senderName = user?.full_name ?? user?.displayName ?? 'Someone';
+    const groupLabel = group?.name ?? groupName;
+    await base44.entities.Notification.create({
+      userId: friend.id,
+      type: 'group_invite',
+      message: `${senderName} invited you to join the group "${groupLabel}"!`,
+      relatedId: groupId,
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+    setInvitedFriends(prev => ({ ...prev, [friend.id]: true }));
+    toast.success(`Invite sent to ${friend.full_name ?? friend.displayName ?? 'friend'}!`);
   };
 
   const toggleInviteFriends = () => {
@@ -342,6 +341,8 @@ export default function GroupDetail() {
                         </div>
                         {alreadyMember ? (
                           <span className="text-xs text-muted-foreground">In group</span>
+                        ) : invitedFriends[f.id] ? (
+                          <span className="text-xs font-semibold text-green-600">✓ Invited</span>
                         ) : (
                           <button
                             onClick={() => handleInviteFriend(f)}
