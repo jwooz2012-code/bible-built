@@ -7,6 +7,37 @@ import { useQuery } from '@tanstack/react-query';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_LABELS } from '@/data/artifactCatalog';
 
+function calcStreakFromLogs(logs, userId, graceMap) {
+  const userLogs = logs.filter(l => l.userId === userId);
+  const daySet = new Set(userLogs.map(l => l.dateKey));
+  if (daySet.size === 0) return 0;
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const mKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  const graceUsed = {};
+  (graceMap[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
+  const graceConsumed = {};
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let streak = 0;
+  const cursor = new Date(today);
+  for (let i = 0; i < 730; i++) {
+    const key = fmt(cursor);
+    if (daySet.has(key)) {
+      streak++;
+    } else {
+      const mk = mKey(cursor);
+      const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
+      if (used < 2) {
+        graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
+      } else {
+        if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+    }
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return streak;
+}
+
 function StatCard({ label, value, unit, icon: Icon, gradient }) {
   return (
     <div className={`rounded-2xl p-4 text-white shadow-lg ${gradient}`}>
@@ -75,18 +106,37 @@ export default function UserDetail() {
     enabled: !!userId,
   });
 
+  const { data: graceDayRecords = {}, isLoading: loadingGrace } = useQuery({
+    queryKey: ['userGraceDays', userId],
+    queryFn: async () => {
+      const res = await base44.functions.invoke('getGraceDaysByIds', { ids: [userId] });
+      const map = {};
+      (res.data?.graceDays ?? []).forEach(g => {
+        if (!map[g.userId]) map[g.userId] = [];
+        map[g.userId].push(g);
+      });
+      return map;
+    },
+    enabled: !!userId,
+  });
+
   const { data: ownerships = [], isLoading: loadingArtifacts } = useQuery({
     queryKey: ['userArtifacts', userId],
     queryFn: () => base44.entities.ArtifactOwnership.filter({ userId }),
     enabled: !!userId,
   });
 
-  const isLoading = loadingUser || loadingLogs;
+  const isLoading = loadingUser || loadingLogs || loadingGrace;
 
   const totalChapters = readingLogs.length;
   const xp = targetUser?.xp ?? 0;
-  const streak = targetUser?.streak ?? 0;
 
+  // Compute streak from logs + grace days (same logic as GroupDetail)
+  const streak = readingLogs.length > 0
+    ? calcStreakFromLogs(readingLogs, userId, graceDayRecords)
+    : 0;
+
+  // Weekly chapters
   const now = new Date();
   const sundayDate = new Date(now);
   sundayDate.setHours(0, 0, 0, 0);
@@ -95,10 +145,12 @@ export default function UserDetail() {
   const todayKey = now.toISOString().split('T')[0];
   const weekChapters = readingLogs.filter(l => l.dateKey >= weekKey && l.dateKey <= todayKey).length;
 
+  // Badges
   const { badges } = computeBadgeState(readingLogs, targetUser);
   const earnedBadges = badges.filter(b => b.achieved);
   const unearnedBadges = badges.filter(b => !b.achieved).slice(0, 6);
 
+  // Artifacts
   const ownedArtifacts = ownerships
     .map(o => ({ ownership: o, artifact: artifactCatalog.find(a => a.artifactId === o.artifactId) }))
     .filter(({ artifact }) => !!artifact)
