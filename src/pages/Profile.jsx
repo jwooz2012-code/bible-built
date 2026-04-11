@@ -264,7 +264,13 @@ export default function Profile() {
                   </div>
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges</span>
                 </div>
-
+                <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                    <span className="text-[22px] font-bold text-foreground">{(user?.xp ?? 0).toLocaleString()}</span>
+                  </div>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">XP</span>
+                </div>
               </div>
             </div>
           </motion.div>

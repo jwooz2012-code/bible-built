@@ -30,7 +30,17 @@ Deno.serve(async (req) => {
   const ownership = await base44.asServiceRole.entities.ArtifactOwnership.filter({ userId: user.id, artifactId });
   if (!ownership.length) return Response.json({ error: 'You do not own this artifact' }, { status: 403 });
 
-  // Update equip state
+  // If equipping, first unequip any currently equipped artifact
+  if (equip) {
+    const currentlyEquipped = await base44.asServiceRole.entities.ArtifactOwnership.filter({ userId: user.id, isEquipped: true });
+    for (const o of currentlyEquipped) {
+      if (o.artifactId !== artifactId) {
+        await base44.asServiceRole.entities.ArtifactOwnership.update(o.id, { isEquipped: false, equippedAt: null });
+      }
+    }
+  }
+
+  // Update equip state for this artifact
   await base44.asServiceRole.entities.ArtifactOwnership.update(ownership[0].id, {
     isEquipped: equip,
     equippedAt: equip ? new Date().toISOString() : null,

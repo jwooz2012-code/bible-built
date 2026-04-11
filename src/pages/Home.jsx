@@ -30,6 +30,7 @@ import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace'
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
 import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 import BibleBoostCard from '@/components/home/BibleBoostCard';
+import DailyVerseGoalBar from '@/components/home/DailyVerseGoalBar';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
@@ -349,6 +350,8 @@ export default function Home() {
               onDismissPrompt={handleDismissPrompt}
               showPrompt={showPrompt}
             />
+
+            <DailyVerseGoalBar versesReadToday={actualVersesReadToday} />
 
             <ProgressHero
               currentStreak={currentStreak}
