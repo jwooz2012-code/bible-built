@@ -294,12 +294,18 @@ export default function Social() {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             {friends.map(f => (
               <div key={f.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-semibold text-muted-foreground shrink-0">
-                  {(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
-                </div>
+                <button
+                  onClick={() => navigate(`/user-detail?id=${f.id}`)}
+                  className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                >
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-sm font-bold text-white shrink-0">
+                    {(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-foreground truncate">{f.full_name ?? f.displayName}</p>
+                    <p className="text-xs text-muted-foreground">View profile →</p>
+                  </div>
+                </button>
               </div>
             ))}
           </div>

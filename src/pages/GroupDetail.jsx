@@ -74,7 +74,7 @@ function RankBadge({ rank }) {
 }
 
 // ── Leaderboard row ───────────────────────────────────────────────────────────
-function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged }) {
+function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile }) {
   const name = member.full_name ?? member.displayName ?? 'Unknown';
   return (
     <div
@@ -83,18 +83,23 @@ function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged }) 
       <div className="w-7 flex items-center justify-center shrink-0">
         <RankBadge rank={rank} />
       </div>
-      <div
-        className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
-        style={{ background: isMe ? 'rgba(34,197,94,0.15)' : 'hsl(var(--muted))', color: isMe ? '#16A34A' : 'hsl(var(--muted-foreground))' }}
+      <button
+        onClick={onViewProfile}
+        className="flex items-center gap-2 flex-1 min-w-0 text-left"
       >
-        {name[0].toUpperCase()}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className={`text-sm font-semibold truncate ${isMe ? 'text-primary' : 'text-foreground'}`}>
-          {name} {isMe && <span className="text-xs font-normal text-muted-foreground">(you)</span>}
-        </p>
-        <p className="text-xs text-muted-foreground">{stat} {unit}</p>
-      </div>
+        <div
+          className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold shrink-0"
+          style={{ background: isMe ? 'rgba(34,197,94,0.15)' : 'hsl(var(--muted))', color: isMe ? '#16A34A' : 'hsl(var(--muted-foreground))' }}
+        >
+          {name[0].toUpperCase()}
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className={`text-sm font-semibold truncate ${isMe ? 'text-primary' : 'text-foreground'}`}>
+            {name} {isMe && <span className="text-xs font-normal text-muted-foreground">(you)</span>}
+          </p>
+          <p className="text-xs text-muted-foreground">{stat} {unit}</p>
+        </div>
+      </button>
       {!isMe && (
         <button
           onClick={() => onEncourage(member)}
@@ -434,6 +439,7 @@ export default function GroupDetail() {
                   isMe={row.member.id === user?.id}
                   onEncourage={handleEncourage}
                   encouraged={!!encouraged[row.member.id]}
+                  onViewProfile={() => navigate(`/user-detail?id=${row.member.id}`)}
                 />
               ))}
             </div>
