@@ -150,7 +150,7 @@ export default function GroupDetail() {
     grpMembers.forEach(u => { uMap[u.id] = u; });
 
     // Fetch recent logs for all members (for streaks + week chapters)
-    const logsAll = await base44.entities.ReadingLog.list('-created_date', 500);
+    const logsAll = await base44.entities.ReadingLog.list('-created_date', 3000);
     const memberLogs = logsAll.filter(l => memberIds.includes(l.userId));
     setAllLogs(memberLogs);
 
@@ -199,7 +199,8 @@ export default function GroupDetail() {
 
   // Build leaderboard data
   const withStats = members.map(m => {
-    const weekLogs = allLogs.filter(l => l.userId === m.id && new Date(l.created_date ?? l.timestamp) >= weekStart);
+    const weekStart7 = (() => { const d = new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate() - d.getDay()); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; })();
+    const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekStart7);
     const uniqueWeekChapters = new Set(weekLogs.map(l => l.chapterId)).size;
     const streak = calcStreakWithGrace(allLogs, m.id, graceDayRecords);
     const xp = m.xp ?? 0;
@@ -213,9 +214,9 @@ export default function GroupDetail() {
   };
 
   const tabConfig = {
-    xp: { label: 'XP', icon: Zap, stat: r => r.xp.toLocaleString(), unit: 'XP' },
-    streak: { label: 'Streak', icon: Flame, stat: r => r.streak, unit: 'days' },
-    chapters: { label: 'Chapters', icon: BookOpen, stat: r => r.weekChapters, unit: 'this week' },
+    xp: { label: 'XP', icon: Zap, stat: r => r.xp.toLocaleString(), unit: r => 'XP' },
+    streak: { label: 'Streak', icon: Flame, stat: r => r.streak, unit: r => r.streak === 1 ? 'day' : 'days' },
+    chapters: { label: 'Chapters', icon: BookOpen, stat: r => r.weekChapters, unit: r => 'this week' },
   };
 
   const inviteLink = `${window.location.origin}/group-detail?id=${groupId}&join=true`;
@@ -421,7 +422,7 @@ export default function GroupDetail() {
                   rank={idx + 1}
                   member={row.member}
                   stat={cfg.stat(row)}
-                  unit={cfg.unit}
+                  unit={cfg.unit(row)}
                   isMe={row.member.id === user?.id}
                   onEncourage={handleEncourage}
                   encouraged={!!encouraged[row.member.id]}
