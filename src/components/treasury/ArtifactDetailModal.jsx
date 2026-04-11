@@ -31,11 +31,15 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
   const handlePurchase = async () => {
     setLoading(true);
     setError(null);
-    const res = await base44.functions.invoke('purchaseArtifact', { artifactId: artifact.artifactId });
-    if (res.data?.success) {
-      onPurchaseSuccess(res.data);
-    } else {
-      setError(res.data?.error || 'Purchase failed');
+    try {
+      const res = await base44.functions.invoke('purchaseArtifact', { artifactId: artifact.artifactId });
+      if (res.data?.success) {
+        onPurchaseSuccess(res.data);
+      } else {
+        setError(res.data?.error || 'Purchase failed');
+      }
+    } catch (e) {
+      setError(e?.response?.data?.error || 'Purchase failed');
     }
     setLoading(false);
   };
@@ -43,11 +47,15 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, use
   const handleEquip = async () => {
     setLoading(true);
     setError(null);
-    const res = await base44.functions.invoke('equipArtifact', { artifactId: artifact.artifactId, equip: !isEquipped });
-    if (res.data?.success) {
-      onEquipSuccess(res.data);
-    } else {
-      setError(res.data?.error || 'Failed to update');
+    try {
+      const res = await base44.functions.invoke('equipArtifact', { artifactId: artifact.artifactId, equip: !isEquipped });
+      if (res.data?.success) {
+        onEquipSuccess(res.data);
+      } else {
+        setError(res.data?.error || 'Failed to update');
+      }
+    } catch (e) {
+      setError(e?.response?.data?.error || 'Failed to update');
     }
     setLoading(false);
   };
