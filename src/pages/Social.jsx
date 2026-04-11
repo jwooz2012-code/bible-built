@@ -257,9 +257,11 @@ export default function Social() {
           <div className="rounded-2xl border border-border bg-card overflow-hidden">
             {pendingRequests.map(fr => (
               <div key={fr.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                </div>
+                <AvatarDisplay
+                  initials={(pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.email || '?')[0].toUpperCase()}
+                  avatarData={pendingUsers[fr.requestedById]}
+                  size={32}
+                />
                 <p className="flex-1 text-sm font-medium text-foreground truncate">{pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.email || 'Someone'}</p>
                 <div className="flex gap-2">
                   <button
@@ -381,9 +383,11 @@ export default function Social() {
                 onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
                 className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors text-left"
               >
-                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center shrink-0">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                </div>
+                <AvatarDisplay
+                  initials={g.name[0].toUpperCase()}
+                  avatarData={null}
+                  size={32}
+                />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{g.name}</p>
                   <p className="text-xs text-muted-foreground">{(g.memberIds ?? []).length} members</p>
