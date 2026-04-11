@@ -29,12 +29,12 @@ export default function Layout({ children }) {
   const hasAccess = user?.role === 'admin' || user?.hasEarlyAccess;
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-black' },
-    { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar', color: 'text-black' },
+    { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
+    { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
     { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: !hasAccess, color: 'text-blue-500' },
     ...(hasAccess ? [{ name: 'Treasury', icon: Landmark, path: '/treasury', pageName: 'treasury', color: 'text-amber-500' }] : []),
-    { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats', color: 'text-black' },
-    { name: 'Profile', icon: User, path: '/profile', pageName: 'profile', color: 'text-black' },
+    { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats' },
+    { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];
 
   // Ensure Accountability page is accessible via direct navigation
