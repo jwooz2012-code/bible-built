@@ -351,8 +351,6 @@ export default function Home() {
               showPrompt={showPrompt}
             />
 
-            <DailyVerseGoalBar versesReadToday={actualVersesReadToday} />
-
             <ProgressHero
               currentStreak={currentStreak}
               records={trackerStats.records}
@@ -364,6 +362,8 @@ export default function Home() {
             {/* BibleBoostCard hidden until Treasury/Builders launch */}
 
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
+
+            <DailyVerseGoalBar versesReadToday={actualVersesReadToday} user={user} />
 
             {recentBooks.length > 0 && (
               <div className="mb-6">
