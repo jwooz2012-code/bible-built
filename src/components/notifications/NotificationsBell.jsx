@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Bell, X, Check, UserPlus, HandHeart, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { toast } from 'sonner';
@@ -20,7 +21,8 @@ function timeAgo(iso) {
 }
 
 export default function NotificationsBell() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -68,6 +70,25 @@ export default function NotificationsBell() {
     }
     await markRead(notif);
     load();
+  };
+
+  const joinGroup = async (notif) => {
+    try {
+      await base44.functions.invoke('joinGroup', { groupId: notif.relatedId });
+      updateUser({ groupIds: [...(user.groupIds ?? []), notif.relatedId] });
+      toast.success('Joined the group!');
+      await markRead(notif);
+      setOpen(false);
+      navigate(`/group-detail?id=${notif.relatedId}`);
+    } catch {
+      toast.error('Could not join group');
+    }
+  };
+
+  const declineGroupInvite = async (notif) => {
+    await base44.entities.Notification.delete(notif.id);
+    setNotifications(prev => prev.filter(n => n.id !== notif.id));
+    toast('Invite declined');
   };
 
   const declineFriendRequest = async (notif) => {
@@ -144,6 +165,23 @@ export default function NotificationsBell() {
                           </button>
                           <button
                             onClick={e => { e.stopPropagation(); declineFriendRequest(notif); }}
+                            className="h-7 px-3 rounded-lg text-xs bg-muted text-muted-foreground"
+                          >
+                            Decline
+                          </button>
+                        </div>
+                      )}
+                      {notif.type === 'group_invite' && !notif.isRead && (
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={e => { e.stopPropagation(); joinGroup(notif); }}
+                            className="flex items-center gap-1 h-7 px-3 rounded-lg text-xs font-semibold"
+                            style={{ background: 'rgba(34,197,94,0.15)', color: '#16A34A' }}
+                          >
+                            <Check className="w-3 h-3" /> Join Group
+                          </button>
+                          <button
+                            onClick={e => { e.stopPropagation(); declineGroupInvite(notif); }}
                             className="h-7 px-3 rounded-lg text-xs bg-muted text-muted-foreground"
                           >
                             Decline
