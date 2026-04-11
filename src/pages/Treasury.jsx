@@ -13,7 +13,7 @@ const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 
 export default function Treasury() {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
 
   const [ownedMap, setOwnedMap] = useState({}); // artifactId -> ownership record
   const [equippedSet, setEquippedSet] = useState(new Set());
@@ -60,7 +60,10 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
-    loadCollection(); // reload so isOwned becomes true — modal stays open to show unlocked artifact
+    if (data.xpRemaining !== undefined) {
+      updateUser({ xp: data.xpRemaining });
+    }
+    loadCollection();
   };
 
   const handleEquipSuccess = (data) => {
