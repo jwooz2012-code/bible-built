@@ -5,8 +5,8 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
-import { detectNewCelebrations } from '@/components/celebration/useCelebrationTrigger';
 import { getVerseCount } from '@/utils/verseCount';
+import { getArtifactById } from '@/data/artifactCatalog';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
@@ -37,12 +37,11 @@ function getBookCompletionBonus(book) {
   const bookData = BIBLE_BOOKS.find(b => b.name === book);
   if (!bookData) return 0;
   const chapters = bookData.chapters;
-  // Scale: 1-chapter books = 100, 150-chapter books = 500
   return Math.round(100 + Math.min(400, (chapters / 150) * 400));
 }
 
 // Check if completing this chapter finishes the entire book
-function isBookComplete(book, chapter, allLogs, newLog) {
+function isBookComplete(book, chapter, allLogs) {
   const bookData = BIBLE_BOOKS.find(b => b.name === book);
   if (!bookData) return false;
   const allRead = new Set([...(allLogs ?? []).filter(l => l.book === book).map(l => l.chapter), chapter]);
@@ -60,7 +59,22 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
       }
-      
+
+      // Fetch equipped artifact for XP boost
+      let artifactBoost = 1.0;
+      try {
+        const equipped = await base44.entities.ArtifactOwnership.filter({ userId, isEquipped: true });
+        if (equipped.length > 0) {
+          const artifact = getArtifactById(equipped[0].artifactId);
+          if (artifact?.xpBoost) artifactBoost = artifact.xpBoost;
+        }
+      } catch (e) {}
+
+      // Compute full XP with all bonuses + artifact boost so it's stored on the log
+      const verseCount = getVerseCount(book, chapter);
+      const { multiplier } = calcXpMultipliers(book, chapter, user);
+      const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier * artifactBoost);
+
       const result = await base44.entities.ReadingLog.create({
         userId,
         timestamp,
@@ -70,12 +84,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         chapter,
         chapterId,
         testament,
+        xpEarned,
       });
-      
+
       if (!result || !result.id) {
         throw new Error('Failed to save reading log - no ID returned');
       }
-      
+
       return result;
     },
     onSuccess: (createdLog, variables) => {
@@ -84,9 +99,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         if (prev.some(x => x.id === createdLog.id)) return prev;
         return [createdLog, ...prev];
       });
-      
+
       queryClient.setQueriesData(
-        { 
+        {
           predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
         },
         (old = []) => {
@@ -95,17 +110,18 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           return [createdLog, ...prev];
         }
       );
-      
+
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
-      
+
       // XP & momentum update
       if (user?.id) {
         const verseCount = getVerseCount(variables.book, variables.chapter);
-        const { multiplier, bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
-        const xpGained = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier);
+        const { bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
+        // Use the exact XP stored on the log (includes artifact boost + all bonuses)
+        const xpGained = createdLog.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
         const currentXp = user.xp ?? 0;
         const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
         const target = user.dailyVerseTarget ?? 30;
@@ -147,7 +163,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         base44.auth.updateMe(updatePayload).catch(() => {});
       }
 
-      // Celebration checks — after successful persistence
+      // Analytics
       base44.analytics.track({
         eventName: 'chapter_read_completed',
         properties: {
@@ -190,9 +206,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const uniqueToday = [...new Map(remainingTodayLogs.map(l => [l.chapterId, l])).values()];
       const actualVersesReadToday = uniqueToday.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
 
-      // Use context user for XP (kept current by optimistic updates in markRead)
+      // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
       const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
-      const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
+      const xpToSubtract = latestLog.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
       const currentXp = user?.xp ?? 0;
       let newXp = Math.max(0, currentXp - xpToSubtract);
       const target = user?.dailyVerseTarget ?? 30;
@@ -219,9 +235,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         const prev = Array.isArray(old) ? old : [];
         return prev.filter(log => log.id !== data.deletedId);
       });
-      
+
       queryClient.setQueriesData(
-        { 
+        {
           predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
         },
         (old = []) => {
@@ -229,12 +245,12 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           return prev.filter(log => log.id !== data.deletedId);
         }
       );
-      
+
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
-      queryClient.invalidateQueries({ 
+      queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
-      
+
       toast('Chapter unmarked');
     },
     onError: (error) => {
@@ -245,7 +261,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
   undoReadRef.current = undoRead.mutateAsync;
 
-  return { 
+  return {
     markRead: markRead.mutateAsync,
     undoRead: undoRead.mutateAsync,
     isMarkingRead: markRead.isPending,

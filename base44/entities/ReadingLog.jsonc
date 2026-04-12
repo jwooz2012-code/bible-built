@@ -38,6 +38,10 @@
         "NT"
       ],
       "description": "Old Testament or New Testament"
+    },
+    "xpEarned": {
+      "type": "number",
+      "description": "Exact XP awarded when this chapter was logged (includes all bonuses and artifact multipliers)"
     }
   },
   "required": [

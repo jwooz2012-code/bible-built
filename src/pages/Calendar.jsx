@@ -160,7 +160,8 @@ export default function Calendar() {
       // Subtract XP
       const freshUser = await base44.auth.me();
       const verseCount = getVerseCount(log.book, log.chapter);
-      const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
+      // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
+      const xpToSubtract = log.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
       const newXp = Math.max(0, (freshUser.xp ?? 0) - xpToSubtract);
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
       const updatePayload = { xp: newXp, level: newLevel };
@@ -227,7 +228,8 @@ export default function Calendar() {
       // Subtract XP for all cleared chapters
       const freshUser = await base44.auth.me();
       const totalXpToSubtract = logsToDelete.reduce((sum, log) => {
-        return sum + Math.round(getVerseCount(log.book, log.chapter) * BASE_XP_PER_VERSE);
+        // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
+        return sum + (log.xpEarned ?? Math.round(getVerseCount(log.book, log.chapter) * BASE_XP_PER_VERSE));
       }, 0);
       const newXp = Math.max(0, (freshUser.xp ?? 0) - totalXpToSubtract);
       const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
