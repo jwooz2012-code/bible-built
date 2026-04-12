@@ -137,9 +137,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
         if (bookFinished) {
           triggerHaptic();
-          toast.success(`📕 ${variables.book} complete! +${bookBonus} XP`, { duration: 3000 });
+          setTimeout(() => toast.success(`📕 ${variables.book} complete! +${bookBonus} XP`, { duration: 3000 }), 300);
         } else if (bonuses.length > 0) {
-          toast(`+${xpGained} XP · ${bonuses[0]}`, { duration: 2000 });
+          setTimeout(() => toast(`+${xpGained} XP · ${bonuses[0]}`, { duration: 2000 }), 300);
         }
 
         // Optimistic update first so context is immediately current
