@@ -222,10 +222,9 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="fixed inset-0 bg-background z-[65] flex flex-col"
-      style={{ paddingTop: 'max(4rem, env(safe-area-inset-top, 0px))' }}
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0" style={{ paddingTop: 'max(3rem, env(safe-area-inset-top, 0px))' }}>
         {/* Left: close */}
         <div className="w-10">
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
@@ -257,7 +256,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       </div>
 
       {/* ── Content ── */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-5 pt-4 pb-2">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-5 pt-4 pb-2" style={{ overscrollBehavior: 'contain' }}>
         {isLoading && (
           <div className="flex items-center justify-center h-40">
             <div className="w-6 h-6 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin" />
