@@ -22,9 +22,10 @@ function stripStrongs(text) {
     .replace(/<[^>]+>/g, '')               // remove any remaining HTML/XML tags
     .replace(/([A-Za-z])'(\d+)/g, "$1'")  // handle apostrophe+number (e.g. LORD'S3068)
     .replace(/([A-Za-z])\d+/g, '$1')      // strip numbers glued to words (e.g. God430 → God)
-    // Remove KJV marginal notes: patterns like "word: or, ..." or "word: Heb. ..."
-    // These appear as " WORD: or, alternative" or " WORD: Heb. hebrew"
-    .replace(/\s+\w[\w\s]*:\s+(or,|Heb\.|i\.e\.|i\.e,|that is)[^.!?]*/gi, '')
+    // Remove KJV marginal notes appended after verse text
+    // e.g. "rage: or, tumultuously assemble imagine: Heb. meditate"
+    // e.g. "set: Heb. anointed upon: Heb. upon Zion, the hill of my holiness"
+    .replace(/\s+\w[\w\s]*:\s+(or,|Heb\.|i\.e\.|that is).*/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
