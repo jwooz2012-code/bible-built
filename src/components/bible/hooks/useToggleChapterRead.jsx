@@ -181,7 +181,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
       } else if (bonuses.length > 0) {
-        toast.success(`+${xpGained} XP · ${bonuses[0]}`, {
+        toast.success(`+${xpGained} XP · ${bonuses[0].replace(/ \+\d+%$/, '')}`, {
           duration: 3000,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
