@@ -119,8 +119,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       // XP & momentum update
       if (user?.id) {
         const verseCount = getVerseCount(variables.book, variables.chapter);
-        const { bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
-        // Use the exact XP stored on the log (includes artifact boost + all bonuses)
+        // Use the exact XP stored on the log
         const xpGained = createdLog.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
         const currentXp = user.xp ?? 0;
         const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
@@ -145,17 +144,11 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         if (goalJustMet) {
           updatePayload.hasActivatedBibleBoost = true;
           triggerHaptic();
-          triggerCelebration(CELEBRATION_TYPES.BIBLE_BOOST_ACTIVATED, {
+          // Delay celebration so toast renders first
+          setTimeout(() => triggerCelebration(CELEBRATION_TYPES.BIBLE_BOOST_ACTIVATED, {
             title: 'Daily Goal Met! ✨',
             message: '+100 bonus XP earned!',
-          });
-        }
-
-        if (bookFinished) {
-          triggerHaptic();
-          setTimeout(() => toast.success(`📕 ${variables.book} complete! +${bookBonus} XP`, { duration: 3000 }), 300);
-        } else if (bonuses.length > 0) {
-          setTimeout(() => toast(`+${xpGained} XP · ${bonuses[0]}`, { duration: 2000 }), 300);
+          }), 600);
         }
 
         // Optimistic update first so context is immediately current
@@ -174,13 +167,30 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           chapterId: variables.chapterId,
         }
       });
-      toast.success('Chapter marked as read', {
-        duration: 4000,
-        action: {
-          label: 'Undo',
-          onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }),
-        },
-      });
+
+      // Show exactly ONE toast — most specific wins
+      const { bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
+      const xpGained = createdLog.xpEarned ?? Math.round(getVerseCount(variables.book, variables.chapter) * BASE_XP_PER_VERSE);
+      const bookFinishedForToast = isBookComplete(variables.book, variables.chapter, allLogs);
+      const bookBonusForToast = bookFinishedForToast ? getBookCompletionBonus(variables.book) : 0;
+
+      if (bookFinishedForToast) {
+        triggerHaptic();
+        toast.success(`📕 ${variables.book} complete! +${bookBonusForToast} XP`, {
+          duration: 3500,
+          action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
+        });
+      } else if (bonuses.length > 0) {
+        toast.success(`+${xpGained} XP · ${bonuses[0]}`, {
+          duration: 3000,
+          action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
+        });
+      } else {
+        toast.success('Chapter marked as read', {
+          duration: 4000,
+          action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
+        });
+      }
     },
     onError: (error) => {
       console.error('[markRead] Error:', error);
