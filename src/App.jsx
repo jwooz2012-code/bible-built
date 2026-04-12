@@ -104,7 +104,7 @@ const AuthenticatedApp = () => {
         </LayoutWrapper>
       } />
       <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
+      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' || user?.hasEarlyAccess ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
       <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
       <Route path="/coming-soon" element={<ComingSoonPage />} />
       <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
