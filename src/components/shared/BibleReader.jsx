@@ -224,7 +224,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       className="fixed inset-0 bg-background z-[65] flex flex-col"
     >
       {/* ── Header ── */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0" style={{ paddingTop: 'max(3rem, env(safe-area-inset-top, 0px))' }}>
+      <div className="flex items-center justify-between px-4 py-3 border-b border-border shrink-0" style={{ paddingTop: 'max(4rem, env(safe-area-inset-top, 0px))' }}>
         {/* Left: close */}
         <div className="w-10">
           <button onClick={onClose} className="p-2 rounded-xl hover:bg-muted transition-colors">
