@@ -18,12 +18,17 @@ import AddChapterActionSheet from '@/components/calendar/AddChapterActionSheet';
 import BulkAddModal from '@/components/calendar/BulkAddModal';
 import GraceDaysBanner from '@/components/calendar/GraceDaysBanner';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
+import { getVerseCount } from '@/utils/verseCount';
+import { useAuth } from '@/lib/AuthContext';
+
+const BASE_XP_PER_VERSE = 5;
 import { useReadingLogsRange as useAllLogs } from '@/components/bible/hooks/useReadingLogsRange';
 import { getTier } from '@/components/trackers/ProgressHero';
 import { Shield } from 'lucide-react';
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
+  const { updateUser } = useAuth();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -147,11 +152,20 @@ export default function Calendar() {
     }
   };
 
-  const handleDeleteLog = async (logId) => {
+  const handleDeleteLog = async (log) => {
     setIsDeleting(true);
     try {
-      await base44.entities.ReadingLog.delete(logId);
+      await base44.entities.ReadingLog.delete(log.id);
       await queryClient.invalidateQueries();
+      // Subtract XP
+      const freshUser = await base44.auth.me();
+      const verseCount = getVerseCount(log.book, log.chapter);
+      const xpToSubtract = Math.round(verseCount * BASE_XP_PER_VERSE);
+      const newXp = Math.max(0, (freshUser.xp ?? 0) - xpToSubtract);
+      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+      const updatePayload = { xp: newXp, level: newLevel };
+      updateUser(updatePayload);
+      base44.auth.updateMe(updatePayload).catch(() => {});
       toast.success('Chapter removed from this day');
     } catch (error) {
       toast.error('Failed to remove chapter');
@@ -209,6 +223,18 @@ export default function Calendar() {
       
       await queryClient.invalidateQueries();
       setShowClearDialog(false);
+
+      // Subtract XP for all cleared chapters
+      const freshUser = await base44.auth.me();
+      const totalXpToSubtract = logsToDelete.reduce((sum, log) => {
+        return sum + Math.round(getVerseCount(log.book, log.chapter) * BASE_XP_PER_VERSE);
+      }, 0);
+      const newXp = Math.max(0, (freshUser.xp ?? 0) - totalXpToSubtract);
+      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
+      const updatePayload = { xp: newXp, level: newLevel };
+      updateUser(updatePayload);
+      base44.auth.updateMe(updatePayload).catch(() => {});
+
       toast.success(`Cleared ${count} reading${count !== 1 ? 's' : ''}`);
     } catch (error) {
       toast.error('Failed to clear day');
@@ -539,7 +565,7 @@ export default function Calendar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteLog(log.id)}
+                      onClick={() => handleDeleteLog(log)}
                       disabled={isDeleting}
                     >
                       <X className="w-4 h-4" />
