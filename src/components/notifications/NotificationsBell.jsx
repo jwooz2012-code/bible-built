@@ -112,7 +112,10 @@ export default function NotificationsBell() {
       >
         <Bell className="w-5 h-5 text-foreground" />
         {unreadCount > 0 && (
-          <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-red-500 border-2 border-card" />
+          <span
+            className="absolute top-0.5 right-0.5 w-2.5 h-2.5 rounded-full"
+            style={{ background: '#ef4444', boxShadow: '0 0 0 2px hsl(var(--card))' }}
+          />
         )}
       </button>
 
