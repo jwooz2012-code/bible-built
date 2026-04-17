@@ -50,10 +50,12 @@ export function useMarkTodayComplete() {
         return { count: 0, userId, todayKey, logsToCreate: [] };
       }
 
-      // Bulk create all reading logs
-      const createdLogs = await base44.entities.ReadingLog.bulkCreate(logsToCreate);
+      // Route through trusted server function for duplicate protection
+      const res = await base44.functions.invoke('logChapterRead', { chapters: logsToCreate });
+      const { created = [], skipped = [] } = res.data ?? {};
+      const actualCreated = Array.isArray(created) ? created : logsToCreate;
       
-      return { count: logsToCreate.length, userId, todayKey, logsToCreate: createdLogs || logsToCreate };
+      return { count: actualCreated.length, userId, todayKey, logsToCreate: actualCreated };
     },
     onSuccess: (data) => {
       if (!data || data.count === 0) return;

@@ -31,7 +31,11 @@ export function useMarkAllRead({ user, allLogs } = {}) {
         };
       });
 
-      return await base44.entities.ReadingLog.bulkCreate(logs);
+      // Route through trusted server function for duplicate protection
+      const res = await base44.functions.invoke('logChapterRead', { chapters: logs });
+      const { created, skipped } = res.data ?? {};
+      // Return created logs so celebration logic below still works
+      return Array.isArray(created) ? created : [];
     },
     onSuccess: (createdLogs, variables) => {
       const today = getDateKey(new Date());

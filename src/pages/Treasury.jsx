@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap } from 'lucide-react';
+import { ArrowLeft, Zap, Coins } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useWallet } from '@/hooks/useWallet';
 import { artifacts, ARTIFACT_RARITY_COLORS } from '../data/artifactCatalog.js';
 import ArtifactCard from '@/components/treasury/ArtifactCard';
 import ArtifactDetailModal from '@/components/treasury/ArtifactDetailModal';
@@ -14,6 +15,7 @@ const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 export default function Treasury() {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
+  const { wallet, isLoading: walletLoading, treasuryBalance } = useWallet();
 
   const [ownedMap, setOwnedMap] = useState({}); // artifactId -> ownership record
   const [equippedSet, setEquippedSet] = useState(new Set());
@@ -60,6 +62,7 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
+    // Legacy XP field update (backward compat)
     if (data.xpRemaining !== undefined) {
       updateUser({ xp: data.xpRemaining });
     }
@@ -92,14 +95,14 @@ export default function Treasury() {
           <h1 className="text-xl font-bold text-white">Artifact Treasury</h1>
         </div>
 
-        {/* XP Hero Card */}
+        {/* Wallet Hero Card */}
         <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800 to-slate-900 p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Your Balance</p>
+              <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Treasury Balance</p>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-extrabold text-white">{userXP.toLocaleString()}</span>
-                <span className="text-lg font-bold text-yellow-400 mb-1">XP</span>
+                <span className="text-4xl font-extrabold text-white">{treasuryBalance.toLocaleString()}</span>
+                <span className="text-lg font-bold text-amber-400 mb-1">₡</span>
               </div>
               {boostPct > 0 && (
                 <div className="flex items-center gap-1 mt-1.5">
@@ -174,6 +177,7 @@ export default function Treasury() {
           isEquipped={equippedSet.has(selected.artifactId)}
           hasOtherEquipped={equippedSet.size > 0 && !equippedSet.has(selected.artifactId)}
           userXP={userXP}
+          treasuryBalance={treasuryBalance}
           onClose={() => setSelected(null)}
           onPurchaseSuccess={handlePurchaseSuccess}
           onEquipSuccess={handleEquipSuccess}

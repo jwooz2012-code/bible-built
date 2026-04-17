@@ -42,27 +42,13 @@ export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
     setIsAdding(true);
 
     try {
-      // Fetch existing logs for this user + date
-      const existingLogs = await base44.entities.ReadingLog.filter({
-        userId,
-        dateKey,
-      });
-
-      // Build a set of already-logged chapterIds for quick lookup
-      const existingChapterIds = new Set(existingLogs.map(log => log.chapterId));
-
       const timestamp = new Date(dateKey + 'T12:00:00').toISOString();
-      let addedCount = 0;
 
+      // Build all chapters to attempt
+      const chapters = [];
       for (let ch = startNum; ch <= endNum; ch++) {
         const chapterId = generateChapterId(book.index, ch);
-
-        // Skip if already exists
-        if (existingChapterIds.has(chapterId)) {
-          continue;
-        }
-
-        await base44.entities.ReadingLog.create({
+        chapters.push({
           userId,
           timestamp,
           dateKey,
@@ -72,14 +58,21 @@ export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
           chapterId,
           testament: book.testament,
         });
-
-        addedCount++;
       }
+
+      // Route through trusted server function — handles dedup server-side
+      const res = await base44.functions.invoke('logChapterRead', { chapters });
+      const { created = [], skipped = [] } = res.data ?? {};
+      const addedCount = Array.isArray(created) ? created.length : 0;
 
       await queryClient.invalidateQueries();
 
       if (addedCount > 0) {
-        toast.success(`Added ${addedCount} chapter${addedCount !== 1 ? 's' : ''}`);
+        const skippedCount = Array.isArray(skipped) ? skipped.length : 0;
+        const msg = skippedCount > 0
+          ? `Added ${addedCount} chapter${addedCount !== 1 ? 's' : ''} (${skippedCount} already logged)`
+          : `Added ${addedCount} chapter${addedCount !== 1 ? 's' : ''}`;
+        toast.success(msg);
       } else {
         toast.info('Nothing to add (already logged)');
       }

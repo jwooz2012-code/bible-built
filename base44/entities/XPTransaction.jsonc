@@ -1,0 +1,57 @@
+{
+  "name": "XPTransaction",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "earn_progress_xp",
+        "earn_currency",
+        "spend_currency",
+        "adjustment"
+      ],
+      "description": "Transaction type"
+    },
+    "source": {
+      "type": "string",
+      "description": "Source of the transaction (chapter_read, daily_goal, streak_7, streak_30, book_complete, artifact_purchase, backfill, etc.)"
+    },
+    "amount": {
+      "type": "number",
+      "description": "XP or currency amount (positive = earn, negative = spend)"
+    },
+    "idempotencyKey": {
+      "type": "string",
+      "description": "Unique key to prevent duplicate grants \u2014 required for all earn/spend operations"
+    },
+    "metadataJson": {
+      "type": "string",
+      "description": "JSON string of additional metadata (chapterId, artifactSlug, etc.)"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of transaction creation"
+    }
+  },
+  "required": [
+    "userId",
+    "type",
+    "source",
+    "amount",
+    "idempotencyKey",
+    "createdAt"
+  ],
+  "rls": {
+    "create": false,
+    "update": false,
+    "delete": false,
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

@@ -16,14 +16,25 @@ const EMOJI_MAP = {
   'shepherds-staff': '🪄',
 };
 
-export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
+const RARITY_COST = {
+  common: 250,
+  rare: 750,
+  epic: 1500,
+  legendary: 3500,
+  mythic: 8000,
+};
+
+export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, treasuryBalance, onClose, onPurchaseSuccess, onEquipSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fullCardView, setFullCardView] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [fullImgError, setFullImgError] = useState(false);
 
-  const canAfford = userXP >= artifact.xpCost;
+  // Use treasury currency cost by rarity; fallback to xpCost for display
+  const cost = RARITY_COST[artifact.rarity] ?? artifact.xpCost;
+  const displayBalance = treasuryBalance ?? userXP ?? 0;
+  const canAfford = displayBalance >= cost;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
   const emoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
   const boostPct = artifact.xpBoost ? Math.round((artifact.xpBoost - 1) * 100) : null;
@@ -102,7 +113,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
               <div className="text-7xl mb-2">{emoji}</div>
             )}
             <div className="flex gap-3 text-sm">
-              <span className="text-yellow-400 font-bold">{artifact.xpCost.toLocaleString()} XP</span>
+              <span className="text-amber-400 font-bold">{cost.toLocaleString()} ₡</span>
               {boostPct && <span className="text-orange-400 font-semibold">+{boostPct}% XP Boost</span>}
             </div>
           </div>
@@ -151,7 +162,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
                 disabled={!canAfford || loading}
                 className={`w-full py-3.5 rounded-xl font-bold text-white transition-all active:scale-95 ${canAfford ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400' : 'bg-slate-700 opacity-50 cursor-not-allowed'}`}
               >
-                {loading ? 'Purchasing…' : canAfford ? `Purchase · ${artifact.xpCost.toLocaleString()} XP` : `Need ${(artifact.xpCost - userXP).toLocaleString()} more XP`}
+                {loading ? 'Purchasing…' : canAfford ? `Purchase · ${cost.toLocaleString()} ₡` : `Need ${(cost - displayBalance).toLocaleString()} more ₡`}
               </button>
             ) : (
               <button
@@ -164,7 +175,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
             )}
           </div>
 
-          <p className="text-center text-xs text-slate-500">Your XP: <span className="text-yellow-400 font-semibold">{userXP?.toLocaleString()}</span></p>
+          <p className="text-center text-xs text-slate-500">Your balance: <span className="text-amber-400 font-semibold">{displayBalance.toLocaleString()} ₡</span></p>
         </div>
       </div>
 

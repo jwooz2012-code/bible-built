@@ -38,24 +38,24 @@ export function useCompleteTodaysAssignment() {
         return { added: 0, createdLogs: [] };
       }
 
-      // Create logs for missing chapters
+      // Route through trusted server function for duplicate protection
       const now = new Date();
-      const createPromises = missingChapters.map(ch =>
-        base44.entities.ReadingLog.create({
-          userId,
-          timestamp: now.toISOString(),
-          dateKey: todayKey,
-          book: ch.book,
-          bookIndex: ch.bookIndex,
-          chapter: ch.chapter,
-          chapterId: ch.chapterId,
-          testament: ch.testament
-        })
-      );
+      const logsToCreate = missingChapters.map(ch => ({
+        userId,
+        timestamp: now.toISOString(),
+        dateKey: todayKey,
+        book: ch.book,
+        bookIndex: ch.bookIndex,
+        chapter: ch.chapter,
+        chapterId: ch.chapterId,
+        testament: ch.testament,
+      }));
 
-      const createdLogs = await Promise.all(createPromises);
+      const res = await base44.functions.invoke('logChapterRead', { chapters: logsToCreate });
+      const { created = [] } = res.data ?? {};
+      const createdLogs = Array.isArray(created) ? created : logsToCreate;
 
-      return { added: missingChapters.length, createdLogs, userId, todayKey };
+      return { added: createdLogs.length, createdLogs, userId, todayKey };
     },
     onSuccess: (data) => {
       if (data.added === 0 || !data.createdLogs?.length) {

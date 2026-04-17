@@ -10,6 +10,7 @@ import { getArtifactById } from '@/data/artifactCatalog';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
+import { dailyMilestoneKey } from '@/hooks/useWallet';
 
 const BASE_XP_PER_VERSE = 5;
 
@@ -75,18 +76,32 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const { multiplier } = calcXpMultipliers(book, chapter, user);
       const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier * artifactBoost);
 
-      const result = await base44.entities.ReadingLog.create({
-        userId,
-        timestamp,
-        dateKey,
-        book,
-        bookIndex,
-        chapter,
-        chapterId,
-        testament,
-        xpEarned,
+      // Route through trusted server function for duplicate protection
+      const res = await base44.functions.invoke('logChapterRead', {
+        chapters: [{
+          userId,
+          timestamp,
+          dateKey,
+          book,
+          bookIndex,
+          chapter,
+          chapterId,
+          testament,
+          xpEarned,
+        }],
       });
 
+      const { created, skipped } = res.data ?? {};
+
+      // If skipped (duplicate), return the existing log gracefully
+      if (skipped?.includes(chapterId) && (!created || created.length === 0)) {
+        // Fetch existing log for cache consistency
+        const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
+        if (existing.length > 0) return existing[0];
+        throw new Error('Duplicate chapter — already logged today');
+      }
+
+      const result = created?.[0];
       if (!result || !result.id) {
         throw new Error('Failed to save reading log - no ID returned');
       }
@@ -144,11 +159,26 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         if (goalJustMet) {
           updatePayload.hasActivatedBibleBoost = true;
           triggerHaptic();
+          // Grant milestone currency (fire-and-forget, idempotent)
+          base44.functions.invoke('grantMilestoneReward', {
+            milestoneKey: dailyMilestoneKey(variables.userId, variables.dateKey, 'daily_goal_hit'),
+            source: 'daily_goal_hit',
+            metadataJson: JSON.stringify({ dateKey: variables.dateKey }),
+          }).catch(() => {});
           // Delay celebration so toast renders first
           setTimeout(() => triggerCelebration(CELEBRATION_TYPES.BIBLE_BOOST_ACTIVATED, {
             title: 'Daily Goal Met! ✨',
             message: '+100 bonus XP earned!',
           }), 600);
+        }
+
+        // Book complete milestone currency (fire-and-forget, idempotent)
+        if (isBookComplete(variables.book, variables.chapter, allLogs)) {
+          base44.functions.invoke('grantMilestoneReward', {
+            milestoneKey: `book_complete:${variables.userId}:${variables.book}`,
+            source: 'book_complete',
+            metadataJson: JSON.stringify({ book: variables.book }),
+          }).catch(() => {});
         }
 
         // Optimistic update first so context is immediately current
