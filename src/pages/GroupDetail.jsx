@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, UserMinus } from 'lucide-react';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -53,7 +53,7 @@ function RankBadge({ rank }) {
   return <span className="w-7 text-center text-sm font-bold text-muted-foreground">{rank}</span>;
 }
 
-function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile, isOwner, onRemove }) {
+function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile }) {
   const name = member.full_name ?? member.displayName ?? 'Unknown';
   return (
     <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}>
@@ -70,24 +70,13 @@ function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, on
         </div>
       </button>
       {!isMe && (
-        <div className="flex items-center gap-1">
-          <button
-            onClick={() => onEncourage(member)}
-            className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${encouraged ? 'bg-green-100 dark:bg-green-900/30' : 'bg-muted hover:bg-muted/80'}`}
-            title={`Encourage ${name}`}
-          >
-            <HandHeart className={`w-4 h-4 ${encouraged ? 'text-green-600' : 'text-muted-foreground'}`} />
-          </button>
-          {isOwner && (
-            <button
-              onClick={() => onRemove(member)}
-              className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
-              title={`Remove ${name}`}
-            >
-              <UserMinus className="w-4 h-4 text-muted-foreground hover:text-red-500" />
-            </button>
-          )}
-        </div>
+        <button
+          onClick={() => onEncourage(member)}
+          className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${encouraged ? 'bg-green-100 dark:bg-green-900/30' : 'bg-muted hover:bg-muted/80'}`}
+          title={`Encourage ${name}`}
+        >
+          <HandHeart className={`w-4 h-4 ${encouraged ? 'text-green-600' : 'text-muted-foreground'}`} />
+        </button>
       )}
     </div>
   );
@@ -396,9 +385,7 @@ export default function GroupDetail() {
                   isMe={row.member.id === user?.id}
                   onEncourage={handleEncourage}
                   encouraged={!!encouraged[row.member.id]}
-                  onViewProfile={() => navigate(`/user-detail?id=${row.member.id}`)}
-                  isOwner={isOwner}
-                  onRemove={setConfirmRemove} />
+                  onViewProfile={() => navigate(`/user-detail?id=${row.member.id}&groupId=${groupId}`)} />
               ))}
             </div>
           )}

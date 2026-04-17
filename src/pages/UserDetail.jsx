@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Flame, BookOpen, Zap, Gem, Star, Trophy, Lock } from 'lucide-react';
+import { ArrowLeft, Flame, BookOpen, Zap, Gem, Star, Trophy, Lock, UserMinus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_LABELS } from '@/data/artifactCatalog';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
+import { toast } from 'sonner';
 
 function calcStreakFromLogs(logs, userId, graceMap) {
   const userLogs = logs.filter(l => l.userId === userId);
@@ -90,6 +91,9 @@ export default function UserDetail() {
   const { user: currentUser } = useAuth();
   const params = new URLSearchParams(location.search);
   const userId = params.get('id');
+  const groupId = params.get('groupId');
+  const [confirmRemove, setConfirmRemove] = useState(false);
+  const [removing, setRemoving] = useState(false);
 
   const { data: targetUser, isLoading: loadingUser } = useQuery({
     queryKey: ['userDetail', userId],
@@ -120,6 +124,31 @@ export default function UserDetail() {
     },
     enabled: !!userId,
   });
+
+  const { data: ownerGroup } = useQuery({
+    queryKey: ['groupOwnerCheck', groupId, currentUser?.id],
+    queryFn: async () => {
+      const res = await base44.entities.Group.filter({ id: groupId });
+      return res[0] ?? null;
+    },
+    enabled: !!groupId && !!currentUser?.id,
+    staleTime: 60000,
+  });
+
+  const isGroupOwner = ownerGroup?.ownerId === currentUser?.id;
+
+  const handleRemove = async () => {
+    setRemoving(true);
+    try {
+      await base44.functions.invoke('removeFromGroup', { groupId, memberIdToRemove: userId });
+      toast.success(`${name} removed from group`);
+      navigate(-1);
+    } catch {
+      toast.error('Could not remove member');
+      setRemoving(false);
+      setConfirmRemove(false);
+    }
+  };
 
   const { data: ownerships = [], isLoading: loadingArtifacts } = useQuery({
     queryKey: ['userArtifacts', userId],
@@ -167,6 +196,27 @@ export default function UserDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      {confirmRemove && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
+          <div className="bg-card rounded-2xl p-6 w-full max-w-sm shadow-xl">
+            <p className="text-base font-semibold text-foreground mb-1">Remove member?</p>
+            <p className="text-sm text-muted-foreground mb-5">
+              {name} will be removed from the group.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setConfirmRemove(false)}
+                className="flex-1 h-10 rounded-xl text-sm bg-muted text-muted-foreground font-semibold">
+                Cancel
+              </button>
+              <button onClick={handleRemove} disabled={removing}
+                className="flex-1 h-10 rounded-xl text-sm font-semibold text-white disabled:opacity-60"
+                style={{ background: '#EF4444' }}>
+                {removing ? 'Removing…' : 'Remove'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 pb-10 px-5" style={{ paddingTop: 'max(4rem, calc(env(safe-area-inset-top, 0px) + 1rem))' }}>
         <button onClick={() => navigate(-1)}
           style={{ top: 'max(4rem, calc(env(safe-area-inset-top, 0px) + 1rem))' }}
@@ -179,6 +229,14 @@ export default function UserDetail() {
           </div>
           <h1 className="text-2xl font-black text-white">{name}</h1>
           {isMe && <span className="mt-1 text-xs bg-amber-400/20 text-amber-300 px-2 py-0.5 rounded-full font-semibold">That's you!</span>}
+          {!isMe && isGroupOwner && (
+            <button
+              onClick={() => setConfirmRemove(true)}
+              className="mt-3 flex items-center gap-1.5 px-4 py-1.5 rounded-xl text-xs font-semibold bg-white/10 text-white/70 hover:bg-red-500/30 hover:text-red-300 transition-colors"
+            >
+              <UserMinus className="w-3.5 h-3.5" /> Remove from group
+            </button>
+          )}
           <div className="flex gap-6 mt-4">
             <div className="flex flex-col items-center">
               <span className="text-2xl font-black text-white">{streak}</span>
