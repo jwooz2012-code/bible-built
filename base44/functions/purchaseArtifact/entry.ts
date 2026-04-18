@@ -40,8 +40,10 @@ const ARTIFACT_CATALOG = [
 ];
 
 async function getOrCreateWallet(base44, userId) {
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId });
-  if (wallets.length > 0) return wallets[0];
+  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 5);
+  if (wallets.length > 0) {
+    return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+  }
   const now = new Date().toISOString();
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
@@ -75,17 +77,17 @@ Deno.serve(async (req) => {
 
     // Idempotency check — prevent double charge from rapid taps
     const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({
-      userId,
-      idempotencyKey: purchaseIdempotencyKey,
+      'data.userId': userId,
+      'data.idempotencyKey': purchaseIdempotencyKey,
     });
     if (existingTx.length > 0) {
-      const existing = await base44.asServiceRole.entities.ArtifactOwnership.filter({ userId, artifactId });
+      const existing = await base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.artifactId': artifactId });
       const wallet = await getOrCreateWallet(base44, userId);
       return Response.json({ success: true, alreadyPurchased: true, artifact, wallet, ownership: existing[0] });
     }
 
     // Check if already owned (unique artifact re-purchase guard)
-    const existingOwnership = await base44.asServiceRole.entities.ArtifactOwnership.filter({ userId, artifactId });
+    const existingOwnership = await base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.artifactId': artifactId });
     if (existingOwnership.length > 0) {
       return Response.json({ error: 'You already own this artifact' }, { status: 400 });
     }

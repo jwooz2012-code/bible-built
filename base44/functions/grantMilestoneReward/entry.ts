@@ -30,9 +30,10 @@ const MILESTONE_CURRENCY = {
 };
 
 async function getOrCreateWallet(base44, userId) {
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId });
-  if (wallets.length > 0) return wallets[0];
-  
+  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 5);
+  if (wallets.length > 0) {
+    return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+  }
   const now = new Date().toISOString();
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
@@ -65,17 +66,19 @@ Deno.serve(async (req) => {
 
     // Idempotency check — milestoneKey must be globally unique per event
     const idempotencyKey = `milestone:${userId}:${milestoneKey}`;
+
+    // Load wallet first — use same wallet object for both idempotency path and grant path
+    const wallet = await getOrCreateWallet(base44, userId);
+
     const existing = await base44.asServiceRole.entities.XPTransaction.filter({
-      userId,
-      idempotencyKey,
+      'data.userId': userId,
+      'data.idempotencyKey': idempotencyKey,
     });
     if (existing.length > 0) {
-      const wallet = await getOrCreateWallet(base44, userId);
       return Response.json({ granted: false, currencyAwarded: 0, wallet, reason: 'already_granted' });
     }
 
     const now = new Date().toISOString();
-    const wallet = await getOrCreateWallet(base44, userId);
     const newBalance = (wallet.treasuryCurrencyBalance ?? 0) + currencyAmount;
 
     // Record transaction

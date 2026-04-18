@@ -21,24 +21,28 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
-    // Check if wallet already exists
-    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId });
     const now = new Date().toISOString();
-
-    if (wallets.length > 0) {
-      // Wallet exists — just return it
-      return Response.json({ wallet: wallets[0], initialized: false });
-    }
-
-    // Check if backfill already ran (guard against race conditions)
     const backfillKey = `backfill:${userId}:v1`;
+
+    // Check if backfill already ran — this is the true idempotency guard
     const existingBackfill = await base44.asServiceRole.entities.XPTransaction.filter({
       userId,
       idempotencyKey: backfillKey,
     });
 
+    if (existingBackfill.length > 0) {
+      // Backfill already ran — find and return the existing wallet
+      const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId }, '-created_date', 5);
+      const best = wallets.length > 0
+        ? wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0]
+        : null;
+      return Response.json({ wallet: best, initialized: false });
+    }
+
+    // No backfill record yet — first time init
+
     // Load all historical reading logs
-    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ userId }, '-created_date', 2000);
+    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000);
 
     // Unique chapter logs by chapterId (de-dup across dates — count each chapter once for progression)
     const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId));

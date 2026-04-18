@@ -20,8 +20,10 @@ export function useWallet() {
     queryFn: async () => {
       // Try to read wallet directly first
       const wallets = await base44.entities.UserWallet.filter({ userId: user.id });
-      if (wallets.length > 0) return wallets[0];
-      
+      if (wallets.length > 0) {
+        // Guard: always use wallet with highest XP in case of duplicates
+        return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+      }
       // Wallet doesn't exist — init it (backfills from historical logs)
       const res = await base44.functions.invoke('initUserWallet', {});
       return res.data?.wallet ?? null;

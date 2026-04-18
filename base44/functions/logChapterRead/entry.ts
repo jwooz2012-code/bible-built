@@ -15,8 +15,10 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 const PROGRESS_XP_PER_CHAPTER = 100;
 
 async function getOrCreateWallet(base44, userId) {
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId });
-  if (wallets.length > 0) return wallets[0];
+  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId }, '-created_date', 5);
+  if (wallets.length > 0) {
+    return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+  }
   const now = new Date().toISOString();
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
