@@ -25,7 +25,10 @@ function stripStrongs(text) {
     // Remove KJV marginal notes appended after verse text
     // e.g. "rage: or, tumultuously assemble imagine: Heb. meditate"
     // e.g. "set: Heb. anointed upon: Heb. upon Zion, the hill of my holiness"
-    .replace(/\s+\w[\w\s]*:\s+(or,|Heb\.|i\.e\.|that is).*/gi, '')
+    // e.g. "recover: Gr. awake taken: Gr. taken alive"
+    .replace(/\s+\w[\w\s]*:\s+(or,|Heb\.|Gr\.|Lat\.|i\.e\.|that is).*/gi, '')
+    // Remove trailing marginal note patterns like ": word: Gr. something"
+    .replace(/\s*:\s+\w[\w\s]*:\s+(Gr\.|Heb\.|or,).*/gi, '')
     .replace(/\s+/g, ' ')
     .trim();
 }
