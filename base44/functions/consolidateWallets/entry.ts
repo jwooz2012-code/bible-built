@@ -45,9 +45,16 @@ Deno.serve(async (req) => {
       console.log('[consolidate] userId:', userId, 'txns:', txns.length, 'wallets:', wallets.length);
 
       // Compute correct progressXpTotal from earn_progress_xp + adjustment transactions
-      const progressXp = txns
+      // Also load the user's legacy xp field as a floor
+      const userRecords = await base44.asServiceRole.entities.User.filter({ 'data.id': userId });
+      const legacyXp = userRecords.length > 0 ? (userRecords[0].xp ?? 0) : 0;
+
+      const txnXp = txns
         .filter(t => t.type === 'earn_progress_xp' || t.type === 'adjustment')
         .reduce((sum, t) => sum + (t.amount ?? 0), 0);
+
+      // Use the higher of transaction-derived XP or legacy user.xp (profile is source of truth)
+      const progressXp = Math.max(txnXp, legacyXp);
 
       // Compute correct treasury balance from earn_currency + spend_currency
       const treasuryBalance = txns
