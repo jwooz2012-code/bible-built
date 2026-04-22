@@ -34,14 +34,12 @@ export function useWallet() {
         }
         return w;
       }
-      // Wallet doesn't exist — init it (backfills from historical logs)
+      // Wallet doesn't exist — init it (includes XP + treasury backfill)
       const res = await base44.functions.invoke('initUserWallet', {});
-      // After init, run backfill too
-      try { await base44.functions.invoke('backfillTreasury', {}); } catch (_) {}
       return res.data?.wallet ?? null;
     },
     enabled: !!user?.id,
-    staleTime: 30000,
+    staleTime: 0,
   });
 
   const grantMilestoneMutation = useMutation({
