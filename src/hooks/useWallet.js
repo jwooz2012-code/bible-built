@@ -18,28 +18,44 @@ export function useWallet() {
   const { data: wallet, isLoading } = useQuery({
     queryKey: ['userWallet', user?.id],
     queryFn: async () => {
-      // Try to read wallet directly first
+      // Create or get wallet
       const wallets = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
-      if (wallets.length > 0) {
-        // Always use wallet with highest progress XP in case of duplicates
-         const w = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
-         // Auto-patch if spendableXp is 0 but has reading history (not yet backfilled)
-         if ((w.spendableXp ?? 0) === 0 && (w.progressXpTotal ?? 0) > 0) {
-           try {
-             const res = await base44.functions.invoke('initUserWallet', {});
-             if (res.data?.wallet) return res.data.wallet;
-           } catch (e) {
-             console.log('[useWallet] backfill failed silently:', e.message);
-           }
-         }
-         return w;
+      let w = wallets.length > 0 ? wallets[0] : null;
+
+      if (!w) {
+        try {
+          const res = await base44.functions.invoke('initUserWallet', {});
+          w = res.data?.wallet ?? null;
+        } catch (e) {
+          console.log('[useWallet] init failed:', e.message);
+        }
       }
-      // Wallet doesn't exist — init it (includes XP + treasury backfill)
-      const res = await base44.functions.invoke('initUserWallet', {});
-      return res.data?.wallet ?? null;
+
+      return w;
     },
     enabled: !!user?.id,
     staleTime: 0,
+  });
+
+  // Calculate spendableXp dynamically: (chapters × 100) - artifacts spent
+  const { data: chaptersRead = 0 } = useQuery({
+    queryKey: ['chaptersRead', user?.id],
+    queryFn: async () => {
+      const logs = await base44.entities.ReadingLog.filter({ 'data.userId': user.id });
+      return logs.length; // count of chapters read
+    },
+    enabled: !!user?.id,
+    staleTime: 30000,
+  });
+
+  const { data: artifactSpent = 0 } = useQuery({
+    queryKey: ['artifactSpent', user?.id],
+    queryFn: async () => {
+      const purchases = await base44.entities.ArtifactPurchaseHistory.filter({ 'data.userId': user.id });
+      return purchases.reduce((sum, p) => sum + (p.xpSpent ?? 0), 0);
+    },
+    enabled: !!user?.id,
+    staleTime: 30000,
   });
 
   const grantMilestoneMutation = useMutation({
@@ -56,18 +72,16 @@ export function useWallet() {
     },
   });
 
-  // spendableXp is the single unified XP number — what the user has to spend
-  // progressXp is the lifetime progress XP (used for leveling)
-  const spendableXp = wallet?.spendableXp ?? 0;
-  const progressXpTotal = wallet?.progressXpTotal ?? 0;
+  // Calculate spendable XP: (chapters read × 100) - artifacts purchased
+  const spendableXp = Math.max(0, chaptersRead * 100 - artifactSpent);
 
   return {
     wallet,
     isLoading,
     spendableXp,
-    treasuryBalance: spendableXp, // alias for backward compat
-    progressXp: spendableXp,       // what the user can spend (Profile shows this)
-    progressXpTotal,               // lifetime XP for leveling
+    treasuryBalance: spendableXp,
+    progressXp: spendableXp,
+    progressXpTotal: chaptersRead * 100,
     walletLevel: wallet?.level ?? 1,
     grantMilestone: grantMilestoneMutation.mutateAsync,
   };
