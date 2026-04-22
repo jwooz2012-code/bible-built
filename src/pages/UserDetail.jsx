@@ -156,10 +156,16 @@ export default function UserDetail() {
     enabled: !!userId,
   });
 
+  const { data: userWallet } = useQuery({
+    queryKey: ['userWallet', userId],
+    queryFn: () => base44.entities.UserWallet.filter({ 'data.userId': userId }),
+    enabled: !!userId,
+  });
+
   const isLoading = loadingUser || loadingLogs || loadingGrace;
 
   const totalChapters = readingLogs.length;
-  const xp = targetUser?.xp ?? 0;
+  const xp = userWallet?.[0]?.spendableXp ?? 0;
   const streak = readingLogs.length > 0 ? calcStreakFromLogs(readingLogs, userId, graceDayRecords) : 0;
 
   const now = new Date();

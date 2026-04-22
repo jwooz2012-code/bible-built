@@ -21,18 +21,18 @@ export function useWallet() {
       // Try to read wallet directly first
       const wallets = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
       if (wallets.length > 0) {
-        // Guard: always use wallet with highest XP in case of duplicates
-        const w = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
-        // Auto-patch if treasury balance is 0 (likely not yet backfilled)
-        if ((w.treasuryCurrencyBalance ?? 0) === 0) {
-          try {
-            const res = await base44.functions.invoke('initUserWallet', {});
-            if (res.data?.wallet) return res.data.wallet;
-          } catch (e) {
-            console.log('[useWallet] treasury patch failed silently:', e.message);
-          }
-        }
-        return w;
+        // Always use wallet with highest progress XP in case of duplicates
+         const w = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+         // Auto-patch if spendableXp is 0 but has reading history (not yet backfilled)
+         if ((w.spendableXp ?? 0) === 0 && (w.progressXpTotal ?? 0) > 0) {
+           try {
+             const res = await base44.functions.invoke('initUserWallet', {});
+             if (res.data?.wallet) return res.data.wallet;
+           } catch (e) {
+             console.log('[useWallet] backfill failed silently:', e.message);
+           }
+         }
+         return w;
       }
       // Wallet doesn't exist — init it (includes XP + treasury backfill)
       const res = await base44.functions.invoke('initUserWallet', {});
@@ -56,15 +56,18 @@ export function useWallet() {
     },
   });
 
-  // xpBalance is the single unified XP number — what the user has to spend and what Profile displays
-  const xpBalance = wallet?.treasuryCurrencyBalance ?? 0;
+  // spendableXp is the single unified XP number — what the user has to spend
+  // progressXp is the lifetime progress XP (used for leveling)
+  const spendableXp = wallet?.spendableXp ?? 0;
+  const progressXpTotal = wallet?.progressXpTotal ?? 0;
 
   return {
     wallet,
     isLoading,
-    xpBalance,
-    treasuryBalance: xpBalance, // alias — same number
-    progressXp: xpBalance,      // alias — same number (Profile uses this)
+    spendableXp,
+    treasuryBalance: spendableXp, // alias for backward compat
+    progressXp: spendableXp,       // what the user can spend (Profile shows this)
+    progressXpTotal,               // lifetime XP for leveling
     walletLevel: wallet?.level ?? 1,
     grantMilestone: grantMilestoneMutation.mutateAsync,
   };
