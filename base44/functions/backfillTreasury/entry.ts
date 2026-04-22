@@ -24,11 +24,10 @@ Deno.serve(async (req) => {
       { 'data.userId': userId }, '-created_date', 5000
     );
 
-    // Load all existing earn_currency transactions to avoid double-counting
+    // Load all existing transactions to avoid double-counting
     const existingTxns = await base44.asServiceRole.entities.XPTransaction.filter({
       'data.userId': userId,
-      'data.type': 'earn_currency',
-    }, '-created_date', 2000);
+    }, '-created_date', 5000);
     const existingKeys = new Set(existingTxns.map(t => t.idempotencyKey));
 
     // Load wallet
@@ -109,9 +108,9 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Bulk create all new transactions
-    if (txnsToCreate.length > 0) {
-      await base44.asServiceRole.entities.XPTransaction.bulkCreate(txnsToCreate);
+    // Create all new transactions one by one (bulkCreate not available)
+    for (const txn of txnsToCreate) {
+      await base44.asServiceRole.entities.XPTransaction.create(txn);
     }
 
     // Update wallet balance
@@ -130,6 +129,7 @@ Deno.serve(async (req) => {
       wallet: updatedWallet,
     });
   } catch (error) {
+    console.log('[backfillTreasury] error:', error.message, error.stack);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
