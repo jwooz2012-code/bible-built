@@ -87,11 +87,7 @@ Deno.serve(async (req) => {
     // Unique chapter logs by chapterId (de-dup across dates — count each chapter once for progression)
     const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId));
     const uniqueCount = uniqueChapterIds.size;
-    const logBasedXp = uniqueCount * PROGRESS_XP_PER_CHAPTER;
-
-    // Use the higher of: log-derived XP or the legacy user.xp field (source of truth on profile)
-    const legacyXp = user.xp ?? 0;
-    const backfillXp = Math.max(logBasedXp, legacyXp);
+    const backfillXp = uniqueCount * PROGRESS_XP_PER_CHAPTER;
     const backfillLevel = Math.floor(backfillXp / 1000) + 1;
 
     // --- Calculate treasury currency ---

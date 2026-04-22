@@ -130,31 +130,18 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
+      // Invalidate wallet so XP and balance update everywhere
+      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
-      // XP & momentum update
+      // Track daily goal for milestones and celebrations (verse-count based, UI only)
       if (user?.id) {
         const verseCount = getVerseCount(variables.book, variables.chapter);
-        // Use the exact XP stored on the log
-        const xpGained = createdLog.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
-        const currentXp = user.xp ?? 0;
         const newVersesReadToday = (user.versesReadToday ?? 0) + verseCount;
         const target = user.dailyVerseTarget ?? 30;
         const wasGoalMet = user.hasActivatedBibleBoost ?? false;
         const goalJustMet = !wasGoalMet && newVersesReadToday >= target;
 
-        // Book completion bonus
-        const bookFinished = isBookComplete(variables.book, variables.chapter, allLogs);
-        const bookBonus = bookFinished ? getBookCompletionBonus(variables.book) : 0;
-
-        const bonusXp = goalJustMet ? 100 : 0;
-        const newXp = currentXp + xpGained + bonusXp + bookBonus;
-        const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
-
-        const updatePayload = {
-          xp: newXp,
-          level: newLevel,
-          versesReadToday: newVersesReadToday,
-        };
+        const updatePayload = { versesReadToday: newVersesReadToday };
 
         if (goalJustMet) {
           updatePayload.hasActivatedBibleBoost = true;
@@ -181,7 +168,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
           }).catch(() => {});
         }
 
-        // Optimistic update first so context is immediately current
+        // Only update versesReadToday and goal state — NOT xp/level (wallet is source of truth)
         updateUser(updatePayload);
         base44.auth.updateMe(updatePayload).catch(() => {});
       }
@@ -246,24 +233,11 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const uniqueToday = [...new Map(remainingTodayLogs.map(l => [l.chapterId, l])).values()];
       const actualVersesReadToday = uniqueToday.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
 
-      // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
-      const verseCount = getVerseCount(latestLog.book, latestLog.chapter);
-      const xpToSubtract = latestLog.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
-      const currentXp = user?.xp ?? 0;
-      let newXp = Math.max(0, currentXp - xpToSubtract);
       const target = user?.dailyVerseTarget ?? 30;
-      const wasBoostActive = user?.hasActivatedBibleBoost ?? false;
       const hasActivatedBibleBoost = actualVersesReadToday >= target;
+      const updatePayload = { versesReadToday: actualVersesReadToday, hasActivatedBibleBoost };
 
-      // Reverse the +100 bonus if boost was active but now below target
-      if (wasBoostActive && !hasActivatedBibleBoost) {
-        newXp = Math.max(0, newXp - 100);
-      }
-
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
-      const updatePayload = { xp: newXp, level: newLevel, versesReadToday: actualVersesReadToday, hasActivatedBibleBoost };
-
-      // Optimistic update first
+      // Only update versesReadToday and goal state — NOT xp/level (wallet is source of truth)
       updateUser(updatePayload);
       await base44.auth.updateMe(updatePayload);
 
@@ -290,6 +264,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       queryClient.invalidateQueries({
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
+      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
       toast('Chapter unmarked');
     },

@@ -28,9 +28,7 @@ export default function Treasury() {
   const [rarity, setRarity] = useState('all');
   const [selected, setSelected] = useState(null);
 
-  // Use user.xp as the source of truth for XP (same as Profile page)
-  const userXP = user?.xp ?? 0;
-  const progressXp = wallet?.progressXpTotal ?? userXP;
+  const progressXp = wallet?.progressXpTotal ?? 0;
 
   const loadCollection = useCallback(async () => {
     try {
@@ -184,7 +182,7 @@ export default function Treasury() {
           isOwned={!!ownedMap[selected.artifactId]}
           isEquipped={equippedSet.has(selected.artifactId)}
           hasOtherEquipped={equippedSet.size > 0 && !equippedSet.has(selected.artifactId)}
-          userXP={userXP}
+          userXP={progressXp}
           treasuryBalance={treasuryBalance}
           onClose={() => setSelected(null)}
           onPurchaseSuccess={handlePurchaseSuccess}
