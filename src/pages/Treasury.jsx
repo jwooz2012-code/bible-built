@@ -25,7 +25,9 @@ export default function Treasury() {
   const [rarity, setRarity] = useState('all');
   const [selected, setSelected] = useState(null);
 
+  // Use user.xp as the source of truth for XP (same as Profile page)
   const userXP = user?.xp ?? 0;
+  const progressXp = wallet?.progressXpTotal ?? userXP;
 
   const loadCollection = useCallback(async () => {
     const res = await base44.functions.invoke('getOwnedCollection', {});
