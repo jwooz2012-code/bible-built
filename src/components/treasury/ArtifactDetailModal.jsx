@@ -105,7 +105,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
               <div className="text-7xl mb-2">{emoji}</div>
             )}
             <div className="flex gap-3 text-sm">
-              <span className="text-amber-400 font-bold">{cost.toLocaleString()} ₡</span>
+              <span className="text-amber-400 font-bold">{cost.toLocaleString()} XP</span>
               {boostPct && <span className="text-orange-400 font-semibold">+{boostPct}% XP Boost</span>}
             </div>
           </div>
@@ -154,7 +154,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
                 disabled={!canAfford || loading}
                 className={`w-full py-3.5 rounded-xl font-bold text-white transition-all active:scale-95 ${canAfford ? 'bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400' : 'bg-slate-700 opacity-50 cursor-not-allowed'}`}
               >
-                {loading ? 'Purchasing…' : canAfford ? `Purchase · ${cost.toLocaleString()} ₡` : `Need ${(cost - displayBalance).toLocaleString()} more ₡`}
+                {loading ? 'Purchasing…' : canAfford ? `Purchase · ${cost.toLocaleString()} XP` : `Need ${(cost - displayBalance).toLocaleString()} more XP`}
               </button>
             ) : (
               <button
@@ -167,7 +167,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
             )}
           </div>
 
-          <p className="text-center text-xs text-slate-500">Your balance: <span className="text-amber-400 font-semibold">{displayBalance.toLocaleString()} ₡</span></p>
+          <p className="text-center text-xs text-slate-500">Your balance: <span className="text-amber-400 font-semibold">{displayBalance.toLocaleString()} XP</span></p>
         </div>
       </div>
 
