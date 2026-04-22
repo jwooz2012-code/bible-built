@@ -16,7 +16,7 @@ const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 export default function Treasury() {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const { wallet, isLoading: walletLoading } = useWallet();
+  const { wallet, isLoading: walletLoading, spendableXp: walletSpendableXp } = useWallet();
   const queryClient = useQueryClient();
 
 
@@ -28,7 +28,7 @@ export default function Treasury() {
   const [rarity, setRarity] = useState('all');
   const [selected, setSelected] = useState(null);
 
-  const spendableXp = wallet?.spendableXp ?? 0;
+  const spendableXp = walletSpendableXp;
 
   const loadCollection = useCallback(async () => {
     try {
@@ -70,7 +70,7 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
-    queryClient.invalidateQueries({ queryKey: ['userWallet', user?.id] });
+    queryClient.invalidateQueries({ queryKey: ['xpTransactions', user?.id] });
     loadCollection();
   };
 
