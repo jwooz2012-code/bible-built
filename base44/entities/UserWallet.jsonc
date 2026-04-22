@@ -11,10 +11,10 @@
       "default": 0,
       "description": "Lifetime progress XP earned from chapters (used for leveling)"
     },
-    "treasuryCurrencyBalance": {
+    "spendableXp": {
       "type": "number",
       "default": 0,
-      "description": "Spendable treasury currency balance"
+      "description": "Spendable XP balance for purchasing artifacts"
     },
     "level": {
       "type": "number",

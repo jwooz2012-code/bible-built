@@ -1,23 +1,23 @@
 /**
  * purchaseArtifact
  *
- * Secure artifact purchase using UserWallet treasury currency.
+ * Secure artifact purchase using UserWallet spendable XP.
  * - Atomic: debit + ownership + transaction with idempotency
  * - Unique artifacts cannot be purchased twice
  *
- * Rarity pricing (treasury currency) — matches artifactCatalog.js:
- *   common    = 250
- *   rare      = 750
- *   epic      = 1500
- *   legendary = 3500
+ * Rarity pricing (XP) — matches artifactCatalog.js:
+ *   common    = 6000
+ *   rare      = 24000
+ *   epic      = 48000
+ *   legendary = 102000
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const RARITY_COST = {
-  common:    250,
-  rare:      750,
-  epic:      1500,
-  legendary: 3500,
+  common:    6000,
+  rare:      24000,
+  epic:      48000,
+  legendary: 102000,
 };
 
 // Must stay in sync with data/artifactCatalog.js and getOwnedCollection
@@ -43,7 +43,7 @@ async function getOrCreateWallet(base44, userId) {
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
     progressXpTotal: 0,
-    treasuryCurrencyBalance: 0,
+    spendableXp: 0,
     level: 1,
     updatedAt: now,
   });
@@ -87,10 +87,10 @@ Deno.serve(async (req) => {
 
     // Load wallet and check balance
     const wallet = await getOrCreateWallet(base44, userId);
-    const currentBalance = wallet.treasuryCurrencyBalance ?? 0;
+    const currentBalance = wallet.spendableXp ?? 0;
     if (currentBalance < cost) {
       return Response.json({
-        error: 'Insufficient treasury currency',
+        error: 'Insufficient XP',
         required: cost,
         current: currentBalance,
       }, { status: 400 });
@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
 
     // Deduct from wallet
     const updatedWallet = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-      treasuryCurrencyBalance: newBalance,
+      spendableXp: newBalance,
       updatedAt: now,
     });
 

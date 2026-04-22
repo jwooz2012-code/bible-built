@@ -24,7 +24,7 @@ async function getOrCreateWallet(base44, userId) {
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
     progressXpTotal: 0,
-    treasuryCurrencyBalance: 0,
+    spendableXp: 0,
     level: 1,
     updatedAt: now,
   });
@@ -142,15 +142,15 @@ Deno.serve(async (req) => {
 
       const newProgressXp = (wallet.progressXpTotal ?? 0) + xpGained;
       const newLevel = Math.floor(newProgressXp / 1000) + 1;
-      const newTreasuryBalance = (wallet.treasuryCurrencyBalance ?? 0) + currencyGained;
+      const newSpendableXp = (wallet.spendableXp ?? 0) + currencyGained;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
         progressXpTotal: newProgressXp,
-        treasuryCurrencyBalance: newTreasuryBalance,
+        spendableXp: newSpendableXp,
         level: newLevel,
         updatedAt: now,
       });
       wallet.progressXpTotal = newProgressXp;
-      wallet.treasuryCurrencyBalance = newTreasuryBalance;
+      wallet.spendableXp = newSpendableXp;
       wallet.level = newLevel;
     }
 

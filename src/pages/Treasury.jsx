@@ -16,7 +16,7 @@ const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 export default function Treasury() {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const { wallet, isLoading: walletLoading, treasuryBalance } = useWallet();
+  const { wallet, isLoading: walletLoading } = useWallet();
   const queryClient = useQueryClient();
 
 
@@ -29,6 +29,7 @@ export default function Treasury() {
   const [selected, setSelected] = useState(null);
 
   const progressXp = wallet?.progressXpTotal ?? 0;
+  const spendableXp = wallet?.spendableXp ?? 0;
 
   const loadCollection = useCallback(async () => {
     try {
@@ -104,10 +105,10 @@ export default function Treasury() {
         <div className="rounded-2xl border border-slate-700/60 bg-gradient-to-br from-slate-800 to-slate-900 p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Treasury Balance</p>
+              <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Spendable XP</p>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-extrabold text-white">{treasuryBalance.toLocaleString()}</span>
-                <span className="text-lg font-bold text-amber-400 mb-1">₡</span>
+                <span className="text-4xl font-extrabold text-white">{spendableXp.toLocaleString()}</span>
+                <span className="text-lg font-bold text-blue-400 mb-1">XP</span>
               </div>
               {boostPct > 0 && (
                 <div className="flex items-center gap-1 mt-1.5">
@@ -183,7 +184,7 @@ export default function Treasury() {
           isEquipped={equippedSet.has(selected.artifactId)}
           hasOtherEquipped={equippedSet.size > 0 && !equippedSet.has(selected.artifactId)}
           userXP={progressXp}
-          treasuryBalance={treasuryBalance}
+          spendableXp={spendableXp}
           onClose={() => setSelected(null)}
           onPurchaseSuccess={handlePurchaseSuccess}
           onEquipSuccess={handleEquipSuccess}
