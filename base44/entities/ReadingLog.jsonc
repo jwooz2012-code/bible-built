@@ -55,9 +55,7 @@
     "testament"
   ],
   "rls": {
-    "create": {
-      "data.userId": "{{user.id}}"
-    },
+    "create": false,
     "update": false,
     "delete": {
       "data.userId": "{{user.id}}"
