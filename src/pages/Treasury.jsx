@@ -33,19 +33,24 @@ export default function Treasury() {
   const progressXp = wallet?.progressXpTotal ?? userXP;
 
   const loadCollection = useCallback(async () => {
-    const res = await base44.functions.invoke('getOwnedCollection', {});
-    if (res.data?.success) {
-      const map = {};
-      const equipped = new Set();
-      res.data.ownedArtifacts.forEach(a => {
-        map[a.artifactId] = a.ownership;
-        if (a.ownership?.isEquipped) equipped.add(a.artifactId);
-      });
-      setOwnedMap(map);
-      setEquippedSet(equipped);
-      setCollectionStats(res.data.stats);
+    try {
+      const res = await base44.functions.invoke('getOwnedCollection', {});
+      if (res.data?.success) {
+        const map = {};
+        const equipped = new Set();
+        res.data.ownedArtifacts.forEach(a => {
+          map[a.artifactId] = a.ownership;
+          if (a.ownership?.isEquipped) equipped.add(a.artifactId);
+        });
+        setOwnedMap(map);
+        setEquippedSet(equipped);
+        setCollectionStats(res.data.stats);
+      }
+    } catch (e) {
+      console.warn('[Treasury] loadCollection failed:', e.message);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   }, []);
 
   useEffect(() => { loadCollection(); }, [loadCollection]);
