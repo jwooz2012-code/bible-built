@@ -81,10 +81,8 @@ Deno.serve(async (req) => {
       return Response.json({ created: [], skipped, wallet });
     }
 
-    // Create reading logs one by one via service role (bulkCreate may not bypass RLS)
-    const createdLogs = await Promise.all(
-      toCreate.map(ch => base44.asServiceRole.entities.ReadingLog.create(ch))
-    );
+    // Bulk create reading logs
+    const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(toCreate);
 
     // Grant progress XP for each newly created log (idempotent via XPTransaction)
     const now = new Date().toISOString();
