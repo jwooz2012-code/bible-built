@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Zap, Coins } from 'lucide-react';
+import { ArrowLeft, Zap, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useWallet } from '@/hooks/useWallet';
@@ -9,6 +9,7 @@ import ArtifactCard from '@/components/treasury/ArtifactCard';
 import ArtifactDetailModal from '@/components/treasury/ArtifactDetailModal';
 import CollectionTracker from '@/components/treasury/CollectionTracker';
 import { toast } from 'sonner';
+import { useQueryClient } from '@tanstack/react-query';
 
 const RARITIES = ['all', 'common', 'rare', 'epic', 'legendary'];
 
@@ -16,6 +17,8 @@ export default function Treasury() {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const { wallet, isLoading: walletLoading, treasuryBalance } = useWallet();
+  const queryClient = useQueryClient();
+  const [backfilling, setBackfilling] = useState(false);
 
   const [ownedMap, setOwnedMap] = useState({}); // artifactId -> ownership record
   const [equippedSet, setEquippedSet] = useState(new Set());
@@ -71,6 +74,22 @@ export default function Treasury() {
     loadCollection();
   };
 
+  const handleBackfill = async () => {
+    setBackfilling(true);
+    try {
+      const res = await base44.functions.invoke('backfillTreasury', {});
+      if (res.data?.success) {
+        toast.success(`+${res.data.currencyAdded.toLocaleString()} ₡ added! New balance: ${res.data.newBalance.toLocaleString()} ₡`);
+        queryClient.invalidateQueries({ queryKey: ['userWallet'] });
+      } else {
+        toast.error(res.data?.error || 'Backfill failed');
+      }
+    } catch (e) {
+      toast.error('Failed to fix balance');
+    }
+    setBackfilling(false);
+  };
+
   const handleEquipSuccess = (data) => {
     const isNowEquipped = data.equippedArtifacts?.includes(selected.artifactId);
     toast.success(isNowEquipped ? `⚡ ${selected.name} equipped!` : 'Unequipped');
@@ -111,6 +130,16 @@ export default function Treasury() {
                   <Zap className="w-3.5 h-3.5 text-orange-400" />
                   <span className="text-xs font-bold text-orange-300">+{boostPct}% XP Boost Active</span>
                 </div>
+              )}
+              {treasuryBalance === 0 && (
+                <button
+                  onClick={handleBackfill}
+                  disabled={backfilling}
+                  className="flex items-center gap-1 mt-2 text-xs text-amber-400 hover:text-amber-300 disabled:opacity-50"
+                >
+                  <RefreshCw className={`w-3 h-3 ${backfilling ? 'animate-spin' : ''}`} />
+                  {backfilling ? 'Calculating...' : 'Fix my balance'}
+                </button>
               )}
             </div>
             {!loading && collectionStats && (
