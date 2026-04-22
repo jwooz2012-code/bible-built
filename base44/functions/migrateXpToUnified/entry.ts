@@ -1,8 +1,12 @@
 /**
  * migrateXpToUnified (admin-only)
  *
- * Recalculates treasuryCurrencyBalance for a user as:
- *   (unique chapters × 100) + milestone bonuses − artifact purchases
+ * Recalculates wallet balances for a user as:
+ *   progressXpTotal = unique chapters × 100
+ *   treasuryCurrencyBalance = earnedXp + milestoneBonus − totalSpent
+ *
+ * Uses list() + in-memory filter since asServiceRole.filter() with nested
+ * dot-notation keys is not supported.
  *
  * Safe to re-run — always recomputes from source of truth.
  */
@@ -10,29 +14,37 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const XP_PER_CHAPTER = 100;
 
+async function fetchAll(entity, limit = 2000) {
+  return await entity.list('-created_date', limit);
+}
+
 async function migrateWallet(base44, userId) {
-  // 1. Find wallet — list all and filter in memory (asServiceRole bypasses RLS)
-  const allWallets = await base44.asServiceRole.entities.UserWallet.list('-created_date', 500);
+  // 1. Find wallet(s) for this user
+  const allWallets = await fetchAll(base44.asServiceRole.entities.UserWallet, 1000);
   const wallets = allWallets.filter(w => w.userId === userId);
-  if (wallets.length === 0) return { error: 'no_wallet', userId, totalWallets: allWallets.length };
+
+  if (wallets.length === 0) {
+    return { error: 'no_wallet', userId, totalWalletsInDb: allWallets.length };
+  }
 
   // Pick the wallet with the highest progressXpTotal
   const wallet = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
 
-  // 2. Count unique chapters read
-  const allLogs = await base44.asServiceRole.entities.ReadingLog.list('-created_date', 5000);
+  // 2. Count unique chapters read by this user
+  const allLogs = await fetchAll(base44.asServiceRole.entities.ReadingLog, 5000);
   const userLogs = allLogs.filter(l => l.userId === userId);
   const uniqueChapterIds = new Set(userLogs.map(l => l.chapterId).filter(Boolean));
   const earnedXp = uniqueChapterIds.size * XP_PER_CHAPTER;
 
-  // 3. Total spent on artifacts
-  const allSpendTxs = await base44.asServiceRole.entities.XPTransaction.list('-created_date', 500);
-  const spendTxs = allSpendTxs.filter(tx => tx.userId === userId && tx.type === 'spend_currency');
+  // 3. Total currency spent on artifacts
+  const allTxs = await fetchAll(base44.asServiceRole.entities.XPTransaction, 2000);
+  const userTxs = allTxs.filter(tx => tx.userId === userId);
+
+  const spendTxs = userTxs.filter(tx => tx.type === 'spend_currency');
   const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
 
-  // 4. Milestone bonuses (earn_currency transactions) — deduplicate by idempotencyKey
-  const allMilestoneTxs = await base44.asServiceRole.entities.XPTransaction.list('-created_date', 1000);
-  const milestoneTxs = allMilestoneTxs.filter(tx => tx.userId === userId && tx.type === 'earn_currency');
+  // 4. Milestone bonuses — deduplicate by idempotencyKey
+  const milestoneTxs = userTxs.filter(tx => tx.type === 'earn_currency');
   const seenKeys = new Set();
   let milestoneBonus = 0;
   for (const tx of milestoneTxs) {
@@ -46,14 +58,30 @@ async function migrateWallet(base44, userId) {
   const newBalance = Math.max(0, earnedXp + milestoneBonus - totalSpent);
   const newLevel = Math.floor(earnedXp / 1000) + 1;
 
-  const updated = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
+  await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
     progressXpTotal: earnedXp,
     treasuryCurrencyBalance: newBalance,
     level: newLevel,
     updatedAt: new Date().toISOString(),
   });
 
-  return { userId, walletId: wallet.id, uniqueChapters: uniqueChapterIds.size, earnedXp, milestoneBonus, totalSpent, newBalance };
+  // Delete any duplicate wallets for this user
+  const duplicates = wallets.filter(w => w.id !== wallet.id);
+  for (const dup of duplicates) {
+    await base44.asServiceRole.entities.UserWallet.delete(dup.id);
+  }
+
+  return {
+    userId,
+    walletId: wallet.id,
+    uniqueChapters: uniqueChapterIds.size,
+    earnedXp,
+    milestoneBonus,
+    totalSpent,
+    newBalance,
+    newLevel,
+    duplicatesRemoved: duplicates.length,
+  };
 }
 
 Deno.serve(async (req) => {

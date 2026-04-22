@@ -9,7 +9,7 @@
     "progressXpTotal": {
       "type": "number",
       "default": 0,
-      "description": "Lifetime progress XP (used for leveling \u2014 never spent)"
+      "description": "Lifetime progress XP earned from chapters (used for leveling)"
     },
     "treasuryCurrencyBalance": {
       "type": "number",
@@ -35,7 +35,14 @@
     "update": false,
     "delete": false,
     "read": {
-      "data.userId": "{{user.id}}"
+      "$or": [
+        {
+          "data.userId": "{{user.id}}"
+        },
+        {
+          "user.role": "admin"
+        }
+      ]
     }
   }
 }
