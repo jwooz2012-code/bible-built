@@ -23,12 +23,12 @@ export const ARTIFACT_RARITY_LABELS = {
   legendary: 'Legendary',
 };
 
-// Cost in XP by rarity — 1 chapter = 100 XP
+// Cost in XP by rarity
 export const RARITY_COST = {
-  common:    60,
-  rare:      240,
-  epic:      480,
-  legendary: 1020,
+  common:    6000,
+  rare:      24000,
+  epic:      48000,
+  legendary: 102000,
 };
 
 export const artifacts = [
@@ -36,7 +36,7 @@ export const artifacts = [
     artifactId: 'ark-of-the-covenant',
     name: 'Ark of the Covenant',
     rarity: 'legendary',
-    xpCost: 1020,
+    xpCost: 102000,
     image: '/cards/ark-legendary.png',
     scripture: {
       reference: 'Exodus 25:10-22',
@@ -51,7 +51,7 @@ export const artifacts = [
     artifactId: 'sword-goliath',
     name: 'Sword of Goliath',
     rarity: 'legendary',
-    xpCost: 1020,
+    xpCost: 102000,
     image: '/cards/sword-of-goliath-legendary.png',
     scripture: {
       reference: '1 Samuel 21:9',
@@ -66,7 +66,7 @@ export const artifacts = [
     artifactId: 'coat-of-many-colors',
     name: 'Coat of Many Colors',
     rarity: 'epic',
-    xpCost: 480,
+    xpCost: 48000,
     image: '/cards/coat-of-many-colors-epic.png',
     scripture: {
       reference: 'Genesis 37:3',
@@ -81,7 +81,7 @@ export const artifacts = [
     artifactId: 'sling-of-david',
     name: 'Sling of David',
     rarity: 'epic',
-    xpCost: 480,
+    xpCost: 48000,
     image: '/cards/sling-of-david-epic.png',
     scripture: {
       reference: '1 Samuel 17:40',
