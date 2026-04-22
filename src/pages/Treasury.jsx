@@ -72,10 +72,7 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
-    // Legacy XP field update (backward compat)
-    if (data.xpRemaining !== undefined) {
-      updateUser({ xp: data.xpRemaining });
-    }
+    queryClient.invalidateQueries({ queryKey: ['userWallet', user?.id] });
     loadCollection();
   };
 

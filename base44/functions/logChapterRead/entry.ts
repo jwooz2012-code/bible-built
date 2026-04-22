@@ -110,17 +110,47 @@ Deno.serve(async (req) => {
       }
     }
 
-    if (xpTransactions.length > 0) {
-      await base44.asServiceRole.entities.XPTransaction.bulkCreate(xpTransactions);
+    // Check if any of the new logs represent a brand-new reading day (for 10₡ daily reward)
+    let currencyGained = 0;
+    const currencyTransactions = [];
+    for (const dk of dateKeys) {
+      const dailyCurrencyKey = `daily_reading_complete:${userId}:${dk}`;
+      // Only grant if at least one chapter was created for this day
+      const createdForDay = toCreate.filter(c => c.dateKey === dk);
+      if (createdForDay.length === 0) continue;
+      const existingCurrencyTx = await base44.asServiceRole.entities.XPTransaction.filter({
+        'data.userId': userId,
+        'data.idempotencyKey': `milestone:${userId}:daily_reading_complete:${userId}:${dk}`,
+      });
+      if (existingCurrencyTx.length === 0) {
+        currencyTransactions.push({
+          userId,
+          type: 'earn_currency',
+          source: 'daily_reading_complete',
+          amount: 10,
+          idempotencyKey: `milestone:${userId}:daily_reading_complete:${userId}:${dk}`,
+          metadataJson: JSON.stringify({ dateKey: dk }),
+          createdAt: now,
+        });
+        currencyGained += 10;
+      }
+    }
+
+    if (xpTransactions.length > 0 || currencyTransactions.length > 0) {
+      const allTx = [...xpTransactions, ...currencyTransactions];
+      await base44.asServiceRole.entities.XPTransaction.bulkCreate(allTx);
 
       const newProgressXp = (wallet.progressXpTotal ?? 0) + xpGained;
       const newLevel = Math.floor(newProgressXp / 1000) + 1;
+      const newTreasuryBalance = (wallet.treasuryCurrencyBalance ?? 0) + currencyGained;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
         progressXpTotal: newProgressXp,
+        treasuryCurrencyBalance: newTreasuryBalance,
         level: newLevel,
         updatedAt: now,
       });
       wallet.progressXpTotal = newProgressXp;
+      wallet.treasuryCurrencyBalance = newTreasuryBalance;
       wallet.level = newLevel;
     }
 
@@ -128,6 +158,7 @@ Deno.serve(async (req) => {
       created: Array.isArray(createdLogs) ? createdLogs : toCreate,
       skipped,
       xpGranted: xpGained,
+      currencyGranted: currencyGained,
       wallet,
     });
   } catch (error) {

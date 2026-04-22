@@ -1,42 +1,37 @@
 /**
- * purchaseArtifact (v2)
- * 
+ * purchaseArtifact
+ *
  * Secure artifact purchase using UserWallet treasury currency.
- * - Atomic: debit + ownership + transaction in sequence with idempotency
- * - Idempotent: repeated taps produce one purchase, not multiple
+ * - Atomic: debit + ownership + transaction with idempotency
  * - Unique artifacts cannot be purchased twice
- * 
- * Rarity pricing (treasury currency):
+ *
+ * Rarity pricing (treasury currency) — matches artifactCatalog.js:
  *   common    = 250
  *   rare      = 750
  *   epic      = 1500
  *   legendary = 3500
- *   mythic    = 8000
- * 
- * Legacy XP-based pricing preserved as fallback for artifacts not in rarity catalog.
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const RARITY_COST = {
-  common: 250,
-  rare: 750,
-  epic: 1500,
+  common:    250,
+  rare:      750,
+  epic:      1500,
   legendary: 3500,
-  mythic: 8000,
 };
 
-// Artifact catalog with rarity info (matches data/artifactCatalog.js)
+// Must stay in sync with data/artifactCatalog.js and getOwnedCollection
 const ARTIFACT_CATALOG = [
-  { artifactId: 'ark-of-the-covenant', rarity: 'mythic',    xpBoost: 1.20 },
-  { artifactId: 'sword-goliath',        rarity: 'legendary', xpBoost: 1.15 },
-  { artifactId: 'coat-of-many-colors',  rarity: 'epic',      xpBoost: 1.11 },
-  { artifactId: 'sling-of-david',       rarity: 'legendary', xpBoost: 1.12 },
-  { artifactId: 'davids-harp',          rarity: 'epic',      xpBoost: 1.13 },
-  { artifactId: 'jar-of-manna',         rarity: 'rare',      xpBoost: 1.08 },
-  { artifactId: 'noahs-hammer',         rarity: 'rare',      xpBoost: 1.09 },
-  { artifactId: 'clay-lamp',            rarity: 'common',    xpBoost: undefined },
-  { artifactId: 'rod-of-peter',         rarity: 'rare',      xpBoost: undefined },
-  { artifactId: 'shepherds-staff',      rarity: 'common',    xpBoost: undefined },
+  { artifactId: 'ark-of-the-covenant', rarity: 'legendary', xpBoost: 1.25 },
+  { artifactId: 'sword-goliath',        rarity: 'legendary', xpBoost: 1.25 },
+  { artifactId: 'coat-of-many-colors',  rarity: 'epic',      xpBoost: 1.15 },
+  { artifactId: 'sling-of-david',       rarity: 'epic',      xpBoost: 1.15 },
+  { artifactId: 'davids-harp',          rarity: 'rare',      xpBoost: 1.10 },
+  { artifactId: 'jar-of-manna',         rarity: 'rare',      xpBoost: 1.10 },
+  { artifactId: 'noahs-hammer',         rarity: 'rare',      xpBoost: 1.10 },
+  { artifactId: 'clay-lamp',            rarity: 'common',    xpBoost: 1.05 },
+  { artifactId: 'rod-of-peter',         rarity: 'common',    xpBoost: 1.05 },
+  { artifactId: 'shepherds-staff',      rarity: 'common',    xpBoost: 1.05 },
 ];
 
 async function getOrCreateWallet(base44, userId) {
@@ -61,7 +56,7 @@ Deno.serve(async (req) => {
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
     const body = await req.json().catch(() => ({}));
-    const { artifactId, idempotencyKey: clientIdempotencyKey } = body;
+    const { artifactId } = body;
     if (!artifactId) return Response.json({ error: 'artifactId is required' }, { status: 400 });
 
     const artifact = ARTIFACT_CATALOG.find(a => a.artifactId === artifactId);
@@ -71,9 +66,7 @@ Deno.serve(async (req) => {
     if (cost === undefined) return Response.json({ error: 'Invalid artifact rarity' }, { status: 400 });
 
     const userId = user.id;
-    const purchaseIdempotencyKey = clientIdempotencyKey
-      ? `artifact_purchase:${userId}:${artifactId}:${clientIdempotencyKey}`
-      : `artifact_purchase:${userId}:${artifactId}`;
+    const purchaseIdempotencyKey = `artifact_purchase:${userId}:${artifactId}`;
 
     // Idempotency check — prevent double charge from rapid taps
     const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({
@@ -86,16 +79,15 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, alreadyPurchased: true, artifact, wallet, ownership: existing[0] });
     }
 
-    // Check if already owned (unique artifact re-purchase guard)
+    // Check if already owned
     const existingOwnership = await base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.artifactId': artifactId });
     if (existingOwnership.length > 0) {
       return Response.json({ error: 'You already own this artifact' }, { status: 400 });
     }
 
-    // Load wallet
+    // Load wallet and check balance
     const wallet = await getOrCreateWallet(base44, userId);
     const currentBalance = wallet.treasuryCurrencyBalance ?? 0;
-
     if (currentBalance < cost) {
       return Response.json({
         error: 'Insufficient treasury currency',
@@ -107,7 +99,7 @@ Deno.serve(async (req) => {
     const now = new Date().toISOString();
     const newBalance = currentBalance - cost;
 
-    // Record spend transaction (idempotency record — do this FIRST to prevent races)
+    // Record spend transaction first (idempotency guard)
     await base44.asServiceRole.entities.XPTransaction.create({
       userId,
       type: 'spend_currency',
@@ -139,17 +131,6 @@ Deno.serve(async (req) => {
       treasuryCurrencyBalance: newBalance,
       updatedAt: now,
     });
-
-    // Also update legacy user fields for backward compat
-    const users = await base44.asServiceRole.entities.User.filter({ id: userId });
-    if (users.length > 0) {
-      const currentUser = users[0];
-      const newArtifactCount = (currentUser.totalArtifactsOwned ?? 0) + 1;
-      await base44.asServiceRole.entities.User.update(userId, {
-        totalArtifactsOwned: newArtifactCount,
-        lastArtifactPurchaseAt: now,
-      }).catch(() => {}); // non-critical
-    }
 
     return Response.json({
       success: true,

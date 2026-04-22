@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { X, Zap, BookOpen, Star } from 'lucide-react';
+import { X, Zap, BookOpen } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
-import { ARTIFACT_RARITY_COLORS } from '../../data/artifactCatalog.js';
+import { ARTIFACT_RARITY_COLORS, RARITY_COST } from '../../data/artifactCatalog.js';
 
 const EMOJI_MAP = {
   'ark-of-the-covenant': '📦',
@@ -14,14 +14,6 @@ const EMOJI_MAP = {
   'clay-lamp': '🕯️',
   'rod-of-peter': '🎣',
   'shepherds-staff': '🪄',
-};
-
-const RARITY_COST = {
-  common: 250,
-  rare: 750,
-  epic: 1500,
-  legendary: 3500,
-  mythic: 8000,
 };
 
 export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, treasuryBalance, onClose, onPurchaseSuccess, onEquipSuccess }) {
