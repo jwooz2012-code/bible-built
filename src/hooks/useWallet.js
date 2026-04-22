@@ -28,6 +28,11 @@ export function useWallet() {
           try {
             const res = await base44.functions.invoke('backfillTreasury', {});
             if (res.data?.wallet) return res.data.wallet;
+            // If backfill ran but didn't return wallet, re-fetch from DB
+            const updated = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
+            if (updated.length > 0) {
+              return updated.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+            }
           } catch (e) {
             console.log('[useWallet] backfill failed silently:', e.message);
           }
