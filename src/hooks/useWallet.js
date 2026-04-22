@@ -19,7 +19,7 @@ export function useWallet() {
     queryKey: ['userWallet', user?.id],
     queryFn: async () => {
       // Try to read wallet directly first
-      const wallets = await base44.entities.UserWallet.filter({ userId: user.id });
+      const wallets = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
       if (wallets.length > 0) {
         // Guard: always use wallet with highest XP in case of duplicates
         return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];

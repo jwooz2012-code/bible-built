@@ -54,6 +54,7 @@ Deno.serve(async (req) => {
       'data.userId': userId,
       'data.idempotencyKey': idempotencyKey,
     });
+
     if (existing.length > 0) {
       // Already granted — return current wallet state idempotently
       const wallet = await getOrCreateWallet(base44, userId);

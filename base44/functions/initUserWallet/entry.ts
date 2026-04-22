@@ -42,7 +42,7 @@ Deno.serve(async (req) => {
     // No backfill record yet — first time init
 
     // Load all historical reading logs
-    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ userId }, '-created_date', 2000);
+    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000);
 
     // Unique chapter logs by chapterId (de-dup across dates — count each chapter once for progression)
     const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId));

@@ -59,7 +59,7 @@ Deno.serve(async (req) => {
     // Load ALL existing logs for the user on the relevant dates (batch lookup)
     const dateKeys = [...new Set(chapters.map(c => c.dateKey))];
     const existingLogArrays = await Promise.all(
-      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ userId, dateKey: dk }))
+      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
     );
     const existingLogs = existingLogArrays.flat();
     const existingSet = new Set(existingLogs.map(l => `${l.chapterId}:${l.dateKey}`));
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     for (const ch of toCreate) {
       const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`;
       // Check for existing XP transaction
-      const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({ userId, idempotencyKey });
+      const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': idempotencyKey });
       if (existingTx.length === 0) {
         xpTransactions.push({
           userId,
