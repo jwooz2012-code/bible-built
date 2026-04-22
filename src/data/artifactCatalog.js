@@ -96,7 +96,7 @@ export const artifacts = [
     artifactId: 'davids-harp',
     name: "David's Harp",
     rarity: 'rare',
-    xpCost: 240,
+    xpCost: 24000,
     image: '/cards/davids-harp-rare.png',
     scripture: {
       reference: '1 Samuel 16:23',
@@ -111,7 +111,7 @@ export const artifacts = [
     artifactId: 'jar-of-manna',
     name: 'Jar of Manna',
     rarity: 'rare',
-    xpCost: 240,
+    xpCost: 24000,
     image: '/cards/manna-rare.png',
     scripture: {
       reference: 'Exodus 16:32-34',
@@ -126,7 +126,7 @@ export const artifacts = [
     artifactId: 'noahs-hammer',
     name: "Noah's Hammer",
     rarity: 'rare',
-    xpCost: 240,
+    xpCost: 24000,
     image: '/cards/noahs-hammer-rare.png',
     scripture: {
       reference: 'Genesis 6:14-16',
@@ -141,7 +141,7 @@ export const artifacts = [
     artifactId: 'clay-lamp',
     name: 'Clay Lamp',
     rarity: 'common',
-    xpCost: 60,
+    xpCost: 6000,
     image: '/cards/lamp-common.png',
     scripture: {
       reference: 'Matthew 5:15',
@@ -156,7 +156,7 @@ export const artifacts = [
     artifactId: 'rod-of-peter',
     name: 'Rod of Peter',
     rarity: 'common',
-    xpCost: 60,
+    xpCost: 6000,
     image: '/cards/rod-of-peter-common.png',
     scripture: {
       reference: 'Mark 1:16-17',
@@ -171,7 +171,7 @@ export const artifacts = [
     artifactId: 'shepherds-staff',
     name: "Shepherd's Staff",
     rarity: 'common',
-    xpCost: 60,
+    xpCost: 6000,
     image: '/cards/shepherds-staff-common.png',
     scripture: {
       reference: 'Hebrews 11:13',
