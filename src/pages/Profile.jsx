@@ -137,7 +137,7 @@ function ShareSheet({ onClose, onSelect }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Profile() {
   const { user, isLoadingAuth, retryAuth, logout } = useAuth();
-  const { spendableXp } = useWallet();
+  const { totalXp } = useWallet();
   const [avatarData, setAvatarData] = useState(null);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
@@ -269,7 +269,7 @@ export default function Profile() {
                 <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-yellow-400" />
-                    <span className="text-[22px] font-bold text-foreground">{spendableXp.toLocaleString()}</span>
+                    <span className="text-[22px] font-bold text-foreground">{totalXp.toLocaleString()}</span>
                   </div>
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">XP Wallet</span>
                 </div>

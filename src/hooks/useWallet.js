@@ -38,60 +38,65 @@ export function useWallet() {
   });
 
   // XPTransaction is the single source of truth
-  const { data: txData = { progressXp: 0, spendableXp: 0 } } = useQuery({
-    queryKey: ['xpTransactions', user?.id],
-    queryFn: async () => {
-      const transactions = await base44.entities.XPTransaction.filter({ 'data.userId': user.id });
-      
-      let progressXp = 0;
-      let spendable = 0;
-      
-      for (const tx of transactions) {
-        if (tx.type === 'earn_progress_xp') {
-          progressXp += tx.amount ?? 0;
-        } else if (tx.type === 'earn_currency') {
-          spendable += tx.amount ?? 0;
-        } else if (tx.type === 'spend_currency') {
-          spendable += tx.amount ?? 0; // amount is negative
-        }
-      }
-      
-      return {
-        progressXp: Math.max(0, progressXp),
-        spendableXp: Math.max(0, spendable),
-      };
-    },
-    enabled: !!user?.id,
-    staleTime: 0,
-  });
+   const { data: txData = { totalXp: 0, progressXp: 0, spendableXp: 0 } } = useQuery({
+     queryKey: ['xpTransactions', user?.id],
+     queryFn: async () => {
+       const transactions = await base44.entities.XPTransaction.filter({ 'data.userId': user.id });
 
-  const grantMilestoneMutation = useMutation({
-    mutationFn: async ({ milestoneKey, source, metadataJson }) => {
-      const res = await base44.functions.invoke('grantMilestoneReward', {
-        milestoneKey,
-        source,
-        metadataJson,
-      });
-      return res.data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['xpTransactions', user?.id] });
-    },
-  });
+       let progressXp = 0;
+       let spendable = 0;
 
-  const progressXpTotal = txData.progressXp;
-  const spendableXp = txData.spendableXp;
+       for (const tx of transactions) {
+         if (tx.type === 'earn_progress_xp') {
+           progressXp += tx.amount ?? 0;
+         } else if (tx.type === 'earn_currency') {
+           spendable += tx.amount ?? 0;
+         } else if (tx.type === 'spend_currency') {
+           spendable += tx.amount ?? 0; // amount is negative
+         }
+       }
 
-  return {
-    wallet,
-    isLoading,
-    spendableXp,
-    treasuryBalance: spendableXp,
-    progressXp: progressXpTotal,
-    progressXpTotal,
-    walletLevel: wallet?.level ?? 1,
-    grantMilestone: grantMilestoneMutation.mutateAsync,
-  };
+       const totalXp = Math.max(0, progressXp + spendable);
+
+       return {
+         totalXp,
+         progressXp: Math.max(0, progressXp),
+         spendableXp: Math.max(0, spendable),
+       };
+     },
+     enabled: !!user?.id,
+     staleTime: 0,
+   });
+
+   const grantMilestoneMutation = useMutation({
+     mutationFn: async ({ milestoneKey, source, metadataJson }) => {
+       const res = await base44.functions.invoke('grantMilestoneReward', {
+         milestoneKey,
+         source,
+         metadataJson,
+       });
+       return res.data;
+     },
+     onSuccess: () => {
+       queryClient.invalidateQueries({ queryKey: ['xpTransactions', user?.id] });
+     },
+   });
+
+   const totalXp = txData.totalXp;
+   const progressXpTotal = txData.progressXp;
+   const spendableXp = txData.spendableXp;
+
+   return {
+     wallet,
+     isLoading,
+     totalXp,
+     spendableXp,
+     treasuryBalance: spendableXp,
+     progressXp: progressXpTotal,
+     progressXpTotal,
+     walletLevel: wallet?.level ?? 1,
+     grantMilestone: grantMilestoneMutation.mutateAsync,
+   };
 }
 
 /**
