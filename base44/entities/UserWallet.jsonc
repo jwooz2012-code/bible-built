@@ -32,17 +32,8 @@
   ],
   "rls": {
     "create": false,
-    "update": false,
-    "delete": false,
-    "read": {
-      "$or": [
-        {
-          "data.userId": "{{user.id}}"
-        },
-        {
-          "user.role": "admin"
-        }
-      ]
-    }
+    "update": true,
+    "delete": true,
+    "read": true
   }
 }
