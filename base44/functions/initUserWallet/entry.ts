@@ -57,18 +57,11 @@ Deno.serve(async (req) => {
       // If wallet exists but treasury balance is still 0, patch it now
       if (best && (best.treasuryCurrencyBalance ?? 0) === 0) {
         const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000);
-        const uniqueDays = new Set(allLogs.map(l => l.dateKey).filter(Boolean));
-        let treasuryBalance = uniqueDays.size * 10;
-        const chaptersReadByBook = {};
-        for (const log of allLogs) {
-          if (!log.book || !log.chapter) continue;
-          if (!chaptersReadByBook[log.book]) chaptersReadByBook[log.book] = new Set();
-          chaptersReadByBook[log.book].add(log.chapter);
-        }
-        for (const [book, chaptersRead] of Object.entries(chaptersReadByBook)) {
-          const total = BOOK_CHAPTER_COUNTS[book];
-          if (total && chaptersRead.size >= total) treasuryBalance += 200;
-        }
+        const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId).filter(Boolean));
+        const earnedXp = uniqueChapterIds.size * PROGRESS_XP_PER_CHAPTER;
+        const spendTxs = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.type': 'spend_currency' }, '-created_date', 500);
+        const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
+        const treasuryBalance = Math.max(0, earnedXp - totalSpent);
         const patched = await base44.asServiceRole.entities.UserWallet.update(best.id, {
           treasuryCurrencyBalance: treasuryBalance,
           updatedAt: new Date().toISOString(),
@@ -90,22 +83,13 @@ Deno.serve(async (req) => {
     const backfillXp = uniqueCount * PROGRESS_XP_PER_CHAPTER;
     const backfillLevel = Math.floor(backfillXp / 1000) + 1;
 
-    // --- Calculate treasury currency ---
-    // 10₡ per unique day with at least 1 chapter read
-    const uniqueDays = new Set(allLogs.map(l => l.dateKey).filter(Boolean));
-    let treasuryBalance = uniqueDays.size * 10;
-
-    // 200₡ per completed book
-    const chaptersReadByBook = {};
-    for (const log of allLogs) {
-      if (!log.book || !log.chapter) continue;
-      if (!chaptersReadByBook[log.book]) chaptersReadByBook[log.book] = new Set();
-      chaptersReadByBook[log.book].add(log.chapter);
-    }
-    for (const [book, chaptersRead] of Object.entries(chaptersReadByBook)) {
-      const total = BOOK_CHAPTER_COUNTS[book];
-      if (total && chaptersRead.size >= total) treasuryBalance += 200;
-    }
+    // Treasury balance = same as XP earned (unified pool) minus any prior artifact purchases
+    const spendTxs = await base44.asServiceRole.entities.XPTransaction.filter({
+      'data.userId': userId,
+      'data.type': 'spend_currency',
+    }, '-created_date', 500);
+    const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
+    const treasuryBalance = Math.max(0, backfillXp - totalSpent);
 
     // Create wallet with backfilled XP and treasury balance
     const wallet = await base44.asServiceRole.entities.UserWallet.create({

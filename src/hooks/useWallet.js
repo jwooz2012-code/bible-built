@@ -56,11 +56,15 @@ export function useWallet() {
     },
   });
 
+  // xpBalance is the single unified XP number — what the user has to spend and what Profile displays
+  const xpBalance = wallet?.treasuryCurrencyBalance ?? 0;
+
   return {
     wallet,
     isLoading,
-    treasuryBalance: wallet?.treasuryCurrencyBalance ?? 0,
-    progressXp: wallet?.progressXpTotal ?? 0,
+    xpBalance,
+    treasuryBalance: xpBalance, // alias — same number
+    progressXp: xpBalance,      // alias — same number (Profile uses this)
     walletLevel: wallet?.level ?? 1,
     grantMilestone: grantMilestoneMutation.mutateAsync,
   };
