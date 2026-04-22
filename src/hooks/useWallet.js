@@ -37,25 +37,32 @@ export function useWallet() {
     staleTime: 0,
   });
 
-  // Calculate spendableXp dynamically: (chapters × 100) - artifacts spent
-  const { data: chaptersRead = 0 } = useQuery({
-    queryKey: ['chaptersRead', user?.id],
+  // XPTransaction is the single source of truth
+  const { data: txData = { progressXp: 0, spendableXp: 0 } } = useQuery({
+    queryKey: ['xpTransactions', user?.id],
     queryFn: async () => {
-      const logs = await base44.entities.ReadingLog.filter({ 'data.userId': user.id });
-      return logs.length; // count of chapters read
+      const transactions = await base44.entities.XPTransaction.filter({ 'data.userId': user.id });
+      
+      let progressXp = 0;
+      let spendable = 0;
+      
+      for (const tx of transactions) {
+        if (tx.type === 'earn_progress_xp') {
+          progressXp += tx.amount ?? 0;
+        } else if (tx.type === 'earn_currency') {
+          spendable += tx.amount ?? 0;
+        } else if (tx.type === 'spend_currency') {
+          spendable += tx.amount ?? 0; // amount is negative
+        }
+      }
+      
+      return {
+        progressXp: Math.max(0, progressXp),
+        spendableXp: Math.max(0, spendable),
+      };
     },
     enabled: !!user?.id,
-    staleTime: 30000,
-  });
-
-  const { data: artifactSpent = 0 } = useQuery({
-    queryKey: ['artifactSpent', user?.id],
-    queryFn: async () => {
-      const purchases = await base44.entities.ArtifactPurchaseHistory.filter({ 'data.userId': user.id });
-      return purchases.reduce((sum, p) => sum + (p.xpSpent ?? 0), 0);
-    },
-    enabled: !!user?.id,
-    staleTime: 30000,
+    staleTime: 0,
   });
 
   const grantMilestoneMutation = useMutation({
@@ -68,30 +75,20 @@ export function useWallet() {
       return res.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['userWallet', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['xpTransactions', user?.id] });
     },
   });
 
-  // Calculate spendable XP: (chapters read × 100) + bonuses - artifacts purchased
-  const { data: bonusXp = 0 } = useQuery({
-    queryKey: ['bonusXp', user?.id],
-    queryFn: async () => {
-      const transactions = await base44.entities.XPTransaction.filter({ 'data.userId': user.id, 'data.type': 'earn_currency' });
-      return transactions.reduce((sum, t) => sum + (t.amount ?? 0), 0);
-    },
-    enabled: !!user?.id,
-    staleTime: 30000,
-  });
-
-  const spendableXp = Math.max(0, (chaptersRead * 100) + bonusXp - artifactSpent);
+  const progressXpTotal = txData.progressXp;
+  const spendableXp = txData.spendableXp;
 
   return {
     wallet,
     isLoading,
     spendableXp,
     treasuryBalance: spendableXp,
-    progressXp: spendableXp,
-    progressXpTotal: (chaptersRead * 100) + bonusXp,
+    progressXp: progressXpTotal,
+    progressXpTotal,
     walletLevel: wallet?.level ?? 1,
     grantMilestone: grantMilestoneMutation.mutateAsync,
   };

@@ -79,9 +79,8 @@ Deno.serve(async (req) => {
     }
 
     const now = new Date().toISOString();
-    const newBalance = (wallet.treasuryCurrencyBalance ?? 0) + currencyAmount;
 
-    // Record transaction
+    // Record transaction (wallet update happens in hook via XPTransaction recalc)
     await base44.asServiceRole.entities.XPTransaction.create({
       userId,
       type: 'earn_currency',
@@ -92,11 +91,8 @@ Deno.serve(async (req) => {
       createdAt: now,
     });
 
-    // Update wallet
-    const updatedWallet = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-      treasuryCurrencyBalance: newBalance,
-      updatedAt: now,
-    });
+    // Return updated wallet (hook will recalculate from transactions)
+    const updatedWallet = await getOrCreateWallet(base44, userId);
 
     return Response.json({ granted: true, currencyAwarded: currencyAmount, wallet: updatedWallet });
   } catch (error) {

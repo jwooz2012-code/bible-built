@@ -12,12 +12,25 @@
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
-const PROGRESS_XP_PER_CHAPTER = 100;
+const BASE_XP_PER_CHAPTER = 100;
+
+// Artifact catalog with multipliers
+const ARTIFACT_BOOSTS = {
+  'ark-of-the-covenant': 1.25,
+  'sword-goliath': 1.25,
+  'coat-of-many-colors': 1.15,
+  'sling-of-david': 1.15,
+  'davids-harp': 1.10,
+  'jar-of-manna': 1.10,
+  'noahs-hammer': 1.10,
+  'clay-lamp': 1.05,
+  'rod-of-peter': 1.05,
+  'shepherds-staff': 1.05,
+};
 
 async function getOrCreateWallet(base44, userId) {
   const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 10);
   if (wallets.length > 0) {
-    // Pick wallet with highest progressXpTotal to handle any duplicates
     return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
   }
   const now = new Date().toISOString();
@@ -28,6 +41,16 @@ async function getOrCreateWallet(base44, userId) {
     level: 1,
     updatedAt: now,
   });
+}
+
+async function getEquippedMultiplier(base44, userId) {
+  const equipped = await base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.isEquipped': true });
+  let multiplier = 1.0;
+  for (const artifact of equipped) {
+    const boost = ARTIFACT_BOOSTS[artifact.artifactId] ?? 1.0;
+    multiplier *= boost;
+  }
+  return multiplier;
 }
 
 Deno.serve(async (req) => {
@@ -85,11 +108,13 @@ Deno.serve(async (req) => {
     // Bulk create reading logs
     const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(toCreate);
 
-    // Grant progress XP for each newly created log (idempotent via XPTransaction)
+    // Get equipped artifacts multiplier
+    const multiplier = await getEquippedMultiplier(base44, userId);
+    
     const now = new Date().toISOString();
     const wallet = await getOrCreateWallet(base44, userId);
     
-    let xpGained = 0;
+    let progressXpGained = 0;
     const xpTransactions = [];
 
     for (const ch of toCreate) {
@@ -97,16 +122,18 @@ Deno.serve(async (req) => {
       // Check for existing XP transaction
       const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': idempotencyKey });
       if (existingTx.length === 0) {
+        // Apply multiplier at earn time
+        const xpAmount = Math.floor(BASE_XP_PER_CHAPTER * multiplier);
         xpTransactions.push({
           userId,
           type: 'earn_progress_xp',
           source: 'chapter_read',
-          amount: PROGRESS_XP_PER_CHAPTER,
+          amount: xpAmount,
           idempotencyKey,
-          metadataJson: JSON.stringify({ chapterId: ch.chapterId, dateKey: ch.dateKey }),
+          metadataJson: JSON.stringify({ chapterId: ch.chapterId, dateKey: ch.dateKey, baseXp: BASE_XP_PER_CHAPTER, multiplier }),
           createdAt: now,
         });
-        xpGained += PROGRESS_XP_PER_CHAPTER;
+        progressXpGained += xpAmount;
       }
     }
 
@@ -140,7 +167,7 @@ Deno.serve(async (req) => {
       const allTx = [...xpTransactions, ...currencyTransactions];
       await base44.asServiceRole.entities.XPTransaction.bulkCreate(allTx);
 
-      const newProgressXp = (wallet.progressXpTotal ?? 0) + xpGained;
+      const newProgressXp = (wallet.progressXpTotal ?? 0) + progressXpGained;
       const newLevel = Math.floor(newProgressXp / 1000) + 1;
       const newSpendableXp = (wallet.spendableXp ?? 0) + currencyGained;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
@@ -157,8 +184,9 @@ Deno.serve(async (req) => {
     return Response.json({
       created: Array.isArray(createdLogs) ? createdLogs : toCreate,
       skipped,
-      xpGranted: xpGained,
+      progressXpGranted: progressXpGained,
       currencyGranted: currencyGained,
+      multiplier,
       wallet,
     });
   } catch (error) {
