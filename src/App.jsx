@@ -20,6 +20,7 @@ import TreasuryPreviewPage from './pages/TreasuryPreviewPage';
 import ShareSummary from './pages/ShareSummary';
 import ComingSoonPage from './pages/ComingSoonPage';
 import UserDetail from './pages/UserDetail';
+import AdminTools from './pages/AdminTools';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -109,6 +110,7 @@ const AuthenticatedApp = () => {
       <Route path="/coming-soon" element={<ComingSoonPage />} />
       <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
       <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
+      <Route path="/admin-tools" element={<LayoutWrapper currentPageName="admin-tools"><AdminTools /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
