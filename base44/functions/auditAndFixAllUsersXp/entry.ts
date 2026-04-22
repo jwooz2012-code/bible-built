@@ -69,86 +69,108 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
     }
     
-    // Get all users
-    const allUsers = await base44.asServiceRole.entities.User.list('-created_date', 10000);
-    
+    // Get all users in smaller batches to avoid timeout
     const results = [];
     let updated = 0;
     let errors = 0;
+    let offset = 0;
+    const pageSize = 50;
+    let hasMore = true;
+    let totalProcessed = 0;
     
-    // Process each user in batches with delay
-    for (let i = 0; i < allUsers.length; i++) {
-      const currentUser = allUsers[i];
+    while (hasMore) {
+      const batch = await base44.asServiceRole.entities.User.list('-created_date', pageSize);
       
-      try {
-        // Recalculate XP for this user
-        const calculated = await recalculateUserXp(base44, currentUser.id);
+      if (batch.length === 0) {
+        hasMore = false;
+        break;
+      }
+      
+      // Process each user in this batch
+      for (let i = 0; i < batch.length; i++) {
+        const currentUser = batch[i];
         
-        // Get or create wallet
-        const wallets = await base44.asServiceRole.entities.UserWallet.filter(
-          { 'data.userId': currentUser.id },
-          '-created_date',
-          1
-        );
-        
-        let wallet;
-        const now = new Date().toISOString();
-        
-        if (wallets.length > 0) {
-          // Update existing wallet
-          wallet = wallets[0];
-          wallet = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-            progressXpTotal: calculated.progressXpTotal,
-            spendableXp: calculated.spendableXp,
-            level: calculated.level,
-            updatedAt: now,
-          });
-        } else {
-          // Create new wallet
-          wallet = await base44.asServiceRole.entities.UserWallet.create({
+        try {
+          // Recalculate XP for this user
+          const calculated = await recalculateUserXp(base44, currentUser.id);
+          
+          // Get or create wallet
+          const wallets = await base44.asServiceRole.entities.UserWallet.filter(
+            { 'data.userId': currentUser.id },
+            '-created_date',
+            1
+          );
+          
+          let wallet;
+          const now = new Date().toISOString();
+          
+          if (wallets.length > 0) {
+            // Update existing wallet
+            wallet = wallets[0];
+            wallet = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
+              progressXpTotal: calculated.progressXpTotal,
+              spendableXp: calculated.spendableXp,
+              level: calculated.level,
+              updatedAt: now,
+            });
+          } else {
+            // Create new wallet
+            wallet = await base44.asServiceRole.entities.UserWallet.create({
+              userId: currentUser.id,
+              progressXpTotal: calculated.progressXpTotal,
+              spendableXp: calculated.spendableXp,
+              level: calculated.level,
+              updatedAt: now,
+            });
+          }
+          
+          results.push({
             userId: currentUser.id,
+            email: currentUser.email,
             progressXpTotal: calculated.progressXpTotal,
             spendableXp: calculated.spendableXp,
             level: calculated.level,
-            updatedAt: now,
+            bonuses: calculated.bonuses,
+            spent: calculated.spent,
+            uniqueChapters: calculated.uniqueChapters,
+            status: 'updated',
+          });
+          
+          updated++;
+        } catch (err) {
+          errors++;
+          results.push({
+            userId: currentUser.id,
+            email: currentUser.email,
+            status: 'error',
+            error: err.message,
           });
         }
         
-        results.push({
-          userId: currentUser.id,
-          email: currentUser.email,
-          progressXpTotal: calculated.progressXpTotal,
-          spendableXp: calculated.spendableXp,
-          level: calculated.level,
-          bonuses: calculated.bonuses,
-          spent: calculated.spent,
-          uniqueChapters: calculated.uniqueChapters,
-          status: 'updated',
-        });
-        
-        updated++;
-      } catch (err) {
-        errors++;
-        results.push({
-          userId: currentUser.id,
-          email: currentUser.email,
-          status: 'error',
-          error: err.message,
-        });
+        // Throttle: add delay every 5 users
+        if ((i + 1) % 5 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
       }
       
-      // Throttle: add delay every 10 users
-      if ((i + 1) % 10 === 0) {
-        await new Promise(resolve => setTimeout(resolve, 500));
+      totalProcessed += batch.length;
+      
+      // If batch was smaller than pageSize, we've reached the end
+      if (batch.length < pageSize) {
+        hasMore = false;
       }
+      
+      // Delay between batches
+      await new Promise(resolve => setTimeout(resolve, 2000));
     }
     
     return Response.json({
       success: true,
-      totalUsers: allUsers.length,
+      totalProcessed,
       updated,
       errors,
-      results,
+      results: results.slice(0, 100), // Return first 100 for logs
+      totalResults: results.length,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
