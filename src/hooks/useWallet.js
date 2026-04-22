@@ -22,10 +22,22 @@ export function useWallet() {
       const wallets = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
       if (wallets.length > 0) {
         // Guard: always use wallet with highest XP in case of duplicates
-        return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+        const w = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+        // Auto-backfill if treasury balance is 0 (likely not yet backfilled)
+        if ((w.treasuryCurrencyBalance ?? 0) === 0) {
+          try {
+            const res = await base44.functions.invoke('backfillTreasury', {});
+            if (res.data?.wallet) return res.data.wallet;
+          } catch (e) {
+            console.log('[useWallet] backfill failed silently:', e.message);
+          }
+        }
+        return w;
       }
       // Wallet doesn't exist — init it (backfills from historical logs)
       const res = await base44.functions.invoke('initUserWallet', {});
+      // After init, run backfill too
+      try { await base44.functions.invoke('backfillTreasury', {}); } catch (_) {}
       return res.data?.wallet ?? null;
     },
     enabled: !!user?.id,
