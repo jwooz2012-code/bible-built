@@ -45,16 +45,21 @@ Deno.serve(async (req) => {
       console.log('[consolidate] userId:', userId, 'txns:', txns.length, 'wallets:', wallets.length);
 
       // Compute correct progressXpTotal from earn_progress_xp + adjustment transactions
-      // Also load the user's legacy xp field as a floor
-      const userRecords = await base44.asServiceRole.entities.User.filter({ 'data.id': userId });
-      const legacyXp = userRecords.length > 0 ? (userRecords[0].xp ?? 0) : 0;
-
       const txnXp = txns
         .filter(t => t.type === 'earn_progress_xp' || t.type === 'adjustment')
         .reduce((sum, t) => sum + (t.amount ?? 0), 0);
 
-      // Use the higher of transaction-derived XP or legacy user.xp (profile is source of truth)
-      const progressXp = Math.max(txnXp, legacyXp);
+      // Also check the existing wallet's progressXpTotal as a floor (already-correct wallets)
+      const existingMaxXp = wallets.reduce((max, w) => Math.max(max, w.progressXpTotal ?? 0), 0);
+
+      // If still 0, derive from reading logs (10 XP per unique chapter)
+      let progressXp = Math.max(txnXp, existingMaxXp);
+      if (progressXp === 0) {
+        const logs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000);
+        const uniqueChapters = new Set(logs.map(l => l.chapterId)).size;
+        progressXp = uniqueChapters * 10;
+        console.log('[consolidate] derived xp from logs for', userId, ':', progressXp, '(', uniqueChapters, 'unique chapters)');
+      }
 
       // Compute correct treasury balance from earn_currency + spend_currency
       const treasuryBalance = txns
