@@ -72,8 +72,18 @@ export function useWallet() {
     },
   });
 
-  // Calculate spendable XP: (chapters read × 100) - artifacts purchased
-  const spendableXp = Math.max(0, chaptersRead * 100 - artifactSpent);
+  // Calculate spendable XP: (chapters read × 100) + bonuses - artifacts purchased
+  const { data: bonusXp = 0 } = useQuery({
+    queryKey: ['bonusXp', user?.id],
+    queryFn: async () => {
+      const transactions = await base44.entities.XPTransaction.filter({ 'data.userId': user.id, 'data.type': 'earn_currency' });
+      return transactions.reduce((sum, t) => sum + (t.amount ?? 0), 0);
+    },
+    enabled: !!user?.id,
+    staleTime: 30000,
+  });
+
+  const spendableXp = Math.max(0, (chaptersRead * 100) + bonusXp - artifactSpent);
 
   return {
     wallet,
@@ -81,7 +91,7 @@ export function useWallet() {
     spendableXp,
     treasuryBalance: spendableXp,
     progressXp: spendableXp,
-    progressXpTotal: chaptersRead * 100,
+    progressXpTotal: (chaptersRead * 100) + bonusXp,
     walletLevel: wallet?.level ?? 1,
     grantMilestone: grantMilestoneMutation.mutateAsync,
   };
