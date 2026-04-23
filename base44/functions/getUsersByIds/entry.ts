@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       full_name: u.full_name,
       displayName: u.displayName,
       email: u.email,
-      xp: walletMap[u.id]?.progressXpTotal ?? 0,
+      xp: walletMap[u.id]?.spendableXp ?? 0,
       level: walletMap[u.id]?.level ?? 1,
       avatarType: u.avatarType,
       avatarPhotoUrl: u.avatarPhotoUrl,
