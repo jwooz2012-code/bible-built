@@ -10,10 +10,28 @@ Deno.serve(async (req) => {
     return Response.json({ users: [] });
   }
 
-  const allUsers = await base44.asServiceRole.entities.User.list();
+  const [allUsers, wallets] = await Promise.all([
+    base44.asServiceRole.entities.User.list(),
+    base44.asServiceRole.entities.UserWallet.list(),
+  ]);
+
+  const walletMap = {};
+  wallets.forEach(w => { walletMap[w.userId] = w; });
+
   const filtered = allUsers
     .filter(u => ids.includes(u.id))
-    .map(u => ({ id: u.id, full_name: u.full_name, displayName: u.displayName, email: u.email, xp: u.xp ?? 0, avatarType: u.avatarType, avatarPhotoUrl: u.avatarPhotoUrl, avatarEmoji: u.avatarEmoji, avatarDefaultId: u.avatarDefaultId }));
+    .map(u => ({
+      id: u.id,
+      full_name: u.full_name,
+      displayName: u.displayName,
+      email: u.email,
+      xp: walletMap[u.id]?.progressXpTotal ?? 0,
+      level: walletMap[u.id]?.level ?? 1,
+      avatarType: u.avatarType,
+      avatarPhotoUrl: u.avatarPhotoUrl,
+      avatarEmoji: u.avatarEmoji,
+      avatarDefaultId: u.avatarDefaultId,
+    }));
 
   return Response.json({ users: filtered });
 });
