@@ -456,9 +456,13 @@ export default function Social() {
                       onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
                       className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
                     >
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shrink-0">
-                        <span className="text-lg font-bold text-white">{g.name[0].toUpperCase()}</span>
-                      </div>
+                      {g.avatarUrl ? (
+                        <img src={g.avatarUrl} alt={g.name} className="w-10 h-10 rounded-xl object-cover shrink-0 border border-border" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shrink-0">
+                          <span className="text-lg font-bold text-white">{g.name[0].toUpperCase()}</span>
+                        </div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-foreground truncate">{g.name}</p>
                         <p className="text-xs text-muted-foreground">👥 {(g.memberIds ?? []).length} members</p>
