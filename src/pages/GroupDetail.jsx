@@ -295,27 +295,28 @@ export default function GroupDetail() {
       )}
       <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]">
         {/* Header */}
-        <div className="mb-3">
-          <div className="flex items-center gap-3 mb-1">
-            <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-xl font-bold text-foreground">{group?.name ?? groupName}</h1>
-              <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
-            </div>
+        <div className="flex items-center gap-3 mb-3">
+          <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
+            <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
           </div>
-          <div className="flex gap-2 pl-12">
-            <button onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors">
-              <UserPlus className="w-3.5 h-3.5" /> Add Friends
-            </button>
-            <button onClick={shareInvite}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors">
-              {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copied ? 'Copied!' : 'Share Invite'}
-            </button>
-          </div>
+          <button
+            onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
+            className="h-8 w-8 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-colors shrink-0"
+            title="Add Friends"
+          >
+            <UserPlus className="w-4 h-4 text-muted-foreground" />
+          </button>
+          <button
+            onClick={shareInvite}
+            className="h-8 w-8 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-colors shrink-0"
+            title="Share Invite"
+          >
+            {copied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4 text-muted-foreground" />}
+          </button>
         </div>
 
         {/* Invite Friends Panel */}
