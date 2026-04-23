@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw, Sparkles, BookOpen, Trophy } from 'lucide-react';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw, Sparkles, BookOpen, Trophy, Copy, CheckCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
@@ -60,6 +60,7 @@ export default function Social() {
   const [joinGroupId, setJoinGroupId] = useState('');
   const [creatingGroup, setCreatingGroup] = useState(false);
   const [joiningGroup, setJoiningGroup] = useState(false);
+  const [copiedGroupId, setCopiedGroupId] = useState(null);
 
   // Feed state
   const [feedItems, setFeedItems] = useState([]);
@@ -436,23 +437,51 @@ export default function Social() {
           </div>
         ) : (
           <div className="space-y-2">
-            {groups.map((g, i) => (
-              <motion.div key={g.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
-                <button
-                  onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
-                >
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shrink-0">
-                    <span className="text-lg font-bold text-white">{g.name[0].toUpperCase()}</span>
+            {groups.map((g, i) => {
+              const isOwner = g.ownerId === user?.id;
+              const isCopied = copiedGroupId === g.id;
+              const copyGroupId = (e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(g.id);
+                setCopiedGroupId(g.id);
+                toast.success('Group ID copied!');
+                setTimeout(() => setCopiedGroupId(null), 2000);
+              };
+              return (
+                <motion.div key={g.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                  <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                    <button
+                      onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
+                      className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shrink-0">
+                        <span className="text-lg font-bold text-white">{g.name[0].toUpperCase()}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{g.name}</p>
+                        <p className="text-xs text-muted-foreground">👥 {(g.memberIds ?? []).length} members</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                    {isOwner && (
+                      <div className="flex items-center gap-2 px-4 py-2 border-t border-border bg-muted/30">
+                        <p className="text-[11px] text-muted-foreground flex-1">
+                          <span className="font-semibold text-foreground">Group ID:</span> <span className="font-mono">{g.id}</span>
+                        </p>
+                        <button
+                          onClick={copyGroupId}
+                          className="flex items-center gap-1 h-6 px-2 rounded-lg text-[11px] font-semibold transition-colors"
+                          style={isCopied ? { color: '#16A34A' } : { color: 'hsl(var(--muted-foreground))' }}
+                        >
+                          {isCopied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                          {isCopied ? 'Copied!' : 'Copy'}
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{g.name}</p>
-                    <p className="text-xs text-muted-foreground">👥 {(g.memberIds ?? []).length} members</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
         )}
       </div>
