@@ -120,12 +120,18 @@ export default function GroupDetail() {
     setGroup(grp);
     const memberIds = grp.memberIds ?? [];
     if (memberIds.length === 0) { setLoading(false); return; }
-    const [usersRes, logsRes, graceRes] = await Promise.all([
+    const [usersRes, logsRes, graceRes, wallets] = await Promise.all([
       base44.functions.invoke('getUsersByIds', { ids: memberIds }),
       base44.functions.invoke('getGroupReadingLogs', { memberIds }),
       base44.functions.invoke('getGraceDaysByIds', { ids: memberIds }),
+      base44.entities.UserWallet.list(),
     ]);
-    const grpMembers = usersRes.data?.users ?? [];
+    const walletMap = {};
+    (wallets ?? []).forEach(w => { walletMap[w.userId] = w; });
+    const grpMembers = (usersRes.data?.users ?? []).map(u => ({
+      ...u,
+      spendableXp: walletMap[u.id]?.spendableXp ?? 0,
+    }));
     setMembers(grpMembers);
     const uMap = {};
     grpMembers.forEach(u => { uMap[u.id] = u; });
@@ -178,7 +184,7 @@ export default function GroupDetail() {
     const todayKey = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
     const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= todayKey);
     const streak = m.streak ?? calcStreakWithGrace(allLogs, m.id, graceDayRecords);
-    const xp = m.xp ?? 0;
+    const xp = m.spendableXp ?? 0;
     return { member: m, weekChapters: weekLogs.length, streak, xp };
   });
 
