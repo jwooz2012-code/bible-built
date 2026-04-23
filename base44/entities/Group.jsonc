@@ -39,6 +39,10 @@
       "type": "boolean",
       "default": false,
       "description": "Whether the goal badge has been awarded"
+    },
+    "avatarUrl": {
+      "type": "string",
+      "description": "URL of the group's profile picture"
     }
   },
   "required": [

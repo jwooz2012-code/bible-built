@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand, Sparkles } from 'lucide-react';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand, Sparkles, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
+import GroupEditSheet from '@/components/group/GroupEditSheet';
 
 function timeAgo(isoString) {
   const diff = (Date.now() - new Date(isoString)) / 1000;
@@ -107,6 +108,7 @@ export default function GroupDetail() {
   const [invitedFriends, setInvitedFriends] = useState({});
   const [confirmRemove, setConfirmRemove] = useState(null); // member object to remove
   const [highFivedLogs, setHighFivedLogs] = useState({});
+  const [showEditSheet, setShowEditSheet] = useState(false);
 
   const load = useCallback(async () => {
     if (!groupId) return;
@@ -271,6 +273,13 @@ export default function GroupDetail() {
 
   return (
     <div className="min-h-screen bg-background pb-28">
+      {showEditSheet && (
+        <GroupEditSheet
+          group={group}
+          onClose={() => setShowEditSheet(false)}
+          onSaved={(updated) => setGroup(updated)}
+        />
+      )}
       {/* Remove member confirm dialog */}
       {confirmRemove && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-6">
@@ -299,8 +308,28 @@ export default function GroupDetail() {
           <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
+          {/* Group avatar */}
+          <div className="relative shrink-0">
+            {group?.avatarUrl ? (
+              <img src={group.avatarUrl} alt="group" className="w-10 h-10 rounded-xl object-cover border border-border" />
+            ) : (
+              <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-lg font-bold text-muted-foreground">
+                {(group?.name ?? groupName)[0]?.toUpperCase()}
+              </div>
+            )}
+            {isOwner && (
+              <button
+                onClick={() => setShowEditSheet(true)}
+                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-foreground border-2 border-card flex items-center justify-center"
+              >
+                <Pencil className="w-2.5 h-2.5 text-background" />
+              </button>
+            )}
+          </div>
           <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
+            <div className="flex items-center gap-1.5">
+              <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
+            </div>
             <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
           </div>
         </div>
