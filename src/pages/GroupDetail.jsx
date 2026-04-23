@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2 } from 'lucide-react';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -105,6 +105,7 @@ export default function GroupDetail() {
   const [friendSearch, setFriendSearch] = useState('');
   const [invitedFriends, setInvitedFriends] = useState({});
   const [confirmRemove, setConfirmRemove] = useState(null); // member object to remove
+  const [highFivedLogs, setHighFivedLogs] = useState({});
 
   const load = useCallback(async () => {
     if (!groupId) return;
@@ -233,6 +234,23 @@ export default function GroupDetail() {
     setEncouraged(prev => ({ ...prev, [member.id]: true }));
     await base44.functions.invoke('sendNudge', { receiverId: member.id });
     toast('🙏 Encouragement sent!', { duration: 1500 });
+  };
+
+  const handleHighFive = async (log) => {
+    if (highFivedLogs[log.id] || log.userId === user?.id) return;
+    triggerHaptic();
+    setHighFivedLogs(prev => ({ ...prev, [log.id]: true }));
+    try {
+      await base44.functions.invoke('sendHighFive', {
+        receiverId: log.userId,
+        book: log.book,
+        chapter: log.chapter,
+      });
+      toast('🙌 High five sent!', { duration: 1200 });
+    } catch {
+      setHighFivedLogs(prev => ({ ...prev, [log.id]: false }));
+      toast.error('Could not send high five');
+    }
   };
 
   if (loading) {
@@ -406,16 +424,26 @@ export default function GroupDetail() {
                 const name = fu?.full_name ?? fu?.displayName ?? 'A member';
                 return (
                   <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                    <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={32} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground">
-                        <span className="font-semibold">{log.userId === user?.id ? 'You' : name}</span>
-                        {' finished '}
-                        <span className="font-medium">{log.book} {log.chapter}</span>
-                        {' 🔥'}
-                      </p>
-                      <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
-                    </div>
+                   <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={32} />
+                   <div className="flex-1 min-w-0">
+                     <p className="text-sm text-foreground">
+                       <span className="font-semibold">{log.userId === user?.id ? 'You' : name}</span>
+                       {' finished '}
+                       <span className="font-medium">{log.book} {log.chapter}</span>
+                       {' 🔥'}
+                     </p>
+                     <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
+                   </div>
+                   {log.userId !== user?.id && (
+                     <button
+                       onClick={() => handleHighFive(log)}
+                       disabled={highFivedLogs[log.id]}
+                       className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors shrink-0 ${highFivedLogs[log.id] ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-muted hover:bg-muted/80'}`}
+                       title="High five"
+                     >
+                       <Hand className={`w-4 h-4 ${highFivedLogs[log.id] ? 'text-amber-500' : 'text-muted-foreground'}`} />
+                     </button>
+                   )}
                   </div>
                 );
               })}

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Heart, RefreshCw } from 'lucide-react';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { useAuth } from '@/lib/AuthContext';
@@ -64,6 +64,7 @@ export default function Social() {
   const [feedItems, setFeedItems] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
   const [refreshing, setRefreshing] = useState(false);
+  const [highFivedLogs, setHighFivedLogs] = useState({});
 
   // Recap
   const [recapNotif, setRecapNotif] = useState(null);
@@ -114,21 +115,36 @@ export default function Social() {
 
   const loadFeed = useCallback(async () => {
     if (!user?.id) return;
+    // Collect friend IDs
     const [sent, received] = await Promise.all([
       base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
       base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
     ]);
-    const all = [...sent, ...received];
-    const friendIds = all.map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
-    if (friendIds.length === 0) { setFeedItems([]); return; }
-    const logs = await base44.entities.ReadingLog.list('-created_date', 50);
-    const friendLogs = logs.filter(l => friendIds.includes(l.userId));
-    setFeedItems(friendLogs.slice(0, 20));
-    const res = await base44.functions.invoke('getUsersByIds', { ids: friendIds });
+    const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
+
+    // Also collect group member IDs
+    const groupIds = user.groupIds ?? [];
+    let groupMemberIds = [];
+    if (groupIds.length > 0) {
+      const allGroups = await base44.entities.Group.filter({});
+      const myGroups = allGroups.filter(g => groupIds.includes(g.id));
+      myGroups.forEach(g => { groupMemberIds.push(...(g.memberIds ?? [])); });
+    }
+
+    // Union of friends + group members, excluding self
+    const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id !== user.id);
+    if (allSocialIds.length === 0) { setFeedItems([]); return; }
+
+    // Fetch recent logs and filter to social circle
+    const logs = await base44.entities.ReadingLog.list('-created_date', 100);
+    const socialLogs = logs.filter(l => allSocialIds.includes(l.userId));
+    setFeedItems(socialLogs.slice(0, 30));
+
+    const res = await base44.functions.invoke('getUsersByIds', { ids: allSocialIds });
     const map = {};
     (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
     setFeedUsers(map);
-  }, [user?.id]);
+  }, [user?.id, user?.groupIds]);
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
 
@@ -206,9 +222,21 @@ export default function Social() {
     setJoiningGroup(false);
   };
 
-  const sendHighFive = (log) => {
+  const sendHighFive = async (log) => {
+    if (highFivedLogs[log.id]) return;
     triggerHaptic();
-    toast('🙌 High five sent!', { duration: 1200 });
+    setHighFivedLogs(prev => ({ ...prev, [log.id]: true }));
+    try {
+      await base44.functions.invoke('sendHighFive', {
+        receiverId: log.userId,
+        book: log.book,
+        chapter: log.chapter,
+      });
+      toast('🙌 High five sent!', { duration: 1200 });
+    } catch {
+      setHighFivedLogs(prev => ({ ...prev, [log.id]: false }));
+      toast.error('Could not send high five');
+    }
   };
 
   // ── Tab content ────────────────────────────────────────────
@@ -466,9 +494,11 @@ export default function Social() {
                 </div>
                 <button
                   onClick={() => sendHighFive(log)}
-                  className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted hover:bg-muted/80 transition-colors shrink-0"
+                  disabled={highFivedLogs[log.id]}
+                  className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors shrink-0 ${highFivedLogs[log.id] ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-muted hover:bg-muted/80'}`}
+                  title="High five"
                 >
-                  <Heart className="w-4 h-4 text-muted-foreground" />
+                  <Hand className={`w-4 h-4 ${highFivedLogs[log.id] ? 'text-amber-500' : 'text-muted-foreground'}`} />
                 </button>
               </div>
             );

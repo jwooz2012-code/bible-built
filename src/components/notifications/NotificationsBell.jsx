@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Bell, X, Check, UserPlus, HandHeart, Star } from 'lucide-react';
+import { Bell, X, Check, UserPlus, HandHeart, Star, Hand } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -10,6 +10,7 @@ const TYPE_ICON = {
   nudge: HandHeart,
   group_invite: Star,
   league_promotion: Star,
+  high_five: Hand,
 };
 
 function timeAgo(iso) {

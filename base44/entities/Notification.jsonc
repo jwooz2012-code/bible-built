@@ -12,7 +12,8 @@
         "friend_request",
         "group_invite",
         "nudge",
-        "league_promotion"
+        "league_promotion",
+        "high_five"
       ],
       "description": "Type of notification"
     },
@@ -26,7 +27,7 @@
     },
     "relatedId": {
       "type": "string",
-      "description": "Related entity ID (Friendship, Group, etc.)"
+      "description": "Related entity ID (Friendship, Group, User, etc.)"
     },
     "createdAt": {
       "type": "string",
