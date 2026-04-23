@@ -1,4 +1,19 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+
+async function fetchWithRetry(fn, maxRetries = 3) {
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (err.status === 429 && i < maxRetries - 1) {
+        const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
+        await new Promise(r => setTimeout(r, delay));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -10,8 +25,8 @@ Deno.serve(async (req) => {
     return Response.json({ users: [] });
   }
 
-  const allUsers = await base44.asServiceRole.entities.User.list();
-  const allWallets = await base44.asServiceRole.entities.UserWallet.list();
+  const allUsers = await fetchWithRetry(() => base44.asServiceRole.entities.User.list());
+  const allWallets = await fetchWithRetry(() => base44.asServiceRole.entities.UserWallet.list());
   const walletMap = {};
   allWallets.forEach(w => { walletMap[w.userId] = w; });
   
