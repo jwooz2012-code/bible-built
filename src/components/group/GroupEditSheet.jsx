@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Camera, Loader2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { useTheme } from '@/components/ThemeProvider';
 
 export default function GroupEditSheet({ group, onClose, onSaved }) {
+  const { energyMode } = useTheme();
   const [name, setName] = useState(group.name ?? '');
   const [avatarUrl, setAvatarUrl] = useState(group.avatarUrl ?? '');
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
@@ -53,13 +55,14 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
         style={{ paddingBottom: 80 }}
         onClick={onClose}
       >
-        <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
+        <div className={`absolute inset-0 backdrop-blur-sm ${energyMode ? 'bg-black/70' : 'bg-black/50'}`} />
         <motion.div
           initial={{ y: '100%' }}
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-          className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto overflow-y-auto"
+          className="relative w-full rounded-t-3xl max-w-lg mx-auto overflow-y-auto"
+          style={energyMode ? { background: 'hsl(var(--card))', borderTop: '1px solid hsl(var(--primary) / 0.4)', boxShadow: '0 -4px 30px hsl(var(--primary) / 0.15)' } : { background: 'hsl(var(--card))' }}
           style={{ maxHeight: 'calc(100vh - 160px)' }}
           onClick={e => e.stopPropagation()}
         >
@@ -129,7 +132,11 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
             <button
               onClick={handleSave}
               disabled={saving || !name.trim()}
-              className="w-full h-14 rounded-2xl text-base font-bold bg-foreground text-background flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
+              className="w-full h-14 rounded-2xl text-base font-bold flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
+              style={energyMode
+                ? { background: 'hsl(var(--primary))', color: '#fff', boxShadow: '0 0 16px hsl(var(--primary) / 0.5)' }
+                : { background: 'hsl(var(--foreground))', color: 'hsl(var(--background))' }
+              }
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
             </button>

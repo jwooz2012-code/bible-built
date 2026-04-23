@@ -4,6 +4,7 @@ import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserP
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useTheme } from '@/components/ThemeProvider';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
@@ -234,6 +235,7 @@ export default function GroupDetail() {
     }
   };
 
+  const { energyMode } = useTheme();
   const isOwner = group?.ownerId === user?.id;
 
   const handleEncourage = async (member) => {
@@ -320,7 +322,11 @@ export default function GroupDetail() {
             {isOwner && (
               <button
                 onClick={() => setShowEditSheet(true)}
-                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-foreground border-2 border-card flex items-center justify-center"
+                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-card flex items-center justify-center"
+                style={energyMode
+                  ? { background: 'hsl(var(--primary))', boxShadow: '0 0 6px hsl(var(--primary) / 0.7)' }
+                  : { background: 'hsl(var(--foreground))' }
+                }
               >
                 <Pencil className="w-2.5 h-2.5 text-background" />
               </button>
