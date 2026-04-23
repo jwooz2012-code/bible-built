@@ -59,7 +59,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 24px)' }}
+          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Handle */}
