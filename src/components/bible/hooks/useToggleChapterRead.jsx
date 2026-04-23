@@ -251,17 +251,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
   const undoRead = useMutation({
     mutationFn: async ({ userId, chapterId }) => {
-      if (!userId) {
-        throw new Error('User ID is required. Please log in again.');
-      }
-      const logs = await base44.entities.ReadingLog.filter({ userId, chapterId });
-      if (logs.length === 0) throw new Error('No matching log found');
-      const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+      if (!userId) throw new Error('User ID is required. Please log in again.');
 
-      // Delete the log first
-      await base44.entities.ReadingLog.delete(latestLog.id);
+      // Server handles log deletion + XP deduction atomically
+      const res = await base44.functions.invoke('removeChapterRead', { chapterId });
+      const { deletedLogId, dateKey } = res.data ?? {};
 
-      // Compute versesReadToday from remaining logs (ground truth)
+      // Recompute versesReadToday from remaining logs
       const todayKey = getDateKey();
       const remainingTodayLogs = await base44.entities.ReadingLog.filter({ userId, dateKey: todayKey });
       const uniqueToday = [...new Map(remainingTodayLogs.map(l => [l.chapterId, l])).values()];
@@ -271,11 +267,10 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const hasActivatedBibleBoost = actualVersesReadToday >= target;
       const updatePayload = { versesReadToday: actualVersesReadToday, hasActivatedBibleBoost };
 
-      // Only update versesReadToday and goal state — NOT xp/level (wallet is source of truth)
       updateUser(updatePayload);
-      await base44.auth.updateMe(updatePayload);
+      base44.auth.updateMe(updatePayload).catch(() => {});
 
-      return { deletedId: latestLog.id, chapterId, dateKey: latestLog.dateKey };
+      return { deletedId: deletedLogId, chapterId, dateKey };
     },
     onSuccess: (data, variables) => {
       const affectedDateKey = data.dateKey;
@@ -299,8 +294,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
       queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['xpTransactions', variables.userId] });
 
-      toast('Chapter unmarked');
+      toast('Chapter unmarked — XP removed');
     },
     onError: (error) => {
       console.error('[undoRead] Error:', error);
