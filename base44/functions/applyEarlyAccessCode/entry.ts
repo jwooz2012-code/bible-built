@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
 
     const earlyAccessCode = codeRecord[0];
     const usageCount = earlyAccessCode.usageCount || 0;
-    const usageLimit = earlyAccessCode.usageLimit || 10;
+    const usageLimit = earlyAccessCode.usageLimit || 100;
 
     if (usageCount >= usageLimit) {
       return Response.json({ error: 'Code usage limit reached' }, { status: 400 });
