@@ -56,6 +56,50 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
   const undoReadRef = useRef(null);
 
   const markRead = useMutation({
+    onMutate: async ({ userId, dateKey, chapterId, book, chapter, testament, bookIndex, timestamp }) => {
+      // Cancel any in-flight refetches so they don't overwrite our optimistic update
+      await queryClient.cancelQueries({ queryKey: ['dayLogs', userId, dateKey] });
+
+      // Snapshot previous value for rollback
+      const previousDayLogs = queryClient.getQueryData(['dayLogs', userId, dateKey]);
+
+      // Build a temporary optimistic log entry
+      const optimisticLog = {
+        id: `optimistic-${chapterId}-${dateKey}`,
+        userId, chapterId, dateKey, book, chapter, testament, bookIndex,
+        timestamp: timestamp ?? new Date().toISOString(),
+        xpEarned: Math.round(getVerseCount(book, chapter) * BASE_XP_PER_VERSE),
+        _optimistic: true,
+      };
+
+      // Immediately update the cache so the tile turns "read" instantly
+      queryClient.setQueryData(['dayLogs', userId, dateKey], (old = []) => {
+        const prev = Array.isArray(old) ? old : [];
+        if (prev.some(x => x.chapterId === chapterId && x.dateKey === dateKey)) return prev;
+        return [optimisticLog, ...prev];
+      });
+
+      queryClient.setQueriesData(
+        { predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === userId },
+        (old = []) => {
+          const prev = Array.isArray(old) ? old : [];
+          if (prev.some(x => x.chapterId === chapterId && x.dateKey === dateKey)) return prev;
+          return [optimisticLog, ...prev];
+        }
+      );
+
+      // Trigger the +1 floater animation immediately
+      window.dispatchEvent(new CustomEvent('biblebuilt:chapterRead', { detail: { chapterId } }));
+      triggerHaptic();
+
+      return { previousDayLogs, userId, dateKey };
+    },
+    onError: (_err, _vars, context) => {
+      // Roll back optimistic update on failure
+      if (context?.previousDayLogs !== undefined) {
+        queryClient.setQueryData(['dayLogs', context.userId, context.dateKey], context.previousDayLogs);
+      }
+    },
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
@@ -99,28 +143,29 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       return result;
     },
     onSuccess: (createdLog, variables) => {
+      // Replace optimistic entry with the real server entry
+      const optimisticId = `optimistic-${variables.chapterId}-${variables.dateKey}`;
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
-        if (prev.some(x => x.id === createdLog.id)) return prev;
-        return [createdLog, ...prev];
+        const filtered = prev.filter(x => x.id !== optimisticId);
+        if (filtered.some(x => x.id === createdLog.id)) return filtered;
+        return [createdLog, ...filtered];
       });
 
       queryClient.setQueriesData(
-        {
-          predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
-        },
+        { predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId },
         (old = []) => {
           const prev = Array.isArray(old) ? old : [];
-          if (prev.some(x => x.id === createdLog.id)) return prev;
-          return [createdLog, ...prev];
+          const filtered = prev.filter(x => x.id !== optimisticId);
+          if (filtered.some(x => x.id === createdLog.id)) return filtered;
+          return [createdLog, ...filtered];
         }
       );
 
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
       queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
+        predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId
       });
-      // Invalidate wallet so XP and balance update everywhere
       queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
       // Track daily goal for milestones and celebrations (verse-count based, UI only)
@@ -182,7 +227,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const bookBonusForToast = bookFinishedForToast ? getBookCompletionBonus(variables.book) : 0;
 
       if (bookFinishedForToast) {
-        triggerHaptic();
         toast.success(`📕 ${variables.book} complete! +${bookBonusForToast} XP`, {
           duration: 3500,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
