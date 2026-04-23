@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
-import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw } from 'lucide-react';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw, Sparkles, BookOpen, Trophy } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { useAuth } from '@/lib/AuthContext';
@@ -316,24 +317,45 @@ export default function Social() {
       <div>
         <SectionHeader title={`Friends${friends.length ? ` (${friends.length})` : ''}`} />
         {friends.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card">
-            <EmptyState icon={Users} text="No friends yet. Search to add some!" />
+          <div className="rounded-2xl border border-dashed border-border bg-card py-10 flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Users className="w-6 h-6 text-muted-foreground/40" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">No friends yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Search above to find and add friends</p>
+            </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
-            {friends.map(f => (
-              <div key={f.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+          <div className="space-y-2">
+            {friends.map((f, i) => (
+              <motion.div
+                key={f.id}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.05 }}
+              >
                 <button
                   onClick={() => navigate(`/user-detail?id=${f.id}`)}
-                  className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
                 >
-                  <AvatarDisplay initials={(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()} avatarData={f} size={32} />
+                  <AvatarDisplay initials={(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()} avatarData={f} size={40} />
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-foreground truncate">{f.full_name ?? f.displayName}</p>
-                    <p className="text-xs text-muted-foreground">View profile →</p>
+                    <p className="text-sm font-bold text-foreground truncate">{f.full_name ?? f.displayName}</p>
+                    <div className="flex items-center gap-2 mt-0.5">
+                      {(f.streak ?? f.streakDays) > 0 && (
+                        <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
+                          🔥 {f.streak ?? f.streakDays}d
+                        </span>
+                      )}
+                      {f.level > 0 && (
+                        <span className="text-xs text-muted-foreground">Lvl {f.level}</span>
+                      )}
+                    </div>
                   </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
-              </div>
+              </motion.div>
             ))}
           </div>
         )}
@@ -457,52 +479,90 @@ export default function Social() {
     setRefreshing(false);
   };
 
+  const testament_color = (t) => t === 'NT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
+
   const renderFeed = () => (
     <div>
-      <SectionHeader
-        title="Friends' Activity"
-        action={
-          <button
-            onClick={handleRefreshFeed}
-            disabled={refreshing}
-            className="h-8 w-8 flex items-center justify-center rounded-lg hover:bg-muted transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
-          </button>
-        }
-      />
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-amber-500" /> Community Activity
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">Friends & group members</p>
+        </div>
+        <button
+          onClick={handleRefreshFeed}
+          disabled={refreshing}
+          className="h-8 w-8 flex items-center justify-center rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
       {feedItems.length === 0 ? (
-        <div className="rounded-2xl border border-border bg-card">
-          <EmptyState icon={Flame} text="Add friends to see their reading activity here." />
+        <div className="rounded-2xl border border-dashed border-border bg-card py-12 flex flex-col items-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
+            <BookOpen className="w-7 h-7 text-muted-foreground/40" />
+          </div>
+          <div className="text-center">
+            <p className="text-sm font-semibold text-foreground">No activity yet</p>
+            <p className="text-xs text-muted-foreground mt-1">Add friends or join a group to see their reading here</p>
+          </div>
         </div>
       ) : (
-        <div className="rounded-2xl border border-border bg-card overflow-hidden">
-          {feedItems.map(log => {
-            const friendUser = feedUsers[log.userId];
-            const name = friendUser?.full_name ?? friendUser?.displayName ?? 'A friend';
-            return (
-              <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <AvatarDisplay initials={name[0].toUpperCase()} avatarData={friendUser} size={32} />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground">
-                    <span className="font-semibold">{name}</span>
-                    {' finished '}
-                    <span className="font-medium">{log.book} {log.chapter}</span>
-                    {' 🔥'}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
-                </div>
-                <button
-                  onClick={() => sendHighFive(log)}
-                  disabled={highFivedLogs[log.id]}
-                  className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors shrink-0 ${highFivedLogs[log.id] ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-muted hover:bg-muted/80'}`}
-                  title="High five"
+        <div className="space-y-3">
+          <AnimatePresence>
+            {feedItems.map((log, i) => {
+              const friendUser = feedUsers[log.userId];
+              const name = friendUser?.full_name ?? friendUser?.displayName ?? 'A friend';
+              const hifived = highFivedLogs[log.id];
+              return (
+                <motion.div
+                  key={log.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.04 }}
+                  className="rounded-2xl border border-border bg-card overflow-hidden"
                 >
-                  <Hand className={`w-4 h-4 ${highFivedLogs[log.id] ? 'text-amber-500' : 'text-muted-foreground'}`} />
-                </button>
-              </div>
-            );
-          })}
+                  <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
+                    <AvatarDisplay initials={name[0].toUpperCase()} avatarData={friendUser} size={38} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold text-foreground truncate">{name}</p>
+                      <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
+                    </div>
+                    {log.testament && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${testament_color(log.testament)}`}>
+                        {log.testament}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center justify-between px-4 pb-3.5">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+                      <p className="text-sm text-foreground">
+                        <span className="font-semibold">{log.book}</span>
+                        <span className="text-muted-foreground"> · Ch. {log.chapter}</span>
+                        {'  🔥'}
+                      </p>
+                    </div>
+                    <motion.button
+                      whileTap={{ scale: 0.85 }}
+                      onClick={() => sendHighFive(log)}
+                      disabled={hifived}
+                      className={`flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                        hifived
+                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                          : 'bg-muted hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20 text-muted-foreground'
+                      }`}
+                    >
+                      <Hand className="w-3.5 h-3.5" />
+                      {hifived ? 'High-fived! 🙌' : 'High Five'}
+                    </motion.button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
         </div>
       )}
     </div>
@@ -514,25 +574,27 @@ export default function Social() {
         {/* Header */}
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">Builder Community</h1>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              Builder Community
+            </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Friends, groups &amp; activity</p>
           </div>
           <NotificationsBell />
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 mb-5 bg-muted rounded-xl p-1">
+        <div className="flex gap-1 mb-5 bg-muted rounded-2xl p-1">
           {[
-            { key: 'friends', label: 'Friends' },
-            { key: 'groups', label: 'Groups' },
-            { key: 'feed', label: 'Activity' },
+            { key: 'friends', label: '👥 Friends' },
+            { key: 'groups', label: '✨ Groups' },
+            { key: 'feed', label: '🔥 Activity' },
           ].map(t => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className="flex-1 h-8 rounded-lg text-sm font-semibold transition-all"
+              className="flex-1 h-9 rounded-xl text-xs font-bold transition-all"
               style={tab === t.key
-                ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 2px 8px rgba(0,0,0,0.10)' }
                 : { color: 'hsl(var(--muted-foreground))' }
               }
             >
