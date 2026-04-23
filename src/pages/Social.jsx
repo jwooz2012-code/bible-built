@@ -465,20 +465,38 @@ export default function Social() {
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     </button>
-                    {isOwner && g.joinCode && (
+                    {isOwner && (
                       <div className="flex items-center gap-2 px-4 py-2 border-t border-border bg-muted/30">
-                        <p className="text-[11px] text-muted-foreground flex-1">
-                          <span className="font-semibold text-foreground">Join Code:</span>{' '}
-                          <span className="font-mono font-bold text-foreground tracking-widest">{g.joinCode}</span>
-                        </p>
-                        <button
-                          onClick={copyGroupId}
-                          className="flex items-center gap-1 h-6 px-2 rounded-lg text-[11px] font-semibold transition-colors"
-                          style={isCopied ? { color: '#16A34A' } : { color: 'hsl(var(--muted-foreground))' }}
-                        >
-                          {isCopied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
-                          {isCopied ? 'Copied!' : 'Copy'}
-                        </button>
+                        {g.joinCode ? (
+                          <>
+                            <p className="text-[11px] text-muted-foreground flex-1">
+                              <span className="font-semibold text-foreground">Join Code:</span>{' '}
+                              <span className="font-mono font-bold text-foreground tracking-widest">{g.joinCode}</span>
+                            </p>
+                            <button
+                              onClick={copyGroupId}
+                              className="flex items-center gap-1 h-6 px-2 rounded-lg text-[11px] font-semibold transition-colors"
+                              style={isCopied ? { color: '#16A34A' } : { color: 'hsl(var(--muted-foreground))' }}
+                            >
+                              {isCopied ? <CheckCheck className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                              {isCopied ? 'Copied!' : 'Copy'}
+                            </button>
+                          </>
+                        ) : (
+                          <button
+                            onClick={async (e) => {
+                              e.stopPropagation();
+                              const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                              const code = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                              await base44.entities.Group.update(g.id, { joinCode: code });
+                              loadGroups();
+                              toast.success('Join code generated!');
+                            }}
+                            className="text-[11px] font-semibold text-primary underline"
+                          >
+                            Generate join code
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
