@@ -304,22 +304,24 @@ export default function GroupDetail() {
             <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
           </div>
         </div>
-        {/* Action buttons below header */}
-        <div className="flex gap-2 mb-4 pl-12">
-          <button
-            onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
-            className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
-          >
-            <UserPlus className="w-3 h-3" /> Add Friends
-          </button>
-          <button
-            onClick={shareInvite}
-            className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
-          >
-            {copied ? <Check className="w-3 h-3 text-green-600" /> : <Share2 className="w-3 h-3" />}
-            {copied ? 'Copied!' : 'Share Invite'}
-          </button>
-        </div>
+        {/* Action buttons below header — owner only */}
+        {isOwner && (
+          <div className="flex gap-2 mb-4 pl-12">
+            <button
+              onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
+              className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
+            >
+              <UserPlus className="w-3 h-3" /> Add Friends
+            </button>
+            <button
+              onClick={shareInvite}
+              className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
+            >
+              {copied ? <Check className="w-3 h-3 text-green-600" /> : <Share2 className="w-3 h-3" />}
+              {copied ? 'Copied!' : 'Share Invite'}
+            </button>
+          </div>
+        )}
 
         {/* Invite Friends Panel */}
         {showInviteFriends && (
