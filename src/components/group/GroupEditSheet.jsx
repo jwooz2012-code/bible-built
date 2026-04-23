@@ -58,7 +58,8 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
-          className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto"
+          className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto overflow-y-auto"
+          style={{ maxHeight: '85vh' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Handle */}
@@ -73,7 +74,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
             </button>
           </div>
 
-          <div className="px-6 space-y-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}>
+          <div className="px-6 space-y-5 pb-10">
             {/* Avatar */}
             <div className="flex flex-col items-center gap-3">
               <button
