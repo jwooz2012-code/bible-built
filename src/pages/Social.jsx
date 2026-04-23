@@ -109,11 +109,12 @@ export default function Social() {
 
   const loadGroups = useCallback(async () => {
     if (!user?.id) return;
-    const groupIds = user.groupIds ?? [];
-    if (groupIds.length === 0) { setGroups([]); return; }
     const all = await base44.entities.Group.filter({});
-    setGroups(all.filter(g => groupIds.includes(g.id)));
-  }, [user?.id, user?.groupIds]);
+    const myGroups = all.filter(g =>
+      (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id
+    );
+    setGroups(myGroups);
+  }, [user?.id]);
 
   const loadFeed = useCallback(async () => {
     if (!user?.id) return;
