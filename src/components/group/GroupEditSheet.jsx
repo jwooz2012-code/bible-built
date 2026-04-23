@@ -50,6 +50,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         className="fixed inset-0 z-50 flex items-end"
+        style={{ paddingBottom: 80 }}
         onClick={onClose}
       >
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -59,7 +60,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto overflow-y-auto"
-          style={{ maxHeight: 'calc(100vh - 100px - env(safe-area-inset-bottom))' }}
+          style={{ maxHeight: 'calc(100vh - 160px)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Handle */}
