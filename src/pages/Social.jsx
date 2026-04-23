@@ -583,7 +583,7 @@ export default function Social() {
                   className="rounded-2xl border border-border bg-card overflow-hidden"
                 >
                   <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
-                    <AvatarDisplay initials={name[0].toUpperCase()} avatarData={friendUser} size={38} />
+                    <AvatarDisplay initials={name[0]?.toUpperCase() ?? '?'} avatarData={friendUser} size={38} />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold text-foreground truncate">{name}</p>
                       <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
