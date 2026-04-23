@@ -34,7 +34,7 @@ export function useWallet() {
       return w;
     },
     enabled: !!user?.id,
-    staleTime: 0,
+    staleTime: 30_000,
   });
 
   // XPTransaction is the single source of truth
@@ -65,7 +65,7 @@ export function useWallet() {
        };
      },
      enabled: !!user?.id,
-     staleTime: 0,
+     staleTime: 30_000,
    });
 
    const grantMilestoneMutation = useMutation({

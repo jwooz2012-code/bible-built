@@ -61,20 +61,10 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         throw new Error('User ID is required. Please log in again.');
       }
 
-      // Fetch equipped artifact for XP boost
-      let artifactBoost = 1.0;
-      try {
-        const equipped = await base44.entities.ArtifactOwnership.filter({ userId, isEquipped: true });
-        if (equipped.length > 0) {
-          const artifact = getArtifactById(equipped[0].artifactId);
-          if (artifact?.xpBoost) artifactBoost = artifact.xpBoost;
-        }
-      } catch (e) {}
-
-      // Compute full XP with all bonuses + artifact boost so it's stored on the log
+      // Compute full XP with all bonuses (artifact boost applied server-side)
       const verseCount = getVerseCount(book, chapter);
       const { multiplier } = calcXpMultipliers(book, chapter, user);
-      const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier * artifactBoost);
+      const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier);
 
       // Route through trusted server function for duplicate protection
       const res = await base44.functions.invoke('logChapterRead', {

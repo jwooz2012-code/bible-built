@@ -114,15 +114,30 @@ Deno.serve(async (req) => {
     const now = new Date().toISOString();
     const wallet = await getOrCreateWallet(base44, userId);
     
+    // Build all idempotency keys we need to check — batch in parallel
+    const chapterIdempotencyKeys = toCreate.map(ch => `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`);
+    const dailyIdempotencyKeys = dateKeys
+      .filter(dk => toCreate.some(c => c.dateKey === dk))
+      .map(dk => `milestone:${userId}:daily_reading_complete:${userId}:${dk}`);
+
+    const allKeysToCheck = [...chapterIdempotencyKeys, ...dailyIdempotencyKeys];
+
+    // Single batch fetch for ALL idempotency checks at once
+    const existingTxBatch = await Promise.all(
+      allKeysToCheck.map(key =>
+        base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': key })
+      )
+    );
+    const existingKeySet = new Set(
+      existingTxBatch.flatMap((txs, i) => txs.length > 0 ? [allKeysToCheck[i]] : [])
+    );
+
     let progressXpGained = 0;
     const xpTransactions = [];
 
     for (const ch of toCreate) {
       const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`;
-      // Check for existing XP transaction
-      const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': idempotencyKey });
-      if (existingTx.length === 0) {
-        // Apply multiplier at earn time
+      if (!existingKeySet.has(idempotencyKey)) {
         const xpAmount = Math.floor(BASE_XP_PER_CHAPTER * multiplier);
         xpTransactions.push({
           userId,
@@ -137,25 +152,19 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Check if any of the new logs represent a brand-new reading day (for 10₡ daily reward)
     let currencyGained = 0;
     const currencyTransactions = [];
     for (const dk of dateKeys) {
-      const dailyCurrencyKey = `daily_reading_complete:${userId}:${dk}`;
-      // Only grant if at least one chapter was created for this day
       const createdForDay = toCreate.filter(c => c.dateKey === dk);
       if (createdForDay.length === 0) continue;
-      const existingCurrencyTx = await base44.asServiceRole.entities.XPTransaction.filter({
-        'data.userId': userId,
-        'data.idempotencyKey': `milestone:${userId}:daily_reading_complete:${userId}:${dk}`,
-      });
-      if (existingCurrencyTx.length === 0) {
+      const dailyKey = `milestone:${userId}:daily_reading_complete:${userId}:${dk}`;
+      if (!existingKeySet.has(dailyKey)) {
         currencyTransactions.push({
           userId,
           type: 'earn_currency',
           source: 'daily_reading_complete',
           amount: 10,
-          idempotencyKey: `milestone:${userId}:daily_reading_complete:${userId}:${dk}`,
+          idempotencyKey: dailyKey,
           metadataJson: JSON.stringify({ dateKey: dk }),
           createdAt: now,
         });
