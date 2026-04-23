@@ -134,7 +134,11 @@ export default function GroupDetail() {
       graceMap[g.userId].push(g);
     });
     setGraceDayRecords(graceMap);
-    setFeedLogs(memberLogs.slice(0, 30));
+    // Sort ALL member logs by date descending so we see everyone's activity
+    const sortedLogs = [...memberLogs].sort((a, b) =>
+      new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp)
+    );
+    setFeedLogs(sortedLogs.slice(0, 40));
     setFeedUsers(uMap);
     setLoading(false);
   }, [groupId]);
@@ -291,23 +295,25 @@ export default function GroupDetail() {
       )}
       <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-1">
-          <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
-            <p className="text-xs text-muted-foreground">{members.length} members</p>
+        <div className="mb-3">
+          <div className="flex items-center gap-3 mb-1">
+            <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+            <div className="flex-1 min-w-0">
+              <h1 className="text-xl font-bold text-foreground">{group?.name ?? groupName}</h1>
+              <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
+            </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 pl-12">
             <button onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
               className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors">
-              <UserPlus className="w-3.5 h-3.5" /> Friends
+              <UserPlus className="w-3.5 h-3.5" /> Add Friends
             </button>
             <button onClick={shareInvite}
               className="flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold bg-muted hover:bg-muted/80 transition-colors">
               {copied ? <Check className="w-3.5 h-3.5 text-green-600" /> : <Share2 className="w-3.5 h-3.5" />}
-              {copied ? 'Copied!' : 'Share'}
+              {copied ? 'Copied!' : 'Share Invite'}
             </button>
           </div>
         </div>
