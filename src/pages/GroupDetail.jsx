@@ -120,12 +120,14 @@ export default function GroupDetail() {
     setGroup(grp);
     const memberIds = grp.memberIds ?? [];
     if (memberIds.length === 0) { setLoading(false); return; }
-    const [usersRes, logsRes, graceRes, wallets] = await Promise.all([
+    // Fetch wallets via backend function to ensure proper access
+    const walletRes = await base44.functions.invoke('getWalletsByIds', { ids: memberIds });
+    const [usersRes, logsRes, graceRes] = await Promise.all([
       base44.functions.invoke('getUsersByIds', { ids: memberIds }),
       base44.functions.invoke('getGroupReadingLogs', { memberIds }),
       base44.functions.invoke('getGraceDaysByIds', { ids: memberIds }),
-      base44.entities.UserWallet.list(),
     ]);
+    const wallets = walletRes.data?.wallets ?? [];
     const walletMap = {};
     (wallets ?? []).forEach(w => { walletMap[w.userId] = w; });
     const grpMembers = (usersRes.data?.users ?? []).map(u => ({
