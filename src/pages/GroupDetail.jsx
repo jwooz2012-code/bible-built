@@ -117,17 +117,17 @@ export default function GroupDetail() {
     setGroup(grp);
     const memberIds = grp.memberIds ?? [];
     if (memberIds.length === 0) { setLoading(false); return; }
-    const usersRes = await base44.functions.invoke('getUsersByIds', { ids: memberIds });
+    const [usersRes, logsRes, graceRes] = await Promise.all([
+      base44.functions.invoke('getUsersByIds', { ids: memberIds }),
+      base44.functions.invoke('getGroupReadingLogs', { memberIds }),
+      base44.functions.invoke('getGraceDaysByIds', { ids: memberIds }),
+    ]);
     const grpMembers = usersRes.data?.users ?? [];
     setMembers(grpMembers);
     const uMap = {};
     grpMembers.forEach(u => { uMap[u.id] = u; });
-    const logsByMember = await Promise.all(
-      memberIds.map(id => base44.entities.ReadingLog.filter({ userId: id }, '-created_date', 1000))
-    );
-    const memberLogs = logsByMember.flat();
+    const memberLogs = logsRes.data?.logs ?? [];
     setAllLogs(memberLogs);
-    const graceRes = await base44.functions.invoke('getGraceDaysByIds', { ids: memberIds });
     const graceMap = {};
     (graceRes.data?.graceDays ?? []).forEach(g => {
       if (!graceMap[g.userId]) graceMap[g.userId] = [];
