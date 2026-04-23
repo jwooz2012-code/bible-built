@@ -59,7 +59,6 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="relative w-full bg-card rounded-t-3xl max-w-lg mx-auto"
-          style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 100px)' }}
           onClick={e => e.stopPropagation()}
         >
           {/* Handle */}
@@ -74,7 +73,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
             </button>
           </div>
 
-          <div className="px-6 space-y-5">
+          <div className="px-6 space-y-5" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 32px)' }}>
             {/* Avatar */}
             <div className="flex flex-col items-center gap-3">
               <button
@@ -128,7 +127,7 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
             <button
               onClick={handleSave}
               disabled={saving || !name.trim()}
-              className="w-full h-12 rounded-2xl text-sm font-bold bg-foreground text-background flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
+              className="w-full h-14 rounded-2xl text-base font-bold bg-foreground text-background flex items-center justify-center gap-2 disabled:opacity-50 transition-opacity"
             >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Save Changes'}
             </button>
