@@ -30,7 +30,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AuthenticatedApp = () => {
+const AppContent = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, logout, retryAuth } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
@@ -68,51 +68,54 @@ const AuthenticatedApp = () => {
 
   // Render the main app
   return (
-    <Routes>
-      {/* Onboarding route - takes priority */}
-      <Route path="/onboarding" element={<OnboardingFlow />} />
-      <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
-      
-      {/* Redirect to onboarding or feature intro if needed */}
-      <Route path="/" element={
-        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
+    <>
+      <NavigationTracker />
+      <Routes>
+        {/* Onboarding route - takes priority */}
+        <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
+        
+        {/* Redirect to onboarding or feature intro if needed */}
+        <Route path="/" element={
+          needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
+            <LayoutWrapper currentPageName={mainPageKey}>
+              <MainPage />
+            </LayoutWrapper>
+          )
+        } />
+        {Object.entries(Pages).map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              needsOnboarding && path !== 'onboarding' ? (
+                <OnboardingFlow />
+              ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
+                <ReadingTrackingIntro />
+              ) : (
+                <LayoutWrapper currentPageName={path}>
+                  <Page />
+                </LayoutWrapper>
+              )
+            }
+          />
+        ))}
+        <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
+        <Route path="/social" element={
+          <LayoutWrapper currentPageName="social">
+            {user?.role === 'admin' || user?.hasEarlyAccess ? <Social /> : <BuildersLocked />}
           </LayoutWrapper>
-        )
-      } />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            needsOnboarding && path !== 'onboarding' ? (
-              <OnboardingFlow />
-            ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
-              <ReadingTrackingIntro />
-            ) : (
-              <LayoutWrapper currentPageName={path}>
-                <Page />
-              </LayoutWrapper>
-            )
-          }
-        />
-      ))}
-      <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-      <Route path="/social" element={
-        <LayoutWrapper currentPageName="social">
-          {user?.role === 'admin' || user?.hasEarlyAccess ? <Social /> : <BuildersLocked />}
-        </LayoutWrapper>
-      } />
-      <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' || user?.hasEarlyAccess ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
-      <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
-      <Route path="/coming-soon" element={<ComingSoonPage />} />
-      <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
-      <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
-      <Route path="/admin-tools" element={<LayoutWrapper currentPageName="admin-tools"><AdminTools /></LayoutWrapper>} />
-      <Route path="*" element={<PageNotFound />} />
-    </Routes>
+        } />
+        <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
+        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' || user?.hasEarlyAccess ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
+        <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
+        <Route path="/coming-soon" element={<ComingSoonPage />} />
+        <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
+        <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
+        <Route path="/admin-tools" element={<LayoutWrapper currentPageName="admin-tools"><AdminTools /></LayoutWrapper>} />
+        <Route path="*" element={<PageNotFound />} />
+      </Routes>
+    </>
   );
 };
 
@@ -123,8 +126,7 @@ function App() {
       <AuthProvider>
         <CelebrationProvider>
           <Router>
-            <NavigationTracker />
-            <AuthenticatedApp />
+            <AppContent />
           </Router>
           <Toaster />
         </CelebrationProvider>
