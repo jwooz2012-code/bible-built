@@ -98,7 +98,7 @@ export default function GroupDetail() {
   const [allLogs, setAllLogs] = useState([]);
   const [feedLogs, setFeedLogs] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
-  const [tab, setTab] = useState('xp');
+  const [tab, setTab] = useState('streak');
   const [copied, setCopied] = useState(false);
   const [encouraged, setEncouraged] = useState({});
   const [loading, setLoading] = useState(true);
@@ -183,13 +183,11 @@ export default function GroupDetail() {
   });
 
   const leaderboards = {
-    xp: [...withStats].sort((a, b) => b.xp - a.xp),
     streak: [...withStats].sort((a, b) => b.streak - a.streak),
     chapters: [...withStats].sort((a, b) => b.weekChapters - a.weekChapters),
   };
 
   const tabConfig = {
-    xp: { label: 'XP', icon: Zap, stat: r => r.xp.toLocaleString(), unit: () => 'XP' },
     streak: { label: 'Streak', icon: Flame, stat: r => r.streak, unit: r => r.streak === 1 ? 'day' : 'days' },
     chapters: { label: 'Chapters', icon: BookOpen, stat: r => r.weekChapters, unit: () => 'this week' },
   };
