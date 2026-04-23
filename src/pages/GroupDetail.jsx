@@ -62,7 +62,7 @@ function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, on
         <RankBadge rank={rank} />
       </div>
       <button onClick={onViewProfile} className="flex items-center gap-2 flex-1 min-w-0 text-left">
-        <AvatarDisplay initials={name[0].toUpperCase()} avatarData={member} size={36} />
+        <AvatarDisplay initials={name[0]?.toUpperCase() ?? '?'} avatarData={member} size={36} />
         <div className="flex-1 min-w-0">
           <p className={`text-sm font-semibold truncate ${isMe ? 'text-primary' : 'text-foreground'}`}>
             {name} {isMe && <span className="text-xs font-normal text-muted-foreground">(you)</span>}
@@ -339,7 +339,7 @@ export default function GroupDetail() {
                     const alreadyMember = (group?.memberIds ?? []).includes(f.id);
                     return (
                       <div key={f.id} className="flex items-center gap-3 py-2">
-                        <AvatarDisplay initials={(f.full_name ?? f.displayName ?? '?')[0].toUpperCase()} avatarData={f} size={32} />
+                        <AvatarDisplay initials={(f.full_name ?? f.displayName ?? '?')[0]?.toUpperCase() ?? '?'} avatarData={f} size={32} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
                         </div>
@@ -456,7 +456,7 @@ export default function GroupDetail() {
                       className="rounded-2xl border border-border bg-card overflow-hidden"
                     >
                       <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
-                        <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={38} />
+                        <AvatarDisplay initials={name[0]?.toUpperCase() ?? '?'} avatarData={fu} size={38} />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-bold text-foreground truncate">
                             {isMe ? 'You' : name}
