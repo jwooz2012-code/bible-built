@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand } from 'lucide-react';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand, Sparkles } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
@@ -411,42 +412,86 @@ export default function GroupDetail() {
 
         {/* Group Activity Feed */}
         <div className="mt-6">
-          <h2 className="text-base font-semibold text-foreground mb-3">Group Activity</h2>
+          <div className="flex items-center gap-2 mb-3">
+            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
+              <Sparkles className="w-4 h-4 text-amber-500" /> Group Activity
+            </h2>
+          </div>
           {feedLogs.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-card py-8 flex flex-col items-center gap-2">
-              <BookOpen className="w-6 h-6 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">No reading activity yet</p>
+            <div className="rounded-2xl border border-dashed border-border bg-card py-10 flex flex-col items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+                <BookOpen className="w-6 h-6 text-muted-foreground/40" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-semibold text-foreground">No activity yet</p>
+                <p className="text-xs text-muted-foreground mt-1">Start reading to see activity here</p>
+              </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
-              {feedLogs.map(log => {
-                const fu = feedUsers[log.userId];
-                const name = fu?.full_name ?? fu?.displayName ?? 'A member';
-                return (
-                  <div key={log.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                   <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={32} />
-                   <div className="flex-1 min-w-0">
-                     <p className="text-sm text-foreground">
-                       <span className="font-semibold">{log.userId === user?.id ? 'You' : name}</span>
-                       {' finished '}
-                       <span className="font-medium">{log.book} {log.chapter}</span>
-                       {' 🔥'}
-                     </p>
-                     <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
-                   </div>
-                   {log.userId !== user?.id && (
-                     <button
-                       onClick={() => handleHighFive(log)}
-                       disabled={highFivedLogs[log.id]}
-                       className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors shrink-0 ${highFivedLogs[log.id] ? 'bg-amber-100 dark:bg-amber-900/30' : 'bg-muted hover:bg-muted/80'}`}
-                       title="High five"
-                     >
-                       <Hand className={`w-4 h-4 ${highFivedLogs[log.id] ? 'text-amber-500' : 'text-muted-foreground'}`} />
-                     </button>
-                   )}
-                  </div>
-                );
-              })}
+            <div className="space-y-3">
+              <AnimatePresence>
+                {feedLogs.map((log, i) => {
+                  const fu = feedUsers[log.userId];
+                  const name = fu?.full_name ?? fu?.displayName ?? 'A member';
+                  const isMe = log.userId === user?.id;
+                  const hifived = highFivedLogs[log.id];
+                  const testament = log.testament;
+                  return (
+                    <motion.div
+                      key={log.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.03 }}
+                      className="rounded-2xl border border-border bg-card overflow-hidden"
+                    >
+                      <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
+                        <AvatarDisplay initials={name[0].toUpperCase()} avatarData={fu} size={38} />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-bold text-foreground truncate">
+                            {isMe ? 'You' : name}
+                            {isMe && <span className="text-xs font-normal text-muted-foreground ml-1">(you)</span>}
+                          </p>
+                          <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
+                        </div>
+                        {testament && (
+                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                            testament === 'NT'
+                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
+                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
+                          }`}>
+                            {testament}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center justify-between px-4 pb-3.5">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+                          <p className="text-sm text-foreground">
+                            <span className="font-semibold">{log.book}</span>
+                            <span className="text-muted-foreground"> · Ch. {log.chapter}</span>
+                            {'  🔥'}
+                          </p>
+                        </div>
+                        {!isMe && (
+                          <motion.button
+                            whileTap={{ scale: 0.85 }}
+                            onClick={() => handleHighFive(log)}
+                            disabled={hifived}
+                            className={`flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
+                              hifived
+                                ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
+                                : 'bg-muted hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20 text-muted-foreground'
+                            }`}
+                          >
+                            <Hand className="w-3.5 h-3.5" />
+                            {hifived ? 'High-fived! 🙌' : 'High Five'}
+                          </motion.button>
+                        )}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </AnimatePresence>
             </div>
           )}
         </div>

@@ -136,10 +136,13 @@ export default function Social() {
     const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id !== user.id);
     if (allSocialIds.length === 0) { setFeedItems([]); return; }
 
-    // Fetch recent logs and filter to social circle
-    const logs = await base44.entities.ReadingLog.list('-created_date', 100);
-    const socialLogs = logs.filter(l => allSocialIds.includes(l.userId));
-    setFeedItems(socialLogs.slice(0, 30));
+    // Fetch recent logs per person in social circle (more reliable than global list)
+    const logsByPerson = await Promise.all(
+      allSocialIds.map(id => base44.entities.ReadingLog.filter({ userId: id }, '-created_date', 20))
+    );
+    const allLogs = logsByPerson.flat();
+    allLogs.sort((a, b) => new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp));
+    setFeedItems(allLogs.slice(0, 40));
 
     const res = await base44.functions.invoke('getUsersByIds', { ids: allSocialIds });
     const map = {};
@@ -422,28 +425,33 @@ export default function Social() {
         )}
 
         {groups.length === 0 ? (
-          <div className="rounded-2xl border border-border bg-card">
-            <EmptyState icon={Users} text="No groups yet. Create one or join with an ID." />
+          <div className="rounded-2xl border border-dashed border-border bg-card py-10 flex flex-col items-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+              <Users className="w-6 h-6 text-muted-foreground/40" />
+            </div>
+            <div className="text-center">
+              <p className="text-sm font-semibold text-foreground">No groups yet</p>
+              <p className="text-xs text-muted-foreground mt-1">Create a group or join with an ID below</p>
+            </div>
           </div>
         ) : (
-          <div className="rounded-2xl border border-border bg-card overflow-hidden">
-            {groups.map(g => (
-              <button
-                key={g.id}
-                onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
-                className="w-full flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 hover:bg-muted/50 transition-colors text-left"
-              >
-                <AvatarDisplay
-                  initials={g.name[0].toUpperCase()}
-                  avatarData={null}
-                  size={32}
-                />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{g.name}</p>
-                  <p className="text-xs text-muted-foreground">{(g.memberIds ?? []).length} members</p>
-                </div>
-                <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-              </button>
+          <div className="space-y-2">
+            {groups.map((g, i) => (
+              <motion.div key={g.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
+                <button
+                  onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
+                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
+                >
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-400 to-emerald-600 flex items-center justify-center shrink-0">
+                    <span className="text-lg font-bold text-white">{g.name[0].toUpperCase()}</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-foreground truncate">{g.name}</p>
+                    <p className="text-xs text-muted-foreground">👥 {(g.memberIds ?? []).length} members</p>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+                </button>
+              </motion.div>
             ))}
           </div>
         )}
