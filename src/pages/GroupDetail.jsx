@@ -295,7 +295,7 @@ export default function GroupDetail() {
       )}
       <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-1">
           <button onClick={() => navigate(-1)} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -303,19 +303,21 @@ export default function GroupDetail() {
             <h1 className="text-xl font-bold text-foreground truncate">{group?.name ?? groupName}</h1>
             <p className="text-xs text-muted-foreground">👥 {members.length} members</p>
           </div>
+        </div>
+        {/* Action buttons below header */}
+        <div className="flex gap-2 mb-4 pl-12">
           <button
             onClick={() => { if (!showInviteFriends) loadFriends(); setShowInviteFriends(p => !p); }}
-            className="h-8 w-8 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-colors shrink-0"
-            title="Add Friends"
+            className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
           >
-            <UserPlus className="w-4 h-4 text-muted-foreground" />
+            <UserPlus className="w-3 h-3" /> Add Friends
           </button>
           <button
             onClick={shareInvite}
-            className="h-8 w-8 flex items-center justify-center rounded-xl bg-muted hover:bg-muted/80 transition-colors shrink-0"
-            title="Share Invite"
+            className="flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-[11px] font-semibold bg-muted hover:bg-muted/80 transition-colors text-muted-foreground"
           >
-            {copied ? <Check className="w-4 h-4 text-green-600" /> : <Share2 className="w-4 h-4 text-muted-foreground" />}
+            {copied ? <Check className="w-3 h-3 text-green-600" /> : <Share2 className="w-3 h-3" />}
+            {copied ? 'Copied!' : 'Share Invite'}
           </button>
         </div>
 
