@@ -23,6 +23,10 @@
       "default": true,
       "description": "Whether the group is private"
     },
+    "joinCode": {
+      "type": "string",
+      "description": "Short 6-character code for joining the group"
+    },
     "communityGoal": {
       "type": "string",
       "description": "Description of the community goal (e.g. Read 1,000 chapters together this month)"

@@ -219,8 +219,10 @@ export default function Social() {
   const handleJoinGroup = async () => {
     if (!joinGroupId.trim()) return;
     setJoiningGroup(true);
-    await base44.functions.invoke('joinGroup', { groupId: joinGroupId.trim() });
-    updateUser({ groupIds: [...(user.groupIds ?? []), joinGroupId.trim()] });
+    const code = joinGroupId.trim().toUpperCase();
+    const res = await base44.functions.invoke('joinGroup', { joinCode: code });
+    const joinedId = res.data?.group?.id ?? code;
+    updateUser({ groupIds: [...(user.groupIds ?? []), joinedId] });
     toast.success('Joined group!');
     setJoinGroupId('');
     loadGroups();
@@ -442,7 +444,7 @@ export default function Social() {
               const isCopied = copiedGroupId === g.id;
               const copyGroupId = (e) => {
                 e.stopPropagation();
-                navigator.clipboard.writeText(g.id);
+                navigator.clipboard.writeText(g.joinCode ?? g.id);
                 setCopiedGroupId(g.id);
                 toast.success('Group ID copied!');
                 setTimeout(() => setCopiedGroupId(null), 2000);
@@ -463,10 +465,11 @@ export default function Social() {
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
                     </button>
-                    {isOwner && (
+                    {isOwner && g.joinCode && (
                       <div className="flex items-center gap-2 px-4 py-2 border-t border-border bg-muted/30">
                         <p className="text-[11px] text-muted-foreground flex-1">
-                          <span className="font-semibold text-foreground">Group ID:</span> <span className="font-mono">{g.id}</span>
+                          <span className="font-semibold text-foreground">Join Code:</span>{' '}
+                          <span className="font-mono font-bold text-foreground tracking-widest">{g.joinCode}</span>
                         </p>
                         <button
                           onClick={copyGroupId}
@@ -494,7 +497,7 @@ export default function Social() {
             type="text"
             value={joinGroupId}
             onChange={e => setJoinGroupId(e.target.value)}
-            placeholder="Enter Group ID…"
+            placeholder="Enter 6-letter join code…"
             className="flex-1 h-10 px-3 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
           <button

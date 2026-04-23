@@ -12,11 +12,15 @@ Deno.serve(async (req) => {
   if (!name?.trim()) return Response.json({ error: 'Group name is required' }, { status: 400 });
 
   try {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const joinCode = Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+
     const group = await base44.asServiceRole.entities.Group.create({
       name: name.trim(),
       ownerId: user.id,
       memberIds: [user.id],
       isPrivate: true,
+      joinCode,
     });
 
     const currentGroupIds = user.groupIds ?? [];
