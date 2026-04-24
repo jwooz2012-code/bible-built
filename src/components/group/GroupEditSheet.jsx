@@ -62,8 +62,10 @@ export default function GroupEditSheet({ group, onClose, onSaved }) {
           exit={{ y: '100%' }}
           transition={{ type: 'spring', damping: 28, stiffness: 300 }}
           className="relative w-full rounded-t-3xl max-w-lg mx-auto overflow-y-auto"
-          style={energyMode ? { background: 'hsl(var(--card))', borderTop: '1px solid hsl(var(--primary) / 0.4)', boxShadow: '0 -4px 30px hsl(var(--primary) / 0.15)' } : { background: 'hsl(var(--card))' }}
-          style={{ maxHeight: 'calc(100vh - 160px)' }}
+          style={energyMode
+            ? { background: 'hsl(var(--card))', borderTop: '1px solid hsl(var(--primary) / 0.4)', boxShadow: '0 -4px 30px hsl(var(--primary) / 0.15)', maxHeight: 'calc(100vh - 160px)' }
+            : { background: 'hsl(var(--card))', maxHeight: 'calc(100vh - 160px)' }
+          }
           onClick={e => e.stopPropagation()}
         >
           {/* Handle */}
