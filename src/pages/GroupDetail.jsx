@@ -114,31 +114,21 @@ export default function GroupDetail() {
   const load = useCallback(async () => {
     if (!groupId) return;
     setLoading(true);
-    const groups = await base44.entities.Group.filter({ id: groupId });
-    const grp = groups[0];
+    const res = await base44.functions.invoke('getGroupData', { groupId });
+    const { group: grp, members: grpMembers, logs: memberLogs, graceDays } = res.data ?? {};
     if (!grp) { setLoading(false); return; }
     setGroup(grp);
-    const memberIds = grp.memberIds ?? [];
-    if (memberIds.length === 0) { setLoading(false); return; }
-    const [usersRes, logsRes, graceRes] = await Promise.all([
-      base44.functions.invoke('getUsersByIds', { ids: memberIds }),
-      base44.functions.invoke('getGroupReadingLogs', { memberIds }),
-      base44.functions.invoke('getGraceDaysByIds', { ids: memberIds }),
-    ]);
-    const grpMembers = usersRes.data?.users ?? [];
-    setMembers(grpMembers);
+    setMembers(grpMembers ?? []);
     const uMap = {};
-    grpMembers.forEach(u => { uMap[u.id] = u; });
-    const memberLogs = logsRes.data?.logs ?? [];
-    setAllLogs(memberLogs);
+    (grpMembers ?? []).forEach(u => { uMap[u.id] = u; });
+    setAllLogs(memberLogs ?? []);
     const graceMap = {};
-    (graceRes.data?.graceDays ?? []).forEach(g => {
+    (graceDays ?? []).forEach(g => {
       if (!graceMap[g.userId]) graceMap[g.userId] = [];
       graceMap[g.userId].push(g);
     });
     setGraceDayRecords(graceMap);
-    // Sort ALL member logs by date descending so we see everyone's activity
-    const sortedLogs = [...memberLogs].sort((a, b) =>
+    const sortedLogs = [...(memberLogs ?? [])].sort((a, b) =>
       new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp)
     );
     setFeedLogs(sortedLogs.slice(0, 40));
@@ -155,7 +145,7 @@ export default function GroupDetail() {
     base44.functions.invoke('joinGroup', { groupId }).then(() => {
       updateUser({ groupIds: [...(user.groupIds ?? []), groupId] });
       toast.success('You joined the group!');
-      load();
+      load(); // reload via the new combined function
     });
   }, [shouldAutoJoin, groupId, user?.id, group]);
 
