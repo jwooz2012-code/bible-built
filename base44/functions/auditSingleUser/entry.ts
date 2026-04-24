@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
     const [logs, ownedArtifacts, purchaseHistory] = await Promise.all([
       base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000),
       base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId }, '-created_date', 100),
-      base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.type': 'spend_xp' }, '-created_date', 500),
+      base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200),
     ]);
 
     // Deduplicate by chapterId+dateKey
@@ -159,15 +159,18 @@ Deno.serve(async (req) => {
       dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp, dayTotal: baseXp + bonusXp });
     }
 
-    // XP spent — use XPTransaction spend_xp records (service role accessible)
-    const spendTxs = purchaseHistory; // renamed variable for clarity
-    const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
-    const purchaseBreakdown = spendTxs.map(tx => ({
-      source: tx.source,
-      amount: tx.amount,
-      createdAt: tx.createdAt,
-    }));
-    const finalSpent = totalSpent;
+    // XP spent — deduplicate by artifactId (one real purchase per artifact)
+    const seenArtifacts = new Set();
+    const purchaseBreakdown = [];
+    let finalSpent = 0;
+    for (const p of purchaseHistory) {
+      if (!seenArtifacts.has(p.artifactId)) {
+        seenArtifacts.add(p.artifactId);
+        purchaseBreakdown.push({ artifactId: p.artifactId, xpSpent: p.xpSpent, purchasedAt: p.purchasedAt });
+        finalSpent += Math.abs(p.xpSpent ?? 0);
+      }
+    }
+    const totalSpent = purchaseHistory.reduce((sum, p) => sum + Math.abs(p.xpSpent ?? 0), 0);
 
     const finalXp = Math.max(0, earnedXp - finalSpent);
     const level = Math.floor(finalXp / 1000) + 1;

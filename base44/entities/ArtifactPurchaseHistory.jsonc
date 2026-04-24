@@ -30,15 +30,6 @@
     "create": true,
     "update": false,
     "delete": false,
-    "read": {
-      "$or": [
-        {
-          "data.userId": "{{user.id}}"
-        },
-        {
-          "user.role": "admin"
-        }
-      ]
-    }
+    "read": true
   }
 }
