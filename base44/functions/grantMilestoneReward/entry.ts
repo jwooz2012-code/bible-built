@@ -38,7 +38,7 @@ async function getOrCreateWallet(base44, userId) {
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
     progressXpTotal: 0,
-    treasuryCurrencyBalance: 0,
+    spendableXp: 0,
     level: 1,
     updatedAt: now,
   });

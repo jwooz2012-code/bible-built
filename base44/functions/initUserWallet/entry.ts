@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
         : null;
 
       // If wallet exists but treasury balance is still 0, patch it now
-      if (best && (best.treasuryCurrencyBalance ?? 0) === 0) {
+      if (best && (best.spendableXp ?? 0) === 0) {
         const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000);
         const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId).filter(Boolean));
         const earnedXp = uniqueChapterIds.size * PROGRESS_XP_PER_CHAPTER;
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
         const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
         const treasuryBalance = Math.max(0, earnedXp - totalSpent);
         const patched = await base44.asServiceRole.entities.UserWallet.update(best.id, {
-          treasuryCurrencyBalance: treasuryBalance,
+          spendableXp: treasuryBalance,
           updatedAt: new Date().toISOString(),
         });
         return Response.json({ wallet: patched, initialized: false, patched: true, treasuryBalance });
@@ -95,7 +95,7 @@ Deno.serve(async (req) => {
     const wallet = await base44.asServiceRole.entities.UserWallet.create({
       userId,
       progressXpTotal: backfillXp,
-      treasuryCurrencyBalance: treasuryBalance,
+      spendableXp: treasuryBalance,
       level: backfillLevel,
       updatedAt: now,
     });
