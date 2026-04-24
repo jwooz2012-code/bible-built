@@ -107,7 +107,7 @@ export default function UserDetail() {
 
   const { data: readingLogs = [], isLoading: loadingLogs } = useQuery({
     queryKey: ['userLogs', userId],
-    queryFn: () => base44.entities.ReadingLog.filter({ userId }, '-created_date', 2000),
+    queryFn: () => base44.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000),
     enabled: !!userId,
   });
 
@@ -152,13 +152,13 @@ export default function UserDetail() {
 
   const { data: ownerships = [], isLoading: loadingArtifacts } = useQuery({
     queryKey: ['userArtifacts', userId],
-    queryFn: () => base44.entities.ArtifactOwnership.filter({ userId }),
+    queryFn: () => base44.entities.ArtifactOwnership.filter({ 'data.userId': userId }),
     enabled: !!userId,
   });
 
   const { data: userWallet } = useQuery({
     queryKey: ['userWallet', userId],
-    queryFn: () => base44.entities.UserWallet.filter({ userId }),
+    queryFn: () => base44.entities.UserWallet.filter({ 'data.userId': userId }),
     enabled: !!userId,
   });
 
