@@ -12,14 +12,15 @@ Deno.serve(async (req) => {
   if (!groupId && !joinCode) return Response.json({ error: 'groupId or joinCode is required' }, { status: 400 });
 
   try {
-    let groups;
+    let group;
     if (joinCode) {
-      groups = await base44.asServiceRole.entities.Group.filter({ joinCode: joinCode.trim().toUpperCase() });
+      const groups = await base44.asServiceRole.entities.Group.filter({ joinCode: joinCode.trim().toUpperCase() });
+      if (!groups.length) return Response.json({ error: 'Group not found' }, { status: 404 });
+      group = groups[0];
     } else {
-      groups = await base44.asServiceRole.entities.Group.filter({ id: groupId });
+      group = await base44.asServiceRole.entities.Group.get(groupId);
+      if (!group) return Response.json({ error: 'Group not found' }, { status: 404 });
     }
-    if (!groups.length) return Response.json({ error: 'Group not found' }, { status: 404 });
-    const group = groups[0];
 
     const memberIds = group.memberIds ?? [];
     if (!memberIds.includes(user.id)) {
