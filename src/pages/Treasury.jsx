@@ -28,7 +28,7 @@ export default function Treasury() {
   const [rarity, setRarity] = useState('all');
   const [selected, setSelected] = useState(null);
 
-  const spendableXp = totalXp;
+
 
   const loadCollection = useCallback(async () => {
     try {
@@ -106,7 +106,7 @@ export default function Treasury() {
             <div>
               <p className="text-xs text-slate-400 mb-0.5 uppercase tracking-widest font-semibold">Spendable XP</p>
               <div className="flex items-end gap-2">
-                <span className="text-4xl font-extrabold text-white">{spendableXp.toLocaleString()}</span>
+                <span className="text-4xl font-extrabold text-white">{totalXp.toLocaleString()}</span>
                 <span className="text-lg font-bold text-blue-400 mb-1">XP</span>
               </div>
               {boostPct > 0 && (
@@ -182,8 +182,7 @@ export default function Treasury() {
           isOwned={!!ownedMap[selected.artifactId]}
           isEquipped={equippedSet.has(selected.artifactId)}
           hasOtherEquipped={equippedSet.size > 0 && !equippedSet.has(selected.artifactId)}
-          userXP={spendableXp}
-          spendableXp={spendableXp}
+          userXP={totalXp}
           onClose={() => setSelected(null)}
           onPurchaseSuccess={handlePurchaseSuccess}
           onEquipSuccess={handleEquipSuccess}

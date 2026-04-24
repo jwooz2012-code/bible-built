@@ -16,7 +16,7 @@ const EMOJI_MAP = {
   'shepherds-staff': '🪄',
 };
 
-export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, treasuryBalance, onClose, onPurchaseSuccess, onEquipSuccess }) {
+export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, hasOtherEquipped, userXP, onClose, onPurchaseSuccess, onEquipSuccess }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [fullCardView, setFullCardView] = useState(false);
@@ -25,7 +25,7 @@ export default function ArtifactDetailModal({ artifact, isOwned, isEquipped, has
 
   // Use treasury currency cost by rarity; fallback to xpCost for display
   const cost = RARITY_COST[artifact.rarity] ?? artifact.xpCost;
-  const displayBalance = treasuryBalance ?? userXP ?? 0;
+  const displayBalance = userXP ?? 0;
   const canAfford = displayBalance >= cost;
   const rarityColor = ARTIFACT_RARITY_COLORS[artifact.rarity];
   const emoji = EMOJI_MAP[artifact.artifactId] || '🏛️';
