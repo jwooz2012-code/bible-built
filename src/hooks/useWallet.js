@@ -35,7 +35,7 @@ export function useWallet() {
       return w;
     },
     enabled: !!user?.id,
-    staleTime: 30_000,
+    staleTime: 0,
   });
 
   const grantMilestoneMutation = useMutation({
