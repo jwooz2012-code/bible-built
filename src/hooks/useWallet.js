@@ -48,7 +48,7 @@ export function useWallet() {
     },
   });
 
-  const xpBalance = wallet?.xpBalance ?? 0;
+  const xpBalance = wallet?.xpBalance ?? wallet?.spendableXp ?? wallet?.progressXpTotal ?? 0;
   const level = wallet?.level ?? 1;
 
   return {
