@@ -112,10 +112,26 @@ async function recalculateUserXp(base44, userId) {
     byDay[log.dateKey].push(log);
   }
 
-  // Calculate base XP from verses (no artifact multiplier in audit — uses 1.0)
+  // Fetch artifact multiplier from XP transactions (use the multiplier stored at read time)
+  // We recalculate from the actual XPTransactions so we honor what was earned, not re-apply artifact boost
+  const allTransactions = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId }, '-created_date', 5000);
+
+  // Sum all earned XP directly from transactions (this is the ground truth — it includes multipliers)
+  let earnedXp = 0;
+  let spent = 0;
+  for (const tx of allTransactions) {
+    const type = tx.type;
+    const amount = tx.amount ?? 0;
+    if (type === 'earn_xp' || type === 'earn_xp_bonus' || type === 'earn_progress_xp' || type === 'earn_currency' || type === 'adjustment') {
+      earnedXp += amount;
+    } else if (type === 'spend_xp' || type === 'spend_currency') {
+      spent += Math.abs(amount);
+    }
+  }
+
+  // Also compute from logs as a cross-check / fallback for users with no transactions
   let baseXp = 0;
   let dailyBonusXp = 0;
-
   for (const [dateKey, dayLogs] of Object.entries(byDay)) {
     const totalVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
     baseXp += totalVerses * XP_PER_VERSE;
@@ -124,19 +140,13 @@ async function recalculateUserXp(base44, userId) {
     }
   }
 
-  // Fetch artifact purchase spending
-  const transactions = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId }, '-created_date', 2000);
-  let spent = 0;
-  for (const tx of transactions) {
-    if (tx.type === 'spend_xp' || tx.type === 'spend_currency') {
-      spent += Math.abs(tx.amount ?? 0);
-    }
-  }
+  // Use transaction sum if available (it includes multipliers), else fall back to log recalculation
+  const computedEarned = earnedXp > 0 ? earnedXp : (baseXp + dailyBonusXp);
 
-  const totalXp = Math.max(0, baseXp + dailyBonusXp - spent);
+  const totalXp = Math.max(0, computedEarned - spent);
   const level = Math.floor(totalXp / 1000) + 1;
 
-  return { xpBalance: totalXp, level, baseXp, dailyBonusXp, spent, uniqueChapters: uniqueLogs.length };
+  return { xpBalance: totalXp, level, earnedXp: computedEarned, spent, uniqueChapters: uniqueLogs.length };
 }
 
 Deno.serve(async (req) => {
@@ -163,11 +173,15 @@ Deno.serve(async (req) => {
       try {
         const calculated = await recalculateUserXp(base44, currentUser.id);
 
-        const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': currentUser.id }, '-created_date', 1);
+        const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': currentUser.id }, '-created_date', 10);
         const now = new Date().toISOString();
 
-        if (wallets.length > 0) {
-          await base44.asServiceRole.entities.UserWallet.update(wallets[0].id, {
+        // Pick the wallet with the highest existing XP (not necessarily the newest)
+        const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
+        const bestWallet = wallets.length > 0 ? wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best) : null;
+
+        if (bestWallet) {
+          await base44.asServiceRole.entities.UserWallet.update(bestWallet.id, {
             xpBalance: calculated.xpBalance,
             level: calculated.level,
             updatedAt: now,

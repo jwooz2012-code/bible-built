@@ -111,7 +111,9 @@ const ARTIFACT_BOOSTS = {
 async function getOrCreateWallet(base44, userId) {
   const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 10);
   if (wallets.length > 0) {
-    return wallets.sort((a, b) => (b.xpBalance ?? 0) - (a.xpBalance ?? 0))[0];
+    // Pick the wallet with the highest effective XP across all field names
+    const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
+    return wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best);
   }
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
