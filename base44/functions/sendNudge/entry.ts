@@ -12,7 +12,10 @@ Deno.serve(async (req) => {
   if (!receiverId) return Response.json({ error: 'receiverId is required' }, { status: 400 });
 
   try {
-    const senderName = user.full_name ?? user.displayName ?? 'Someone';
+    // Fetch full user profile to get display name reliably
+    const senderUsers = await base44.asServiceRole.entities.User.filter({ id: user.id });
+    const senderProfile = senderUsers[0];
+    const senderName = senderProfile?.full_name || senderProfile?.displayName || user.full_name || user.email?.split('@')[0] || 'Someone';
     await base44.asServiceRole.entities.Notification.create({
       userId: receiverId,
       type: 'nudge',

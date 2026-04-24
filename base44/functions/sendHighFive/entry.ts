@@ -12,7 +12,10 @@ Deno.serve(async (req) => {
     if (!receiverId) return Response.json({ error: 'receiverId is required' }, { status: 400 });
     if (receiverId === user.id) return Response.json({ error: 'Cannot high five yourself' }, { status: 400 });
 
-    const senderName = user.full_name ?? user.displayName ?? 'Someone';
+    // Fetch full user profile to get display name reliably
+    const senderUsers = await base44.asServiceRole.entities.User.filter({ id: user.id });
+    const senderProfile = senderUsers[0];
+    const senderName = senderProfile?.full_name || senderProfile?.displayName || user.full_name || user.email?.split('@')[0] || 'Someone';
     const chapterText = book && chapter ? ` for reading ${book} ${chapter}` : '';
     const message = `${senderName} gave you a high five 🙌${chapterText}!`;
 
