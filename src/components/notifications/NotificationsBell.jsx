@@ -30,7 +30,7 @@ export default function NotificationsBell() {
 
   const load = useCallback(async () => {
     if (!user?.id) return;
-    const list = await base44.entities.Notification.filter({ userId: user.id });
+    const list = await base44.entities.Notification.filter({ userId: user.id }, '-createdAt', 10);
     list.sort((a, b) => new Date(b.createdAt ?? b.created_date) - new Date(a.createdAt ?? a.created_date));
     setNotifications(list);
   }, [user?.id]);
@@ -155,7 +155,7 @@ export default function NotificationsBell() {
                       <Icon className="w-4 h-4 text-foreground" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground leading-snug">{notif.message}</p>
+                      <p className="text-sm text-foreground leading-snug font-medium">{notif.message}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(notif.createdAt ?? notif.created_date)}</p>
 
                       {notif.type === 'friend_request' && !notif.isRead && (

@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
@@ -16,7 +16,7 @@ Deno.serve(async (req) => {
     await base44.asServiceRole.entities.Notification.create({
       userId: receiverId,
       type: 'nudge',
-      message: `${senderName} just encouraged you to keep reading! 🙏`,
+      message: `${senderName} sent you encouragement to keep reading! 🙏`,
       isRead: false,
       relatedId: user.id,
       createdAt: new Date().toISOString(),
