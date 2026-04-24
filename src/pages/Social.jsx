@@ -138,11 +138,9 @@ export default function Social() {
     const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id !== user.id);
     if (allSocialIds.length === 0) { setFeedItems([]); return; }
 
-    // Fetch recent logs per person in social circle (more reliable than global list)
-    const logsByPerson = await Promise.all(
-      allSocialIds.map(id => base44.entities.ReadingLog.filter({ userId: id }, '-created_date', 20))
-    );
-    const allLogs = logsByPerson.flat();
+    // Fetch recent logs for all social members in a single batched backend call
+    const logsRes = await base44.functions.invoke('getGroupReadingLogs', { memberIds: allSocialIds });
+    const allLogs = logsRes.data?.logs ?? [];
     allLogs.sort((a, b) => new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp));
     setFeedItems(allLogs.slice(0, 40));
 
