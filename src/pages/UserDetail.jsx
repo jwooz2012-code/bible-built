@@ -128,8 +128,8 @@ export default function UserDetail() {
   const { data: ownerGroup } = useQuery({
     queryKey: ['groupOwnerCheck', groupId, currentUser?.id],
     queryFn: async () => {
-      const all = await base44.entities.Group.list();
-      return all.find(g => g.id === groupId) ?? null;
+      const groups = await base44.entities.Group.filter({ ownerId: currentUser?.id });
+      return groups.find(g => g.id === groupId) ?? null;
     },
     enabled: !!groupId && !!currentUser?.id,
     staleTime: 60000,
@@ -158,7 +158,7 @@ export default function UserDetail() {
 
   const { data: userWallet } = useQuery({
     queryKey: ['userWallet', userId],
-    queryFn: () => base44.entities.UserWallet.filter({ 'data.userId': userId }),
+    queryFn: () => base44.entities.UserWallet.filter({ userId }),
     enabled: !!userId,
   });
 
