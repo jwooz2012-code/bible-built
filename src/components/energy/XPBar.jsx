@@ -3,15 +3,16 @@ import { motion } from 'framer-motion';
 import { useTheme } from '@/components/ThemeProvider';
 import { getChartColors } from '@/components/utils/chartColors';
 
-export default function XPBar({ user }) {
+export default function XPBar({ user, xpBalance: xpBalanceProp, walletLevel }) {
   const { resolvedTheme, energyMode } = useTheme();
   const colors = getChartColors(resolvedTheme, energyMode);
 
-  const totalXp = user?.xp ?? 0;
-  const level = user?.level ?? 1;
-  // XP required to reach next level: level^2 * 100
-  const xpForCurrentLevel = (level - 1) * (level - 1) * 100;
-  const xpForNextLevel = level * level * 100;
+  // Accept xpBalance/walletLevel as direct props (from useWallet), or fall back to user entity fields
+  const totalXp = xpBalanceProp ?? user?.xp ?? 0;
+  const level = walletLevel ?? user?.level ?? 1;
+  // XP required to reach next level: 1000 XP per level (matches logChapterRead)
+  const xpForCurrentLevel = (level - 1) * 1000;
+  const xpForNextLevel = level * 1000;
   const xpIntoLevel = totalXp - xpForCurrentLevel;
   const xpNeeded = xpForNextLevel - xpForCurrentLevel;
   const fillPercent = Math.min((xpIntoLevel / xpNeeded) * 100, 100);

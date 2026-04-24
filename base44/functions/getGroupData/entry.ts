@@ -46,8 +46,15 @@ Deno.serve(async (req) => {
     ),
   ]);
 
+  // Build wallet map: for each userId, pick the wallet with the highest XP
+  const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
   const walletMap = {};
-  allWallets.forEach(w => { walletMap[w.userId] = w; });
+  allWallets.forEach(w => {
+    const existing = walletMap[w.userId];
+    if (!existing || getXp(w) > getXp(existing)) {
+      walletMap[w.userId] = w;
+    }
+  });
 
   const members = allUsers
     .filter(u => memberIds.includes(u.id))
@@ -56,7 +63,7 @@ Deno.serve(async (req) => {
       full_name: u.full_name,
       displayName: u.displayName,
       email: u.email,
-      spendableXp: walletMap[u.id]?.spendableXp ?? 0,
+      xpBalance: getXp(walletMap[u.id] ?? {}),
       avatarType: u.avatarType,
       avatarPhotoUrl: u.avatarPhotoUrl,
       avatarEmoji: u.avatarEmoji,

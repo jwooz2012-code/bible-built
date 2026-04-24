@@ -156,7 +156,7 @@ export default function UserDetail() {
     enabled: !!userId,
   });
 
-  const { data: userWallet } = useQuery({
+  const { data: userWallets = [] } = useQuery({
     queryKey: ['userWallet', userId],
     queryFn: () => base44.entities.UserWallet.filter({ 'data.userId': userId }),
     enabled: !!userId,
@@ -165,7 +165,9 @@ export default function UserDetail() {
   const isLoading = loadingUser || loadingLogs || loadingGrace;
 
   const totalChapters = readingLogs.length;
-  const xp = userWallet?.[0]?.xpBalance ?? userWallet?.[0]?.spendableXp ?? userWallet?.[0]?.progressXpTotal ?? 0;
+  const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
+  const bestWallet = userWallets.length > 0 ? userWallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best) : null;
+  const xp = bestWallet ? getXp(bestWallet) : 0;
   const streak = readingLogs.length > 0 ? calcStreakFromLogs(readingLogs, userId, graceDayRecords) : 0;
 
   const now = new Date();
