@@ -128,8 +128,8 @@ export default function UserDetail() {
   const { data: ownerGroup } = useQuery({
     queryKey: ['groupOwnerCheck', groupId, currentUser?.id],
     queryFn: async () => {
-      const res = await base44.entities.Group.filter({ id: groupId });
-      return res[0] ?? null;
+      const all = await base44.entities.Group.list();
+      return all.find(g => g.id === groupId) ?? null;
     },
     enabled: !!groupId && !!currentUser?.id,
     staleTime: 60000,
