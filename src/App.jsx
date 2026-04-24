@@ -21,6 +21,7 @@ import ShareSummary from './pages/ShareSummary';
 import ComingSoonPage from './pages/ComingSoonPage';
 import UserDetail from './pages/UserDetail';
 import AdminTools from './pages/AdminTools';
+import XpAudit from './pages/XpAudit';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -113,6 +114,7 @@ const AppContent = () => {
         <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
         <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
         <Route path="/admin-tools" element={<LayoutWrapper currentPageName="admin-tools"><AdminTools /></LayoutWrapper>} />
+        <Route path="/xp-audit" element={<XpAudit />} />
         <Route path="*" element={<PageNotFound />} />
       </Routes>
     </>
