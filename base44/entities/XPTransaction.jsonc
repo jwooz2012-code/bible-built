@@ -9,20 +9,20 @@
     "type": {
       "type": "string",
       "enum": [
-        "earn_progress_xp",
-        "earn_currency",
-        "spend_currency",
+        "earn_xp",
+        "earn_xp_bonus",
+        "spend_xp",
         "adjustment"
       ],
-      "description": "Transaction type"
+      "description": "Transaction type: earn_xp = base chapter XP, earn_xp_bonus = daily 30-verse bonus, spend_xp = artifact purchase"
     },
     "source": {
       "type": "string",
-      "description": "Source of the transaction (chapter_read, daily_goal, streak_7, streak_30, book_complete, artifact_purchase, backfill, etc.)"
+      "description": "Source of the transaction (chapter_read, daily_bonus, streak_7, streak_30, book_complete, artifact_purchase, backfill, etc.)"
     },
     "amount": {
       "type": "number",
-      "description": "XP or currency amount (positive = earn, negative = spend)"
+      "description": "XP amount (positive = earn, negative = spend)"
     },
     "idempotencyKey": {
       "type": "string",

@@ -6,20 +6,15 @@
       "type": "string",
       "description": "User ID \u2014 one wallet per user"
     },
-    "progressXpTotal": {
+    "xpBalance": {
       "type": "number",
       "default": 0,
-      "description": "Lifetime progress XP earned from chapters (used for leveling)"
-    },
-    "spendableXp": {
-      "type": "number",
-      "default": 0,
-      "description": "Spendable XP balance for purchasing artifacts"
+      "description": "Unified XP balance \u2014 used for both leveling and purchasing artifacts"
     },
     "level": {
       "type": "number",
       "default": 1,
-      "description": "Cached level = floor(progressXpTotal / 1000) + 1"
+      "description": "Cached level = floor(xpBalance / 1000) + 1"
     },
     "updatedAt": {
       "type": "string",

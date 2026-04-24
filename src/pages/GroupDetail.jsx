@@ -168,7 +168,7 @@ export default function GroupDetail() {
     const todayKey = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
     const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= todayKey);
     const streak = m.streak ?? calcStreakWithGrace(allLogs, m.id, graceDayRecords);
-    const xp = m.spendableXp ?? 0;
+    const xp = m.xpBalance ?? m.spendableXp ?? 0;
     return { member: m, weekChapters: weekLogs.length, streak, xp };
   });
 

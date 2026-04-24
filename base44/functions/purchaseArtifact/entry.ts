@@ -1,15 +1,7 @@
 /**
  * purchaseArtifact
  *
- * Secure artifact purchase using UserWallet spendable XP.
- * - Atomic: debit + ownership + transaction with idempotency
- * - Unique artifacts cannot be purchased twice
- *
- * Rarity pricing (XP) — matches artifactCatalog.js:
- *   common    = 6000
- *   rare      = 24000
- *   epic      = 48000
- *   legendary = 102000
+ * Secure artifact purchase — deducts from unified xpBalance.
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
@@ -20,7 +12,6 @@ const RARITY_COST = {
   legendary: 102000,
 };
 
-// Must stay in sync with data/artifactCatalog.js and getOwnedCollection
 const ARTIFACT_CATALOG = [
   { artifactId: 'ark-of-the-covenant', rarity: 'legendary', xpBoost: 1.25 },
   { artifactId: 'sword-goliath',        rarity: 'legendary', xpBoost: 1.25 },
@@ -37,15 +28,13 @@ const ARTIFACT_CATALOG = [
 async function getOrCreateWallet(base44, userId) {
   const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 5);
   if (wallets.length > 0) {
-    return wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+    return wallets.sort((a, b) => (b.xpBalance ?? 0) - (a.xpBalance ?? 0))[0];
   }
-  const now = new Date().toISOString();
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
-    progressXpTotal: 0,
-    spendableXp: 0,
+    xpBalance: 0,
     level: 1,
-    updatedAt: now,
+    updatedAt: new Date().toISOString(),
   });
 }
 
@@ -68,7 +57,7 @@ Deno.serve(async (req) => {
     const userId = user.id;
     const purchaseIdempotencyKey = `artifact_purchase:${userId}:${artifactId}`;
 
-    // Idempotency check — prevent double charge from rapid taps
+    // Idempotency check
     const existingTx = await base44.asServiceRole.entities.XPTransaction.filter({
       'data.userId': userId,
       'data.idempotencyKey': purchaseIdempotencyKey,
@@ -87,22 +76,18 @@ Deno.serve(async (req) => {
 
     // Load wallet and check balance
     const wallet = await getOrCreateWallet(base44, userId);
-    const currentBalance = wallet.spendableXp ?? 0;
+    const currentBalance = wallet.xpBalance ?? 0;
     if (currentBalance < cost) {
-      return Response.json({
-        error: 'Insufficient XP',
-        required: cost,
-        current: currentBalance,
-      }, { status: 400 });
+      return Response.json({ error: 'Insufficient XP', required: cost, current: currentBalance }, { status: 400 });
     }
 
     const now = new Date().toISOString();
     const newBalance = currentBalance - cost;
 
-    // Record spend transaction first (idempotency guard)
+    // Record spend transaction
     await base44.asServiceRole.entities.XPTransaction.create({
       userId,
-      type: 'spend_currency',
+      type: 'spend_xp',
       source: 'artifact_purchase',
       amount: -cost,
       idempotencyKey: purchaseIdempotencyKey,
@@ -126,9 +111,11 @@ Deno.serve(async (req) => {
       }),
     ]);
 
-    // Deduct from wallet
+    // Deduct from unified wallet
+    const newLevel = Math.floor(newBalance / 1000) + 1;
     const updatedWallet = await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-      spendableXp: newBalance,
+      xpBalance: newBalance,
+      level: newLevel,
       updatedAt: now,
     });
 

@@ -165,7 +165,7 @@ export default function UserDetail() {
   const isLoading = loadingUser || loadingLogs || loadingGrace;
 
   const totalChapters = readingLogs.length;
-  const xp = userWallet?.[0]?.spendableXp ?? 0;
+  const xp = userWallet?.[0]?.xpBalance ?? userWallet?.[0]?.spendableXp ?? 0;
   const streak = readingLogs.length > 0 ? calcStreakFromLogs(readingLogs, userId, graceDayRecords) : 0;
 
   const now = new Date();
