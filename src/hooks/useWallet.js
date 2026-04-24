@@ -17,13 +17,10 @@ export function useWallet() {
     queryKey: ['userWallet', user?.id],
     queryFn: async () => {
       const wallets = await base44.entities.UserWallet.filter({ 'data.userId': user.id });
-      // Pick the wallet with the highest XP value across all field names (handles duplicates & legacy fields)
+      // Pick the wallet with the highest effective XP (handles duplicates & legacy field names)
+      const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
       let w = wallets.length > 0
-        ? wallets.reduce((best, cur) => {
-            const bestXp = best.xpBalance ?? best.spendableXp ?? best.progressXpTotal ?? 0;
-            const curXp = cur.xpBalance ?? cur.spendableXp ?? cur.progressXpTotal ?? 0;
-            return curXp > bestXp ? cur : best;
-          })
+        ? wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best)
         : null;
 
       if (!w) {
