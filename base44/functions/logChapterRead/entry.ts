@@ -251,7 +251,9 @@ Deno.serve(async (req) => {
     if (xpTransactions.length > 0) {
       await base44.asServiceRole.entities.XPTransaction.bulkCreate(xpTransactions);
 
-      const newXpBalance = (wallet.xpBalance ?? 0) + totalXpGained;
+      // Use whichever balance field exists (migration: some wallets still use spendableXp)
+      const currentBalance = wallet.xpBalance ?? wallet.spendableXp ?? wallet.progressXpTotal ?? 0;
+      const newXpBalance = currentBalance + totalXpGained;
       const newLevel = Math.floor(newXpBalance / 1000) + 1;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
         xpBalance: newXpBalance,

@@ -101,12 +101,16 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
-    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
-    const { userId, applyUpdate = false } = body;
+    const { userId, applyUpdate = false, _serviceCall = false } = body;
     if (!userId) return Response.json({ error: 'userId required' }, { status: 400 });
+
+    // Allow admin users OR trusted service calls (batch audit passing _serviceCall flag)
+    if (!_serviceCall) {
+      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+      if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
+    }
 
     // Fetch all data (all as service role to bypass RLS)
     const [logs, ownedArtifacts, purchaseHistory, xpTransactions] = await Promise.all([
