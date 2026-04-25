@@ -42,7 +42,6 @@ import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
-import { runValidation } from '@/components/bible/plans/validatePlans';
 import BibleReader from '@/components/shared/BibleReader';
 import { AnimatePresence } from 'framer-motion';
 
@@ -87,9 +86,7 @@ export default function Home() {
     setShowWelcome(newCount <= 5);
   }, []);
 
-  useEffect(() => {
-    if (import.meta.env.DEV) runValidation();
-  }, []);
+  // Validator intentionally removed from production — dev-only tool
 
   useEffect(() => {
     if (!user) return;

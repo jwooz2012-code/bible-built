@@ -37,9 +37,9 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, alreadyRemoved: true });
     }
 
-    // Get wallet
-    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 5);
-    const wallet = wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0];
+    // Get wallet (oldest = canonical, consistent with logChapterRead)
+    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 5);
+    const wallet = wallets[0] ?? null;
 
     const now = new Date().toISOString();
 
@@ -54,10 +54,10 @@ Deno.serve(async (req) => {
     const originalXp = earnTxs.length > 0 ? (earnTxs[0].amount ?? xpToDeduct) : xpToDeduct;
 
     if (originalXp > 0 && wallet) {
-      // Record negative XP adjustment
+      // Record negative XP adjustment (adjustment type is valid in the enum)
       await base44.asServiceRole.entities.XPTransaction.create({
         userId,
-        type: 'earn_progress_xp',
+        type: 'adjustment',
         source: 'chapter_removed',
         amount: -originalXp,
         idempotencyKey: removalKey,
@@ -65,11 +65,11 @@ Deno.serve(async (req) => {
         createdAt: now,
       });
 
-      // Update wallet
-      const newProgressXp = Math.max(0, (wallet.progressXpTotal ?? 0) - originalXp);
-      const newLevel = Math.floor(newProgressXp / 1000) + 1;
+      // Update the unified xpBalance (not the legacy progressXpTotal field)
+      const newBalance = Math.max(0, (wallet.xpBalance ?? 0) - originalXp);
+      const newLevel = Math.floor(newBalance / 1000) + 1;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-        progressXpTotal: newProgressXp,
+        xpBalance: newBalance,
         level: newLevel,
         updatedAt: now,
       });
