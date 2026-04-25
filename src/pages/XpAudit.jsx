@@ -81,8 +81,7 @@ export default function XpAudit() {
 
         <h1 className="text-2xl font-bold text-foreground mb-1">XP Audit</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          Recalculates every user's XP wallet based on their actual reading logs and transactions.
-          This corrects any discrepancies from the recent bug fix.
+          Recalculates every user's XP purely from reading log verse math (2 XP/verse + daily bonuses), minus artifact purchases. Ignores the XP transaction ledger entirely for a clean, accurate reset.
         </p>
 
         {/* Summary */}

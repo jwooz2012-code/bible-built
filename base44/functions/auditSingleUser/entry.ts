@@ -1,26 +1,15 @@
 /**
  * auditSingleUser
- * Admin-only. Recalculates XP for a specific userId from first principles.
- * Returns the full breakdown for review before writing.
+ * Admin-only. Recalculates XP for a specific userId PURELY from ReadingLog verse math.
+ * Ignores XPTransaction ledger (unreliable for legacy users).
+ * Formula: sum(verses * 2) per unique chapter, +100 daily bonus per day >= 30 verses,
+ *          minus total spent on artifacts (deduped by artifactId).
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const XP_PER_VERSE = 2;
 const DAILY_BONUS_XP = 100;
 const DAILY_BONUS_THRESHOLD = 30;
-
-const ARTIFACT_BOOSTS = {
-  'ark-of-the-covenant': 1.25,
-  'sword-goliath': 1.25,
-  'coat-of-many-colors': 1.15,
-  'sling-of-david': 1.15,
-  'davids-harp': 1.10,
-  'jar-of-manna': 1.10,
-  'noahs-hammer': 1.10,
-  'clay-lamp': 1.05,
-  'rod-of-peter': 1.05,
-  'shepherds-staff': 1.05,
-};
 
 const VERSE_COUNTS = {
   "Genesis":[31,25,24,26,32,22,24,22,29,32,32,20,18,24,21,16,27,33,38,18,34,24,20,67,34,35,46,22,35,43,55,32,20,31,29,43,36,30,23,43,57,38,34,34,28,34,31,22,33,26],
@@ -103,100 +92,64 @@ Deno.serve(async (req) => {
     const user = await base44.auth.me();
 
     const body = await req.json().catch(() => ({}));
-    const { userId, applyUpdate = false, _serviceCall = false } = body;
+    const { userId, applyUpdate = false } = body;
     if (!userId) return Response.json({ error: 'userId required' }, { status: 400 });
 
-    // Allow admin users OR trusted service calls (batch audit passing _serviceCall flag)
-    if (!_serviceCall) {
-      if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
-      if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
-    }
+    if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    if (user.role !== 'admin') return Response.json({ error: 'Forbidden' }, { status: 403 });
 
-    // Fetch all data (all as service role to bypass RLS)
-    const [logs, ownedArtifacts, purchaseHistory, xpTransactions] = await Promise.all([
+    const [logs, purchaseHistory] = await Promise.all([
       base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000),
-      base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId }, '-created_date', 100),
       base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200),
-      base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId }, '-created_date', 10000),
     ]);
 
-    // Deduplicate logs by chapterId+dateKey
-    const seenKeys = new Set();
+    // Deduplicate by chapterId (unique chapters only)
+    const seenChapters = new Set();
     const uniqueLogs = [];
     for (const log of logs) {
-      const key = `${log.chapterId}:${log.dateKey}`;
-      if (!seenKeys.has(key)) {
-        seenKeys.add(key);
+      if (!seenChapters.has(log.chapterId)) {
+        seenChapters.add(log.chapterId);
         uniqueLogs.push(log);
       }
     }
 
-    // Current equipped artifact multiplier (for display only)
-    let multiplier = 1.0;
-    const equippedArtifacts = [];
-    for (const o of ownedArtifacts) {
-      if (o.isEquipped && ARTIFACT_BOOSTS[o.artifactId]) {
-        multiplier *= ARTIFACT_BOOSTS[o.artifactId];
-        equippedArtifacts.push(o.artifactId);
-      }
+    // Group by dateKey for daily bonus
+    const byDay = {};
+    for (const log of uniqueLogs) {
+      const dk = log.dateKey || log.timestamp?.slice(0, 10) || 'unknown';
+      if (!byDay[dk]) byDay[dk] = [];
+      byDay[dk].push(log);
     }
 
-    // === XP SOURCE OF TRUTH: XPTransaction ledger ===
-    // Sum all earn_xp and earn_xp_bonus transactions (deduped by idempotencyKey).
-    // This is what was actually awarded at log-time with the correct multiplier then.
-    const seenTxKeys = new Set();
+    // Calculate XP from verses
     let earnedXp = 0;
-    let bonusDays = 0;
     const dayBreakdown = [];
-
-    const earnTxs = xpTransactions.filter(tx => tx.type === 'earn_xp' || tx.type === 'earn_xp_bonus');
-    for (const tx of earnTxs) {
-      if (!seenTxKeys.has(tx.idempotencyKey)) {
-        seenTxKeys.add(tx.idempotencyKey);
-        earnedXp += tx.amount ?? 0;
-        if (tx.type === 'earn_xp_bonus') bonusDays++;
-      }
+    for (const [dateKey, dayLogs] of Object.entries(byDay).sort()) {
+      const dayVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
+      const baseXp = dayVerses * XP_PER_VERSE;
+      const bonusXp = dayVerses >= DAILY_BONUS_THRESHOLD ? DAILY_BONUS_XP : 0;
+      earnedXp += baseXp + bonusXp;
+      dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp });
     }
 
-    // If no XP transactions exist yet (new user or pre-transaction era), fall back to verse-based calc
-    if (earnTxs.length === 0 && uniqueLogs.length > 0) {
-      const byDay = {};
-      for (const log of uniqueLogs) {
-        if (!byDay[log.dateKey]) byDay[log.dateKey] = [];
-        byDay[log.dateKey].push(log);
-      }
-      for (const [dateKey, dayLogs] of Object.entries(byDay).sort()) {
-        const dayVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
-        const baseXp = Math.floor(dayVerses * XP_PER_VERSE * multiplier);
-        const bonusXp = dayVerses >= DAILY_BONUS_THRESHOLD ? Math.floor(DAILY_BONUS_XP * multiplier) : 0;
-        earnedXp += baseXp + bonusXp;
-        if (bonusXp > 0) bonusDays++;
-        dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp, dayTotal: baseXp + bonusXp });
+    // XP spent on artifacts (deduped by artifactId)
+    const seenArtifacts = new Set();
+    const purchaseBreakdown = [];
+    let totalSpent = 0;
+    for (const p of purchaseHistory) {
+      if (!seenArtifacts.has(p.artifactId)) {
+        seenArtifacts.add(p.artifactId);
+        purchaseBreakdown.push({ artifactId: p.artifactId, xpSpent: p.xpSpent });
+        totalSpent += Math.abs(p.xpSpent ?? 0);
       }
     }
 
     const totalVerses = uniqueLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
-
-    // XP spent — deduplicate by artifactId (one real purchase per artifact)
-    const seenArtifacts = new Set();
-    const purchaseBreakdown = [];
-    let finalSpent = 0;
-    for (const p of purchaseHistory) {
-      if (!seenArtifacts.has(p.artifactId)) {
-        seenArtifacts.add(p.artifactId);
-        purchaseBreakdown.push({ artifactId: p.artifactId, xpSpent: p.xpSpent, purchasedAt: p.purchasedAt });
-        finalSpent += Math.abs(p.xpSpent ?? 0);
-      }
-    }
-    const totalSpent = purchaseHistory.reduce((sum, p) => sum + Math.abs(p.xpSpent ?? 0), 0);
-
-    const finalXp = Math.max(0, earnedXp - finalSpent);
+    const finalXp = Math.max(0, earnedXp - totalSpent);
     const level = Math.floor(finalXp / 1000) + 1;
 
-    // Optionally write the result
     let walletUpdateResult = null;
     if (applyUpdate) {
-      // Keep oldest wallet as canonical, delete any duplicates
       const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
       const now = new Date().toISOString();
       if (wallets.length > 1) {
@@ -218,12 +171,8 @@ Deno.serve(async (req) => {
       totalRawLogs: logs.length,
       uniqueChapters: uniqueLogs.length,
       totalVerses,
-      multiplier,
-      equippedArtifacts,
-      bonusDays,
       earnedXp,
       totalSpent,
-      finalSpent,
       purchaseBreakdown,
       finalXp,
       level,
