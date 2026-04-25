@@ -4,8 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Play, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const BATCH_SIZE = 20;
-const BATCH_DELAY_MS = 1500;
+const BATCH_SIZE = 5;
+const BATCH_DELAY_MS = 3000;
 
 export default function XpAudit() {
   const navigate = useNavigate();

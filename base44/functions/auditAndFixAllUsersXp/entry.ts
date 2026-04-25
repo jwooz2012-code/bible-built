@@ -92,10 +92,21 @@ function getVerseCount(book, chapter) {
   return chapters[chapter - 1] ?? 28;
 }
 
+async function withRetry(fn, retries = 3, delayMs = 2000) {
+  for (let i = 0; i < retries; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (i === retries - 1) throw err;
+      await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+    }
+  }
+}
+
 async function auditUser(base44, userId) {
   const [logs, purchaseHistory] = await Promise.all([
-    base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000),
-    base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200),
+    withRetry(() => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000)),
+    withRetry(() => base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200)),
   ]);
 
   // Deduplicate logs by chapterId (unique chapters only, ignore same chapter on different days)
@@ -139,21 +150,21 @@ async function auditUser(base44, userId) {
   const level = Math.floor(finalXp / 1000) + 1;
 
   // Update wallet — keep oldest as canonical, delete duplicates
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
+  const wallets = await withRetry(() => base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10));
   const now = new Date().toISOString();
   let prevXp = 0;
 
   if (wallets.length > 1) {
     for (const dup of wallets.slice(1)) {
-      try { await base44.asServiceRole.entities.UserWallet.delete(dup.id); } catch(e) {}
+      try { await withRetry(() => base44.asServiceRole.entities.UserWallet.delete(dup.id)); } catch(e) {}
     }
   }
 
   if (wallets.length > 0) {
     prevXp = wallets[0].xpBalance ?? wallets[0].spendableXp ?? 0;
-    await base44.asServiceRole.entities.UserWallet.update(wallets[0].id, { xpBalance: finalXp, level, updatedAt: now });
+    await withRetry(() => base44.asServiceRole.entities.UserWallet.update(wallets[0].id, { xpBalance: finalXp, level, updatedAt: now }));
   } else {
-    await base44.asServiceRole.entities.UserWallet.create({ userId, xpBalance: finalXp, level, updatedAt: now });
+    await withRetry(() => base44.asServiceRole.entities.UserWallet.create({ userId, xpBalance: finalXp, level, updatedAt: now }));
   }
 
   return {
