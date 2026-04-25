@@ -109,13 +109,14 @@ Deno.serve(async (req) => {
     if (!userId) return Response.json({ error: 'userId required' }, { status: 400 });
 
     // Fetch all data (all as service role to bypass RLS)
-    const [logs, ownedArtifacts, purchaseHistory] = await Promise.all([
+    const [logs, ownedArtifacts, purchaseHistory, xpTransactions] = await Promise.all([
       base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000),
       base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId }, '-created_date', 100),
       base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200),
+      base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId }, '-created_date', 10000),
     ]);
 
-    // Deduplicate by chapterId+dateKey
+    // Deduplicate logs by chapterId+dateKey
     const seenKeys = new Set();
     const uniqueLogs = [];
     for (const log of logs) {
@@ -126,7 +127,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Current equipped artifact multiplier
+    // Current equipped artifact multiplier (for display only)
     let multiplier = 1.0;
     const equippedArtifacts = [];
     for (const o of ownedArtifacts) {
@@ -136,28 +137,41 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Group by day
-    const byDay = {};
-    for (const log of uniqueLogs) {
-      if (!byDay[log.dateKey]) byDay[log.dateKey] = [];
-      byDay[log.dateKey].push(log);
-    }
-
-    // Calculate earned XP day by day
+    // === XP SOURCE OF TRUTH: XPTransaction ledger ===
+    // Sum all earn_xp and earn_xp_bonus transactions (deduped by idempotencyKey).
+    // This is what was actually awarded at log-time with the correct multiplier then.
+    const seenTxKeys = new Set();
     let earnedXp = 0;
-    let totalVerses = 0;
     let bonusDays = 0;
     const dayBreakdown = [];
 
-    for (const [dateKey, dayLogs] of Object.entries(byDay).sort()) {
-      const dayVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
-      const baseXp = Math.floor(dayVerses * 2 * multiplier);
-      const bonusXp = dayVerses >= 30 ? Math.floor(100 * multiplier) : 0;
-      totalVerses += dayVerses;
-      earnedXp += baseXp + bonusXp;
-      if (bonusXp > 0) bonusDays++;
-      dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp, dayTotal: baseXp + bonusXp });
+    const earnTxs = xpTransactions.filter(tx => tx.type === 'earn_xp' || tx.type === 'earn_xp_bonus');
+    for (const tx of earnTxs) {
+      if (!seenTxKeys.has(tx.idempotencyKey)) {
+        seenTxKeys.add(tx.idempotencyKey);
+        earnedXp += tx.amount ?? 0;
+        if (tx.type === 'earn_xp_bonus') bonusDays++;
+      }
     }
+
+    // If no XP transactions exist yet (new user or pre-transaction era), fall back to verse-based calc
+    if (earnTxs.length === 0 && uniqueLogs.length > 0) {
+      const byDay = {};
+      for (const log of uniqueLogs) {
+        if (!byDay[log.dateKey]) byDay[log.dateKey] = [];
+        byDay[log.dateKey].push(log);
+      }
+      for (const [dateKey, dayLogs] of Object.entries(byDay).sort()) {
+        const dayVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
+        const baseXp = Math.floor(dayVerses * XP_PER_VERSE * multiplier);
+        const bonusXp = dayVerses >= DAILY_BONUS_THRESHOLD ? Math.floor(DAILY_BONUS_XP * multiplier) : 0;
+        earnedXp += baseXp + bonusXp;
+        if (bonusXp > 0) bonusDays++;
+        dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp, dayTotal: baseXp + bonusXp });
+      }
+    }
+
+    const totalVerses = uniqueLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
 
     // XP spent — deduplicate by artifactId (one real purchase per artifact)
     const seenArtifacts = new Set();
