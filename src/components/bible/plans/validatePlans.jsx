@@ -95,13 +95,12 @@ export function validateAllPlans() {
  * Run validation and log results to console
  */
 export function runValidation() {
+  if (!import.meta.env.DEV) return true;
   const issues = validateAllPlans();
-  if (import.meta.env.DEV) {
-    if (issues.length === 0) {
-      console.log('✅ All plans validated successfully - no empty days found!');
-    } else {
-      console.warn(`❌ Found ${issues.length} plan issue(s):`, issues);
-    }
+  if (issues.length === 0) {
+    console.log('✅ All plans validated successfully - no empty days found!');
+  } else {
+    console.warn(`❌ Found ${issues.length} plan issue(s):`, issues);
   }
   return issues.length === 0;
 }
