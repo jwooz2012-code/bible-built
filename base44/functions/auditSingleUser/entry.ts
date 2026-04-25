@@ -178,13 +178,17 @@ Deno.serve(async (req) => {
     // Optionally write the result
     let walletUpdateResult = null;
     if (applyUpdate) {
-      const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 10);
-      const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
-      const bestWallet = wallets.length > 0 ? wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best) : null;
+      // Keep oldest wallet as canonical, delete any duplicates
+      const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
       const now = new Date().toISOString();
-      if (bestWallet) {
-        await base44.asServiceRole.entities.UserWallet.update(bestWallet.id, { xpBalance: finalXp, level, updatedAt: now });
-        walletUpdateResult = { action: 'updated', walletId: bestWallet.id, previousXp: getXp(bestWallet) };
+      if (wallets.length > 1) {
+        for (const dup of wallets.slice(1)) {
+          try { await base44.asServiceRole.entities.UserWallet.delete(dup.id); } catch(e) {}
+        }
+      }
+      if (wallets.length > 0) {
+        await base44.asServiceRole.entities.UserWallet.update(wallets[0].id, { xpBalance: finalXp, level, updatedAt: now });
+        walletUpdateResult = { action: 'updated', walletId: wallets[0].id, previousXp: wallets[0].xpBalance ?? 0 };
       } else {
         const created = await base44.asServiceRole.entities.UserWallet.create({ userId, xpBalance: finalXp, level, updatedAt: now });
         walletUpdateResult = { action: 'created', walletId: created.id };
