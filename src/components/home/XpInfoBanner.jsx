@@ -32,7 +32,6 @@ export default function XpInfoBanner() {
         <li>• Earn <strong className="text-foreground">2 XP per verse</strong> when you log a chapter</li>
         <li>• Earn a <strong className="text-foreground">+100 XP bonus</strong> on days you read 30+ verses</li>
         <li>• Spend XP in the <strong className="text-foreground">Treasury</strong> to unlock artifacts that boost your XP multiplier</li>
-        <li>• Your <strong className="text-foreground">level</strong> increases every 1,000 XP</li>
       </ul>
     </div>
   );
