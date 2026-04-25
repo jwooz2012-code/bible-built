@@ -4,8 +4,8 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { ArrowLeft, Play, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
-const BATCH_SIZE = 5;
-const BATCH_DELAY_MS = 4000; // 4 seconds between batches to stay well under rate limit
+const BATCH_SIZE = 20;
+const BATCH_DELAY_MS = 1500;
 
 export default function XpAudit() {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ export default function XpAudit() {
   const [done, setDone] = useState(false);
   const [log, setLog] = useState([]);
   const [totals, setTotals] = useState({ updated: 0, errors: 0, total: 0 });
+  const [resumeOffset, setResumeOffset] = useState('');
 
   if (user?.role !== 'admin') {
     return (
@@ -25,13 +26,13 @@ export default function XpAudit() {
 
   const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-  const runAudit = async () => {
+  const runAudit = async (startOffset = 0) => {
     setRunning(true);
     setDone(false);
     setLog([]);
     setTotals({ updated: 0, errors: 0, total: 0 });
 
-    let offset = 0;
+    let offset = startOffset;
     let totalUsers = null;
     let cumulativeUpdated = 0;
     let cumulativeErrors = 0;
@@ -102,13 +103,26 @@ export default function XpAudit() {
           </div>
         )}
 
+        {/* Resume offset input */}
+        {!running && (
+          <div className="flex gap-2 mb-3">
+            <input
+              type="number"
+              placeholder="Resume from offset (e.g. 300)"
+              value={resumeOffset}
+              onChange={e => setResumeOffset(e.target.value)}
+              className="flex-1 h-10 px-3 rounded-xl border border-border bg-background text-sm text-foreground"
+            />
+          </div>
+        )}
+
         {/* Start button */}
         {!running && !done && (
           <button
-            onClick={runAudit}
+            onClick={() => runAudit(resumeOffset ? parseInt(resumeOffset) : 0)}
             className="w-full h-12 rounded-xl bg-foreground text-background font-semibold flex items-center justify-center gap-2 mb-6"
           >
-            <Play className="w-4 h-4" /> Start XP Audit
+            <Play className="w-4 h-4" /> {resumeOffset ? `Resume from #${resumeOffset}` : 'Start XP Audit'}
           </button>
         )}
 
@@ -120,10 +134,10 @@ export default function XpAudit() {
 
         {done && (
           <button
-            onClick={runAudit}
+            onClick={() => runAudit(resumeOffset ? parseInt(resumeOffset) : 0)}
             className="w-full h-12 rounded-xl border border-border text-foreground font-semibold flex items-center justify-center gap-2 mb-6"
           >
-            <Play className="w-4 h-4" /> Re-run Audit
+            <Play className="w-4 h-4" /> {resumeOffset ? `Resume from #${resumeOffset}` : 'Re-run Audit'}
           </button>
         )}
 

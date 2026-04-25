@@ -207,9 +207,9 @@ Deno.serve(async (req) => {
         results.push({ userId: currentUser.id, email: currentUser.email, status: 'error', error: err.message });
       }
 
-      // Throttle to avoid rate limits
+      // Small throttle between users
       if (batch.indexOf(currentUser) < batch.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 200));
       }
     }
 
