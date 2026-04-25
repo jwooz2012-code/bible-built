@@ -70,6 +70,12 @@ export default function Treasury() {
 
   const handlePurchaseSuccess = (data) => {
     toast.success(`✨ ${selected.name} acquired!`);
+    // Immediately update wallet cache with server-returned wallet
+    if (data.wallet) {
+      queryClient.setQueryData(['userWallet', user?.id], data.wallet);
+    } else {
+      queryClient.invalidateQueries({ queryKey: ['userWallet', user?.id] });
+    }
     queryClient.invalidateQueries({ queryKey: ['xpTransactions', user?.id] });
     loadCollection();
   };
