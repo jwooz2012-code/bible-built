@@ -109,12 +109,9 @@ const ARTIFACT_BOOSTS = {
 };
 
 async function getOrCreateWallet(base44, userId) {
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 10);
-  if (wallets.length > 0) {
-    // Pick the wallet with the highest effective XP across all field names
-    const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
-    return wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best);
-  }
+  // Always use the oldest wallet as canonical (consistent with auditSingleUser)
+  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
+  if (wallets.length > 0) return wallets[0];
   return await base44.asServiceRole.entities.UserWallet.create({
     userId,
     xpBalance: 0,
