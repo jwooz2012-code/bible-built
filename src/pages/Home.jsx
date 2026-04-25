@@ -28,6 +28,7 @@ import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
+import XpInfoBanner from '@/components/home/XpInfoBanner';
 import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 import BibleBoostCard from '@/components/home/BibleBoostCard';
 import DailyVerseGoalBar from '@/components/home/DailyVerseGoalBar';
@@ -336,6 +337,7 @@ export default function Home() {
             )}
 
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
+            <XpInfoBanner />
 
             <TodayAssignmentCard
               plan={plan}
