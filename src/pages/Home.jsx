@@ -337,7 +337,7 @@ export default function Home() {
             )}
 
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
-            <XpInfoBanner />
+            {(user?.role === 'admin' || user?.hasEarlyAccess) && <XpInfoBanner />}
 
             <TodayAssignmentCard
               plan={plan}
