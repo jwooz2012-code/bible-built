@@ -230,11 +230,18 @@ Deno.serve(async (req) => {
       try {
         const calculated = await recalculateUserXp(base44, currentUser.id);
 
-        // Pick the best wallet (highest XP) — don't create duplicates
-        const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': currentUser.id }, '-created_date', 10);
+        // Keep the oldest wallet as canonical — delete any extras
+        const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': currentUser.id }, 'created_date', 10);
         const now = new Date().toISOString();
-        const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
-        const bestWallet = wallets.length > 0 ? wallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best) : null;
+
+        // Delete duplicates (keep first/oldest)
+        if (wallets.length > 1) {
+          for (const dup of wallets.slice(1)) {
+            try { await base44.asServiceRole.entities.UserWallet.delete(dup.id); } catch(e) {}
+          }
+        }
+
+        const bestWallet = wallets[0] ?? null;
 
         if (bestWallet) {
           await base44.asServiceRole.entities.UserWallet.update(bestWallet.id, {

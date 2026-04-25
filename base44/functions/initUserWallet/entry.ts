@@ -39,79 +39,32 @@ Deno.serve(async (req) => {
     const userId = user.id;
 
     const now = new Date().toISOString();
-    const backfillKey = `backfill:${userId}:v1`;
 
-    // Check if backfill already ran — this is the true idempotency guard
-    const existingBackfill = await base44.asServiceRole.entities.XPTransaction.filter({
-      'data.userId': userId,
-      'data.idempotencyKey': backfillKey,
-    });
-
-    if (existingBackfill.length > 0) {
-      // Backfill already ran — find and return the existing wallet
-      const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, '-created_date', 10);
-      const best = wallets.length > 0
-        ? wallets.sort((a, b) => (b.progressXpTotal ?? 0) - (a.progressXpTotal ?? 0))[0]
-        : null;
-
-      // If wallet exists but treasury balance is still 0, patch it now
-      if (best && (best.spendableXp ?? 0) === 0) {
-        const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000);
-        const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId).filter(Boolean));
-        const earnedXp = uniqueChapterIds.size * PROGRESS_XP_PER_CHAPTER;
-        const spendTxs = await base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.type': 'spend_currency' }, '-created_date', 500);
-        const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
-        const treasuryBalance = Math.max(0, earnedXp - totalSpent);
-        const patched = await base44.asServiceRole.entities.UserWallet.update(best.id, {
-          spendableXp: treasuryBalance,
-          updatedAt: new Date().toISOString(),
-        });
-        return Response.json({ wallet: patched, initialized: false, patched: true, treasuryBalance });
-      }
-
-      return Response.json({ wallet: best, initialized: false });
+    // Check if wallet already exists
+    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 5);
+    if (wallets.length > 0) {
+      return Response.json({ wallet: wallets[0], initialized: false });
     }
 
-    // No backfill record yet — first time init
-
+    // No wallet yet — first time init
     // Load all historical reading logs
-    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000);
+    const allLogs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000);
 
-    // Unique chapter logs by chapterId (de-dup across dates — count each chapter once for progression)
+    // Unique chapter logs by chapterId
     const uniqueChapterIds = new Set(allLogs.map(l => l.chapterId));
     const uniqueCount = uniqueChapterIds.size;
     const backfillXp = uniqueCount * PROGRESS_XP_PER_CHAPTER;
     const backfillLevel = Math.floor(backfillXp / 1000) + 1;
 
-    // Treasury balance = same as XP earned (unified pool) minus any prior artifact purchases
-    const spendTxs = await base44.asServiceRole.entities.XPTransaction.filter({
-      'data.userId': userId,
-      'data.type': 'spend_currency',
-    }, '-created_date', 500);
-    const totalSpent = spendTxs.reduce((sum, tx) => sum + Math.abs(tx.amount ?? 0), 0);
-    const treasuryBalance = Math.max(0, backfillXp - totalSpent);
-
-    // Create wallet with backfilled XP and treasury balance
+    // Create wallet with backfilled XP
     const wallet = await base44.asServiceRole.entities.UserWallet.create({
       userId,
-      progressXpTotal: backfillXp,
-      spendableXp: treasuryBalance,
+      xpBalance: backfillXp,
       level: backfillLevel,
       updatedAt: now,
     });
 
-    // Record backfill transaction (idempotent — prevents re-run)
-    await base44.asServiceRole.entities.XPTransaction.create({
-      userId,
-      type: 'adjustment',
-      source: 'backfill',
-      amount: backfillXp,
-      idempotencyKey: backfillKey,
-      metadataJson: JSON.stringify({ uniqueChapters: uniqueCount, version: 'v1', treasuryBalance }),
-      createdAt: now,
-    });
-
-    return Response.json({ wallet, initialized: true, backfilledChapters: uniqueCount, backfillXp, treasuryBalance });
+    return Response.json({ wallet, initialized: true, backfilledChapters: uniqueCount, backfillXp });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
   }

@@ -41,60 +41,27 @@ Deno.serve(async (req) => {
     const results = [];
 
     for (const [userId, wallets] of Object.entries(byUser)) {
-      // Load all XP transactions for this user — source of truth
-      const txns = await base44.asServiceRole.entities.XPTransaction.filter(
-        { 'data.userId': userId }, '-created_date', 2000
-      );
-      console.log('[consolidate] userId:', userId, 'txns:', txns.length, 'wallets:', wallets.length);
+      console.log('[consolidate] userId:', userId, 'wallets:', wallets.length);
 
-      // Compute correct progressXpTotal from earn_progress_xp + adjustment transactions
-      const txnXp = txns
-        .filter(t => t.type === 'earn_progress_xp' || t.type === 'adjustment')
-        .reduce((sum, t) => sum + (t.amount ?? 0), 0);
-
-      // Also check the existing wallet's progressXpTotal as a floor (already-correct wallets)
-      const existingMaxXp = wallets.reduce((max, w) => Math.max(max, w.progressXpTotal ?? 0), 0);
-
-      // If still 0, derive from reading logs (10 XP per unique chapter)
-      let progressXp = Math.max(txnXp, existingMaxXp);
-      if (progressXp === 0) {
-        const logs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 2000);
-        const uniqueChapters = new Set(logs.map(l => l.chapterId)).size;
-        progressXp = uniqueChapters * 10;
-        console.log('[consolidate] derived xp from logs for', userId, ':', progressXp, '(', uniqueChapters, 'unique chapters)');
-      }
-
-      // Compute correct treasury balance from earn_currency + spend_currency
-      const treasuryBalance = txns
-        .filter(t => t.type === 'earn_currency' || t.type === 'spend_currency')
-        .reduce((sum, t) => sum + (t.amount ?? 0), 0);
-
-      const correctLevel = Math.floor(progressXp / 1000) + 1;
+      // Use current xpBalance from the best existing wallet as the floor
+      const existingMaxXp = wallets.reduce((max, w) => Math.max(max, w.xpBalance ?? 0), 0);
+      const correctLevel = Math.floor(existingMaxXp / 1000) + 1;
       const now = new Date().toISOString();
 
-      console.log('[consolidate] computed for', userId, ': progressXp=', progressXp, 'treasuryBalance=', treasuryBalance, 'level=', correctLevel);
+      console.log('[consolidate] computed for', userId, ': xpBalance=', existingMaxXp, 'level=', correctLevel);
 
-      if (wallets.length === 1) {
-        // Single wallet — just correct the balances
-        const w = wallets[0];
-        await base44.asServiceRole.entities.UserWallet.update(w.id, {
-          progressXpTotal: progressXp,
-          treasuryCurrencyBalance: Math.max(0, treasuryBalance),
-          level: correctLevel,
-          updatedAt: now,
-        });
-        results.push({ userId, action: 'corrected_single', walletId: w.id, progressXp, treasuryBalance: Math.max(0, treasuryBalance), correctLevel });
-        continue;
-      }
-
-      // Multiple wallets — keep oldest, delete rest, set correct values on canonical
+      // Keep oldest wallet as canonical — delete rest
       wallets.sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
       const canonical = wallets[0];
       const duplicates = wallets.slice(1);
 
+      if (wallets.length === 1) {
+        results.push({ userId, action: 'single_wallet_ok', walletId: canonical.id, xpBalance: existingMaxXp, correctLevel });
+        continue;
+      }
+
       await base44.asServiceRole.entities.UserWallet.update(canonical.id, {
-        progressXpTotal: progressXp,
-        treasuryCurrencyBalance: Math.max(0, treasuryBalance),
+        xpBalance: existingMaxXp,
         level: correctLevel,
         updatedAt: now,
       });
@@ -114,8 +81,7 @@ Deno.serve(async (req) => {
         action: 'consolidated',
         keptWalletId: canonical.id,
         deletedCount,
-        progressXp,
-        treasuryBalance: Math.max(0, treasuryBalance),
+        xpBalance: existingMaxXp,
         correctLevel,
       });
     }
