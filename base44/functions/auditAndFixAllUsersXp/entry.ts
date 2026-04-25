@@ -92,22 +92,30 @@ function getVerseCount(book, chapter) {
   return chapters[chapter - 1] ?? 28;
 }
 
-async function withRetry(fn, retries = 3, delayMs = 2000) {
+const delay = (ms) => new Promise(r => setTimeout(r, ms));
+
+async function withRetry(fn, retries = 5, baseDelayMs = 3000) {
   for (let i = 0; i < retries; i++) {
     try {
       return await fn();
     } catch (err) {
       if (i === retries - 1) throw err;
-      await new Promise(r => setTimeout(r, delayMs * (i + 1)));
+      // Exponential backoff: 3s, 6s, 12s, 24s
+      await delay(baseDelayMs * Math.pow(2, i));
     }
   }
 }
 
 async function auditUser(base44, userId) {
-  const [logs, purchaseHistory] = await Promise.all([
-    withRetry(() => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000)),
-    withRetry(() => base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200)),
-  ]);
+  // Sequential queries with delays to avoid rate limiting
+  const logs = await withRetry(() =>
+    base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId }, '-created_date', 5000)
+  );
+  await delay(500);
+  const purchaseHistory = await withRetry(() =>
+    base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200)
+  );
+  await delay(500);
 
   // Deduplicate logs by chapterId (unique chapters only, ignore same chapter on different days)
   const seenChapters = new Set();
@@ -150,6 +158,7 @@ async function auditUser(base44, userId) {
   const level = Math.floor(finalXp / 1000) + 1;
 
   // Update wallet — keep oldest as canonical, delete duplicates
+  await delay(500);
   const wallets = await withRetry(() => base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10));
   const now = new Date().toISOString();
   let prevXp = 0;
@@ -218,9 +227,9 @@ Deno.serve(async (req) => {
         results.push({ userId: currentUser.id, email: currentUser.email, status: 'error', error: err.message });
       }
 
-      // Small throttle between users
+      // Throttle between users to avoid rate limits
       if (batch.indexOf(currentUser) < batch.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 200));
+        await delay(1000);
       }
     }
 
