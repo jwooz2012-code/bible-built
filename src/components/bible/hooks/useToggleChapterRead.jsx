@@ -12,25 +12,12 @@ import { CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { dailyMilestoneKey } from '@/hooks/useWallet';
 
-const BASE_XP_PER_VERSE = 5;
+// XP display hint only — actual XP is computed server-side in logChapterRead
+const BASE_XP_PER_VERSE = 2; // matches server constant
 
-// Returns { multiplier, bonuses } for display
+// Returns display bonuses only — server computes actual multiplier from equipped artifacts
 function calcXpMultipliers(book, chapter, user) {
-  const now = new Date();
-  const hour = now.getHours();
-  const dayOfWeek = now.getDay(); // 0=Sun, 6=Sat
-  const streak = user?.streakDays ?? user?.streak ?? 0;
-  const verseCount = getVerseCount(book, chapter);
-
-  const bonuses = [];
-  let multiplier = 1.0;
-
-  if (streak >= 7) { multiplier += 0.10; bonuses.push('🔥 Streak Bonus +10%'); }
-  if (hour < 8) { multiplier += 0.15; bonuses.push('🌅 Early Bird +15%'); }
-  if (verseCount > 50) { multiplier += 0.20; bonuses.push('📖 Deep Dive +20%'); }
-  if (dayOfWeek === 0 || dayOfWeek === 6) { multiplier += 0.25; bonuses.push('⚔️ Weekend Warrior +25%'); }
-
-  return { multiplier, bonuses };
+  return { multiplier: 1.0, bonuses: [] };
 }
 
 // Book completion bonus scaled by chapter count (100-500 XP)
@@ -94,11 +81,12 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       return { previousDayLogs, userId, dateKey };
     },
-    onError: (_err, _vars, context) => {
+    onError: (_err, vars, context) => {
       // Roll back optimistic update on failure
       if (context?.previousDayLogs !== undefined) {
         queryClient.setQueryData(['dayLogs', context.userId, context.dateKey], context.previousDayLogs);
       }
+      queryClient.invalidateQueries({ queryKey: ['userWallet', vars?.userId] });
     },
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
       if (!userId) {
@@ -125,7 +113,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }],
       });
 
-      const { created, skipped } = res.data ?? {};
+      const { created, skipped, wallet: serverWallet, xpGranted } = res.data ?? {};
 
       // If skipped (duplicate), return the existing log gracefully
       if (skipped?.includes(chapterId) && (!created || created.length === 0)) {
@@ -140,9 +128,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         throw new Error('Failed to save reading log - no ID returned');
       }
 
-      return result;
+      return { log: result, serverWallet, xpGranted };
     },
-    onSuccess: (createdLog, variables) => {
+    onSuccess: ({ log: createdLog, serverWallet, xpGranted }, variables) => {
       // Replace optimistic entry with the real server entry
       const optimisticId = `optimistic-${variables.chapterId}-${variables.dateKey}`;
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
@@ -162,11 +150,17 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       );
 
+      // Immediately push server wallet into cache — no re-fetch needed
+      if (serverWallet) {
+        queryClient.setQueryData(['userWallet', variables.userId], serverWallet);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
+      }
+
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
       queryClient.invalidateQueries({
         predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId
       });
-      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
       // Track daily goal for milestones and celebrations (verse-count based, UI only)
       if (user?.id) {
@@ -220,25 +214,19 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       });
 
-      // Show exactly ONE toast — most specific wins
-      const { bonuses } = calcXpMultipliers(variables.book, variables.chapter, user);
-      const xpGained = createdLog.xpEarned ?? Math.round(getVerseCount(variables.book, variables.chapter) * BASE_XP_PER_VERSE);
+      // Show toast with server-authoritative XP amount
       const bookFinishedForToast = isBookComplete(variables.book, variables.chapter, allLogs);
       const bookBonusForToast = bookFinishedForToast ? getBookCompletionBonus(variables.book) : 0;
+      const displayXp = xpGranted ?? createdLog.xpEarned ?? 0;
 
       if (bookFinishedForToast) {
         toast.success(`📕 ${variables.book} complete! +${bookBonusForToast} XP`, {
           duration: 3500,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
-      } else if (bonuses.length > 0) {
-        toast.success(`+${xpGained} XP · ${bonuses[0].replace(/ \+\d+%$/, '')}`, {
-          duration: 3000,
-          action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
-        });
       } else {
-        toast.success('Chapter marked as read', {
-          duration: 4000,
+        toast.success(displayXp > 0 ? `+${displayXp} XP` : 'Chapter marked as read', {
+          duration: 3000,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
       }
