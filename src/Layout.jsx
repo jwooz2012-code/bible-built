@@ -29,7 +29,7 @@ export default function Layout({ children }) {
   const hasAccess = user?.role === 'admin' || user?.hasEarlyAccess;
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-emerald-500' },
+    { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-foreground' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar', color: 'text-rose-500' },
     { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: !hasAccess, color: 'text-blue-500' },
     ...(hasAccess ? [{ name: 'Treasury', icon: Landmark, path: '/treasury', pageName: 'treasury', color: 'text-amber-500' }] : []),
@@ -70,7 +70,7 @@ export default function Layout({ children }) {
                   >
                     <div className="relative w-6 h-6">
                       <item.icon 
-                        className={`w-6 h-6 stroke-[2] transition-all ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100 opacity-60'}`}
+                        className={`w-6 h-6 stroke-[2] transition-all ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100 opacity-80'}`}
                       />
                       {item.locked && (
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
