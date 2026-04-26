@@ -70,7 +70,7 @@ export default function Layout({ children }) {
                   >
                     <div className="relative w-6 h-6">
                       <item.icon 
-                        className={`w-6 h-6 stroke-[2] transition-all ${isActive ? 'text-foreground' : item.color || 'text-muted-foreground'}`}
+                        className={`w-6 h-6 stroke-[2] transition-all ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100 opacity-60'}`}
                       />
                       {item.locked && (
                         <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
@@ -79,7 +79,8 @@ export default function Layout({ children }) {
                       )}
                     </div>
                     <span 
-                      className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
+                      className={`text-[10px] flex items-center gap-0.5 ${isActive ? 'font-semibold' : 'font-medium opacity-60'}`}
+                      style={isActive ? { color: 'inherit' } : {}}
                     >
                       {item.name}
                     </span>
