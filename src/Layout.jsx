@@ -68,9 +68,9 @@ export default function Layout({ children }) {
                     }}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
-                    <div className="relative w-6 h-6">
+                    <div className="relative w-7 h-7">
                      <item.icon 
-                       className={`w-6 h-6 stroke-[2] transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100'}`}
+                       className={`w-7 h-7 stroke-[1.75] transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100'}`}
                      />
                      {item.locked && (
                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function Layout({ children }) {
                      )}
                     </div>
                     <span 
-                     className={`text-[10px] flex items-center gap-0.5 transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'font-semibold' : 'font-medium'}`}
+                     className={`text-[11px] flex items-center gap-0.5 transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'font-semibold' : 'font-medium'}`}
                     >
                      {item.name}
                     </span>
