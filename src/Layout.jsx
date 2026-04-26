@@ -70,7 +70,7 @@ export default function Layout({ children }) {
                   >
                     <div className="relative w-6 h-6">
                      <item.icon 
-                       className={`w-6 h-6 stroke-[2] transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100 opacity-50'}`}
+                       className={`w-6 h-6 stroke-[2] transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110 opacity-100' : 'scale-100 opacity-95'}`}
                      />
                      {item.locked && (
                        <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
@@ -79,7 +79,7 @@ export default function Layout({ children }) {
                      )}
                     </div>
                     <span 
-                     className={`text-[10px] flex items-center gap-0.5 transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'font-semibold' : 'font-medium opacity-50'}`}
+                     className={`text-[10px] flex items-center gap-0.5 transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'font-semibold opacity-100' : 'font-medium opacity-95'}`}
                     >
                      {item.name}
                     </span>
