@@ -274,8 +274,8 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Onboarding</CardTitle>
-              <CardDescription>Restart the welcome flow</CardDescription>
+              <CardTitle>Tutorial & Help</CardTitle>
+              <CardDescription>Revisit the app tutorial and guidance</CardDescription>
             </CardHeader>
             <CardContent>
               <Button 
@@ -284,7 +284,7 @@ export default function Settings() {
                 disabled={isRestarting}
                 className="w-full"
               >
-                {isRestarting ? 'Restarting...' : 'Restart Onboarding'}
+                {isRestarting ? 'Loading...' : 'View Tutorial'}
               </Button>
             </CardContent>
           </Card>
