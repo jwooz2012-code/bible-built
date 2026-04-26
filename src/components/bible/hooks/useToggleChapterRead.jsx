@@ -157,10 +157,11 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
       }
 
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({
-        predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId
-      });
+      // Cache is already updated optimistically above — skip broad invalidations
+      // Only invalidate dayLogs after a short debounce so rapid taps don't flood requests
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
+      }, 2000);
 
       // Track daily goal for milestones and celebrations (verse-count based, UI only)
       if (user?.id) {
@@ -277,12 +278,11 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       );
 
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
-      queryClient.invalidateQueries({
-        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
-      });
-      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
-      queryClient.invalidateQueries({ queryKey: ['xpTransactions', variables.userId] });
+      // Debounce refetches to avoid rate limit spikes
+      setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
+        queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
+      }, 1000);
 
       toast('Chapter unmarked — XP removed');
     },
