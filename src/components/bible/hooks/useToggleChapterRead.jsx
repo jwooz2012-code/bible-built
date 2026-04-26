@@ -221,12 +221,12 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const displayXp = xpGranted ?? createdLog.xpEarned ?? 0;
 
       if (bookFinishedForToast) {
-        toast.success(`📕 ${variables.book} complete! +${bookBonusForToast} XP`, {
+        toast.success(`📕 ${variables.book} Ch. ${variables.chapter} complete! +${bookBonusForToast} XP`, {
           duration: 3500,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
       } else {
-        toast.success(displayXp > 0 ? `+${displayXp} XP` : 'Chapter marked as read', {
+        toast.success(displayXp > 0 ? `${variables.book} Ch. ${variables.chapter} · +${displayXp} XP` : `${variables.book} Ch. ${variables.chapter} marked as read`, {
           duration: 3000,
           action: { label: 'Undo', onClick: () => undoReadRef.current?.({ userId: variables.userId, chapterId: variables.chapterId }) },
         });
