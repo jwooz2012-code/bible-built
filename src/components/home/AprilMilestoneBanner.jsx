@@ -18,80 +18,82 @@ export default function AprilMilestoneBanner() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[200] flex items-center justify-center p-6"
-          style={{ background: 'linear-gradient(160deg, #0f2d1a 0%, #14532d 50%, #166534 100%)' }}
+          transition={{ duration: 0.4 }}
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center px-8"
+          style={{ background: 'linear-gradient(160deg, #052e16 0%, #14532d 60%, #166534 100%)' }}
         >
-          {/* Decorative sparkles */}
-          {[
-            'top-[8%] left-[12%]', 'top-[15%] right-[18%]', 'top-[30%] left-[5%]',
-            'bottom-[25%] right-[8%]', 'bottom-[15%] left-[20%]', 'top-[50%] right-[4%]',
-            'top-[6%] left-[45%]', 'bottom-[35%] left-[3%]', 'top-[22%] right-[6%]',
-          ].map((pos, i) => (
-            <div
-              key={i}
-              className={`absolute ${pos} rounded-full bg-white/10`}
-              style={{ width: `${6 + (i % 3) * 4}px`, height: `${6 + (i % 3) * 4}px` }}
-            />
-          ))}
+          {/* Floating orbs */}
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #4ade80, transparent)', filter: 'blur(40px)' }} />
+          <div className="absolute bottom-1/3 right-1/4 w-48 h-48 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #86efac, transparent)', filter: 'blur(30px)' }} />
 
-          <motion.div
-            initial={{ scale: 0.88, y: 30, opacity: 0 }}
-            animate={{ scale: 1, y: 0, opacity: 1 }}
-            exit={{ scale: 0.92, opacity: 0 }}
-            transition={{ delay: 0.1, duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="text-center max-w-sm w-full"
-          >
+          <div className="relative text-center max-w-xs w-full">
+
+            {/* Big emoji burst */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ delay: 0.3, type: 'spring', stiffness: 200, damping: 12 }}
-              className="text-7xl mb-6"
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: 1, rotate: 0 }}
+              transition={{ delay: 0.15, type: 'spring', stiffness: 180, damping: 10 }}
+              className="text-8xl mb-8 select-none"
             >
               🎉
             </motion.div>
 
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
+            {/* 10,000 hero number */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-green-300 text-sm font-semibold uppercase tracking-widest mb-3"
+              transition={{ delay: 0.35, duration: 0.5 }}
             >
-              Community Milestone
-            </motion.p>
+              <p
+                className="font-black leading-none mb-2 select-none"
+                style={{
+                  fontSize: 'clamp(72px, 22vw, 96px)',
+                  background: 'linear-gradient(135deg, #bbf7d0 0%, #4ade80 40%, #86efac 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  textShadow: 'none',
+                  letterSpacing: '-0.03em',
+                }}
+              >
+                10K
+              </p>
+              <p className="text-green-200 font-bold text-xl tracking-widest uppercase mb-1" style={{ letterSpacing: '0.2em' }}>
+                chapters
+              </p>
+              <p className="text-green-300/70 text-sm tracking-wider uppercase mb-10">
+                read together this April
+              </p>
+            </motion.div>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="text-white font-bold text-4xl leading-tight mb-4"
-            >
-              WOW! Over 10,000 Chapters & Counting!
-            </motion.h1>
-
+            {/* Subtext */}
             <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
               transition={{ delay: 0.6 }}
-              className="text-green-100 text-lg leading-relaxed mb-10"
+              className="text-green-100/80 text-base mb-10 leading-relaxed"
             >
-              You and the BibleBuilt community have read over{' '}
-              <span className="text-white font-bold">TEN THOUSAND chapters</span> this April.
-              Keep up the amazing work — keep tracking what truly matters. 📖
+              Keep tracking what matters. 📖
             </motion.p>
 
+            {/* CTA */}
             <motion.button
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-              whileTap={{ scale: 0.96 }}
+              transition={{ delay: 0.75, duration: 0.4 }}
+              whileTap={{ scale: 0.95 }}
               onClick={handleDismiss}
-              className="w-full py-4 rounded-2xl font-bold text-lg text-white transition-all"
-              style={{ background: 'linear-gradient(135deg, #16a34a, #22c55e)', boxShadow: '0 8px 32px rgba(34,197,94,0.4)' }}
+              className="w-full py-4 rounded-2xl font-black text-xl tracking-wide transition-all select-none"
+              style={{
+                background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
+                boxShadow: '0 0 40px rgba(34,197,94,0.45), 0 4px 16px rgba(0,0,0,0.3)',
+                color: '#fff',
+                letterSpacing: '0.02em',
+              }}
             >
               Let's Do It! 🚀
             </motion.button>
-          </motion.div>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>
