@@ -76,6 +76,16 @@ export default function AprilMilestoneBanner() {
               Keep tracking what matters. 📖
             </motion.p>
 
+            {/* Invite nudge */}
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="text-green-300/60 text-sm mb-6 leading-relaxed"
+            >
+              Know someone who should be tracking? Invite them. 🙌
+            </motion.p>
+
             {/* CTA */}
             <motion.button
               initial={{ opacity: 0, y: 16 }}
