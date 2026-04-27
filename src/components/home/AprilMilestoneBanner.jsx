@@ -17,88 +17,101 @@ export default function AprilMilestoneBanner() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="fixed inset-0 z-[200] flex flex-col items-center justify-center px-8"
-          style={{ background: 'linear-gradient(160deg, #052e16 0%, #14532d 60%, #166534 100%)' }}
+          exit={{ opacity: 0, scale: 1.04 }}
+          transition={{ duration: 0.35 }}
+          className="fixed inset-0 z-[200] flex flex-col items-center justify-center"
+          style={{ background: 'radial-gradient(ellipse at 50% 30%, #166534 0%, #052e16 70%)' }}
         >
-          {/* Floating orbs */}
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #4ade80, transparent)', filter: 'blur(40px)' }} />
-          <div className="absolute bottom-1/3 right-1/4 w-48 h-48 rounded-full opacity-10" style={{ background: 'radial-gradient(circle, #86efac, transparent)', filter: 'blur(30px)' }} />
+          {/* Glow blobs */}
+          <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+            <div className="absolute top-[10%] left-[20%] w-72 h-72 rounded-full" style={{ background: 'radial-gradient(circle, rgba(74,222,128,0.18), transparent 70%)', filter: 'blur(20px)' }} />
+            <div className="absolute bottom-[15%] right-[10%] w-56 h-56 rounded-full" style={{ background: 'radial-gradient(circle, rgba(134,239,172,0.14), transparent 70%)', filter: 'blur(20px)' }} />
+            <div className="absolute top-[50%] left-[5%] w-40 h-40 rounded-full" style={{ background: 'radial-gradient(circle, rgba(74,222,128,0.1), transparent 70%)', filter: 'blur(15px)' }} />
+          </div>
 
-          <div className="relative text-center max-w-xs w-full">
+          <div className="relative text-center px-10 max-w-sm w-full">
 
-            {/* Big emoji burst */}
+            {/* Emoji */}
             <motion.div
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{ delay: 0.15, type: 'spring', stiffness: 180, damping: 10 }}
-              className="text-8xl mb-8 select-none"
+              initial={{ scale: 0, rotate: -30 }}
+              animate={{ scale: [0, 1.3, 1], rotate: ['-30deg', '8deg', '0deg'] }}
+              transition={{ delay: 0.1, duration: 0.6, ease: 'easeOut' }}
+              className="text-7xl mb-6 select-none"
             >
               🎉
             </motion.div>
 
-            {/* 10,000 hero number */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5 }}
-            >
-              <p
-                className="font-black leading-none mb-2 select-none"
-                style={{
-                  fontSize: 'clamp(72px, 22vw, 96px)',
-                  background: 'linear-gradient(135deg, #bbf7d0 0%, #4ade80 40%, #86efac 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  textShadow: 'none',
-                  letterSpacing: '-0.03em',
-                }}
-              >
-                10K
-              </p>
-              <p className="text-green-200 font-bold text-xl tracking-widest uppercase mb-1" style={{ letterSpacing: '0.2em' }}>
-                chapters
-              </p>
-              <p className="text-green-300/70 text-sm tracking-wider uppercase mb-10">
-                read together this April
-              </p>
-            </motion.div>
-
-            {/* Subtext */}
+            {/* Label */}
             <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="text-green-100/80 text-base mb-10 leading-relaxed"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="text-green-400 text-xs font-bold uppercase tracking-[0.25em] mb-3"
             >
-              Keep tracking what matters. 📖
+              Community Milestone
             </motion.p>
 
-            {/* Invite nudge */}
+            {/* Hero number */}
+            <motion.p
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.5, type: 'spring', stiffness: 140, damping: 12 }}
+              className="font-black leading-none select-none"
+              style={{
+                fontSize: 'clamp(88px, 28vw, 120px)',
+                background: 'linear-gradient(160deg, #ffffff 0%, #86efac 45%, #4ade80 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.04em',
+                lineHeight: 0.9,
+              }}
+            >
+              10K
+            </motion.p>
+
+            {/* Subtitle */}
+            <motion.p
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.65 }}
+              className="text-green-200 text-lg font-semibold tracking-[0.15em] uppercase mt-3 mb-8"
+            >
+              Chapters Read Together
+            </motion.p>
+
+            {/* Divider */}
+            <motion.div
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ delay: 0.75, duration: 0.5 }}
+              className="w-16 h-px bg-green-500/40 mx-auto mb-8"
+            />
+
+            {/* Invite line */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
-              className="text-green-300/60 text-sm mb-6 leading-relaxed"
+              transition={{ delay: 0.85 }}
+              className="text-green-300/70 text-sm leading-relaxed mb-10"
             >
-              Know someone who should be tracking? Invite them. 🙌
+              Invite a friend to track what matters with us. 🙌
             </motion.p>
 
             {/* CTA */}
             <motion.button
-              initial={{ opacity: 0, y: 16 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.75, duration: 0.4 }}
-              whileTap={{ scale: 0.95 }}
+              transition={{ delay: 0.95, duration: 0.4, ease: 'easeOut' }}
+              whileTap={{ scale: 0.96 }}
               onClick={handleDismiss}
-              className="w-full py-4 rounded-2xl font-black text-xl tracking-wide transition-all select-none"
+              className="w-full py-5 rounded-3xl font-black text-xl select-none tracking-wide"
               style={{
-                background: 'linear-gradient(135deg, #16a34a 0%, #22c55e 100%)',
-                boxShadow: '0 0 40px rgba(34,197,94,0.45), 0 4px 16px rgba(0,0,0,0.3)',
+                background: 'linear-gradient(135deg, #15803d 0%, #22c55e 60%, #4ade80 100%)',
+                boxShadow: '0 0 50px rgba(34,197,94,0.5), 0 6px 24px rgba(0,0,0,0.4)',
                 color: '#fff',
-                letterSpacing: '0.02em',
+                letterSpacing: '0.04em',
+                textShadow: '0 1px 4px rgba(0,0,0,0.2)',
               }}
             >
               Let's Do It! 🚀
