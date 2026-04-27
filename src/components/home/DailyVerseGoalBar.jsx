@@ -1,25 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Zap, Flame } from 'lucide-react';
+import { getArtifactById } from '@/data/artifactCatalog';
 
 const DAILY_VERSE_GOAL = 30;
 const DAILY_XP_REWARD = 100;
-
-const ARTIFACT_BOOSTS = {
-  'ark-of-the-covenant': 1.20,
-  'sword-goliath': 1.15,
-  'coat-of-many-colors': 1.11,
-  'sling-of-david': 1.12,
-  'davids-harp': 1.13,
-  'jar-of-manna': 1.08,
-  'noahs-hammer': 1.09,
-};
 
 function getMultiplier(user) {
   const ids = user?.equippedArtifactIds ?? [];
   let m = 1.0;
   for (const id of ids) {
-    if (ARTIFACT_BOOSTS[id]) m *= ARTIFACT_BOOSTS[id];
+    const artifact = getArtifactById(id);
+    if (artifact?.xpBoost) m *= artifact.xpBoost;
   }
   return m;
 }
