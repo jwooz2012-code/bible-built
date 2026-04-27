@@ -28,6 +28,7 @@ import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
+import AprilMilestoneBanner from '@/components/home/AprilMilestoneBanner';
 import XpInfoBanner from '@/components/home/XpInfoBanner';
 import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
 import BibleBoostCard from '@/components/home/BibleBoostCard';
@@ -336,6 +337,7 @@ export default function Home() {
               </p>
             )}
 
+            <AprilMilestoneBanner />
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
             {(user?.role === 'admin' || user?.hasEarlyAccess) && <XpInfoBanner />}
 
