@@ -84,7 +84,7 @@ export default function AprilMilestoneBanner() {
                 This April
               </p>
               <p className="text-green-300/60 text-xs font-medium mt-1 italic">
-                that's the whole Bible × 8 📖
+                enough to read the whole Bible 8 times 📖
               </p>
             </motion.div>
 
