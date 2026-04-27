@@ -71,15 +71,19 @@ export default function AprilMilestoneBanner() {
             </motion.p>
 
             {/* Subtitle */}
-            <motion.p
+            <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65 }}
-              className="text-green-200/70 text-lg font-semibold tracking-[0.15em] uppercase mt-3 mb-8"
+              className="mt-3 mb-8 flex flex-col items-center gap-1"
             >
-              Chapters Read{' '}
-              <span className="text-white font-black">This April</span>
-            </motion.p>
+              <p className="text-green-200/60 text-sm font-semibold tracking-[0.25em] uppercase">
+                Chapters Read
+              </p>
+              <p className="text-white font-black text-3xl tracking-tight">
+                This April
+              </p>
+            </motion.div>
 
             {/* Divider */}
             <motion.div
