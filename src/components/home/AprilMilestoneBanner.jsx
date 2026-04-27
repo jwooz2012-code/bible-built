@@ -75,9 +75,10 @@ export default function AprilMilestoneBanner() {
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.65 }}
-              className="text-green-200 text-lg font-semibold tracking-[0.15em] uppercase mt-3 mb-8"
+              className="text-green-200/70 text-lg font-semibold tracking-[0.15em] uppercase mt-3 mb-8"
             >
-              Chapters Read Together
+              Chapters Read{' '}
+              <span className="text-white font-black">This April</span>
             </motion.p>
 
             {/* Divider */}
