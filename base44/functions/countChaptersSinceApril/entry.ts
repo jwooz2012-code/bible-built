@@ -7,40 +7,53 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'Forbidden' }, { status: 403 });
   }
 
-  // Count by dateKey >= 2026-04-01
-  let totalByDateKey = 0;
+  // Page through ALL ReadingLog records with dateKey >= 2026-04-01
+  let total = 0;
   let skip = 0;
   const limit = 1000;
+  const userCounts = {};
+  const dateCounts = {};
+  let sampleRecords = [];
+
   while (true) {
     const batch = await base44.asServiceRole.entities.ReadingLog.filter(
       { dateKey: { $gte: '2026-04-01' } },
-      '-created_date',
+      'dateKey',
       limit,
       skip
     );
-    totalByDateKey += batch.length;
+
+    for (const record of batch) {
+      total++;
+      userCounts[record.userId] = (userCounts[record.userId] || 0) + 1;
+      dateCounts[record.dateKey] = (dateCounts[record.dateKey] || 0) + 1;
+      if (sampleRecords.length < 5) {
+        sampleRecords.push({ userId: record.userId, book: record.book, chapter: record.chapter, dateKey: record.dateKey });
+      }
+    }
+
     if (batch.length < limit) break;
     skip += limit;
   }
 
-  // Count by created_date >= 2026-04-01T00:00:00Z
-  let totalByCreatedDate = 0;
-  skip = 0;
-  while (true) {
-    const batch = await base44.asServiceRole.entities.ReadingLog.filter(
-      { created_date: { $gte: '2026-04-01T00:00:00Z' } },
-      '-created_date',
-      limit,
-      skip
-    );
-    totalByCreatedDate += batch.length;
-    if (batch.length < limit) break;
-    skip += limit;
-  }
+  const uniqueUsers = Object.keys(userCounts).length;
+  const avgPerUser = uniqueUsers > 0 ? (total / uniqueUsers).toFixed(1) : 0;
+  const topUsers = Object.entries(userCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5)
+    .map(([uid, count]) => ({ userId: uid.slice(0, 8) + '...', count }));
 
-  return Response.json({ 
-    totalByDateKey, 
-    totalByCreatedDate,
-    message: `dateKey filter: ${totalByDateKey} | created_date filter: ${totalByCreatedDate}`
+  // Sort date counts
+  const dailyBreakdown = Object.entries(dateCounts)
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, count]) => ({ date, count }));
+
+  return Response.json({
+    totalChapters: total,
+    uniqueUsers,
+    avgChaptersPerUser: avgPerUser,
+    topUsers,
+    sampleRecords,
+    dailyBreakdown
   });
 });
