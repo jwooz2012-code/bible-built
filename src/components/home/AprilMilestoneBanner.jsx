@@ -95,7 +95,7 @@ export default function AprilMilestoneBanner() {
               transition={{ delay: 0.85 }}
               className="text-green-300/70 text-sm leading-relaxed mb-10"
             >
-              Invite a friend to track what matters with us. 🙌
+              Invite a friend to track what matters with us.
             </motion.p>
 
             {/* CTA */}
