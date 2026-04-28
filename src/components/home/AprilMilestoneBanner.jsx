@@ -4,7 +4,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 const STORAGE_KEY = 'bb_april_10k_dismissed';
 
 export default function AprilMilestoneBanner() {
-  const [dismissed, setDismissed] = useState(() => !!localStorage.getItem(STORAGE_KEY));
+  const [dismissed, setDismissed] = useState(() => {
+    if (new Date() > new Date('2026-05-01')) return true;
+    return !!localStorage.getItem(STORAGE_KEY);
+  });
 
   const handleDismiss = () => {
     localStorage.setItem(STORAGE_KEY, 'true');
