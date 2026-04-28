@@ -41,8 +41,13 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Delete the reading log
-    await base44.asServiceRole.entities.ReadingLog.delete(latestLog.id);
+    // Delete the reading log (may already be gone — treat 404 as success)
+    try {
+      await base44.asServiceRole.entities.ReadingLog.delete(latestLog.id);
+    } catch (deleteErr) {
+      if (!deleteErr.message?.includes('not found')) throw deleteErr;
+      // Already deleted — still proceed to XP deduction if not already done
+    }
 
     if (xpToDeduct > 0 && wallet) {
       await base44.asServiceRole.entities.XPTransaction.create({
