@@ -115,12 +115,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       const { created, skipped, wallet: serverWallet, xpGranted } = res.data ?? {};
 
-      // If skipped (duplicate), return the existing log gracefully
+      // If skipped (duplicate), return gracefully without crashing
       if (skipped?.includes(chapterId) && (!created || created.length === 0)) {
-        // Fetch existing log for cache consistency
-        const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
-        if (existing.length > 0) return existing[0];
-        throw new Error('Duplicate chapter — already logged today');
+        return { log: null, serverWallet, xpGranted: 0, skipped: true };
       }
 
       const result = created?.[0];
@@ -130,12 +127,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       return { log: result, serverWallet, xpGranted };
     },
-    onSuccess: ({ log: createdLog, serverWallet, xpGranted }, variables) => {
-      // Replace optimistic entry with the real server entry
+    onSuccess: ({ log: createdLog, serverWallet, xpGranted, skipped: wasSkipped }, variables) => {
+      // Replace optimistic entry with the real server entry (or remove it if duplicate)
       const optimisticId = `optimistic-${variables.chapterId}-${variables.dateKey}`;
       queryClient.setQueryData(['dayLogs', variables.userId, variables.dateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
         const filtered = prev.filter(x => x.id !== optimisticId);
+        if (!createdLog) return filtered;
         if (filtered.some(x => x.id === createdLog.id)) return filtered;
         return [createdLog, ...filtered];
       });
@@ -145,6 +143,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         (old = []) => {
           const prev = Array.isArray(old) ? old : [];
           const filtered = prev.filter(x => x.id !== optimisticId);
+          if (!createdLog) return filtered;
           if (filtered.some(x => x.id === createdLog.id)) return filtered;
           return [createdLog, ...filtered];
         }
@@ -215,10 +214,16 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       });
 
+      // If this was a duplicate, silently invalidate and return
+      if (wasSkipped) {
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
+        return;
+      }
+
       // Show toast with server-authoritative XP amount
       const bookFinishedForToast = isBookComplete(variables.book, variables.chapter, allLogs);
       const bookBonusForToast = bookFinishedForToast ? getBookCompletionBonus(variables.book) : 0;
-      const displayXp = xpGranted ?? createdLog.xpEarned ?? 0;
+      const displayXp = xpGranted ?? createdLog?.xpEarned ?? 0;
 
       if (bookFinishedForToast) {
         toast.success(`📕 ${variables.book} Ch. ${variables.chapter} complete! +${bookBonusForToast} XP`, {
