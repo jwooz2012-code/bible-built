@@ -133,25 +133,6 @@ export default function GroupDetail() {
   }, [user?.id]);
 
   const today = getDateKey();
-  const graceAvailableByMonth = useMemo(() => {
-    const map = {};
-    const GRACE_DAYS_PER_MONTH = 2;
-    const allRelevantMonths = new Set();
-
-    // Add months from all logs
-    allLogs.forEach(l => allRelevantMonths.add(l.dateKey.substring(0, 7)));
-
-    // Add months from existing grace day records
-    Object.values(graceDayRecords).flat().forEach(g => allRelevantMonths.add(g.monthKey));
-    
-    // Ensure current month is included
-    allRelevantMonths.add(today.substring(0, 7));
-
-    for (const monthKey of allRelevantMonths) {
-      map[monthKey] = GRACE_DAYS_PER_MONTH;
-    }
-    return map;
-  }, [allLogs, today, graceDayRecords]);
 
   const withStats = useMemo(() => members.map(m => {
     const now = new Date(); now.setHours(0,0,0,0); now.setDate(now.getDate() - now.getDay());
@@ -162,11 +143,25 @@ export default function GroupDetail() {
     const userLogs = allLogs.filter(l => l.userId === m.id);
     const dateCountMap = groupByDateKey(userLogs);
     const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
-    const { currentStreak: streak } = computeStreakWithGrace(sortedDates, today, graceAvailableByMonth);
+    
+    // Build grace months only for this specific user
+    const userGraceMonths = {};
+    const GRACE_DAYS_PER_MONTH = 2;
+    const userAllRelevantMonths = new Set();
+    
+    userLogs.forEach(l => userAllRelevantMonths.add(l.dateKey.substring(0, 7)));
+    (graceDayRecords[m.id] || []).forEach(g => userAllRelevantMonths.add(g.monthKey));
+    userAllRelevantMonths.add(today.substring(0, 7));
+    
+    for (const monthKey of userAllRelevantMonths) {
+      userGraceMonths[monthKey] = GRACE_DAYS_PER_MONTH;
+    }
+    
+    const { currentStreak: streak } = computeStreakWithGrace(sortedDates, today, userGraceMonths);
     
     const xp = m.xpBalance ?? m.spendableXp ?? 0;
     return { member: m, weekChapters: weekLogs.length, streak, xp };
-  }), [members, allLogs, today, graceAvailableByMonth]);
+  }), [members, allLogs, today, graceDayRecords]);
 
   const leaderboards = useMemo(() => ({
     streak: [...withStats].sort((a, b) => b.streak - a.streak),
