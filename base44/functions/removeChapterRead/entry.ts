@@ -31,10 +31,10 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Delete all logs for this chapter
+    // Delete all logs for this chapter using user-scoped client (RLS requires data.userId match)
     await Promise.all(logs.map(async (log) => {
       try {
-        await base44.asServiceRole.entities.ReadingLog.delete(log.id);
+        await base44.entities.ReadingLog.delete(log.id);
       } catch (deleteErr) {
         if (!deleteErr.message?.includes('not found') && !deleteErr.message?.includes('404')) throw deleteErr;
       }
