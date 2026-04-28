@@ -81,13 +81,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       return { previousDayLogs, userId, dateKey };
     },
-    onError: (_err, vars, context) => {
-      // Roll back optimistic update on failure
-      if (context?.previousDayLogs !== undefined) {
-        queryClient.setQueryData(['dayLogs', context.userId, context.dateKey], context.previousDayLogs);
-      }
-      queryClient.invalidateQueries({ queryKey: ['userWallet', vars?.userId] });
-    },
     mutationFn: async ({ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }) => {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
@@ -98,6 +91,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const { multiplier } = calcXpMultipliers(book, chapter, user);
       const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier);
 
+      console.log('[markRead] calling logChapterRead for', chapterId, 'userId:', userId);
       // Route through trusted server function for duplicate protection
       const res = await base44.functions.invoke('logChapterRead', {
         chapters: [{
@@ -113,6 +107,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }],
       });
 
+      console.log('[markRead] logChapterRead response:', JSON.stringify(res.data));
       const { created, skipped, wallet: serverWallet, xpGranted } = res.data ?? {};
 
       // If skipped (duplicate), return gracefully without crashing
@@ -237,8 +232,13 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         });
       }
     },
-    onError: (error) => {
+    onError: (error, vars, context) => {
       console.error('[markRead] Error:', error);
+      // Roll back optimistic update on failure
+      if (context?.previousDayLogs !== undefined) {
+        queryClient.setQueryData(['dayLogs', context.userId, context.dateKey], context.previousDayLogs);
+      }
+      queryClient.invalidateQueries({ queryKey: ['userWallet', vars?.userId] });
       toast.error(error?.message || 'Failed to mark chapter');
     },
   });
