@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate } from 'react-router-dom';
+import { useFriendStreak } from '@/components/bible/hooks/useFriendStreak';
 import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw, Sparkles, BookOpen, Trophy, Copy, CheckCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
@@ -17,6 +18,41 @@ function timeAgo(isoString) {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
+}
+
+// ── Friend Card with Dynamic Streak ────────────────────────────
+function FriendCard({ friend, index }) {
+  const navigate = useNavigate();
+  const streak = useFriendStreak(friend.id);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: -8 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+    >
+      <button
+        onClick={() => navigate(`/user-detail?id=${friend.id}`)}
+        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
+      >
+        <AvatarDisplay initials={(friend.full_name || friend.displayName || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-bold text-foreground truncate">{friend.full_name ?? friend.displayName}</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            {streak > 0 && (
+              <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
+                🔥 {streak}d
+              </span>
+            )}
+            {friend.level > 0 && (
+              <span className="text-xs text-muted-foreground">Lvl {friend.level}</span>
+            )}
+          </div>
+        </div>
+        <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
+      </button>
+    </motion.div>
+  );
 }
 
 // ── Sub-components ─────────────────────────────────────────────
@@ -334,33 +370,7 @@ export default function Social() {
         ) : (
           <div className="space-y-2">
             {friends.map((f, i) => (
-              <motion.div
-                key={f.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.05 }}
-              >
-                <button
-                  onClick={() => navigate(`/user-detail?id=${f.id}`)}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
-                >
-                  <AvatarDisplay initials={(f.full_name || f.displayName || f.email || '?')[0].toUpperCase()} avatarData={f} size={40} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-bold text-foreground truncate">{f.full_name ?? f.displayName}</p>
-                    <div className="flex items-center gap-2 mt-0.5">
-                      {(f.streak ?? f.streakDays) > 0 && (
-                        <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
-                          🔥 {f.streak ?? f.streakDays}d
-                        </span>
-                      )}
-                      {f.level > 0 && (
-                        <span className="text-xs text-muted-foreground">Lvl {f.level}</span>
-                      )}
-                    </div>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-              </motion.div>
+              <FriendCard key={f.id} friend={f} index={i} />
             ))}
           </div>
         )}
