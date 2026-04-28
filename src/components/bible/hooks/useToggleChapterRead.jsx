@@ -91,7 +91,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       const { multiplier } = calcXpMultipliers(book, chapter, user);
       const xpEarned = Math.round(verseCount * BASE_XP_PER_VERSE * multiplier);
 
-      console.log('[markRead] calling logChapterRead for', chapterId, 'userId:', userId);
       // Route through trusted server function for duplicate protection
       const res = await base44.functions.invoke('logChapterRead', {
         chapters: [{
@@ -107,7 +106,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }],
       });
 
-      console.log('[markRead] logChapterRead response:', JSON.stringify(res.data));
       const { created, skipped, wallet: serverWallet, xpGranted } = res.data ?? {};
 
       // If skipped (duplicate), return gracefully without crashing

@@ -246,7 +246,9 @@ export default function Home() {
     return { timesRead: chapterLogs.length + optimisticCount };
   };
 
-  const handleChapterClick = async (book, chapter, chapterId) => {
+  const [pendingChapters, setPendingChapters] = useState(new Set());
+
+  const handleChapterClick = (book, chapter, chapterId) => {
     if (!userId) {
       toast.error('Please log in again');
       return;
@@ -256,22 +258,25 @@ export default function Home() {
       setReaderState({ book, chapter });
       return;
     }
-    // Log Mode: mark as read immediately
-    try {
-      const now = new Date();
-      await markRead({
-        userId,
-        dateKey: getDateKey(now),
-        timestamp: now.toISOString(),
-        book: book.name,
-        bookIndex: book.index,
-        chapter,
-        chapterId,
-        testament: book.testament
-      });
-    } catch (error) {
+    if (pendingChapters.has(chapterId)) return; // prevent double-tap on same chapter
+
+    // Log Mode: fire and forget — optimistic UI handles immediate feedback
+    const now = new Date();
+    setPendingChapters(prev => new Set(prev).add(chapterId));
+    markRead({
+      userId,
+      dateKey: getDateKey(now),
+      timestamp: now.toISOString(),
+      book: book.name,
+      bookIndex: book.index,
+      chapter,
+      chapterId,
+      testament: book.testament
+    }).catch(error => {
       toast.error(error?.message || 'Action failed. Please try again.');
-    }
+    }).finally(() => {
+      setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
+    });
   };
 
   const handleToggleReadMode = () => {
@@ -519,7 +524,7 @@ export default function Home() {
                     chapterId={chapterId}
                     timesRead={chapterStats.timesRead}
                     onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
-                    disabled={isMarkingRead || isUndoingRead}
+                    disabled={pendingChapters.has(chapterId) || isUndoingRead}
                   />
                 );
               })}
