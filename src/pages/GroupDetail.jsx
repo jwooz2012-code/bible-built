@@ -135,18 +135,23 @@ export default function GroupDetail() {
   const today = getDateKey();
   const graceAvailableByMonth = useMemo(() => {
     const map = {};
-    const currentMonthKey = today.substring(0, 7);
-    if (allLogs && allLogs.length) {
-      const months = new Set(allLogs.map(l => l.dateKey.substring(0, 7)));
-      months.add(currentMonthKey);
-      for (const m of months) {
-        map[m] = 2; // GRACE_DAYS_PER_MONTH
-      }
-    } else {
-      map[currentMonthKey] = 2;
+    const GRACE_DAYS_PER_MONTH = 2;
+    const allRelevantMonths = new Set();
+
+    // Add months from all logs
+    allLogs.forEach(l => allRelevantMonths.add(l.dateKey.substring(0, 7)));
+
+    // Add months from existing grace day records
+    Object.values(graceDayRecords).flat().forEach(g => allRelevantMonths.add(g.monthKey));
+    
+    // Ensure current month is included
+    allRelevantMonths.add(today.substring(0, 7));
+
+    for (const monthKey of allRelevantMonths) {
+      map[monthKey] = GRACE_DAYS_PER_MONTH;
     }
     return map;
-  }, [allLogs, today]);
+  }, [allLogs, today, graceDayRecords]);
 
   const withStats = useMemo(() => members.map(m => {
     const now = new Date(); now.setHours(0,0,0,0); now.setDate(now.getDate() - now.getDay());
