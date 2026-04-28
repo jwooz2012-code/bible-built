@@ -159,11 +159,16 @@ Deno.serve(async (req) => {
       return Response.json({ created: [], skipped, wallet });
     }
 
-    // Bulk create reading logs
-    const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(toCreate);
-
     // Get equipped artifact multiplier
     const multiplier = await getEquippedMultiplier(base44, userId);
+    
+    // Bulk create reading logs — attach xpEarned to each
+    const logsWithXp = toCreate.map(ch => {
+      const verses = getVerseCount(ch.book, ch.chapter);
+      const xpEarned = Math.floor(verses * XP_PER_VERSE * multiplier);
+      return { ...ch, xpEarned };
+    });
+    const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(logsWithXp);
     const now = new Date().toISOString();
     const wallet = await getOrCreateWallet(base44, userId);
 

@@ -16,13 +16,28 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
+    // Import verse count helper
+    const verseCountJson = await fetch('https://raw.githubusercontent.com/eliyahuchaim/biblebuilt-data/main/verseCount.json').then(r => r.json()).catch(() => ({}));
+    
     // Find all reading logs for this chapter, pick the most recent
     const logs = await base44.asServiceRole.entities.ReadingLog.filter({ userId, chapterId });
     // If no logs exist, the chapter was already removed — treat as success
     if (logs.length === 0) return Response.json({ success: true, alreadyRemoved: true });
 
+    // Helper to get verse count for a chapter
+    const getVerseCount = (book, chapter) => {
+      const key = `${book.toUpperCase()}_${chapter}`;
+      return verseCountJson[key] ?? 30; // fallback to 30 if not found
+    };
+
     // Delete ALL logs for this chapter and deduct all their XP
-    const totalXpToDeduct = logs.reduce((sum, l) => sum + (l.xpEarned ?? 0), 0);
+    // Use xpEarned if present, otherwise recompute from verse count
+    const totalXpToDeduct = logs.reduce((sum, l) => {
+      if (l.xpEarned !== undefined && l.xpEarned > 0) return sum + l.xpEarned;
+      // Fallback: recompute from verse count (2 XP per verse, no multipliers)
+      const verseCount = getVerseCount(l.book, l.chapter);
+      return sum + (verseCount * 2);
+    }, 0);
     const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
 
     // Get wallet
