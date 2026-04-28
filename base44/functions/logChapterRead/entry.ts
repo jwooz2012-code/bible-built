@@ -149,26 +149,10 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
-    // Batch lookup existing logs for all relevant dates
     const dateKeys = [...new Set(chapters.map(c => c.dateKey))];
-    const existingLogArrays = await Promise.all(
-      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
-    );
-    const existingLogs = existingLogArrays.flat();
-    const existingSet = new Set(existingLogs.map(l => `${l.chapterId}:${l.dateKey}`));
-
-    const toCreate = [];
+    // No deduplication — every tap is a valid new log entry
+    const toCreate = chapters;
     const skipped = [];
-
-    for (const ch of chapters) {
-      const key = `${ch.chapterId}:${ch.dateKey}`;
-      if (existingSet.has(key)) {
-        skipped.push(ch.chapterId);
-      } else {
-        toCreate.push(ch);
-        existingSet.add(key);
-      }
-    }
 
     if (toCreate.length === 0) {
       const wallet = await getOrCreateWallet(base44, userId);
@@ -183,54 +167,50 @@ Deno.serve(async (req) => {
     const now = new Date().toISOString();
     const wallet = await getOrCreateWallet(base44, userId);
 
-    // Build idempotency keys to check
-    const chapterIdempotencyKeys = toCreate.map(ch => `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`);
+    // Build idempotency keys — only daily bonus is deduplicated (one per day)
     const dailyBonusKeys = dateKeys.map(dk => `daily_bonus:${userId}:${dk}`);
-    const allKeysToCheck = [...chapterIdempotencyKeys, ...dailyBonusKeys];
-
     const existingTxBatch = await Promise.all(
-      allKeysToCheck.map(key =>
+      dailyBonusKeys.map(key =>
         base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': key })
       )
     );
-    const existingKeySet = new Set(
-      existingTxBatch.flatMap((txs, i) => txs.length > 0 ? [allKeysToCheck[i]] : [])
+    const existingBonusKeySet = new Set(
+      existingTxBatch.flatMap((txs, i) => txs.length > 0 ? [dailyBonusKeys[i]] : [])
     );
 
     let totalXpGained = 0;
     const xpTransactions = [];
 
-    // Chapter XP: 2 XP per verse * multiplier
+    // Chapter XP: 2 XP per verse * multiplier — every read earns XP, use timestamp for unique key
     for (const ch of toCreate) {
-      const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`;
-      if (!existingKeySet.has(idempotencyKey)) {
-        const verses = getVerseCount(ch.book, ch.chapter);
-        const xpAmount = Math.floor(verses * XP_PER_VERSE * multiplier);
-        xpTransactions.push({
-          userId,
-          type: 'earn_xp',
-          source: 'chapter_read',
-          amount: xpAmount,
-          idempotencyKey,
-          metadataJson: JSON.stringify({ chapterId: ch.chapterId, dateKey: ch.dateKey, verses, baseXp: verses * XP_PER_VERSE, multiplier }),
-          createdAt: now,
-        });
-        totalXpGained += xpAmount;
-      }
+      const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${ch.timestamp ?? now}`;
+      const verses = getVerseCount(ch.book, ch.chapter);
+      const xpAmount = Math.floor(verses * XP_PER_VERSE * multiplier);
+      xpTransactions.push({
+        userId,
+        type: 'earn_xp',
+        source: 'chapter_read',
+        amount: xpAmount,
+        idempotencyKey,
+        metadataJson: JSON.stringify({ chapterId: ch.chapterId, dateKey: ch.dateKey, verses, baseXp: verses * XP_PER_VERSE, multiplier }),
+        createdAt: now,
+      });
+      totalXpGained += xpAmount;
     }
 
-    // Daily bonus: 100 XP * multiplier if total verses read on that day >= 30
+    // Daily bonus: 100 XP * multiplier if total verses read on that day >= 30 (awarded once per day)
+    // Re-fetch all logs for the day to get accurate verse totals
+    const allDayLogArrays = await Promise.all(
+      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
+    );
+    const allDayLogsByDate = {};
+    dateKeys.forEach((dk, i) => { allDayLogsByDate[dk] = allDayLogArrays[i]; });
+
     for (const dk of dateKeys) {
       const bonusKey = `daily_bonus:${userId}:${dk}`;
-      if (existingKeySet.has(bonusKey)) continue;
+      if (existingBonusKeySet.has(bonusKey)) continue;
 
-      // Sum all verses read that day (existing + newly created)
-      const existingDayLogs = existingLogs.filter(l => l.dateKey === dk);
-      const newDayChapters = toCreate.filter(c => c.dateKey === dk);
-      const allDayChapters = [
-        ...existingDayLogs.map(l => ({ book: l.book, chapter: l.chapter })),
-        ...newDayChapters.map(c => ({ book: c.book, chapter: c.chapter })),
-      ];
+      const allDayChapters = allDayLogsByDate[dk] ?? [];
       const totalVersesToday = allDayChapters.reduce((sum, c) => sum + getVerseCount(c.book, c.chapter), 0);
 
       if (totalVersesToday >= DAILY_BONUS_VERSE_THRESHOLD) {
