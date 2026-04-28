@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand, Sparkles, Pencil } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,6 +9,8 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import GroupEditSheet from '@/components/group/GroupEditSheet';
+import { groupByDateKey, computeStreakWithGrace } from '@/components/trackers/deriveStats';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 function timeAgo(isoString) {
   const diff = (Date.now() - new Date(isoString)) / 1000;
@@ -16,41 +18,6 @@ function timeAgo(isoString) {
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
   if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
   return `${Math.floor(diff / 86400)}d ago`;
-}
-
-function calcStreakWithGrace(logs, userId, graceDayRecords) {
-  const userLogs = logs.filter(l => l.userId === userId);
-  const daySet = new Set(userLogs.map(l => l.dateKey));
-  if (daySet.size === 0) return 0;
-  
-  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  
-  const graceUsed = {};
-  (graceDayRecords[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
-  
-  const graceConsumed = {};
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let streak = 0;
-  const cursor = new Date(today);
-  
-  for (let i = 0; i < 730; i++) {
-    const key = fmt(cursor);
-    if (daySet.has(key)) {
-      streak++;
-    } else {
-      const mk = monthKey(cursor);
-      const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
-      if (used < 2) {
-        graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
-      } else {
-        if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
-        break;
-      }
-    }
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
 }
 
 function RankBadge({ rank }) {
@@ -165,21 +132,41 @@ export default function GroupDetail() {
     setFriends(res.data?.users ?? []);
   }, [user?.id]);
 
-  const withStats = members.map(m => {
+  const today = getDateKey();
+  const graceAvailableByMonth = useMemo(() => {
+    const map = {};
+    const currentMonthKey = today.substring(0, 7);
+    if (allLogs && allLogs.length) {
+      const months = new Set(allLogs.map(l => l.dateKey.substring(0, 7)));
+      months.add(currentMonthKey);
+      for (const m of months) {
+        map[m] = 2; // GRACE_DAYS_PER_MONTH
+      }
+    } else {
+      map[currentMonthKey] = 2;
+    }
+    return map;
+  }, [allLogs, today]);
+
+  const withStats = useMemo(() => members.map(m => {
     const now = new Date(); now.setHours(0,0,0,0); now.setDate(now.getDate() - now.getDay());
-    const weekKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-    const t = new Date();
-    const todayKey = `${t.getFullYear()}-${String(t.getMonth()+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`;
-    const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= todayKey);
-    const streak = calcStreakWithGrace(allLogs, m.id, graceDayRecords);
+    const weekKey = getDateKey(now);
+    const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= today);
+    
+    // Use the same streak calculation as Home/Profile
+    const userLogs = allLogs.filter(l => l.userId === m.id);
+    const dateCountMap = groupByDateKey(userLogs);
+    const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
+    const { currentStreak: streak } = computeStreakWithGrace(sortedDates, today, graceAvailableByMonth);
+    
     const xp = m.xpBalance ?? m.spendableXp ?? 0;
     return { member: m, weekChapters: weekLogs.length, streak, xp };
-  });
+  }), [members, allLogs, today, graceAvailableByMonth]);
 
-  const leaderboards = {
+  const leaderboards = useMemo(() => ({
     streak: [...withStats].sort((a, b) => b.streak - a.streak),
     chapters: [...withStats].sort((a, b) => b.weekChapters - a.weekChapters),
-  };
+  }), [withStats]);
 
   const tabConfig = {
     streak: { label: 'Streak', icon: Flame, stat: r => r.streak, unit: r => r.streak === 1 ? 'day' : 'days' },
