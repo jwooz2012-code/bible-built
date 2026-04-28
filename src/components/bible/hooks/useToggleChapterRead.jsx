@@ -63,7 +63,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       // Immediately update the cache so the tile turns "read" instantly
       queryClient.setQueryData(['dayLogs', userId, dateKey], (old = []) => {
         const prev = Array.isArray(old) ? old : [];
-        if (prev.some(x => x.chapterId === chapterId && x.dateKey === dateKey)) return prev;
         return [optimisticLog, ...prev];
       });
 
@@ -71,7 +70,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         { predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === userId },
         (old = []) => {
           const prev = Array.isArray(old) ? old : [];
-          if (prev.some(x => x.chapterId === chapterId && x.dateKey === dateKey)) return prev;
           return [optimisticLog, ...prev];
         }
       );
@@ -128,7 +126,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         const prev = Array.isArray(old) ? old : [];
         const filtered = prev.filter(x => x.id !== optimisticId);
         if (!createdLog) return filtered;
-        if (filtered.some(x => x.id === createdLog.id)) return filtered;
         return [createdLog, ...filtered];
       });
 
@@ -137,10 +134,8 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         { predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId },
         (old = []) => {
           const prev = Array.isArray(old) ? old : [];
-          // Remove only the optimistic placeholder, then add the real persisted log
           const filtered = prev.filter(x => x.id !== optimisticId);
           if (!createdLog) return filtered;
-          if (filtered.some(x => x.id === createdLog.id)) return filtered;
           return [createdLog, ...filtered];
         }
       );
