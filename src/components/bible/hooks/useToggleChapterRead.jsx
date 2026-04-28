@@ -124,8 +124,16 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       }
 
       const result = created?.[0];
-      if (!result || !result.id) {
-        throw new Error('Failed to save reading log - no ID returned');
+
+      // If the server returned a log without an ID (fallback path), fetch the real record
+      if (!result?.id) {
+        const chapterId = variables?.chapterId;
+        const dateKey = variables?.dateKey;
+        if (chapterId && dateKey) {
+          const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
+          if (existing.length > 0) return { log: existing[0], serverWallet, xpGranted };
+        }
+        throw new Error('Failed to save reading log');
       }
 
       return { log: result, serverWallet, xpGranted };
