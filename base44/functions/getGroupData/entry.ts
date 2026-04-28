@@ -57,14 +57,10 @@ Deno.serve(async (req) => {
     }
   }
 
-  // Fetch reading logs in batches to avoid rate limit
-  const logs = [];
-  for (const memberId of memberIds) {
-    const memberLogs = await fetchWithRetry(() =>
-      base44.asServiceRole.entities.ReadingLog.filter({ userId: memberId }, '-created_date', 500)
-    );
-    logs.push(...memberLogs);
-  }
+  // Fetch all reading logs for all members in a single call
+  const logs = await fetchWithRetry(() =>
+    base44.asServiceRole.entities.ReadingLog.filter({ userId: memberIds }, '-created_date', 5000)
+  );
 
   // Build wallet map
   const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
