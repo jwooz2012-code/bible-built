@@ -37,21 +37,21 @@ Deno.serve(async (req) => {
   // Step 2: fetch users and wallets for members only, then reading logs
   const [memberUsers, memberWallets, allGraceDays] = await Promise.all([
     fetchWithRetry(() =>
-      Promise.all(memberIds.map(id => base44.asServiceRole.entities.User.filter({ id }, '', 1)))
+      Promise.all(memberIds.map(id => base44.asServiceRole.entities.User.filter({ id })))
         .then(results => results.flat())
     ),
     fetchWithRetry(() =>
-      Promise.all(memberIds.map(id => base44.asServiceRole.entities.UserWallet.filter({ userId: id }, '', 1)))
+      Promise.all(memberIds.map(id => base44.asServiceRole.entities.UserWallet.filter({ userId: id })))
         .then(results => results.flat())
     ),
-    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[0] }, '', 1000)),
+    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[0] })),
   ]);
 
   // Fetch remaining grace days for other members sequentially to avoid rate limit
   if (memberIds.length > 1) {
     for (let i = 1; i < memberIds.length; i++) {
       const graceDaysForMember = await fetchWithRetry(() =>
-        base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[i] }, '', 1000)
+        base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[i] })
       );
       allGraceDays.push(...graceDaysForMember);
     }
