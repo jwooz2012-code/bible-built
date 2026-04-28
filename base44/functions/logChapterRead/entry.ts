@@ -109,7 +109,6 @@ const ARTIFACT_BOOSTS = {
 };
 
 async function getOrCreateWallet(base44, userId) {
-  // Always use the oldest wallet as canonical (consistent with auditSingleUser)
   const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
   if (wallets.length > 0) return wallets[0];
   return await base44.asServiceRole.entities.UserWallet.create({
@@ -148,14 +147,31 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
-
-    // Batch lookup existing logs for all relevant dates
     const dateKeys = [...new Set(chapters.map(c => c.dateKey))];
-    const existingLogArrays = await Promise.all(
-      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
-    );
+
+    // ── PARALLEL PHASE 1: fetch existing logs, wallet, multiplier, and recent XP transactions all at once ──
+    const [existingLogArrays, wallet, multiplier, recentTxs] = await Promise.all([
+      // Existing reading logs for the relevant date(s)
+      Promise.all(dateKeys.map(dk =>
+        base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk })
+      )),
+      // Wallet (create if missing)
+      getOrCreateWallet(base44, userId),
+      // Equipped artifact XP multiplier
+      getEquippedMultiplier(base44, userId),
+      // Recent XP transactions — single broad fetch instead of one-per-key fan-out
+      base44.asServiceRole.entities.XPTransaction.filter(
+        { 'data.userId': userId },
+        '-created_date',
+        200
+      ),
+    ]);
+
     const existingLogs = existingLogArrays.flat();
     const existingSet = new Set(existingLogs.map(l => `${l.chapterId}:${l.dateKey}`));
+
+    // Build existing idempotency key set from the broad transaction fetch
+    const existingKeySet = new Set(recentTxs.map(tx => tx.idempotencyKey).filter(Boolean));
 
     const toCreate = [];
     const skipped = [];
@@ -171,32 +187,13 @@ Deno.serve(async (req) => {
     }
 
     if (toCreate.length === 0) {
-      const wallet = await getOrCreateWallet(base44, userId);
       return Response.json({ created: [], skipped, wallet });
     }
 
     // Bulk create reading logs
     const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(toCreate);
 
-    // Get equipped artifact multiplier
-    const multiplier = await getEquippedMultiplier(base44, userId);
     const now = new Date().toISOString();
-    const wallet = await getOrCreateWallet(base44, userId);
-
-    // Build idempotency keys to check
-    const chapterIdempotencyKeys = toCreate.map(ch => `chapter_read:${userId}:${ch.chapterId}:${ch.dateKey}`);
-    const dailyBonusKeys = dateKeys.map(dk => `daily_bonus:${userId}:${dk}`);
-    const allKeysToCheck = [...chapterIdempotencyKeys, ...dailyBonusKeys];
-
-    const existingTxBatch = await Promise.all(
-      allKeysToCheck.map(key =>
-        base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': key })
-      )
-    );
-    const existingKeySet = new Set(
-      existingTxBatch.flatMap((txs, i) => txs.length > 0 ? [allKeysToCheck[i]] : [])
-    );
-
     let totalXpGained = 0;
     const xpTransactions = [];
 
@@ -224,7 +221,6 @@ Deno.serve(async (req) => {
       const bonusKey = `daily_bonus:${userId}:${dk}`;
       if (existingKeySet.has(bonusKey)) continue;
 
-      // Sum all verses read that day (existing + newly created)
       const existingDayLogs = existingLogs.filter(l => l.dateKey === dk);
       const newDayChapters = toCreate.filter(c => c.dateKey === dk);
       const allDayChapters = [
@@ -248,18 +244,21 @@ Deno.serve(async (req) => {
       }
     }
 
+    // ── PARALLEL PHASE 2: write XP transactions and update wallet at the same time ──
     if (xpTransactions.length > 0) {
-      await base44.asServiceRole.entities.XPTransaction.bulkCreate(xpTransactions);
-
-      // Use whichever balance field exists (migration: some wallets still use spendableXp)
       const currentBalance = wallet.xpBalance ?? wallet.spendableXp ?? wallet.progressXpTotal ?? 0;
       const newXpBalance = currentBalance + totalXpGained;
       const newLevel = Math.floor(newXpBalance / 1000) + 1;
-      await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-        xpBalance: newXpBalance,
-        level: newLevel,
-        updatedAt: now,
-      });
+
+      await Promise.all([
+        base44.asServiceRole.entities.XPTransaction.bulkCreate(xpTransactions),
+        base44.asServiceRole.entities.UserWallet.update(wallet.id, {
+          xpBalance: newXpBalance,
+          level: newLevel,
+          updatedAt: now,
+        }),
+      ]);
+
       wallet.xpBalance = newXpBalance;
       wallet.level = newLevel;
     }
