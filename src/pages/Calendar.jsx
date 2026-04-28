@@ -167,7 +167,7 @@ export default function Calendar() {
       const updatePayload = { xp: newXp, level: newLevel };
       updateUser(updatePayload);
       base44.auth.updateMe(updatePayload).catch(() => {});
-      toast.success('Chapter removed from this day');
+      toast.success('Chapter removed from this day', { duration: 2000 });
     } catch (error) {
       toast.error('Failed to remove chapter');
     } finally {

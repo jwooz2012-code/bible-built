@@ -284,7 +284,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId] });
       queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
-      toast('Chapter unmarked — XP removed');
+      toast('Chapter unmarked — XP removed', { duration: 2000 });
     },
     onError: (error) => {
       console.error('[undoRead] Error:', error);
