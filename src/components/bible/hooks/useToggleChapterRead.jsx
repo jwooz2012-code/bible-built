@@ -279,11 +279,10 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         );
       }
 
-      // Debounce refetches to reconcile cache
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey ?? getDateKey()] });
-        queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
-      }, 1000);
+      // Immediately invalidate all reading log caches (calendar, stats, etc.)
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId] });
+      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
       toast('Chapter unmarked — XP removed');
     },
