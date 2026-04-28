@@ -131,10 +131,12 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         return [createdLog, ...filtered];
       });
 
+      // Update all readingLogs range caches (this is what allTimeLogs reads from)
       queryClient.setQueriesData(
         { predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === variables.userId },
         (old = []) => {
           const prev = Array.isArray(old) ? old : [];
+          // Remove only the optimistic placeholder, then add the real persisted log
           const filtered = prev.filter(x => x.id !== optimisticId);
           if (!createdLog) return filtered;
           if (filtered.some(x => x.id === createdLog.id)) return filtered;
@@ -149,10 +151,10 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
       }
 
-      // Cache is already updated optimistically above — skip broad invalidations
-      // Only invalidate dayLogs after a short debounce so rapid taps don't flood requests
+      // Debounced invalidation to reconcile caches after optimistic updates
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
+        queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
       }, 2000);
 
       // Track daily goal for milestones and celebrations (verse-count based, UI only)
