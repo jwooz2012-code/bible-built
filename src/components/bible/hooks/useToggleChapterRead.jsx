@@ -245,7 +245,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       // Server handles log deletion + XP deduction atomically
       const res = await base44.functions.invoke('removeChapterRead', { chapterId });
-      const { deletedLogId, dateKey, alreadyRemoved } = res.data ?? {};
+      const { deletedLogId, dateKey, alreadyRemoved, wallet: serverWallet } = res.data ?? {};
 
       // Recompute versesReadToday from remaining logs
       const todayKey = getDateKey();
@@ -260,7 +260,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       updateUser(updatePayload);
       base44.auth.updateMe(updatePayload).catch(() => {});
 
-      return { deletedId: deletedLogId, chapterId, dateKey, alreadyRemoved };
+      return { deletedId: deletedLogId, chapterId, dateKey, alreadyRemoved, serverWallet };
     },
     onSuccess: (data, variables) => {
       const affectedDateKey = data.dateKey;
@@ -289,10 +289,16 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         }
       );
 
+      // Immediately push updated wallet into cache — mirrors what markRead does on success
+      if (data.serverWallet) {
+        queryClient.setQueryData(['userWallet', variables.userId], data.serverWallet);
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
+      }
+
       // Immediately invalidate all reading log caches (calendar, stats, etc.)
       queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId] });
-      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
 
       toast('Chapter unmarked — XP removed', { duration: 2000 });
     },

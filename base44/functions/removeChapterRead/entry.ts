@@ -40,6 +40,7 @@ Deno.serve(async (req) => {
       }
     }));
 
+    let updatedWallet = wallet;
     if (totalXpToDeduct > 0 && wallet) {
       const removalKey = `chapter_remove_all:${userId}:${chapterId}:${now}`;
       await base44.asServiceRole.entities.XPTransaction.create({
@@ -59,6 +60,7 @@ Deno.serve(async (req) => {
         level: newLevel,
         updatedAt: now,
       });
+      updatedWallet = { ...wallet, xpBalance: newBalance, level: newLevel, updatedAt: now };
     }
 
     return Response.json({
@@ -66,6 +68,7 @@ Deno.serve(async (req) => {
       deletedLogId: latestLog.id,
       xpDeducted: totalXpToDeduct,
       dateKey: latestLog.dateKey,
+      wallet: updatedWallet,
     });
   } catch (error) {
     return Response.json({ error: error.message }, { status: 500 });
