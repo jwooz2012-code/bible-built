@@ -17,7 +17,7 @@ Deno.serve(async (req) => {
     const userId = user.id;
 
     // Find all reading logs for this chapter, pick the most recent
-    const logs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.chapterId': chapterId });
+    const logs = await base44.asServiceRole.entities.ReadingLog.filter({ userId, chapterId });
     // If no logs exist, the chapter was already removed — treat as success
     if (logs.length === 0) return Response.json({ success: true, alreadyRemoved: true });
 
@@ -29,15 +29,15 @@ Deno.serve(async (req) => {
 
     // Idempotency: don't double-deduct
     const existingRemoval = await base44.asServiceRole.entities.XPTransaction.filter({
-      'data.userId': userId,
-      'data.idempotencyKey': removalKey,
+      userId,
+      idempotencyKey: removalKey,
     });
     if (existingRemoval.length > 0) {
       return Response.json({ success: true, alreadyRemoved: true });
     }
 
     // Get wallet
-    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 5);
+    const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId }, 'created_date', 5);
     const wallet = wallets[0] ?? null;
 
     const now = new Date().toISOString();
