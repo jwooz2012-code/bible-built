@@ -245,7 +245,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       // Server handles log deletion + XP deduction atomically
       const res = await base44.functions.invoke('removeChapterRead', { chapterId });
-      const { deletedLogId, dateKey } = res.data ?? {};
+      const { deletedLogId, dateKey, alreadyRemoved } = res.data ?? {};
 
       // Recompute versesReadToday from remaining logs
       const todayKey = getDateKey();
@@ -260,24 +260,34 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       updateUser(updatePayload);
       base44.auth.updateMe(updatePayload).catch(() => {});
 
-      return { deletedId: deletedLogId, chapterId, dateKey };
+      return { deletedId: deletedLogId, chapterId, dateKey, alreadyRemoved };
     },
     onSuccess: (data, variables) => {
       const affectedDateKey = data.dateKey;
 
-      if (data.deletedId) {
-        queryClient.setQueryData(['dayLogs', variables.userId, affectedDateKey], (old = []) => {
+      // Always remove the log from cache — by ID if we have it, otherwise by chapterId
+      queryClient.setQueriesData(
+        { predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId },
+        (old = []) => {
           const prev = Array.isArray(old) ? old : [];
-          return prev.filter(log => log.id !== data.deletedId);
-        });
-        queryClient.setQueriesData(
-          { predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId },
-          (old = []) => {
-            const prev = Array.isArray(old) ? old : [];
-            return prev.filter(log => log.id !== data.deletedId);
-          }
-        );
-      }
+          return prev.filter(log =>
+            (data.deletedId ? log.id !== data.deletedId : true) &&
+            log.chapterId !== data.chapterId
+          );
+        }
+      );
+
+      // Remove from all dayLogs cache entries by chapterId
+      queryClient.setQueriesData(
+        { predicate: (query) => query.queryKey[0] === 'dayLogs' && query.queryKey[1] === variables.userId },
+        (old = []) => {
+          const prev = Array.isArray(old) ? old : [];
+          return prev.filter(log =>
+            (data.deletedId ? log.id !== data.deletedId : true) &&
+            log.chapterId !== data.chapterId
+          );
+        }
+      );
 
       // Immediately invalidate all reading log caches (calendar, stats, etc.)
       queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
