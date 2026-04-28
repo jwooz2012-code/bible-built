@@ -103,33 +103,42 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.ArtifactPurchaseHistory.filter({ 'data.userId': userId }, '-created_date', 200),
     ]);
 
-    // Deduplicate by chapterId (unique chapters only)
-    const seenChapters = new Set();
-    const uniqueLogs = [];
-    for (const log of logs) {
-      if (!seenChapters.has(log.chapterId)) {
-        seenChapters.add(log.chapterId);
-        uniqueLogs.push(log);
-      }
-    }
-
-    // Group by dateKey for daily bonus
+    // Group by dateKey to track which days had >= 30 verses (for daily bonus)
     const byDay = {};
-    for (const log of uniqueLogs) {
+    for (const log of logs) {
       const dk = log.dateKey || log.timestamp?.slice(0, 10) || 'unknown';
       if (!byDay[dk]) byDay[dk] = [];
       byDay[dk].push(log);
     }
 
-    // Calculate XP from verses
+    // Sum xpEarned from ALL logs (respects multipliers already baked in)
+    // For days with duplicates, we sum all xpEarned, then subtract excess to count each chapter once
     let earnedXp = 0;
     const dayBreakdown = [];
+    const seenChapters = new Set(); // Track which chapters we've counted for the day
+
     for (const [dateKey, dayLogs] of Object.entries(byDay).sort()) {
-      const dayVerses = dayLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
-      const baseXp = dayVerses * XP_PER_VERSE;
+      // Get unique chapters for this day and sum their xpEarned
+      const dayChapters = {};
+      for (const log of dayLogs) {
+        if (!dayChapters[log.chapterId]) {
+          dayChapters[log.chapterId] = log;
+        }
+      }
+      
+      const uniqueForDay = Object.values(dayChapters);
+      const dayXp = uniqueForDay.reduce((sum, log) => sum + (log.xpEarned ?? 0), 0);
+      const dayVerses = uniqueForDay.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
       const bonusXp = dayVerses >= DAILY_BONUS_THRESHOLD ? DAILY_BONUS_XP : 0;
-      earnedXp += baseXp + bonusXp;
-      dayBreakdown.push({ dateKey, chapters: dayLogs.length, verses: dayVerses, baseXp, bonusXp });
+      
+      earnedXp += dayXp + bonusXp;
+      dayBreakdown.push({ 
+        dateKey, 
+        chapters: uniqueForDay.length, 
+        verses: dayVerses, 
+        baseXp: dayXp,
+        bonusXp 
+      });
     }
 
     // XP spent on artifacts (deduped by artifactId)
@@ -144,7 +153,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    const totalVerses = uniqueLogs.reduce((sum, log) => sum + getVerseCount(log.book, log.chapter), 0);
+    // Calculate total unique chapters and verses
+    const uniqueChaptersSet = new Set();
+    let totalVerses = 0;
+    for (const log of logs) {
+      if (!uniqueChaptersSet.has(log.chapterId)) {
+        uniqueChaptersSet.add(log.chapterId);
+        totalVerses += getVerseCount(log.book, log.chapter);
+      }
+    }
+
     const finalXp = Math.max(0, earnedXp - totalSpent);
     const level = Math.floor(finalXp / 1000) + 1;
 
@@ -169,7 +187,7 @@ Deno.serve(async (req) => {
     return Response.json({
       userId,
       totalRawLogs: logs.length,
-      uniqueChapters: uniqueLogs.length,
+      uniqueChapters: uniqueChaptersSet.size,
       totalVerses,
       earnedXp,
       totalSpent,
