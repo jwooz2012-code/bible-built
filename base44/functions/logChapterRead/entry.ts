@@ -181,9 +181,9 @@ Deno.serve(async (req) => {
     let totalXpGained = 0;
     const xpTransactions = [];
 
-    // Chapter XP: 2 XP per verse * multiplier — every read earns XP, use timestamp for unique key
+    // Chapter XP: 2 XP per verse * multiplier — every read earns XP, use random ID for uniqueness
     for (const ch of toCreate) {
-      const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${ch.timestamp ?? now}`;
+      const idempotencyKey = `chapter_read:${userId}:${ch.chapterId}:${crypto.randomUUID()}`;
       const verses = getVerseCount(ch.book, ch.chapter);
       const xpAmount = Math.floor(verses * XP_PER_VERSE * multiplier);
       xpTransactions.push({

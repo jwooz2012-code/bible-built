@@ -1,8 +1,7 @@
 /**
  * removeChapterRead
  *
- * Deletes a ReadingLog and records a negative XP adjustment transaction
- * so the user's spendable XP and progress XP are correctly reduced.
+ * Deletes the most recent ReadingLog for a chapter and records a negative XP adjustment.
  */
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
@@ -17,16 +16,15 @@ Deno.serve(async (req) => {
 
     const userId = user.id;
 
-    // Find the reading log(s) for this chapter
+    // Find all reading logs for this chapter, pick the most recent
     const logs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.chapterId': chapterId });
     if (logs.length === 0) return Response.json({ error: 'No matching log found' }, { status: 404 });
 
     const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
     const xpToDeduct = latestLog.xpEarned ?? 0;
 
-    // Find the original earn transaction to know the exact XP to reverse
-    const idempotencyKey = `chapter_read:${userId}:${chapterId}:${latestLog.dateKey}`;
-    const removalKey = `chapter_remove:${userId}:${chapterId}:${latestLog.dateKey}`;
+    // Use the log's ID for a unique removal idempotency key
+    const removalKey = `chapter_remove:${userId}:${latestLog.id}`;
 
     // Idempotency: don't double-deduct
     const existingRemoval = await base44.asServiceRole.entities.XPTransaction.filter({
@@ -37,7 +35,7 @@ Deno.serve(async (req) => {
       return Response.json({ success: true, alreadyRemoved: true });
     }
 
-    // Get wallet (oldest = canonical, consistent with logChapterRead)
+    // Get wallet
     const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 5);
     const wallet = wallets[0] ?? null;
 
@@ -46,27 +44,18 @@ Deno.serve(async (req) => {
     // Delete the reading log
     await base44.asServiceRole.entities.ReadingLog.delete(latestLog.id);
 
-    // Find the original earn transaction to get the exact XP amount
-    const earnTxs = await base44.asServiceRole.entities.XPTransaction.filter({
-      'data.userId': userId,
-      'data.idempotencyKey': idempotencyKey,
-    });
-    const originalXp = earnTxs.length > 0 ? (earnTxs[0].amount ?? xpToDeduct) : xpToDeduct;
-
-    if (originalXp > 0 && wallet) {
-      // Record negative XP adjustment (adjustment type is valid in the enum)
+    if (xpToDeduct > 0 && wallet) {
       await base44.asServiceRole.entities.XPTransaction.create({
         userId,
         type: 'adjustment',
         source: 'chapter_removed',
-        amount: -originalXp,
+        amount: -xpToDeduct,
         idempotencyKey: removalKey,
-        metadataJson: JSON.stringify({ chapterId, dateKey: latestLog.dateKey, originalXp }),
+        metadataJson: JSON.stringify({ chapterId, dateKey: latestLog.dateKey, xpToDeduct }),
         createdAt: now,
       });
 
-      // Update the unified xpBalance (not the legacy progressXpTotal field)
-      const newBalance = Math.max(0, (wallet.xpBalance ?? 0) - originalXp);
+      const newBalance = Math.max(0, (wallet.xpBalance ?? 0) - xpToDeduct);
       const newLevel = Math.floor(newBalance / 1000) + 1;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
         xpBalance: newBalance,
@@ -78,7 +67,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       deletedLogId: latestLog.id,
-      xpDeducted: originalXp,
+      xpDeducted: xpToDeduct,
       dateKey: latestLog.dateKey,
     });
   } catch (error) {
