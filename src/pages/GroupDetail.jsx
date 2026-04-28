@@ -73,7 +73,6 @@ export default function GroupDetail() {
   const [copied, setCopied] = useState(false);
   const [encouraged, setEncouraged] = useState({});
   const [loading, setLoading] = useState(true);
-  const [graceDayRecords, setGraceDayRecords] = useState({});
   const [friends, setFriends] = useState([]);
   const [showInviteFriends, setShowInviteFriends] = useState(false);
   const [friendSearch, setFriendSearch] = useState('');
@@ -86,19 +85,13 @@ export default function GroupDetail() {
     if (!groupId) return;
     setLoading(true);
     const res = await base44.functions.invoke('getGroupData', { groupId });
-    const { group: grp, members: grpMembers, logs: memberLogs, graceDays } = res.data ?? {};
+    const { group: grp, members: grpMembers, logs: memberLogs } = res.data ?? {};
     if (!grp) { setLoading(false); return; }
     setGroup(grp);
     setMembers(grpMembers ?? []);
     const uMap = {};
     (grpMembers ?? []).forEach(u => { uMap[u.id] = u; });
     setAllLogs(memberLogs ?? []);
-    const graceMap = {};
-    (graceDays ?? []).forEach(g => {
-      if (!graceMap[g.userId]) graceMap[g.userId] = [];
-      graceMap[g.userId].push(g);
-    });
-    setGraceDayRecords(graceMap);
     const sortedLogs = [...(memberLogs ?? [])].sort((a, b) =>
       new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp)
     );
@@ -139,29 +132,9 @@ export default function GroupDetail() {
     const weekKey = getDateKey(now);
     const weekLogs = allLogs.filter(l => l.userId === m.id && l.dateKey >= weekKey && l.dateKey <= today);
     
-    // Use the same streak calculation as Home/Profile
-    const userLogs = allLogs.filter(l => l.userId === m.id);
-    const dateCountMap = groupByDateKey(userLogs);
-    const sortedDates = Array.from(dateCountMap.keys()).sort().reverse();
-    
-    // Build grace months only for this specific user
-    const userGraceMonths = {};
-    const GRACE_DAYS_PER_MONTH = 2;
-    const userAllRelevantMonths = new Set();
-    
-    userLogs.forEach(l => userAllRelevantMonths.add(l.dateKey.substring(0, 7)));
-    (graceDayRecords[m.id] || []).forEach(g => userAllRelevantMonths.add(g.monthKey));
-    userAllRelevantMonths.add(today.substring(0, 7));
-    
-    for (const monthKey of userAllRelevantMonths) {
-      userGraceMonths[monthKey] = GRACE_DAYS_PER_MONTH;
-    }
-    
-    const { currentStreak: streak } = computeStreakWithGrace(sortedDates, today, userGraceMonths);
-    
     const xp = m.xpBalance ?? m.spendableXp ?? 0;
-    return { member: m, weekChapters: weekLogs.length, streak, xp };
-  }), [members, allLogs, today, graceDayRecords]);
+    return { member: m, weekChapters: weekLogs.length, streak: m.streak ?? 0, xp };
+  }), [members, allLogs, today]);
 
   const leaderboards = useMemo(() => ({
     streak: [...withStats].sort((a, b) => b.streak - a.streak),
