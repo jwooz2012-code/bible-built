@@ -34,76 +34,30 @@ Deno.serve(async (req) => {
     return Response.json({ group, members: [], logs: [], graceDays: [] });
   }
 
-  // Step 2: fetch users and wallets for members only, then reading logs
-  const [memberUsers, memberWallets, allGraceDays] = await Promise.all([
-    fetchWithRetry(() =>
-      Promise.all(memberIds.map(id => base44.asServiceRole.entities.User.filter({ id })))
-        .then(results => results.flat())
+  // Step 2: fetch everything in parallel — users, wallets, grace days, and all member logs
+  const [allUsers, allWallets, allGraceDays, ...logsByMember] = await Promise.all([
+    fetchWithRetry(() => base44.asServiceRole.entities.User.list()),
+    fetchWithRetry(() => base44.asServiceRole.entities.UserWallet.list()),
+    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.list()),
+    ...memberIds.map(id =>
+      fetchWithRetry(() =>
+        base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 500)
+      )
     ),
-    fetchWithRetry(() =>
-      Promise.all(memberIds.map(id => base44.asServiceRole.entities.UserWallet.filter({ userId: id })))
-        .then(results => results.flat())
-    ),
-    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[0] })),
   ]);
 
-  // Fetch remaining grace days for other members sequentially to avoid rate limit
-  if (memberIds.length > 1) {
-    for (let i = 1; i < memberIds.length; i++) {
-      const graceDaysForMember = await fetchWithRetry(() =>
-        base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[i] })
-      );
-      allGraceDays.push(...graceDaysForMember);
-    }
-  }
-
-  // Fetch all reading logs for all members in a single call
-  const logs = await fetchWithRetry(() =>
-    base44.asServiceRole.entities.ReadingLog.filter({ userId: memberIds }, '-created_date', 5000)
-  );
-
-  // Build wallet map
+  // Build wallet map: for each userId, pick the wallet with the highest XP
   const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
   const walletMap = {};
-  memberWallets.forEach(w => {
+  allWallets.forEach(w => {
     const existing = walletMap[w.userId];
     if (!existing || getXp(w) > getXp(existing)) {
       walletMap[w.userId] = w;
     }
   });
 
-  // Calculate streak for each member from their logs and grace days
-  const computeStreak = (userId) => {
-    const userLogs = logs.filter(l => l.userId === userId);
-    const userGraceDays = allGraceDays.filter(g => g.userId === userId);
-    
-    if (userLogs.length === 0) return 0;
-    
-    const dateSet = new Set(userLogs.map(l => l.dateKey));
-    const sortedDates = Array.from(dateSet).sort().reverse();
-    
-    const today = new Date().toISOString().split('T')[0];
-    const mostRecent = sortedDates[0];
-    const daysSinceMostRecent = Math.floor((new Date(today) - new Date(mostRecent)) / (1000 * 60 * 60 * 24));
-    
-    if (daysSinceMostRecent > 1) return 0; // Streak broken
-    
-    let currentStreak = 1;
-    for (let i = 1; i < sortedDates.length; i++) {
-      const d1 = new Date(sortedDates[i - 1]);
-      const d2 = new Date(sortedDates[i]);
-      const diff = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
-      if (diff === 1) {
-        currentStreak++;
-      } else {
-        break;
-      }
-    }
-    
-    return currentStreak;
-  };
-
-  const members = memberUsers
+  const members = allUsers
+    .filter(u => memberIds.includes(u.id))
     .map(u => ({
       id: u.id,
       full_name: u.full_name,
@@ -114,8 +68,11 @@ Deno.serve(async (req) => {
       avatarPhotoUrl: u.avatarPhotoUrl,
       avatarEmoji: u.avatarEmoji,
       avatarDefaultId: u.avatarDefaultId,
-      streak: computeStreak(u.id),
+      streak: u.streak,
     }));
 
-  return Response.json({ group, members, logs });
+  const graceDays = allGraceDays.filter(g => memberIds.includes(g.userId));
+  const logs = logsByMember.flat();
+
+  return Response.json({ group, members, logs, graceDays });
 });
