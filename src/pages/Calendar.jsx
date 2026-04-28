@@ -20,15 +20,13 @@ import GraceDaysBanner from '@/components/calendar/GraceDaysBanner';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import { getVerseCount } from '@/utils/verseCount';
 import { useAuth } from '@/lib/AuthContext';
-
-const BASE_XP_PER_VERSE = 5;
 import { useReadingLogsRange as useAllLogs } from '@/components/bible/hooks/useReadingLogsRange';
 import { getTier } from '@/components/trackers/ProgressHero';
 import { Shield } from 'lucide-react';
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
-  const { updateUser } = useAuth();
+  useAuth();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -155,19 +153,9 @@ export default function Calendar() {
   const handleDeleteLog = async (log) => {
     setIsDeleting(true);
     try {
-      await base44.entities.ReadingLog.delete(log.id);
+      await base44.functions.invoke('removeChapterRead', { chapterId: log.chapterId });
       await queryClient.invalidateQueries();
-      // Subtract XP
-      const freshUser = await base44.auth.me();
-      const verseCount = getVerseCount(log.book, log.chapter);
-      // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
-      const xpToSubtract = log.xpEarned ?? Math.round(verseCount * BASE_XP_PER_VERSE);
-      const newXp = Math.max(0, (freshUser.xp ?? 0) - xpToSubtract);
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
-      const updatePayload = { xp: newXp, level: newLevel };
-      updateUser(updatePayload);
-      base44.auth.updateMe(updatePayload).catch(() => {});
-      toast.success('Chapter removed from this day', { duration: 2000 });
+      toast.success('Chapter removed', { duration: 2000 });
     } catch (error) {
       toast.error('Failed to remove chapter');
     } finally {
@@ -218,25 +206,13 @@ export default function Calendar() {
     const count = logsToDelete.length;
     
     try {
-      for (const log of logsToDelete) {
-        await base44.entities.ReadingLog.delete(log.id);
-      }
+      // Route through removeChapterRead so XP is properly deducted for each chapter
+      await Promise.all(
+        logsToDelete.map(log => base44.functions.invoke('removeChapterRead', { chapterId: log.chapterId }))
+      );
       
       await queryClient.invalidateQueries();
       setShowClearDialog(false);
-
-      // Subtract XP for all cleared chapters
-      const freshUser = await base44.auth.me();
-      const totalXpToSubtract = logsToDelete.reduce((sum, log) => {
-        // Use stored xpEarned for precise reversal (includes all bonuses and artifact boosts)
-        return sum + (log.xpEarned ?? Math.round(getVerseCount(log.book, log.chapter) * BASE_XP_PER_VERSE));
-      }, 0);
-      const newXp = Math.max(0, (freshUser.xp ?? 0) - totalXpToSubtract);
-      const newLevel = Math.floor(Math.sqrt(newXp / 100)) + 1;
-      const updatePayload = { xp: newXp, level: newLevel };
-      updateUser(updatePayload);
-      base44.auth.updateMe(updatePayload).catch(() => {});
-
       toast.success(`Cleared ${count} reading${count !== 1 ? 's' : ''}`);
     } catch (error) {
       toast.error('Failed to clear day');
