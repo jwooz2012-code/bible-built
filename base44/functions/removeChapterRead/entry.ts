@@ -21,20 +21,9 @@ Deno.serve(async (req) => {
     // If no logs exist, the chapter was already removed — treat as success
     if (logs.length === 0) return Response.json({ success: true, alreadyRemoved: true });
 
+    // Delete ALL logs for this chapter and deduct all their XP
+    const totalXpToDeduct = logs.reduce((sum, l) => sum + (l.xpEarned ?? 0), 0);
     const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-    const xpToDeduct = latestLog.xpEarned ?? 0;
-
-    // Use the log's ID for a unique removal idempotency key
-    const removalKey = `chapter_remove:${userId}:${latestLog.id}`;
-
-    // Idempotency: don't double-deduct
-    const existingRemoval = await base44.asServiceRole.entities.XPTransaction.filter({
-      userId,
-      idempotencyKey: removalKey,
-    });
-    if (existingRemoval.length > 0) {
-      return Response.json({ success: true, alreadyRemoved: true });
-    }
 
     // Get wallet
     const wallets = await base44.asServiceRole.entities.UserWallet.filter({ userId }, 'created_date', 5);
@@ -42,25 +31,28 @@ Deno.serve(async (req) => {
 
     const now = new Date().toISOString();
 
-    // Delete the reading log (may already be gone — treat 404 as success)
-    try {
-      await base44.asServiceRole.entities.ReadingLog.delete(latestLog.id);
-    } catch (deleteErr) {
-      if (!deleteErr.message?.includes('not found') && !deleteErr.message?.includes('404')) throw deleteErr;
-    }
+    // Delete all logs for this chapter
+    await Promise.all(logs.map(async (log) => {
+      try {
+        await base44.asServiceRole.entities.ReadingLog.delete(log.id);
+      } catch (deleteErr) {
+        if (!deleteErr.message?.includes('not found') && !deleteErr.message?.includes('404')) throw deleteErr;
+      }
+    }));
 
-    if (xpToDeduct > 0 && wallet) {
+    if (totalXpToDeduct > 0 && wallet) {
+      const removalKey = `chapter_remove_all:${userId}:${chapterId}:${now}`;
       await base44.asServiceRole.entities.XPTransaction.create({
         userId,
         type: 'adjustment',
         source: 'chapter_removed',
-        amount: -xpToDeduct,
+        amount: -totalXpToDeduct,
         idempotencyKey: removalKey,
-        metadataJson: JSON.stringify({ chapterId, dateKey: latestLog.dateKey, xpToDeduct }),
+        metadataJson: JSON.stringify({ chapterId, dateKey: latestLog.dateKey, xpToDeduct: totalXpToDeduct, logsRemoved: logs.length }),
         createdAt: now,
       });
 
-      const newBalance = Math.max(0, (wallet.xpBalance ?? 0) - xpToDeduct);
+      const newBalance = Math.max(0, (wallet.xpBalance ?? 0) - totalXpToDeduct);
       const newLevel = Math.floor(newBalance / 1000) + 1;
       await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
         xpBalance: newBalance,
@@ -72,7 +64,7 @@ Deno.serve(async (req) => {
     return Response.json({
       success: true,
       deletedLogId: latestLog.id,
-      xpDeducted: xpToDeduct,
+      xpDeducted: totalXpToDeduct,
       dateKey: latestLog.dateKey,
     });
   } catch (error) {
