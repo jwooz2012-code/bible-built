@@ -264,24 +264,24 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
     },
     onSuccess: (data, variables) => {
       const affectedDateKey = data.dateKey;
-      queryClient.setQueryData(['dayLogs', variables.userId, affectedDateKey], (old = []) => {
-        const prev = Array.isArray(old) ? old : [];
-        return prev.filter(log => log.id !== data.deletedId);
-      });
 
-      queryClient.setQueriesData(
-        {
-          predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
-        },
-        (old = []) => {
+      if (data.deletedId) {
+        queryClient.setQueryData(['dayLogs', variables.userId, affectedDateKey], (old = []) => {
           const prev = Array.isArray(old) ? old : [];
           return prev.filter(log => log.id !== data.deletedId);
-        }
-      );
+        });
+        queryClient.setQueriesData(
+          { predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId },
+          (old = []) => {
+            const prev = Array.isArray(old) ? old : [];
+            return prev.filter(log => log.id !== data.deletedId);
+          }
+        );
+      }
 
-      // Debounce refetches to avoid rate limit spikes
+      // Debounce refetches to reconcile cache
       setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
+        queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey ?? getDateKey()] });
         queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
       }, 1000);
 

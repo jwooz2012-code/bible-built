@@ -18,7 +18,8 @@ Deno.serve(async (req) => {
 
     // Find all reading logs for this chapter, pick the most recent
     const logs = await base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.chapterId': chapterId });
-    if (logs.length === 0) return Response.json({ error: 'No matching log found' }, { status: 404 });
+    // If no logs exist, the chapter was already removed — treat as success
+    if (logs.length === 0) return Response.json({ success: true, alreadyRemoved: true });
 
     const latestLog = logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
     const xpToDeduct = latestLog.xpEarned ?? 0;
@@ -45,8 +46,7 @@ Deno.serve(async (req) => {
     try {
       await base44.asServiceRole.entities.ReadingLog.delete(latestLog.id);
     } catch (deleteErr) {
-      if (!deleteErr.message?.includes('not found')) throw deleteErr;
-      // Already deleted — still proceed to XP deduction if not already done
+      if (!deleteErr.message?.includes('not found') && !deleteErr.message?.includes('404')) throw deleteErr;
     }
 
     if (xpToDeduct > 0 && wallet) {
