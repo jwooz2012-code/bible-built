@@ -127,8 +127,6 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       // If the server returned a log without an ID (fallback path), fetch the real record
       if (!result?.id) {
-        const chapterId = variables?.chapterId;
-        const dateKey = variables?.dateKey;
         if (chapterId && dateKey) {
           const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
           if (existing.length > 0) return { log: existing[0], serverWallet, xpGranted };
