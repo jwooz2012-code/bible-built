@@ -34,30 +34,49 @@ Deno.serve(async (req) => {
     return Response.json({ group, members: [], logs: [], graceDays: [] });
   }
 
-  // Step 2: fetch everything in parallel — users, wallets, grace days, and all member logs
-  const [allUsers, allWallets, allGraceDays, ...logsByMember] = await Promise.all([
-    fetchWithRetry(() => base44.asServiceRole.entities.User.list()),
-    fetchWithRetry(() => base44.asServiceRole.entities.UserWallet.list()),
-    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.list()),
-    ...memberIds.map(id =>
-      fetchWithRetry(() =>
-        base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 500)
-      )
+  // Step 2: fetch users and wallets for members only, then reading logs
+  const [memberUsers, memberWallets, allGraceDays] = await Promise.all([
+    fetchWithRetry(() =>
+      Promise.all(memberIds.map(id => base44.asServiceRole.entities.User.filter({ id }, '', 1)))
+        .then(results => results.flat())
     ),
+    fetchWithRetry(() =>
+      Promise.all(memberIds.map(id => base44.asServiceRole.entities.UserWallet.filter({ userId: id }, '', 1)))
+        .then(results => results.flat())
+    ),
+    fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[0] }, '', 1000)),
   ]);
 
-  // Build wallet map: for each userId, pick the wallet with the highest XP
+  // Fetch remaining grace days for other members sequentially to avoid rate limit
+  if (memberIds.length > 1) {
+    for (let i = 1; i < memberIds.length; i++) {
+      const graceDaysForMember = await fetchWithRetry(() =>
+        base44.asServiceRole.entities.GraceDay.filter({ userId: memberIds[i] }, '', 1000)
+      );
+      allGraceDays.push(...graceDaysForMember);
+    }
+  }
+
+  // Fetch reading logs in batches to avoid rate limit
+  const logs = [];
+  for (const memberId of memberIds) {
+    const memberLogs = await fetchWithRetry(() =>
+      base44.asServiceRole.entities.ReadingLog.filter({ userId: memberId }, '-created_date', 500)
+    );
+    logs.push(...memberLogs);
+  }
+
+  // Build wallet map
   const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
   const walletMap = {};
-  allWallets.forEach(w => {
+  memberWallets.forEach(w => {
     const existing = walletMap[w.userId];
     if (!existing || getXp(w) > getXp(existing)) {
       walletMap[w.userId] = w;
     }
   });
 
-  const members = allUsers
-    .filter(u => memberIds.includes(u.id))
+  const members = memberUsers
     .map(u => ({
       id: u.id,
       full_name: u.full_name,
@@ -70,9 +89,6 @@ Deno.serve(async (req) => {
       avatarDefaultId: u.avatarDefaultId,
       streak: u.streak,
     }));
-
-  const graceDays = allGraceDays.filter(g => memberIds.includes(g.userId));
-  const logs = logsByMember.flat();
 
   return Response.json({ group, members, logs, graceDays });
 });
