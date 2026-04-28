@@ -54,20 +54,20 @@ export default function DailyVerseGoalBar({ versesReadToday = 0, user }) {
           </div>
 
           {/* XP reward — always visible */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 shrink-0">
             {hasBoost && (
               <span
-                className="text-[11px] font-bold px-2 py-0.5 rounded-full"
+                className="text-[11px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap"
                 style={{ background: 'rgba(234,179,8,0.22)', color: '#B45309' }}
               >
-                +{boostPct}% boost
+                +{boostPct}%
               </span>
             )}
             <span
-              className="text-sm font-bold"
+              className="text-sm font-bold whitespace-nowrap"
               style={{ color: isComplete ? '#16A34A' : hasBoost ? '#D97706' : 'hsl(var(--foreground))' }}
             >
-              {isComplete ? '🎉' : ''} {hasBoost ? boostedXP : DAILY_XP_REWARD} XP
+              {isComplete ? '🎉 ' : ''}{hasBoost ? boostedXP : DAILY_XP_REWARD} XP
             </span>
           </div>
         </div>
@@ -93,8 +93,8 @@ export default function DailyVerseGoalBar({ versesReadToday = 0, user }) {
             {isComplete ? 'Goal complete! Come back tomorrow.' : `${versesReadToday} / ${DAILY_VERSE_GOAL} verses`}
           </span>
           {hasBoost && (
-            <span className="text-[11px] text-muted-foreground">
-              {DAILY_XP_REWARD} × {multiplier.toFixed(2)}× = <span className="font-semibold" style={{ color: '#D97706' }}>{boostedXP} XP</span>
+            <span className="text-[11px]" style={{ color: '#D97706' }}>
+              ×{multiplier.toFixed(2)} boost active
             </span>
           )}
         </div>
