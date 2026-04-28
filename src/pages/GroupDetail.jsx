@@ -9,8 +9,6 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import GroupEditSheet from '@/components/group/GroupEditSheet';
-import { groupByDateKey, computeStreakWithGrace } from '@/components/trackers/deriveStats';
-import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 function timeAgo(isoString) {
   const diff = (Date.now() - new Date(isoString)) / 1000;
@@ -22,18 +20,37 @@ function timeAgo(isoString) {
 
 function calcStreakWithGrace(logs, userId, graceDayRecords) {
   const userLogs = logs.filter(l => l.userId === userId);
-  const dateCountMap = groupByDateKey(userLogs);
-  const sortedDates = Array.from(dateCountMap.keys()).sort();
-  const today = getDateKey();
+  const daySet = new Set(userLogs.map(l => l.dateKey));
+  if (daySet.size === 0) return 0;
   
-  const graceAvailableByMonth = {};
-  const months = new Set([...sortedDates.map(d => d.substring(0, 7)), today.substring(0, 7)]);
-  for (const m of months) {
-    graceAvailableByMonth[m] = 2;
+  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const monthKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  
+  const graceUsed = {};
+  (graceDayRecords[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
+  
+  const graceConsumed = {};
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  let streak = 0;
+  const cursor = new Date(today);
+  
+  for (let i = 0; i < 730; i++) {
+    const key = fmt(cursor);
+    if (daySet.has(key)) {
+      streak++;
+    } else {
+      const mk = monthKey(cursor);
+      const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
+      if (used < 2) {
+        graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
+      } else {
+        if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
+        break;
+      }
+    }
+    cursor.setDate(cursor.getDate() - 1);
   }
-  
-  const { currentStreak } = computeStreakWithGrace(sortedDates, today, graceAvailableByMonth);
-  return currentStreak;
+  return streak;
 }
 
 function RankBadge({ rank }) {
