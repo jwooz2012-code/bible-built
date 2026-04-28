@@ -76,6 +76,37 @@ Deno.serve(async (req) => {
     }
   });
 
+  // Calculate streak for each member from their logs and grace days
+  const computeStreak = (userId) => {
+    const userLogs = logs.filter(l => l.userId === userId);
+    const userGraceDays = allGraceDays.filter(g => g.userId === userId);
+    
+    if (userLogs.length === 0) return 0;
+    
+    const dateSet = new Set(userLogs.map(l => l.dateKey));
+    const sortedDates = Array.from(dateSet).sort().reverse();
+    
+    const today = new Date().toISOString().split('T')[0];
+    const mostRecent = sortedDates[0];
+    const daysSinceMostRecent = Math.floor((new Date(today) - new Date(mostRecent)) / (1000 * 60 * 60 * 24));
+    
+    if (daysSinceMostRecent > 1) return 0; // Streak broken
+    
+    let currentStreak = 1;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const d1 = new Date(sortedDates[i - 1]);
+      const d2 = new Date(sortedDates[i]);
+      const diff = Math.floor((d1 - d2) / (1000 * 60 * 60 * 24));
+      if (diff === 1) {
+        currentStreak++;
+      } else {
+        break;
+      }
+    }
+    
+    return currentStreak;
+  };
+
   const members = memberUsers
     .map(u => ({
       id: u.id,
@@ -87,8 +118,8 @@ Deno.serve(async (req) => {
       avatarPhotoUrl: u.avatarPhotoUrl,
       avatarEmoji: u.avatarEmoji,
       avatarDefaultId: u.avatarDefaultId,
-      streak: u.streak,
+      streak: computeStreak(u.id),
     }));
 
-  return Response.json({ group, members, logs, graceDays });
+  return Response.json({ group, members, logs });
 });
