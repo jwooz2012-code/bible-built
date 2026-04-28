@@ -540,6 +540,12 @@ export default function Home() {
             onMarkRead={({ chapterId }) => {
               setOptimisticLogs(prev => [...prev, { chapterId }]);
               setReaderState(null);
+              // Invalidate caches so tiles and stats refresh
+              import('@/lib/query-client').then(({ queryClientInstance }) => {
+                queryClientInstance.invalidateQueries({ queryKey: ['dayLogs', userId, today] });
+                queryClientInstance.invalidateQueries({ queryKey: ['readingLogs', userId] });
+                queryClientInstance.invalidateQueries({ queryKey: ['userWallet', userId] });
+              });
             }}
           />
         )}

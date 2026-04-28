@@ -190,15 +190,21 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
       const chapterId = generateChapterId(book.index, chapter);
       if (!demoMode) {
         const now = new Date();
-        await base44.entities.ReadingLog.create({
-          userId,
-          dateKey: getDateKey(now),
-          timestamp: now.toISOString(),
-          book: book.name,
-          bookIndex: book.index,
-          chapter,
-          chapterId,
-          testament: book.testament,
+        const dateKey = getDateKey(now);
+        const timestamp = now.toISOString();
+        // Route through the trusted backend function (XP, idempotency, wallet update)
+        await base44.functions.invoke('logChapterRead', {
+          chapters: [{
+            userId,
+            timestamp,
+            dateKey,
+            book: book.name,
+            bookIndex: book.index,
+            chapter,
+            chapterId,
+            testament: book.testament,
+            xpEarned: 0, // server computes actual XP
+          }],
         });
         base44.analytics.track({ eventName: 'chapter_read_completed', properties: { book: book.name, chapter, testament: book.testament, chapterId } });
       }
