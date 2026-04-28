@@ -117,20 +117,17 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
       // If skipped (duplicate), return the existing log gracefully
       if (skipped?.includes(chapterId) && (!created || created.length === 0)) {
-        // Fetch existing log for cache consistency
         const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
-        if (existing.length > 0) return existing[0];
+        if (existing.length > 0) return { log: existing[0], serverWallet: null, xpGranted: 0 };
         throw new Error('Duplicate chapter — already logged today');
       }
 
       const result = created?.[0];
 
-      // If the server returned a log without an ID (fallback path), fetch the real record
+      // If the server returned a log without an ID, fetch the real record
       if (!result?.id) {
-        if (chapterId && dateKey) {
-          const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
-          if (existing.length > 0) return { log: existing[0], serverWallet, xpGranted };
-        }
+        const existing = await base44.entities.ReadingLog.filter({ userId, chapterId, dateKey });
+        if (existing.length > 0) return { log: existing[0], serverWallet, xpGranted };
         throw new Error('Failed to save reading log');
       }
 
