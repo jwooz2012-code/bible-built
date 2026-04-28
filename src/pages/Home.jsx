@@ -263,20 +263,26 @@ export default function Home() {
     // Log Mode: fire and forget — optimistic UI handles immediate feedback
     const now = new Date();
     setPendingChapters(prev => new Set(prev).add(chapterId));
-    markRead({
-      userId,
-      dateKey: getDateKey(now),
-      timestamp: now.toISOString(),
-      book: book.name,
-      bookIndex: book.index,
-      chapter,
-      chapterId,
-      testament: book.testament
-    }).catch(error => {
-      toast.error(error?.message || 'Action failed. Please try again.');
-    }).finally(() => {
-      setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-    });
+    markRead(
+      {
+        userId,
+        dateKey: getDateKey(now),
+        timestamp: now.toISOString(),
+        book: book.name,
+        bookIndex: book.index,
+        chapter,
+        chapterId,
+        testament: book.testament
+      },
+      {
+        onError: (error) => {
+          toast.error(error?.message || 'Action failed. Please try again.');
+        },
+        onSettled: () => {
+          setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
+        },
+      }
+    );
   };
 
   const handleToggleReadMode = () => {
@@ -524,7 +530,7 @@ export default function Home() {
                     chapterId={chapterId}
                     timesRead={chapterStats.timesRead}
                     onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
-                    disabled={pendingChapters.has(chapterId) || isUndoingRead}
+                    disabled={pendingChapters.has(chapterId)}
                   />
                 );
               })}

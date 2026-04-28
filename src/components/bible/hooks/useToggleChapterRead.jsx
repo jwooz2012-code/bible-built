@@ -44,8 +44,9 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
 
   const markRead = useMutation({
     onMutate: async ({ userId, dateKey, chapterId, book, chapter, testament, bookIndex, timestamp }) => {
-      // Cancel any in-flight refetches so they don't overwrite our optimistic update
+      // Cancel ALL in-flight refetches so they don't overwrite our optimistic updates
       await queryClient.cancelQueries({ queryKey: ['dayLogs', userId, dateKey] });
+      await queryClient.cancelQueries({ predicate: (q) => q.queryKey[0] === 'readingLogs' && q.queryKey[1] === userId });
 
       // Snapshot previous value for rollback
       const previousDayLogs = queryClient.getQueryData(['dayLogs', userId, dateKey]);
@@ -300,7 +301,8 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
   undoReadRef.current = undoRead.mutateAsync;
 
   return {
-    markRead: markRead.mutateAsync,
+    markRead: markRead.mutate,
+    markReadAsync: markRead.mutateAsync,
     undoRead: undoRead.mutateAsync,
     isMarkingRead: markRead.isPending,
     isUndoingRead: undoRead.isPending,
