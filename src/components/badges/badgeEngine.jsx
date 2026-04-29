@@ -1,4 +1,5 @@
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
+import { computeStreakWithGrace, computeStreaks } from '@/components/trackers/deriveStats';
 
 /**
  * BADGE ENGINE — SINGLE SOURCE OF TRUTH
@@ -79,27 +80,21 @@ function computeCanonicalMetrics(logs, user = null) {
   const statsSharedCount = user?.statsSharedCount || 0;
   const statsReceivedCount = user?.statsReceivedCount || 0;
   
-  // Streak computations derived from full log history
+  // Grace-aware streak computation — consistent with Home, Profile, Stats, GroupDetail
   const todayKey = new Date().toISOString().split('T')[0];
-  const sortedAsc = [...uniqueDays].sort();
-  let longestStreak = 0;
-  let runLen = 0;
-  let prevDateKey = null;
-  for (const key of sortedAsc) {
-    if (!prevDateKey) {
-      runLen = 1;
-    } else {
-      const gap = Math.round((new Date(key) - new Date(prevDateKey)) / 86400000);
-      runLen = gap === 1 ? runLen + 1 : 1;
-    }
-    if (runLen > longestStreak) longestStreak = runLen;
-    prevDateKey = key;
+  const sortedDesc = [...uniqueDays].sort().reverse();
+  const graceMap = {};
+  if (sortedDesc.length) {
+    for (const d of uniqueDays) { graceMap[d.substring(0, 7)] = 2; }
+    graceMap[todayKey.substring(0, 7)] = 2;
   }
-  const latestDateKey = sortedAsc[sortedAsc.length - 1] || null;
-  const daysAgo = latestDateKey
-    ? Math.round((new Date(todayKey) - new Date(latestDateKey)) / 86400000)
-    : Infinity;
-  const currentStreak = daysAgo <= 1 ? runLen : 0;
+  const { currentStreak } = sortedDesc.length
+    ? computeStreakWithGrace(sortedDesc, todayKey, graceMap)
+    : { currentStreak: 0 };
+  const { longestStreak: rawLongest } = sortedDesc.length
+    ? computeStreaks(sortedDesc, todayKey)
+    : { longestStreak: 0 };
+  const longestStreak = Math.max(currentStreak, rawLongest);
 
   return {
     totalChaptersRead,
