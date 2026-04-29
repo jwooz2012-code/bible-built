@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { groupByDateKey, computeStreakWithGrace } from '@/components/trackers/deriveStats';
+import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { ArrowLeft, Flame, BookOpen, Zap, Gem, Star, Trophy, Lock, UserMinus } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -9,36 +11,7 @@ import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_L
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { toast } from 'sonner';
 
-function calcStreakFromLogs(logs, userId, graceMap) {
-  const userLogs = logs.filter(l => l.userId === userId);
-  const daySet = new Set(userLogs.map(l => l.dateKey));
-  if (daySet.size === 0) return 0;
-  const fmt = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-  const mKey = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
-  const graceUsed = {};
-  (graceMap[userId] ?? []).forEach(r => { graceUsed[r.monthKey] = r.graceDaysUsed ?? 0; });
-  const graceConsumed = {};
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let streak = 0;
-  const cursor = new Date(today);
-  for (let i = 0; i < 730; i++) {
-    const key = fmt(cursor);
-    if (daySet.has(key)) {
-      streak++;
-    } else {
-      const mk = mKey(cursor);
-      const used = (graceUsed[mk] ?? 0) + (graceConsumed[mk] ?? 0);
-      if (used < 2) {
-        graceConsumed[mk] = (graceConsumed[mk] ?? 0) + 1;
-      } else {
-        if (i <= 1) { cursor.setDate(cursor.getDate() - 1); continue; }
-        break;
-      }
-    }
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
-}
+
 
 function StatCard({ label, value, unit, icon: Icon, gradient }) {
   return (
@@ -168,7 +141,18 @@ export default function UserDetail() {
   const getXp = (w) => Math.max(w.xpBalance || 0, w.spendableXp || 0, w.progressXpTotal || 0);
   const bestWallet = userWallets.length > 0 ? userWallets.reduce((best, cur) => getXp(cur) > getXp(best) ? cur : best) : null;
   const xp = bestWallet ? getXp(bestWallet) : 0;
-  const streak = readingLogs.length > 0 ? calcStreakFromLogs(readingLogs, userId, graceDayRecords) : 0;
+  // Grace-aware streak — same algorithm as Home, Profile, Stats, GroupDetail
+  const streakToday = getDateKey();
+  const streakGraceMap = {};
+  if (readingLogs.length) {
+    for (const l of readingLogs) { streakGraceMap[l.dateKey.substring(0, 7)] = 2; }
+    streakGraceMap[streakToday.substring(0, 7)] = 2;
+  }
+  const streakDateMap = groupByDateKey(readingLogs);
+  const streakSortedDates = Array.from(streakDateMap.keys()).sort().reverse();
+  const streak = readingLogs.length > 0
+    ? computeStreakWithGrace(streakSortedDates, streakToday, streakGraceMap).currentStreak
+    : 0;
 
   const now = new Date();
   const sundayDate = new Date(now);
