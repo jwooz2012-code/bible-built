@@ -125,7 +125,7 @@ export default function TreasuryPreviewPage() {
           className="mt-10 w-full max-w-md text-center"
         >
           <p className="text-xs text-violet-300/60 italic leading-relaxed mb-6 px-4">
-            "Your journey to greatness continues. Every chapter read, every challenge overcome, brings you closer to unlocking the Treasury's secrets."
+            "The Treasury unlocks as you build. Keep reading, keep growing."
           </p>
           <div className="flex gap-3">
             <button
