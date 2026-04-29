@@ -41,7 +41,7 @@ Deno.serve(async (req) => {
     fetchWithRetry(() => base44.asServiceRole.entities.GraceDay.list()),
     ...memberIds.map(id =>
       fetchWithRetry(() =>
-        base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 500)
+        base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 2000)
       )
     ),
   ]);
