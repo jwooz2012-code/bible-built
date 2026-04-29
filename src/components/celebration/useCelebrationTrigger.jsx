@@ -5,11 +5,21 @@
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { CELEBRATION_TYPES } from './CelebrationContext';
-import { computeStreak } from '@/lib/streakUtils';
+import { computeStreakWithGrace } from '@/components/trackers/deriveStats';
 
 const STREAK_MILESTONES = new Set([3, 7, 14, 30, 50, 100, 150, 200, 365]);
 
-
+/** Compute current streak from raw logs using the canonical grace-aware method. */
+function streakFromLogs(logs) {
+  if (!logs || logs.length === 0) return 0;
+  const todayKey = new Date().toISOString().split('T')[0];
+  const uniqueDays = Array.from(new Set(logs.map(l => l.dateKey)));
+  const graceMap = {};
+  for (const d of uniqueDays) { graceMap[d.substring(0, 7)] = 2; }
+  graceMap[todayKey.substring(0, 7)] = 2;
+  const sortedDesc = [...uniqueDays].sort().reverse();
+  return computeStreakWithGrace(sortedDesc, todayKey, graceMap).currentStreak;
+}
 
 /**
  * Returns array of { type, data, dedupKey } to trigger
@@ -48,9 +58,9 @@ export function detectNewCelebrations({ prevLogs, newLogs, newLog, user }) {
     }
   }
 
-  // Streak milestone
-  const prevStreak = computeStreak(prevLogs);
-  const newStreak = computeStreak(newLogs);
+  // Streak milestone — grace-aware, consistent with Home, Profile, Stats, GroupDetail
+  const prevStreak = streakFromLogs(prevLogs);
+  const newStreak = streakFromLogs(newLogs);
   if (newStreak > prevStreak && STREAK_MILESTONES.has(newStreak)) {
     celebrations.push({
       type: CELEBRATION_TYPES.STREAK,
