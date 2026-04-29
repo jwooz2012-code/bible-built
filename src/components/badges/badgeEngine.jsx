@@ -79,6 +79,28 @@ function computeCanonicalMetrics(logs, user = null) {
   const statsSharedCount = user?.statsSharedCount || 0;
   const statsReceivedCount = user?.statsReceivedCount || 0;
   
+  // Streak computations derived from full log history
+  const todayKey = new Date().toISOString().split('T')[0];
+  const sortedAsc = [...uniqueDays].sort();
+  let longestStreak = 0;
+  let runLen = 0;
+  let prevDateKey = null;
+  for (const key of sortedAsc) {
+    if (!prevDateKey) {
+      runLen = 1;
+    } else {
+      const gap = Math.round((new Date(key) - new Date(prevDateKey)) / 86400000);
+      runLen = gap === 1 ? runLen + 1 : 1;
+    }
+    if (runLen > longestStreak) longestStreak = runLen;
+    prevDateKey = key;
+  }
+  const latestDateKey = sortedAsc[sortedAsc.length - 1] || null;
+  const daysAgo = latestDateKey
+    ? Math.round((new Date(todayKey) - new Date(latestDateKey)) / 86400000)
+    : Infinity;
+  const currentStreak = daysAgo <= 1 ? runLen : 0;
+
   return {
     totalChaptersRead,
     uniqueChaptersRead,
@@ -93,7 +115,9 @@ function computeCanonicalMetrics(logs, user = null) {
     mostCompletedBookCount,
     uniqueBooksRead,
     statsSharedCount,
-    statsReceivedCount
+    statsReceivedCount,
+    longestStreak,
+    currentStreak
   };
 }
 
@@ -315,6 +339,56 @@ function getBadgeDefinitions(metrics) {
       current: metrics.statsReceivedCount,
       target: 12,
       isAccountability: true
+    },
+    {
+      id: 23,
+      title: 'First Flame',
+      subtitle: 'Read 7 days in a row',
+      metric: 'longestStreak',
+      achieved: metrics.longestStreak >= 7,
+      current: metrics.longestStreak,
+      target: 7,
+      isStreak: true
+    },
+    {
+      id: 24,
+      title: 'Burning Bright',
+      subtitle: 'Read 30 days in a row',
+      metric: 'longestStreak',
+      achieved: metrics.longestStreak >= 30,
+      current: metrics.longestStreak,
+      target: 30,
+      isStreak: true
+    },
+    {
+      id: 25,
+      title: 'Unbroken',
+      subtitle: 'Read 100 days in a row',
+      metric: 'longestStreak',
+      achieved: metrics.longestStreak >= 100,
+      current: metrics.longestStreak,
+      target: 100,
+      isStreak: true
+    },
+    {
+      id: 26,
+      title: 'Iron Streak',
+      subtitle: 'Read 250 days in a row',
+      metric: 'longestStreak',
+      achieved: metrics.longestStreak >= 250,
+      current: metrics.longestStreak,
+      target: 250,
+      isStreak: true
+    },
+    {
+      id: 27,
+      title: 'Year of the Word',
+      subtitle: 'Read 365 days in a row',
+      metric: 'longestStreak',
+      achieved: metrics.longestStreak >= 365,
+      current: metrics.longestStreak,
+      target: 365,
+      isStreak: true
     }
   ];
 }
