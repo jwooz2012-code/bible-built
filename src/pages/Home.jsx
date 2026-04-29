@@ -25,7 +25,6 @@ import { getVerseCount } from '@/utils/verseCount';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
-import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
 import AprilMilestoneBanner from '@/components/home/AprilMilestoneBanner';
