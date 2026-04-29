@@ -21,7 +21,12 @@ import {
   Users,
   Heart,
   Handshake,
-  ArrowUpFromLine
+  ArrowUpFromLine,
+  Sparkles,
+  Sun,
+  Shield,
+  Mountain,
+  Star
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
@@ -79,6 +84,16 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
       return <Users {...iconProps} style={{ color }} />;
     case 'Strengthened Many':
       return <Handshake {...iconProps} style={{ color }} />;
+    case 'First Flame':
+      return <Sparkles {...iconProps} style={{ color }} />;
+    case 'Burning Bright':
+      return <Sun {...iconProps} style={{ color }} />;
+    case 'Unbroken':
+      return <Shield {...iconProps} style={{ color }} />;
+    case 'Iron Streak':
+      return <Mountain {...iconProps} style={{ color }} />;
+    case 'Year of the Word':
+      return <Star {...iconProps} style={{ color }} />;
     default:
       return <Circle {...iconProps} style={{ color }} />;
   }
@@ -110,6 +125,12 @@ export const getAchievementColor = (title) => {
     case 'Lifted a Brother': return 'from-[#2563EB] to-[#1D4ED8]'; // Blue — lifting, upward, support
     case 'Faithful Encourager': return 'from-[#A1A1AA] to-[#75838A]'; // Soft gray-blue — steady faith
     case 'Strengthened Many': return 'from-[#B4B4B8] to-[#7C8A99]'; // Light gray-blue — broad impact
+    // Streak milestone badges — fire-to-gold progression arc
+    case 'First Flame':     return 'from-[#FCD34D] to-[#FBBF24]'; // Bright gold-yellow — the spark catches
+    case 'Burning Bright':  return 'from-[#F97316] to-[#EA580C]'; // Vibrant orange — fire is real and growing
+    case 'Unbroken':        return 'from-[#EF4444] to-[#DC2626]'; // Fierce red — pure intensity, no breaks
+    case 'Iron Streak':     return 'from-[#64748B] to-[#475569]'; // Steel slate — forged, cold, unyielding
+    case 'Year of the Word': return 'from-[#EAB308] to-[#CA8A04]'; // Deep refined gold — a year of faithfulness
     default: return 'from-[#F59E0B] to-[#D97706]';
   }
 };
