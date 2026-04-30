@@ -9,11 +9,13 @@ function getTodayKey() {
 }
 
 const REMINDER_MESSAGES = [
-  "Don't break your streak! Open Bible Built and read a chapter today. 🔥",
-  "Your streak is waiting. One chapter keeps the flame alive. 📖",
-  "A chapter a day builds a lifelong habit. Keep going! ✝️",
-  "Have you read today? Your streak is counting on you. 🔥",
-  "The Word is waiting. Just one chapter today. 📖",
+  "The Word is waiting. One chapter keeps your streak alive. 📖",
+  "Track what matters. Have you read today? 🔥",
+  "Faithfulness is built one chapter at a time. Keep going. 📖",
+  "Don't let today be the day the streak ends. Open Bible Built. 🔥",
+  "Your streak is counting on you. Just one chapter. ✝️",
+  "Small steps. Daily faithfulness. Open Bible Built. 📖",
+  "The habit you're building matters. Read one chapter today. 🔥",
 ];
 
 Deno.serve(async (req) => {
