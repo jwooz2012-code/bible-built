@@ -1,16 +1,25 @@
 import React, { useState } from 'react';
 import { X, Zap } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 const STORAGE_KEY = 'bb_xp_info_dismissed';
 
-export default function XpInfoBanner() {
-  const [visible, setVisible] = useState(() => !localStorage.getItem(STORAGE_KEY));
+export default function XpInfoBanner({ user, onDismiss }) {
+  // Check DB field first (persists across app reopens), fall back to localStorage
+  const [visible, setVisible] = useState(() => {
+    if (user?.xpBannerDismissed) return false;
+    return !localStorage.getItem(STORAGE_KEY);
+  });
 
   if (!visible) return null;
 
   const dismiss = () => {
+    // Save to localStorage for immediate effect
     localStorage.setItem(STORAGE_KEY, '1');
     setVisible(false);
+    // Save to user profile so it persists across app reopens and devices
+    base44.auth.updateMe({ xpBannerDismissed: true }).catch(() => {});
+    if (onDismiss) onDismiss();
   };
 
   return (
