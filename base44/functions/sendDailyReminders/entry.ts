@@ -23,6 +23,7 @@ Deno.serve(async (req) => {
   let user;
   try { user = await base44.auth.me(); } catch { return Response.json({ error: 'Unauthorized' }, { status: 401 }); }
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+  if (user?.role !== 'admin') return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
 
   const apiKey = Deno.env.get('ONESIGNAL_API_KEY');
   if (!apiKey) return Response.json({ error: 'OneSignal API key not configured' }, { status: 500 });
