@@ -24,10 +24,24 @@ export default function NotificationPrompt({ onClose }) {
   const isSecondAsk = count === 1;
 
   const handleYes = () => {
-    if (window.OneSignal) {
-      window.OneSignal.push(() => {
-        window.OneSignal.registerForPushNotifications();
-      });
+    // Request push permission — supports AppMyWeb native bridge + Web SDK v4/v3
+    try {
+      if (window.OneSignal?.Notifications?.requestPermission) {
+        // Web SDK v4 / AppMyWeb v4 bridge
+        window.OneSignal.Notifications.requestPermission();
+      } else if (window.OneSignalDeferred) {
+        // Web SDK v4 deferred queue
+        window.OneSignalDeferred.push(async (OneSignal) => {
+          await OneSignal.Notifications.requestPermission();
+        });
+      } else if (window.OneSignal?.push) {
+        // Legacy Web SDK v3
+        window.OneSignal.push(() => {
+          window.OneSignal.registerForPushNotifications();
+        });
+      }
+    } catch (e) {
+      console.warn('[NotifPrompt] OneSignal requestPermission failed:', e);
     }
     localStorage.setItem(PROMPT_DONE_KEY, '1');
     localStorage.setItem('bb_notif_enabled', '1');

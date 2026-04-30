@@ -93,14 +93,28 @@ export default function Settings() {
   };
 
   const handleNotifToggle = (val) => {
-    if (window.OneSignal) {
-      window.OneSignal.push(() => {
-        if (val) {
-          window.OneSignal.registerForPushNotifications();
-        } else {
-          window.OneSignal.setSubscription(false);
+    try {
+      if (val) {
+        // Enable: request permission — supports v4 and v3
+        if (window.OneSignal?.Notifications?.requestPermission) {
+          window.OneSignal.Notifications.requestPermission();
+        } else if (window.OneSignalDeferred) {
+          window.OneSignalDeferred.push(async (OneSignal) => {
+            await OneSignal.Notifications.requestPermission();
+          });
+        } else if (window.OneSignal?.push) {
+          window.OneSignal.push(() => window.OneSignal.registerForPushNotifications());
         }
-      });
+      } else {
+        // Disable: opt out of notifications
+        if (window.OneSignal?.User?.PushSubscription) {
+          window.OneSignal.User.PushSubscription.optOut();
+        } else if (window.OneSignal?.push) {
+          window.OneSignal.push(() => window.OneSignal.setSubscription(false));
+        }
+      }
+    } catch (e) {
+      console.warn('[Settings] OneSignal toggle failed:', e);
     }
     localStorage.setItem('bb_notif_enabled', val ? '1' : '0');
     if (val) localStorage.setItem('bb_notif_prompt_done', '1');

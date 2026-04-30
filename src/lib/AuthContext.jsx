@@ -93,12 +93,25 @@ export const AuthProvider = ({ children }) => {
       const currentUser = await base44.auth.me();
       setUser(currentUser);
 
-      // Tag this device in OneSignal with the user's Bible Built ID
-      // so targeted push notifications (streak reminders, etc.) reach the right person
-      if (window.OneSignal) {
-        window.OneSignal.push(() => {
-          window.OneSignal.setExternalUserId(currentUser.id);
-        });
+      // Link this device to the user's Bible Built account in OneSignal.
+      // Supports both AppMyWeb native bridge and OneSignal Web SDK v4.
+      try {
+        if (window.OneSignal?.login) {
+          // Web SDK v4 / AppMyWeb v4 bridge
+          window.OneSignal.login(currentUser.id);
+        } else if (window.OneSignalDeferred) {
+          // Web SDK v4 deferred queue (SDK not yet loaded)
+          window.OneSignalDeferred.push(async (OneSignal) => {
+            await OneSignal.login(currentUser.id);
+          });
+        } else if (window.OneSignal?.push) {
+          // Legacy Web SDK v3 fallback
+          window.OneSignal.push(() => {
+            window.OneSignal.setExternalUserId(currentUser.id);
+          });
+        }
+      } catch (e) {
+        console.warn('[Auth] OneSignal login failed:', e);
       }
       setIsAuthenticated(true);
       setIsLoadingAuth(false);

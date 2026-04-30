@@ -31,6 +31,21 @@
 
     <!-- Theme color -->
     <meta name="theme-color" content="#ffffff" />
+
+    <!-- OneSignal Web SDK (v4) — handles push for web/PWA contexts.
+         AppMyWeb's native wrapper overrides window.OneSignal automatically on iOS. -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "44cb7eb8-7aca-44c1-b180-40e871493808",
+          serviceWorkerPath: "/OneSignalSDKWorker.js",
+          // Do NOT auto-prompt — we control when the prompt appears
+          promptOptions: { autoPrompt: false },
+        });
+      });
+    </script>
   </head>
   <body>
     <div id="root"></div>
