@@ -281,9 +281,11 @@ export default function Home() {
         },
         onSettled: () => {
           setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-          // Notification prompt — admin-only for testing, open to all users once confirmed working
+          // Notification prompt — admin always sees it for testing; normal users go through shouldShowNotificationPrompt check
           setTimeout(() => {
-            if (user?.role === 'admin' && shouldShowNotificationPrompt()) setShowNotifPrompt(true);
+            if (user?.role === 'admin') {
+              setShowNotifPrompt(true);
+            }
           }, 3000);
         },
       }
