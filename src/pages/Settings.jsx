@@ -311,58 +311,6 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bell className="w-5 h-5" />
-                Reading Reminders
-              </CardTitle>
-              <CardDescription>Get a daily nudge if you have not read yet</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-foreground">Daily Reminder</p>
-                  <p className="text-xs text-muted-foreground">Only sends if you have not read that day</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-[13px] text-muted-foreground">{notifEnabled ? 'On' : 'Off'}</span>
-                  <Switch
-                    checked={notifEnabled}
-                    onCheckedChange={handleNotifToggle}
-                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-border"
-                  />
-                </div>
-              </div>
-              {notifEnabled && (
-                <div className="flex items-center justify-between pt-1 border-t border-border">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Reminder Time</p>
-                    <p className="text-xs text-muted-foreground">What time should we check in?</p>
-                  </div>
-                  <select
-                    value={reminderTime}
-                    onChange={(e) => handleReminderTimeChange(e.target.value)}
-                    className="text-sm font-medium bg-muted border border-border rounded-lg px-3 py-1.5 text-foreground"
-                  >
-                    {['06:00','07:00','08:00','09:00','12:00','15:00','17:00','18:00','19:00','20:00','21:00','22:00'].map(t => {
-                      const [h] = t.split(':');
-                      const hour = parseInt(h);
-                      const label = hour === 12 ? '12:00 PM' : hour < 12 ? hour + ':00 AM' : (hour - 12) + ':00 PM';
-                      return <option key={t} value={t}>{label}</option>;
-                    })}
-                  </select>
-                </div>
-              )}
-              {!notifEnabled && localStorage.getItem('bb_notif_prompt_done') === '1' && (
-                <p className="text-xs text-muted-foreground">
-                  To re-enable, toggle on above. If nothing happens, go to{' '}
-                  <span className="font-semibold text-foreground">iPhone Settings &rarr; Bible Built &rarr; Notifications</span>.
-                </p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
               <CardTitle>Tutorial & Help</CardTitle>
               <CardDescription>Revisit the app tutorial and guidance</CardDescription>
             </CardHeader>
