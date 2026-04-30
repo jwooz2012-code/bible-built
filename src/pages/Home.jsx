@@ -45,6 +45,7 @@ import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import BibleReader from '@/components/shared/BibleReader';
 import { AnimatePresence } from 'framer-motion';
+import NotificationPrompt, { shouldShowNotificationPrompt } from '@/components/notifications/NotificationPrompt';
 
 export default function Home() {
   const navigate = useNavigate();
@@ -246,6 +247,7 @@ export default function Home() {
   };
 
   const [pendingChapters, setPendingChapters] = useState(new Set());
+  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
 
   const handleChapterClick = (book, chapter, chapterId) => {
     if (!userId) {
@@ -279,6 +281,10 @@ export default function Home() {
         },
         onSettled: () => {
           setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
+          // Show notification prompt after first chapter mark if appropriate
+          setTimeout(() => {
+            if (shouldShowNotificationPrompt()) setShowNotifPrompt(true);
+          }, 1500);
         },
       }
     );
@@ -537,6 +543,13 @@ export default function Home() {
           </motion.div>
         )}
       </div>
+
+      {/* Notification opt-in prompt */}
+      <AnimatePresence>
+        {showNotifPrompt && (
+          <NotificationPrompt onClose={() => setShowNotifPrompt(false)} />
+        )}
+      </AnimatePresence>
 
       {/* BibleReader overlay */}
       <AnimatePresence>
