@@ -355,7 +355,7 @@ export default function Home() {
 
             <AprilMilestoneBanner />
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
-            {(user?.role === 'admin' || user?.hasEarlyAccess) && <XpInfoBanner />}
+            {(user?.role === 'admin' || user?.hasEarlyAccess) && <XpInfoBanner user={user} />}
 
             <TodayAssignmentCard
               plan={plan}
