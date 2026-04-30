@@ -92,6 +92,14 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(true);
       const currentUser = await base44.auth.me();
       setUser(currentUser);
+
+      // Tag this device in OneSignal with the user's Bible Built ID
+      // so targeted push notifications (streak reminders, etc.) reach the right person
+      if (window.OneSignal) {
+        window.OneSignal.push(() => {
+          window.OneSignal.setExternalUserId(currentUser.id);
+        });
+      }
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
 
