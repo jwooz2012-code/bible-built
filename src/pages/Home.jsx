@@ -98,13 +98,10 @@ export default function Home() {
     });
   }, [user]);
 
-  // TEMP: show notification prompt on load for admin testing
+  // TEMP: show notification prompt on load for ALL users — diagnostic only
   useEffect(() => {
-    if (!user) return;
-    if (user?.role === 'admin') {
-      setTimeout(() => setShowNotifPrompt(true), 2000);
-    }
-  }, [user]);
+    setTimeout(() => setShowNotifPrompt(true), 2000);
+  }, []);
 
   const userId = user?.id;
 
