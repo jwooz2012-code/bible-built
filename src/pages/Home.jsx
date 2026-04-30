@@ -281,10 +281,10 @@ export default function Home() {
         },
         onSettled: () => {
           setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-          // Notification prompt paused — push system not yet fully configured
-          // setTimeout(() => {
-          //   if (shouldShowNotificationPrompt()) setShowNotifPrompt(true);
-          // }, 3000);
+          // Notification prompt — admin-only for testing, open to all users once confirmed working
+          setTimeout(() => {
+            if (user?.role === 'admin' && shouldShowNotificationPrompt()) setShowNotifPrompt(true);
+          }, 3000);
         },
       }
     );
