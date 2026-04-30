@@ -98,11 +98,6 @@ export default function Home() {
     });
   }, [user]);
 
-  // TEMP: show notification prompt on load for ALL users — diagnostic only
-  useEffect(() => {
-    setTimeout(() => setShowNotifPrompt(true), 2000);
-  }, []);
-
   const userId = user?.id;
 
   const today = getDateKey();
@@ -354,9 +349,6 @@ export default function Home() {
       <div className="max-w-6xl mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))] pb-8">
         {!selectedBook && (
           <>
-            {/* DEPLOY TEST — remove once confirmed */}
-            <p className="text-xs text-center text-red-500 mb-2">✅ v{new Date().getSeconds()}</p>
-
             {showWelcome && (
               <p className="text-sm text-muted-foreground/70 text-center mb-6">
                 Track what matters.
