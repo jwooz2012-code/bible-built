@@ -13,7 +13,7 @@ export function useReadingLogsRange(userId, startDate, endDate) {
       return filtered;
     },
     enabled: !!userId && !!startDate && !!endDate,
-    staleTime: 0,
-    refetchOnMount: 'always',
+    staleTime: 60_000,   // treat data as fresh for 60s — avoids redundant refetches between chapter marks
+    refetchOnMount: true, // only refetch on mount if data is actually stale (not always)
   });
 }
