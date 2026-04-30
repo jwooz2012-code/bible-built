@@ -9,7 +9,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2, Shield } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2, Shield, Bell } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
@@ -23,6 +23,8 @@ export default function Settings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
+  const [notifEnabled, setNotifEnabled] = useState(localStorage.getItem('bb_notif_enabled') === '1');
+  const [reminderTime, setReminderTime] = useState(localStorage.getItem('bb_reminder_time') || '19:00');
   const navigate = useNavigate();
   const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
@@ -88,6 +90,27 @@ export default function Settings() {
       toast.error('Failed to restart onboarding');
       setIsRestarting(false);
     }
+  };
+
+  const handleNotifToggle = (val) => {
+    if (window.OneSignal) {
+      window.OneSignal.push(() => {
+        if (val) {
+          window.OneSignal.registerForPushNotifications();
+        } else {
+          window.OneSignal.setSubscription(false);
+        }
+      });
+    }
+    localStorage.setItem('bb_notif_enabled', val ? '1' : '0');
+    if (val) localStorage.setItem('bb_notif_prompt_done', '1');
+    setNotifEnabled(val);
+    toast.success(val ? 'Reminders enabled' : 'Reminders turned off');
+  };
+
+  const handleReminderTimeChange = (val) => {
+    localStorage.setItem('bb_reminder_time', val);
+    setReminderTime(val);
   };
 
   const handleSaveProfile = async () => {
@@ -269,6 +292,58 @@ export default function Settings() {
 
 
               </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bell className="w-5 h-5" />
+                Reading Reminders
+              </CardTitle>
+              <CardDescription>Get a daily nudge if you have not read yet</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-foreground">Daily Reminder</p>
+                  <p className="text-xs text-muted-foreground">Only sends if you have not read that day</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[13px] text-muted-foreground">{notifEnabled ? 'On' : 'Off'}</span>
+                  <Switch
+                    checked={notifEnabled}
+                    onCheckedChange={handleNotifToggle}
+                    className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-border"
+                  />
+                </div>
+              </div>
+              {notifEnabled && (
+                <div className="flex items-center justify-between pt-1 border-t border-border">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Reminder Time</p>
+                    <p className="text-xs text-muted-foreground">What time should we check in?</p>
+                  </div>
+                  <select
+                    value={reminderTime}
+                    onChange={(e) => handleReminderTimeChange(e.target.value)}
+                    className="text-sm font-medium bg-muted border border-border rounded-lg px-3 py-1.5 text-foreground"
+                  >
+                    {['06:00','07:00','08:00','09:00','12:00','15:00','17:00','18:00','19:00','20:00','21:00','22:00'].map(t => {
+                      const [h] = t.split(':');
+                      const hour = parseInt(h);
+                      const label = hour === 12 ? '12:00 PM' : hour < 12 ? hour + ':00 AM' : (hour - 12) + ':00 PM';
+                      return <option key={t} value={t}>{label}</option>;
+                    })}
+                  </select>
+                </div>
+              )}
+              {!notifEnabled && localStorage.getItem('bb_notif_prompt_done') === '1' && (
+                <p className="text-xs text-muted-foreground">
+                  To re-enable, toggle on above. If nothing happens, go to{' '}
+                  <span className="font-semibold text-foreground">iPhone Settings &rarr; Bible Built &rarr; Notifications</span>.
+                </p>
+              )}
             </CardContent>
           </Card>
 
