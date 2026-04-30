@@ -98,6 +98,14 @@ export default function Home() {
     });
   }, [user]);
 
+  // TEMP: show notification prompt on load for admin testing
+  useEffect(() => {
+    if (!user) return;
+    if (user?.role === 'admin') {
+      setTimeout(() => setShowNotifPrompt(true), 2000);
+    }
+  }, [user]);
+
   const userId = user?.id;
 
   const today = getDateKey();
