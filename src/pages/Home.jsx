@@ -281,10 +281,10 @@ export default function Home() {
         },
         onSettled: () => {
           setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-          // Show notification prompt after chapter mark — 3s delay lets the XP toast clear first
-          setTimeout(() => {
-            if (shouldShowNotificationPrompt()) setShowNotifPrompt(true);
-          }, 3000);
+          // Notification prompt paused — push system not yet fully configured
+          // setTimeout(() => {
+          //   if (shouldShowNotificationPrompt()) setShowNotifPrompt(true);
+          // }, 3000);
         },
       }
     );
