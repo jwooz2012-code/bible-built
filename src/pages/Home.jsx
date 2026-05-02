@@ -281,12 +281,6 @@ export default function Home() {
         },
         onSettled: () => {
           setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-          // Notification prompt — admin always sees it for testing; normal users go through shouldShowNotificationPrompt check
-          setTimeout(() => {
-            if (user?.role === 'admin') {
-              setShowNotifPrompt(true);
-            }
-          }, 3000);
         },
       }
     );
