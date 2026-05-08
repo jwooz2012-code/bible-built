@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useAuth } from '@/lib/AuthContext';
 
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -25,20 +26,12 @@ import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleS
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export default function Stats() {
-  const [user, setUser] = useState(null);
+  const { user, isLoadingAuth, updateUser } = useAuth();
   const location = useLocation();
-  const [isLoading, setIsLoading] = useState(true);
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => {
-    let mounted = true;
-    base44.auth.me().
-    then((u) => {if (mounted) {setUser(u);setIsLoading(false);}}).
-    catch(() => {if (mounted) setIsLoading(false);});
-    return () => {mounted = false;};
-  }, []);
 
   const userId = user?.id;
   const currentYear = new Date().getFullYear();
@@ -49,12 +42,12 @@ export default function Stats() {
   const { data: lifetimeLogs = [], isLoading: lifetimeLoading } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
 
   useEffect(() => {
-    if (!isLoading && !lifetimeLoading && location.hash === '#badges-section') {
+    if (!isLoadingAuth && !lifetimeLoading && location.hash === '#badges-section') {
       setTimeout(() => {
         document.getElementById('badges-section')?.scrollIntoView({ behavior: 'smooth' });
       }, 300);
     }
-  }, [isLoading, lifetimeLoading, location.hash]);
+  }, [isLoadingAuth, lifetimeLoading, location.hash]);
 
   const yearStats = useReadingStats(yearLogs);
   const lifetimeStats = useReadingStats(lifetimeLogs);
@@ -95,7 +88,7 @@ export default function Stats() {
   const achievements = badgeState.badges;
 
 
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
@@ -126,7 +119,7 @@ export default function Stats() {
     setIsSaving(true);
     try {
       await base44.auth.updateMe({ baselineCompletions: value });
-      setUser({ ...user, baselineCompletions: value });
+      updateUser({ baselineCompletions: value });
       setShowBaselineDialog(false);
       toast.success('Updated starting count.');
     } catch (error) {
