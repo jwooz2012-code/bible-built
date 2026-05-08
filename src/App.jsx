@@ -12,6 +12,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
 import ReadingTrackingIntro from './pages/ReadingTrackingIntro';
+import FriendsTreasuryIntro from './pages/FriendsTreasuryIntro';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
@@ -66,6 +67,8 @@ const AppContent = () => {
   const needsOnboarding = user && !user.onboardingComplete;
   // Existing users who haven't seen the reading tracking feature
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
+  // Existing users who haven't seen the Friends & Treasury intro
+  const needsFriendsTreasuryIntro = user && user.onboardingComplete && user.hasSeenReadingTrackingFeature && !user.hasSeenFriendsTreasuryIntro;
 
   // Render the main app
   return (
@@ -75,10 +78,11 @@ const AppContent = () => {
         {/* Onboarding route - takes priority */}
         <Route path="/onboarding" element={<OnboardingFlow />} />
         <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
+        <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
         
         {/* Redirect to onboarding or feature intro if needed */}
         <Route path="/" element={
-          needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
+          needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
             <LayoutWrapper currentPageName={mainPageKey}>
               <MainPage />
             </LayoutWrapper>
@@ -93,6 +97,8 @@ const AppContent = () => {
                 <OnboardingFlow />
               ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
                 <ReadingTrackingIntro />
+              ) : needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? (
+                <FriendsTreasuryIntro />
               ) : (
                 <LayoutWrapper currentPageName={path}>
                   <Page />
