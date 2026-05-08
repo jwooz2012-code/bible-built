@@ -196,7 +196,7 @@ export default function Social() {
 
   // ── Search ─────────────────────────────────────────────────
   useEffect(() => {
-    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    if (searchQuery.trim().length < 2) { setSearchResults([]); return; }
     const t = setTimeout(async () => {
       setSearching(true);
       const res = await base44.functions.invoke('searchUsers', { query: searchQuery });
@@ -293,7 +293,7 @@ export default function Social() {
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            placeholder="Search by name or email…"
+            placeholder="Search by name…"
             className="w-full h-10 pl-9 pr-4 rounded-xl border border-border bg-muted text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
@@ -304,7 +304,6 @@ export default function Social() {
                 <AvatarDisplay initials={(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()} avatarData={u} size={32} />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground truncate">{u.full_name ?? u.displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate">{u.email}</p>
                 </div>
                 <button
                   onClick={() => sendRequest(u.id)}
