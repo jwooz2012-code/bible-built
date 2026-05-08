@@ -35,9 +35,9 @@ function FriendCard({ friend, index }) {
         onClick={() => navigate(`/user-detail?id=${friend.id}`)}
         className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
       >
-        <AvatarDisplay initials={(friend.full_name || friend.displayName || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
+        <AvatarDisplay initials={(friend.displayName || friend.full_name || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{friend.full_name ?? friend.displayName}</p>
+          <p className="text-sm font-bold text-foreground truncate">{friend.displayName ?? friend.full_name}</p>
           <div className="flex items-center gap-2 mt-0.5">
             {streak > 0 && (
               <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
@@ -301,9 +301,9 @@ export default function Social() {
           <div className="mt-2 rounded-xl border border-border bg-card overflow-hidden">
             {searchResults.map(u => (
               <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
-                <AvatarDisplay initials={(u.full_name || u.displayName || u.email || '?')[0].toUpperCase()} avatarData={u} size={32} />
+                <AvatarDisplay initials={(u.displayName || u.full_name || u.email || '?')[0].toUpperCase()} avatarData={u} size={32} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{u.full_name ?? u.displayName}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{u.displayName ?? u.full_name}</p>
                 </div>
                 <button
                   onClick={() => sendRequest(u.id)}
@@ -327,11 +327,11 @@ export default function Social() {
             {pendingRequests.map(fr => (
               <div key={fr.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
                 <AvatarDisplay
-                  initials={(pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.email || '?')[0].toUpperCase()}
+                  initials={(pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.email || '?')[0].toUpperCase()}
                   avatarData={pendingUsers[fr.requestedById]}
                   size={32}
                 />
-                <p className="flex-1 text-sm font-medium text-foreground truncate">{pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.email || 'Someone'}</p>
+                <p className="flex-1 text-sm font-medium text-foreground truncate">{pendingUsers[fr.requestedById]?.displayName || pendingUsers[fr.requestedById]?.full_name || pendingUsers[fr.requestedById]?.email || 'Someone'}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => acceptRequest(fr)}
@@ -584,7 +584,7 @@ export default function Social() {
           <AnimatePresence>
             {feedItems.map((log, i) => {
               const friendUser = feedUsers[log.userId];
-              const name = friendUser?.full_name ?? friendUser?.displayName ?? 'A friend';
+              const name = friendUser?.displayName ?? friendUser?.full_name ?? 'A friend';
               const hifived = highFivedLogs[log.id];
               return (
                 <motion.div
