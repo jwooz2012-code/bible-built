@@ -26,13 +26,11 @@ export default function Layout({ children }) {
     window.scrollTo(0, 0);
   }, [location.pathname, currentPath]);
 
-  const hasAccess = user?.role === 'admin' || user?.hasEarlyAccess;
-
   const navItems = [
     { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-foreground' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar', color: 'text-rose-500' },
-    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', locked: !hasAccess, color: 'text-blue-500' },
-    ...(hasAccess ? [{ name: 'Treasury', icon: Landmark, path: '/treasury', pageName: 'treasury', color: 'text-amber-500' }] : []),
+    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', color: 'text-blue-500' },
+    { name: 'Treasury', icon: Landmark, path: '/treasury', pageName: 'treasury', color: 'text-amber-500' },
     { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats', color: 'text-emerald-500' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile', color: 'text-violet-500' },
   ];
