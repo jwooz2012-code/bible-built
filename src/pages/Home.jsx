@@ -27,10 +27,7 @@ import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks'
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
-import AprilMilestoneBanner from '@/components/home/AprilMilestoneBanner';
 import XpInfoBanner from '@/components/home/XpInfoBanner';
-import TreasuryEntryCard from '@/components/home/TreasuryEntryCard';
-import BibleBoostCard from '@/components/home/BibleBoostCard';
 import DailyVerseGoalBar from '@/components/home/DailyVerseGoalBar';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
@@ -349,9 +346,8 @@ export default function Home() {
               </p>
             )}
 
-            <AprilMilestoneBanner />
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
-            {(user?.role === 'admin' || user?.hasEarlyAccess) && <XpInfoBanner user={user} />}
+            <XpInfoBanner user={user} />
 
             <TodayAssignmentCard
               plan={plan}
@@ -372,13 +368,10 @@ export default function Home() {
               yearChapters={yearChaptersRead}
             />
 
-            {/* BibleBoostCard hidden until Treasury/Builders launch */}
 
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
 
-            {(user?.role === 'admin' || user?.hasEarlyAccess) && (
-              <DailyVerseGoalBar versesReadToday={actualVersesReadToday} user={user} />
-            )}
+            <DailyVerseGoalBar versesReadToday={actualVersesReadToday} user={user} />
 
             {recentBooks.length > 0 && (
               <div className="mb-6">
