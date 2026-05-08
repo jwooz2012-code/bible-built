@@ -104,11 +104,11 @@ const AppContent = () => {
         <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
         <Route path="/social" element={
           <LayoutWrapper currentPageName="social">
-            {user?.role === 'admin' || user?.hasEarlyAccess ? <Social /> : <BuildersLocked />}
+            <Social />
           </LayoutWrapper>
         } />
         <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury">{user?.role === 'admin' || user?.hasEarlyAccess ? <Treasury /> : <TreasuryPreviewPage />}</LayoutWrapper>} />
+        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
         <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
         <Route path="/coming-soon" element={<ComingSoonPage />} />
         <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
