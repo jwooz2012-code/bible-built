@@ -266,13 +266,18 @@ export default function Profile() {
                   </div>
                   <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges</span>
                 </div>
-                <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { triggerHaptic(); navigate('/treasury'); }}
+                  className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl"
+                  style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}
+                >
                   <div className="flex items-center gap-1.5">
                     <Zap className="w-3.5 h-3.5 text-yellow-400" />
                     <span className="text-[22px] font-bold text-foreground">{totalXp.toLocaleString()}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">XP Wallet</span>
-                </div>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">XP Wallet ›</span>
+                </motion.button>
               </div>
             </div>
           </motion.div>
@@ -352,6 +357,7 @@ export default function Profile() {
             {/* ── Community ── */}
             <SectionHeader title="Community" />
             <div className="space-y-2">
+              <ProfileRow icon={Users} label="Friends &amp; Groups" onPress={() => navigate('/social')} />
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
             </div>
 
