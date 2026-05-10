@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
-import { useAuth } from '@/lib/AuthContext';
 
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -9,9 +8,10 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
-import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
+import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { TOTAL_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { Pencil, CalendarCheck, RefreshCw, BarChart2 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -31,7 +31,6 @@ export default function Stats() {
   const [showBaselineDialog, setShowBaselineDialog] = useState(false);
   const [baselineInput, setBaselineInput] = useState('');
   const [isSaving, setIsSaving] = useState(false);
-
 
   const userId = user?.id;
   const currentYear = new Date().getFullYear();
@@ -54,8 +53,8 @@ export default function Stats() {
 
   const today = getDateKey();
   
-  // Grace-aware streak — matches Home and Profile pages
-  const { currentStreak } = useStreakWithGrace(lifetimeLogs, userId);
+  // Single source of truth for current streak
+  const currentStreak = useCurrentStreak(lifetimeLogs);
 
   const trackerStats = useMemo(() => {
     if (!lifetimeLogs.length) {
@@ -92,16 +91,16 @@ export default function Stats() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
-      </div>);
-
+      </div>
+    );
   }
 
   if (!user || !userId) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
-      </div>);
-
+      </div>
+    );
   }
 
   const handleEditBaseline = () => {
@@ -136,7 +135,7 @@ export default function Stats() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))] pb-8">
+      <div className="max-w-2xl mx-auto px-5 pb-8">
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
