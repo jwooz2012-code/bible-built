@@ -16,7 +16,7 @@ import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Zap,
 } from 'lucide-react';
 
 // ── Tap-animated row ──────────────────────────────────────────────────────────
@@ -321,7 +321,14 @@ export default function Profile() {
             {/* ── Community ── */}
             <SectionHeader title="Community" />
             <div className="space-y-2">
+              <ProfileRow icon={Users} label="Friends & Groups" onPress={() => navigate('/social')} />
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
+            </div>
+
+            {/* ── Rewards ── */}
+            <SectionHeader title="Rewards" />
+            <div className="space-y-2">
+              <ProfileRow icon={Zap} label="XP Wallet ›" onPress={() => navigate('/treasury')} />
             </div>
 
             {/* ── Settings ── */}
