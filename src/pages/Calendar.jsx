@@ -18,15 +18,25 @@ import AddChapterActionSheet from '@/components/calendar/AddChapterActionSheet';
 import BulkAddModal from '@/components/calendar/BulkAddModal';
 import GraceDaysBanner from '@/components/calendar/GraceDaysBanner';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
-import { getVerseCount } from '@/utils/verseCount';
-import { useAuth } from '@/lib/AuthContext';
 import { useReadingLogsRange as useAllLogs } from '@/components/bible/hooks/useReadingLogsRange';
 import { getTier } from '@/components/trackers/ProgressHero';
 import { Shield } from 'lucide-react';
 
+const WEEKLY_QUOTES = [
+  "Faithfulness is built one chapter at a time.",
+  "Show up. Let the Word do the work.",
+  "You don't master the Word. You return to it.",
+  "Consistency shapes understanding.",
+  "A quiet habit can carry a lifetime.",
+  "Read again. There is more here.",
+  "Depth comes from staying.",
+  "The Word rewards the patient reader.",
+  "This is how Scripture becomes familiar.",
+  "Built slowly. Held forever."
+];
+
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
-  useAuth();
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -150,12 +160,13 @@ export default function Calendar() {
     }
   };
 
-  const handleDeleteLog = async (log) => {
+  const handleDeleteLog = async (logId) => {
     setIsDeleting(true);
     try {
-      await base44.functions.invoke('removeChapterRead', { chapterId: log.chapterId });
-      await queryClient.invalidateQueries();
-      toast.success('Chapter removed', { duration: 2000 });
+      await base44.entities.ReadingLog.delete(logId);
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
+      toast.success('Chapter removed from this day');
     } catch (error) {
       toast.error('Failed to remove chapter');
     } finally {
@@ -188,7 +199,8 @@ export default function Calendar() {
         testament: book.testament,
       });
 
-      await queryClient.invalidateQueries();
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
       setShowAddForm(false);
       setSelectedBook('');
       setSelectedChapter('');
@@ -204,19 +216,17 @@ export default function Calendar() {
     setIsClearingDay(true);
     const logsToDelete = [...selectedDayLogs];
     const count = logsToDelete.length;
-    
+
     try {
-      // Route through removeChapterRead so XP is properly deducted for each chapter
-      await Promise.all(
-        logsToDelete.map(log => base44.functions.invoke('removeChapterRead', { chapterId: log.chapterId }))
-      );
-      
-      await queryClient.invalidateQueries();
+      await Promise.all(logsToDelete.map(log => base44.entities.ReadingLog.delete(log.id)));
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
       setShowClearDialog(false);
       toast.success(`Cleared ${count} reading${count !== 1 ? 's' : ''}`);
     } catch (error) {
       toast.error('Failed to clear day');
-      await queryClient.invalidateQueries();
+      await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+      await queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
     } finally {
       setIsClearingDay(false);
     }
@@ -238,29 +248,16 @@ export default function Calendar() {
     );
   }
 
-  const weeklyQuotes = [
-    "Faithfulness is built one chapter at a time.",
-    "Show up. Let the Word do the work.",
-    "You don't master the Word. You return to it.",
-    "Consistency shapes understanding.",
-    "A quiet habit can carry a lifetime.",
-    "Read again. There is more here.",
-    "Depth comes from staying.",
-    "The Word rewards the patient reader.",
-    "This is how Scripture becomes familiar.",
-    "Built slowly. Held forever."
-  ];
-
   const getWeeklyQuote = () => {
     const startOfYear = new Date(year, 0, 1);
     const now = new Date();
     const weeksSinceStartOfYear = Math.floor((now - startOfYear) / (7 * 24 * 60 * 60 * 1000));
-    return weeklyQuotes[weeksSinceStartOfYear % weeklyQuotes.length];
+    return WEEKLY_QUOTES[weeksSinceStartOfYear % WEEKLY_QUOTES.length];
   };
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-4 pt-[max(4rem,env(safe-area-inset-top))] pb-4">
+      <div className="max-w-2xl mx-auto px-4 pb-4">
         <PageHeader title="Calendar" subtitle="Track your daily reading" />
 
         <GraceDaysBanner tierColor={tierColor} graceDaysUsed={graceDaysUsed} />
@@ -543,7 +540,7 @@ export default function Calendar() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleDeleteLog(log)}
+                      onClick={() => handleDeleteLog(log.id)}
                       disabled={isDeleting}
                     >
                       <X className="w-4 h-4" />
