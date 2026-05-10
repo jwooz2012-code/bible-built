@@ -16,31 +16,8 @@ import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Zap,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users,
 } from 'lucide-react';
-import { useWallet } from '@/hooks/useWallet';
-
-// ── Streak Ring ───────────────────────────────────────────────────────────────
-const RING_R = 42;
-const RING_CIRC = 2 * Math.PI * RING_R;
-function StreakRing({ streak, children }) {
-  const fill = Math.min(streak / 30, 1);
-  const dash = fill * RING_CIRC;
-  return (
-    <div className="relative" style={{ width: 104, height: 104 }}>
-      <svg width={104} height={104} className="absolute inset-0 -rotate-90">
-        <circle cx={52} cy={52} r={RING_R} fill="none" stroke="currentColor" strokeWidth={3} className="text-border" />
-        {streak > 0 && (
-          <circle cx={52} cy={52} r={RING_R} fill="none"
-            stroke="rgb(251,146,60)" strokeWidth={3}
-            strokeDasharray={`${dash} ${RING_CIRC}`} strokeLinecap="round"
-          />
-        )}
-      </svg>
-      <div className="absolute inset-0 flex items-center justify-center">{children}</div>
-    </div>
-  );
-}
 
 // ── Tap-animated row ──────────────────────────────────────────────────────────
 function TapRow({ children, onPress, className = '' }) {
@@ -137,7 +114,6 @@ function ShareSheet({ onClose, onSelect }) {
 // ── Main Page ─────────────────────────────────────────────────────────────────
 export default function Profile() {
   const { user, isLoadingAuth, retryAuth, logout } = useAuth();
-  const { totalXp } = useWallet();
   const [avatarData, setAvatarData] = useState(null);
   const [showShareSheet, setShowShareSheet] = useState(false);
   const [selectedBadge, setSelectedBadge] = useState(null);
@@ -220,7 +196,7 @@ export default function Profile() {
   return (
     <>
       <div className="min-h-screen bg-background pb-32">
-        <div className="max-w-2xl mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))] pb-8">
+        <div className="max-w-2xl mx-auto px-5 pt-4 pb-8">
 
           {/* ── Profile Card ── */}
           <motion.div
@@ -257,27 +233,15 @@ export default function Profile() {
                     <BookOpen className="w-3.5 h-3.5 text-blue-400" />
                     <span className="text-[22px] font-bold text-foreground">{totalChapters}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chapters</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Chapters Read</span>
                 </div>
                 <div className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl" style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}>
                   <div className="flex items-center gap-1.5">
                     <span className="text-[18px]">🏅</span>
                     <span className="text-[22px] font-bold text-foreground">{earnedBadges.length}</span>
                   </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges</span>
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Badges Earned</span>
                 </div>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => { triggerHaptic(); navigate('/treasury'); }}
-                  className="flex-1 flex flex-col items-center gap-1 py-3 px-2 rounded-2xl"
-                  style={{ background: 'hsl(var(--muted))', border: '1px solid hsl(var(--border)/0.5)' }}
-                >
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-yellow-400" />
-                    <span className="text-[22px] font-bold text-foreground">{totalXp.toLocaleString()}</span>
-                  </div>
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">XP Wallet ›</span>
-                </motion.button>
               </div>
             </div>
           </motion.div>
@@ -357,7 +321,6 @@ export default function Profile() {
             {/* ── Community ── */}
             <SectionHeader title="Community" />
             <div className="space-y-2">
-              <ProfileRow icon={Users} label="Friends &amp; Groups" onPress={() => navigate('/social')} />
               <ProfileRow icon={UserPlus} label="Invite a Friend" onPress={handleInvite} />
             </div>
 
