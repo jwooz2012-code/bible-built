@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
+import { useAuth } from '@/lib/AuthContext';
 import { Compass, Settings, ChevronRight, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { createPageUrl } from '@/utils';
@@ -13,13 +14,9 @@ import { toast } from 'sonner';
 
 export default function PlansPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const todayKey = getDateKey();
   const [selectedMode, setSelectedMode] = useState(null);
-
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: () => base44.auth.me(),
-  });
 
   const { data: plan } = useQuery({
     queryKey: ['reading-plan', user?.id],
@@ -101,7 +98,7 @@ export default function PlansPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background pb-24" style={{ paddingTop: 'calc(max(4rem, env(safe-area-inset-top)) + 0rem)' }}>
+    <div className="min-h-screen bg-background pb-24">
       <div className="px-6 pb-6">
         <h1 className="text-3xl font-bold text-foreground mb-1">Choose Your Reading Path</h1>
         <p className="text-sm text-muted-foreground">Pick the approach that fits this season.</p>
