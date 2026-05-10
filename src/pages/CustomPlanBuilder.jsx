@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ChevronLeft, Calendar as CalendarIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { createPageUrl } from '@/utils';
 import { getDateKey, addDaysKey, formatDateLong } from '@/components/bible/utils/dateUtils';
 import { generatePlanSchedule } from '@/components/bible/plans/planGenerator';
@@ -24,6 +25,7 @@ import ThemeDetailCard from '@/components/customPlan/ThemeDetailCard';
 export default function CustomPlanBuilder() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const todayKey = getDateKey();
 
   // Check if coming from PlanDetail with preset
@@ -260,7 +262,7 @@ export default function CustomPlanBuilder() {
     setIsSaving(true);
 
     try {
-      const user = await base44.auth.me();
+      if (!user?.id) { toast.error('Please log in again'); return; }
 
       let plan;
       if (existingPlan?.id) {
@@ -445,7 +447,7 @@ export default function CustomPlanBuilder() {
           onStartPlan={async (characterKey) => {
             setIsSaving(true);
             try {
-              const user = await base44.auth.me();
+              if (!user?.id) { toast.error('Please log in again'); return; }
               const chapterList = flattenCharacterSections(characterKey);
 
               const recommendedDays = Math.ceil(chapterList.length / 2);
@@ -515,7 +517,7 @@ export default function CustomPlanBuilder() {
           onStartPlan={async (themeKey) => {
             setIsSaving(true);
             try {
-              const user = await base44.auth.me();
+              if (!user?.id) { toast.error('Please log in again'); return; }
               const chapterList = CURATED_PLANS[themeKey] || [];
 
               // 12 Voices, Chronological OT/NT use 4 ch/day, others use 2
