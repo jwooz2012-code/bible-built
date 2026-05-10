@@ -23,14 +23,56 @@ export default function Layout({ children }) {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Each item carries its own active color + background pill + indicator dot
+  // Per-icon color system — color/bg/dot each carry dark-mode variants
   const navItems = [
-    { name: 'Home',     icon: Home,     path: '/home',     color: 'text-sky-500',     bg: 'bg-sky-500/10',     dot: 'bg-sky-500'     },
-    { name: 'Calendar', icon: Calendar, path: '/calendar', color: 'text-emerald-500', bg: 'bg-emerald-500/10', dot: 'bg-emerald-500' },
-    { name: 'Friends',  icon: Users,    path: '/social',   color: 'text-violet-500',  bg: 'bg-violet-500/10',  dot: 'bg-violet-500'  },
-    { name: 'Treasury', icon: Zap,      path: '/treasury', color: 'text-amber-500',   bg: 'bg-amber-500/10',   dot: 'bg-amber-500'   },
-    { name: 'Stats',    icon: BarChart3, path: '/stats',   color: 'text-orange-500',  bg: 'bg-orange-500/10',  dot: 'bg-orange-500'  },
-    { name: 'Profile',  icon: User,     path: '/profile',  color: 'text-rose-500',    bg: 'bg-rose-500/10',    dot: 'bg-rose-500'    },
+    {
+      name: 'Home',
+      icon: Home,
+      path: '/home',
+      color: 'text-zinc-900 dark:text-zinc-100',
+      bg:    'bg-zinc-900/10 dark:bg-zinc-100/10',
+      dot:   'bg-zinc-900 dark:bg-zinc-100',
+    },
+    {
+      name: 'Calendar',
+      icon: Calendar,
+      path: '/calendar',
+      color: 'text-red-500',
+      bg:    'bg-red-500/10',
+      dot:   'bg-red-500',
+    },
+    {
+      name: 'Friends',
+      icon: Users,
+      path: '/social',
+      color: 'text-blue-500',
+      bg:    'bg-blue-500/10',
+      dot:   'bg-blue-500',
+    },
+    {
+      name: 'Treasury',
+      icon: Zap,
+      path: '/treasury',
+      color: 'text-amber-500',
+      bg:    'bg-amber-500/10',
+      dot:   'bg-amber-500',
+    },
+    {
+      name: 'Stats',
+      icon: BarChart3,
+      path: '/stats',
+      color: 'text-green-500',
+      bg:    'bg-green-500/10',
+      dot:   'bg-green-500',
+    },
+    {
+      name: 'Profile',
+      icon: User,
+      path: '/profile',
+      color: 'text-purple-500',
+      bg:    'bg-purple-500/10',
+      dot:   'bg-purple-500',
+    },
   ];
 
   return (
@@ -99,7 +141,7 @@ export default function Layout({ children }) {
                   {item.name}
                 </span>
 
-                {/* Colored indicator dot */}
+                {/* Colored indicator bar at top of nav */}
                 {isActive && (
                   <div
                     className={`absolute -top-px left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full ${item.dot}`}
