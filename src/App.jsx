@@ -3,6 +3,9 @@ import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import Profile from './pages/Profile';
+import Social from './pages/Social';
+import Treasury from './pages/Treasury';
+import FriendsTreasuryIntro from './pages/FriendsTreasuryIntro';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
@@ -55,6 +58,8 @@ const AuthenticatedApp = () => {
   const needsOnboarding = user && !user.onboardingComplete;
   // Existing users who haven't seen the reading tracking feature
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
+  // Users who haven't seen the Friends & Treasury intro
+  const needsFriendsTreasuryIntro = user && user.onboardingComplete && user.hasSeenReadingTrackingFeature && !user.hasSeenFriendsTreasuryIntro;
 
   // Render the main app
   return (
@@ -65,7 +70,7 @@ const AuthenticatedApp = () => {
       
       {/* Redirect to onboarding or feature intro if needed */}
       <Route path="/" element={
-        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
+        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
           <LayoutWrapper currentPageName={mainPageKey}>
             <MainPage />
           </LayoutWrapper>
@@ -80,6 +85,8 @@ const AuthenticatedApp = () => {
               <OnboardingFlow />
             ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
               <ReadingTrackingIntro />
+            ) : needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? (
+              <FriendsTreasuryIntro />
             ) : (
               <LayoutWrapper currentPageName={path}>
                 <Page />
@@ -88,6 +95,9 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
+      <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
+      <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
+      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
       <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
