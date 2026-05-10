@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Calendar, BarChart3, User } from 'lucide-react';
+import { Home, Calendar, BarChart3, User, Users, Zap } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
@@ -27,6 +27,8 @@ export default function Layout({ children }) {
     { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
     { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
     { name: 'Stats', icon: BarChart3, path: '/stats', pageName: 'stats' },
+    { name: 'Friends', icon: Users, path: '/social', pageName: 'social' },
+    { name: 'Treasury', icon: Zap, path: '/treasury', pageName: 'treasury' },
     { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];
 
