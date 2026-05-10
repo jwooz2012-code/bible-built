@@ -21,14 +21,13 @@ import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterR
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { getVerseCount } from '@/utils/verseCount';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
+import { useCurrentStreak } from '@/components/bible/hooks/useCurrentStreak';
 import { useStreakWithGrace } from '@/components/bible/hooks/useStreakWithGrace';
 import GraceAlertBanner from '@/components/home/GraceAlertBanner';
-import XpInfoBanner from '@/components/home/XpInfoBanner';
-import DailyVerseGoalBar from '@/components/home/DailyVerseGoalBar';
+import TodayProgressBar from '@/components/trackers/TodayProgressBar';
 import ProgressHero, { getTier } from '@/components/trackers/ProgressHero';
 import StreakCard from '@/components/trackers/StreakCard';
 import WeeklySummaryCard from '@/components/trackers/WeeklySummaryCard';
@@ -40,9 +39,22 @@ import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
+import { runValidation } from '@/components/bible/plans/validatePlans';
 import BibleReader from '@/components/shared/BibleReader';
 import { AnimatePresence } from 'framer-motion';
-import NotificationPrompt, { shouldShowNotificationPrompt } from '@/components/notifications/NotificationPrompt';
+
+const WEEKLY_QUOTES = [
+  "Faithfulness is built one chapter at a time.",
+  "Show up. Let the Word do the work.",
+  "You don't master the Word. You return to it.",
+  "Consistency shapes understanding.",
+  "A quiet habit can carry a lifetime.",
+  "Read again. There is more here.",
+  "Depth comes from staying.",
+  "The Word rewards the patient reader.",
+  "This is how Scripture becomes familiar.",
+  "Built slowly. Held forever."
+];
 
 export default function Home() {
   const navigate = useNavigate();
@@ -85,7 +97,9 @@ export default function Home() {
     setShowWelcome(newCount <= 5);
   }, []);
 
-  // Validator intentionally removed from production — dev-only tool
+  useEffect(() => {
+    if (import.meta.env.DEV) runValidation();
+  }, []);
 
   useEffect(() => {
     if (!user) return;
@@ -159,31 +173,41 @@ export default function Home() {
 
   const yearStart = `${currentYear}-01-01`;
   const yearEnd = `${currentYear}-12-31`;
-  const yearLogs = allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd);
+  const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
+  const yearLogs = useMemo(
+    () => allTimeLogs.filter((log) => log.dateKey >= yearStart && log.dateKey <= yearEnd),
+    [allTimeLogs, yearStart, yearEnd]
+  );
   const yearChaptersRead = yearLogs.length;
 
   const weekAgo = new Date(now);
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStart = getDateKey(weekAgo);
-  const weekLogs = allTimeLogs.filter((log) => log.dateKey >= weekStart);
+  const weekLogs = useMemo(
+    () => allTimeLogs.filter((log) => log.dateKey >= weekStart),
+    [allTimeLogs, weekStart]
+  );
   const { totalCount: weekChaptersRead } = useReadingStats(weekLogs);
 
-  const monthStart = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-  const monthLogs = allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd);
+  const monthLogs = useMemo(
+    () => allTimeLogs.filter((log) => log.dateKey >= monthStart && log.dateKey <= yearEnd),
+    [allTimeLogs, monthStart, yearEnd]
+  );
   const { totalCount: monthChaptersRead } = useReadingStats(monthLogs);
 
-  const readingDays = new Set(allTimeLogs.map((log) => log.dateKey)).size;
-  const yearReadingDays = new Set(yearLogs.map((log) => log.dateKey)).size;
-  const avgChaptersPerReadingDay = yearReadingDays > 0 ? (yearChaptersRead / yearReadingDays).toFixed(1) : 0;
+  const { readingDays, yearReadingDays, avgChaptersPerReadingDay } = useMemo(() => {
+    const rd = new Set(allTimeLogs.map((log) => log.dateKey)).size;
+    const yrd = new Set(yearLogs.map((log) => log.dateKey)).size;
+    return {
+      readingDays: rd,
+      yearReadingDays: yrd,
+      avgChaptersPerReadingDay: yrd > 0 ? (yearChaptersRead / yrd).toFixed(1) : 0,
+    };
+  }, [allTimeLogs, yearLogs, yearChaptersRead]);
 
   const { markRead, undoRead, isMarkingRead, isUndoingRead } = useToggleChapterRead({ user, allLogs: allTimeLogs });
   const { markAllRead, isMarkingAll } = useMarkAllRead({ user, allLogs: allTimeLogs });
-
-  // Derive versesReadToday from actual logs (ground truth — never relies on stored counter)
-  const actualVersesReadToday = useMemo(() => {
-    const unique = [...new Map(todayLogs.map(l => [l.chapterId, l])).values()];
-    return unique.reduce((sum, l) => sum + getVerseCount(l.book, l.chapter), 0);
-  }, [todayLogs]);
 
   const recentBooks = useMostRecentBooks(allTimeLogs);
 
@@ -194,21 +218,19 @@ export default function Home() {
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
   const daysWithReadingDistinct = uniqueDays.size;
 
-  const bookChaptersRead = {};
-  allTimeLogs.forEach((log) => {
-    if (!bookChaptersRead[log.book]) {
-      bookChaptersRead[log.book] = new Set();
-    }
-    bookChaptersRead[log.book].add(log.chapter);
-  });
-
-  let totalBooksCompletedDistinct = 0;
-  Object.keys(bookChaptersRead).forEach((bookName) => {
-    const bookData = BIBLE_BOOKS.find((b) => b.name === bookName);
-    if (bookData && bookChaptersRead[bookName].size >= bookData.chapters) {
-      totalBooksCompletedDistinct++;
-    }
-  });
+  const { bookChaptersRead, totalBooksCompletedDistinct } = useMemo(() => {
+    const booksRead = {};
+    allTimeLogs.forEach((log) => {
+      if (!booksRead[log.book]) booksRead[log.book] = new Set();
+      booksRead[log.book].add(log.chapter);
+    });
+    let completed = 0;
+    Object.keys(booksRead).forEach((bookName) => {
+      const bookData = BIBLE_BOOKS.find((b) => b.name === bookName);
+      if (bookData && booksRead[bookName].size >= bookData.chapters) completed++;
+    });
+    return { bookChaptersRead: booksRead, totalBooksCompletedDistinct: completed };
+  }, [allTimeLogs]);
 
   const handleDismissPrompt = () => {
     localStorage.setItem('bb_plan_prompt_seen', 'true');
@@ -221,32 +243,41 @@ export default function Home() {
     return true;
   });
 
-  const getBookStats = (book) => {
-    const chapterCounts = {};
-    for (let i = 1; i <= book.chapters; i++) {
-      chapterCounts[i] = 0;
-    }
-    const bookLogs = allTimeLogs.filter((log) => log.bookIndex === book.index);
-    bookLogs.forEach((log) => {
-      if (chapterCounts[log.chapter] !== undefined) {
-        chapterCounts[log.chapter]++;
-      }
+  // Pre-computed maps: O(n) once per allTimeLogs change instead of O(n) per book/chapter render
+  const bookStatsMap = useMemo(() => {
+    // Per book: track read count per chapter, then take the minimum (= full completions)
+    const perBookChapterCounts = {};
+    allTimeLogs.forEach((log) => {
+      if (!perBookChapterCounts[log.bookIndex]) perBookChapterCounts[log.bookIndex] = {};
+      const counts = perBookChapterCounts[log.bookIndex];
+      counts[log.chapter] = (counts[log.chapter] || 0) + 1;
     });
-    const minCount = Math.min(...Object.values(chapterCounts));
-    return { completions: minCount };
-  };
+    const map = {};
+    BIBLE_BOOKS.forEach((book) => {
+      const counts = perBookChapterCounts[book.index] || {};
+      const allCounts = Array.from({ length: book.chapters }, (_, i) => counts[i + 1] || 0);
+      map[book.index] = { completions: allCounts.length ? Math.min(...allCounts) : 0 };
+    });
+    return map;
+  }, [allTimeLogs]);
+
+  const chapterStatsMap = useMemo(() => {
+    const map = {};
+    allTimeLogs.forEach((log) => {
+      map[log.chapterId] = (map[log.chapterId] || 0) + 1;
+    });
+    return map;
+  }, [allTimeLogs]);
+
+  const getBookStats = (book) => bookStatsMap[book.index] || { completions: 0 };
 
   const getChapterStats = (bookIndex, chapter) => {
     const chapterId = generateChapterId(bookIndex, chapter);
-    const chapterLogs = allTimeLogs.filter((log) => log.chapterId === chapterId);
     const optimisticCount = optimisticLogs.filter((log) => log.chapterId === chapterId).length;
-    return { timesRead: chapterLogs.length + optimisticCount };
+    return { timesRead: (chapterStatsMap[chapterId] || 0) + optimisticCount };
   };
 
-  const [pendingChapters, setPendingChapters] = useState(new Set());
-  const [showNotifPrompt, setShowNotifPrompt] = useState(false);
-
-  const handleChapterClick = (book, chapter, chapterId) => {
+  const handleChapterClick = async (book, chapter, chapterId) => {
     if (!userId) {
       toast.error('Please log in again');
       return;
@@ -256,13 +287,10 @@ export default function Home() {
       setReaderState({ book, chapter });
       return;
     }
-    if (pendingChapters.has(chapterId)) return; // prevent double-tap on same chapter
-
-    // Log Mode: fire and forget — optimistic UI handles immediate feedback
-    const now = new Date();
-    setPendingChapters(prev => new Set(prev).add(chapterId));
-    markRead(
-      {
+    // Log Mode: mark as read immediately
+    try {
+      const now = new Date();
+      await markRead({
         userId,
         dateKey: getDateKey(now),
         timestamp: now.toISOString(),
@@ -271,16 +299,10 @@ export default function Home() {
         chapter,
         chapterId,
         testament: book.testament
-      },
-      {
-        onError: (error) => {
-          toast.error(error?.message || 'Action failed. Please try again.');
-        },
-        onSettled: () => {
-          setPendingChapters(prev => { const s = new Set(prev); s.delete(chapterId); return s; });
-        },
-      }
-    );
+      });
+    } catch (error) {
+      toast.error(error?.message || 'Action failed. Please try again.');
+    }
   };
 
   const handleToggleReadMode = () => {
@@ -316,28 +338,15 @@ export default function Home() {
     );
   }
 
-  const weeklyQuotes = [
-    "Faithfulness is built one chapter at a time.",
-    "Show up. Let the Word do the work.",
-    "You don't master the Word. You return to it.",
-    "Consistency shapes understanding.",
-    "A quiet habit can carry a lifetime.",
-    "Read again. There is more here.",
-    "Depth comes from staying.",
-    "The Word rewards the patient reader.",
-    "This is how Scripture becomes familiar.",
-    "Built slowly. Held forever."
-  ];
-
   const getWeeklyQuote = () => {
     const startOfYear = new Date(currentYear, 0, 1);
     const weeksSinceStartOfYear = Math.floor((now - startOfYear) / (7 * 24 * 60 * 60 * 1000));
-    return weeklyQuotes[weeksSinceStartOfYear % weeklyQuotes.length];
+    return WEEKLY_QUOTES[weeksSinceStartOfYear % WEEKLY_QUOTES.length];
   };
 
   return (
     <div className="min-h-screen bg-background pb-24">
-      <div className="max-w-6xl mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))] pb-8">
+      <div className="max-w-6xl mx-auto px-5 pb-8">
         {!selectedBook && (
           <>
             {showWelcome && (
@@ -347,7 +356,6 @@ export default function Home() {
             )}
 
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
-            <XpInfoBanner user={user} />
 
             <TodayAssignmentCard
               plan={plan}
@@ -368,10 +376,13 @@ export default function Home() {
               yearChapters={yearChaptersRead}
             />
 
+            {energyMode && (
+              <div className="mb-5">
+                <XPBar todayCount={todayLogs.length} />
+              </div>
+            )}
 
             <WeekView logs={allTimeLogs} tierColor={getTier(currentStreak).color} />
-
-            <DailyVerseGoalBar versesReadToday={actualVersesReadToday} user={user} />
 
             {recentBooks.length > 0 && (
               <div className="mb-6">
@@ -524,7 +535,7 @@ export default function Home() {
                     chapterId={chapterId}
                     timesRead={chapterStats.timesRead}
                     onClick={() => handleChapterClick(selectedBook, chapter, chapterId)}
-                    disabled={pendingChapters.has(chapterId)}
+                    disabled={isMarkingRead || isUndoingRead}
                   />
                 );
               })}
@@ -532,13 +543,6 @@ export default function Home() {
           </motion.div>
         )}
       </div>
-
-      {/* Notification opt-in prompt */}
-      <AnimatePresence>
-        {showNotifPrompt && (
-          <NotificationPrompt onClose={() => setShowNotifPrompt(false)} />
-        )}
-      </AnimatePresence>
 
       {/* BibleReader overlay */}
       <AnimatePresence>
@@ -552,12 +556,6 @@ export default function Home() {
             onMarkRead={({ chapterId }) => {
               setOptimisticLogs(prev => [...prev, { chapterId }]);
               setReaderState(null);
-              // Invalidate caches so tiles and stats refresh
-              import('@/lib/query-client').then(({ queryClientInstance }) => {
-                queryClientInstance.invalidateQueries({ queryKey: ['dayLogs', userId, today] });
-                queryClientInstance.invalidateQueries({ queryKey: ['readingLogs', userId] });
-                queryClientInstance.invalidateQueries({ queryKey: ['userWallet', userId] });
-              });
             }}
           />
         )}
