@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { AlertTriangle, RotateCcw, CalendarPlus, SkipForward } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatDateKey } from '@/components/bible/utils/dateUtils';
