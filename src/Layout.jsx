@@ -13,7 +13,6 @@ export default function Layout({ children }) {
   const currentPath = location.pathname;
 
   useEffect(() => {
-    // Root-only landing fix. Do not affect deep links.
     if (location.pathname === "/") {
       navigate("/home", { replace: true });
     }
@@ -23,56 +22,13 @@ export default function Layout({ children }) {
     window.scrollTo(0, 0);
   }, [location.pathname]);
 
-  // Per-icon color system — color/bg/dot each carry dark-mode variants
   const navItems = [
-    {
-      name: 'Home',
-      icon: Home,
-      path: '/home',
-      color: 'text-zinc-900 dark:text-zinc-100',
-      bg:    'bg-zinc-900/10 dark:bg-zinc-100/10',
-      dot:   'bg-zinc-900 dark:bg-zinc-100',
-    },
-    {
-      name: 'Calendar',
-      icon: Calendar,
-      path: '/calendar',
-      color: 'text-red-500',
-      bg:    'bg-red-500/10',
-      dot:   'bg-red-500',
-    },
-    {
-      name: 'Friends',
-      icon: Users,
-      path: '/social',
-      color: 'text-blue-500',
-      bg:    'bg-blue-500/10',
-      dot:   'bg-blue-500',
-    },
-    {
-      name: 'Treasury',
-      icon: Zap,
-      path: '/treasury',
-      color: 'text-amber-500',
-      bg:    'bg-amber-500/10',
-      dot:   'bg-amber-500',
-    },
-    {
-      name: 'Stats',
-      icon: BarChart3,
-      path: '/stats',
-      color: 'text-green-500',
-      bg:    'bg-green-500/10',
-      dot:   'bg-green-500',
-    },
-    {
-      name: 'Profile',
-      icon: User,
-      path: '/profile',
-      color: 'text-purple-500',
-      bg:    'bg-purple-500/10',
-      dot:   'bg-purple-500',
-    },
+    { name: 'Home',     icon: Home,      path: '/home',     color: 'text-zinc-900 dark:text-zinc-100', dot: 'bg-zinc-900 dark:bg-zinc-100' },
+    { name: 'Calendar', icon: Calendar,  path: '/calendar', color: 'text-red-500',                     dot: 'bg-red-500'     },
+    { name: 'Friends',  icon: Users,     path: '/social',   color: 'text-blue-500',                    dot: 'bg-blue-500'    },
+    { name: 'Treasury', icon: Zap,       path: '/treasury', color: 'text-amber-500',                   dot: 'bg-amber-500'   },
+    { name: 'Stats',    icon: BarChart3, path: '/stats',    color: 'text-green-500',                   dot: 'bg-green-500'   },
+    { name: 'Profile',  icon: User,      path: '/profile',  color: 'text-purple-500',                  dot: 'bg-purple-500'  },
   ];
 
   return (
@@ -118,24 +74,16 @@ export default function Layout({ children }) {
                     navigate(item.path);
                   }
                 }}
-                className="flex flex-col items-center justify-center gap-0.5 relative px-1 min-w-[44px] min-h-[44px]"
+                className="flex flex-col items-center justify-center gap-1 relative px-1 min-w-[44px] min-h-[44px]"
               >
-                {/* Colored pill behind icon when active */}
-                <div
-                  className={`flex items-center justify-center w-10 h-7 rounded-full transition-all duration-200 ${
-                    isActive ? item.bg : 'bg-transparent'
+                <item.icon
+                  className={`w-6 h-6 transition-all duration-200 ${
+                    isActive ? `${item.color} stroke-[2.2]` : 'text-muted-foreground/50 stroke-[1.5]'
                   }`}
-                >
-                  <item.icon
-                    className={`w-5 h-5 transition-all duration-200 ${
-                      isActive ? `${item.color} stroke-[2.2]` : 'text-muted-foreground/60 stroke-[1.6]'
-                    }`}
-                  />
-                </div>
-
+                />
                 <span
                   className={`text-[9px] leading-none transition-all duration-200 ${
-                    isActive ? `${item.color} font-bold` : 'text-muted-foreground/60 font-medium'
+                    isActive ? `${item.color} font-bold` : 'text-muted-foreground/50 font-medium'
                   }`}
                 >
                   {item.name}
@@ -143,9 +91,7 @@ export default function Layout({ children }) {
 
                 {/* Colored indicator bar at top of nav */}
                 {isActive && (
-                  <div
-                    className={`absolute -top-px left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full ${item.dot}`}
-                  />
+                  <div className={`absolute -top-px left-1/2 -translate-x-1/2 w-5 h-0.5 rounded-full ${item.dot}`} />
                 )}
               </button>
             );
