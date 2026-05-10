@@ -142,31 +142,6 @@ export function getAssignmentForDate({ plan, dateKey }) {
   
   const result = scopeChapters.slice(start, end);
   
-  // Debug logging (temporary)
-  console.log("TODAY_ASSIGNMENT_DEBUG", {
-    todayKey: dateKey,
-    plan: { 
-      scope: plan?.scope, 
-      startDate: plan?.startDate, 
-      endDate: plan?.endDate, 
-      chaptersPerDay: plan?.chaptersPerDay 
-    },
-    scopeChaptersLen: scopeChapters.length,
-    dayIndex,
-    start,
-    end,
-    resultLen: result.length
-  });
-  
-  if (scopeChapters.length > 0 && result.length === 0) {
-    console.warn("TODAY_ASSIGNMENT_EMPTY_SLICE", { 
-      dayIndex, 
-      start, 
-      end, 
-      scopeChaptersLen: scopeChapters.length 
-    });
-  }
-  
   return result;
 }
 
