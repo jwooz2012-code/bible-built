@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, BookOpen, CheckSquare, Zap, BookMarked } from 'lucide-react';
@@ -20,7 +21,7 @@ import { useDayReadingLogs } from '@/components/bible/hooks/useDayReadingLogs';
 import { useToggleChapterRead } from '@/components/bible/hooks/useToggleChapterRead';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { useMarkAllRead } from '@/components/bible/hooks/useMarkAllRead';
-import { getDateKey } from '@/components/bible/utils/dateUtils';
+import { getDateKey, addDaysKey, formatDateKey } from '@/components/bible/utils/dateUtils';
 import { useReadingStats } from '@/components/bible/hooks/useReadingStats';
 import { useMostRecentBooks } from '@/components/bible/hooks/useMostRecentBooks';
 import { useReadingPlan } from '@/components/bible/hooks/useReadingPlan';
@@ -37,6 +38,9 @@ import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary,
 import XPBar from '@/components/energy/XPBar';
 import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
+import MissedDayBanner from '@/components/bible/plans/MissedDayBanner';
+import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
+import { getOldestMissedDay } from '@/components/bible/plans/planUtils';
 import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
@@ -214,6 +218,62 @@ export default function Home() {
   const hasPlan = !!plan?.startDate && !!plan?.endDate;
   const showPrompt = !hasPlan && !promptDismissed && !localStorage.getItem('bb_plan_prompt_seen');
 
+  // ── Missed day recovery ──────────────────────────────────────────────────
+  const queryClient = useQueryClient();
+  const { completeToday, isCompleting: isCatchingUp } = useCompleteTodaysAssignment();
+
+  // Track which missed-day dateKeys the user has explicitly skipped/handled
+  const [skippedDays, setSkippedDays] = useState(() => {
+    const skipped = new Set();
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key?.startsWith('bb_missed_skip_')) {
+        skipped.add(key.replace('bb_missed_skip_', ''));
+      }
+    }
+    return skipped;
+  });
+
+  const missedDay = useMemo(
+    () => getOldestMissedDay({ plan, logs: allTimeLogs, todayKey: today }),
+    [plan, allTimeLogs, today]
+  );
+
+  const showMissedBanner = !!missedDay && !skippedDays.has(missedDay?.dateKey);
+
+  const handleCatchUp = useCallback(() => {
+    if (!missedDay || !userId) return;
+    completeToday({
+      userId,
+      plan,
+      allTimeLogs,
+      todayKey: today,          // log as today so streak is preserved
+      assignedChapters: missedDay.assignment,
+    });
+    // The banner disappears naturally once the chapters are marked read
+  }, [missedDay, userId, plan, allTimeLogs, today, completeToday]);
+
+  const handleSkipMissedDay = useCallback(() => {
+    if (!missedDay) return;
+    localStorage.setItem(`bb_missed_skip_${missedDay.dateKey}`, '1');
+    setSkippedDays((prev) => new Set([...prev, missedDay.dateKey]));
+  }, [missedDay]);
+
+  const handleAddDay = useCallback(async () => {
+    if (!plan?.id || !missedDay) return;
+    const newEndDate = addDaysKey(plan.endDate, 1);
+    try {
+      await base44.entities.ReadingPlan.update(plan.id, { endDate: newEndDate });
+      queryClient.invalidateQueries({ queryKey: ['readingPlan', userId] });
+      // Dismiss banner — user acknowledged the miss and extended the plan
+      localStorage.setItem(`bb_missed_skip_${missedDay.dateKey}`, '1');
+      setSkippedDays((prev) => new Set([...prev, missedDay.dateKey]));
+      toast.success(`Plan extended to ${formatDateKey(newEndDate)}`);
+    } catch {
+      toast.error('Failed to extend plan');
+    }
+  }, [plan, missedDay, userId, queryClient]);
+
   const { totalCount: lifetimeTotalCount } = useReadingStats(allTimeLogs);
   const uniqueDays = new Set(allTimeLogs.map((log) => log.dateKey));
   const daysWithReadingDistinct = uniqueDays.size;
@@ -356,6 +416,18 @@ export default function Home() {
             )}
 
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
+
+            <AnimatePresence>
+              {showMissedBanner && (
+                <MissedDayBanner
+                  missedDay={missedDay}
+                  onCatchUp={handleCatchUp}
+                  onSkip={handleSkipMissedDay}
+                  onAddDay={handleAddDay}
+                  isSaving={isCatchingUp}
+                />
+              )}
+            </AnimatePresence>
 
             <TodayAssignmentCard
               plan={plan}
