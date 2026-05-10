@@ -7,15 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2, Shield, Bell } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
 export default function Settings() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth, updateUser } = useAuth();
   const [displayName, setDisplayName] = useState('');
   const [isEditingName, setIsEditingName] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -23,24 +23,13 @@ export default function Settings() {
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [isRestarting, setIsRestarting] = useState(false);
-  const [notifEnabled, setNotifEnabled] = useState(localStorage.getItem('bb_notif_enabled') === '1');
-  const [reminderTime, setReminderTime] = useState(localStorage.getItem('bb_reminder_time') || '19:00');
   const navigate = useNavigate();
   const { theme, setTheme, energyMode, setEnergyMode, energyPalette, setEnergyPalette } = useTheme();
 
+  // Sync displayName input when user loads
   useEffect(() => {
-    let mounted = true;
-    base44.auth.me()
-      .then(u => { 
-        if (mounted) { 
-          setUser(u); 
-          setDisplayName(u.displayName || '');
-          setIsLoading(false); 
-        } 
-      })
-      .catch(() => { if (mounted) setIsLoading(false); });
-    return () => { mounted = false; };
-  }, []);
+    if (user) setDisplayName(user.displayName || '');
+  }, [user?.id]);
 
   const handleLogout = () => {
     base44.auth.logout();
@@ -92,46 +81,11 @@ export default function Settings() {
     }
   };
 
-  const handleNotifToggle = (val) => {
-    try {
-      if (val) {
-        // Enable: request permission — supports v4 and v3
-        if (window.OneSignal?.Notifications?.requestPermission) {
-          window.OneSignal.Notifications.requestPermission();
-        } else if (window.OneSignalDeferred) {
-          window.OneSignalDeferred.push(async (OneSignal) => {
-            await OneSignal.Notifications.requestPermission();
-          });
-        } else if (window.OneSignal?.push) {
-          window.OneSignal.push(() => window.OneSignal.registerForPushNotifications());
-        }
-      } else {
-        // Disable: opt out of notifications
-        if (window.OneSignal?.User?.PushSubscription) {
-          window.OneSignal.User.PushSubscription.optOut();
-        } else if (window.OneSignal?.push) {
-          window.OneSignal.push(() => window.OneSignal.setSubscription(false));
-        }
-      }
-    } catch (e) {
-      console.warn('[Settings] OneSignal toggle failed:', e);
-    }
-    localStorage.setItem('bb_notif_enabled', val ? '1' : '0');
-    if (val) localStorage.setItem('bb_notif_prompt_done', '1');
-    setNotifEnabled(val);
-    toast.success(val ? 'Reminders enabled' : 'Reminders turned off');
-  };
-
-  const handleReminderTimeChange = (val) => {
-    localStorage.setItem('bb_reminder_time', val);
-    setReminderTime(val);
-  };
-
   const handleSaveProfile = async () => {
     setIsSaving(true);
     try {
       await base44.auth.updateMe({ displayName: displayName.trim() });
-      setUser({ ...user, displayName: displayName.trim() });
+      updateUser({ displayName: displayName.trim() });
       setIsEditingName(false);
       toast.success('Saved');
     } catch (error) {
@@ -141,7 +95,7 @@ export default function Settings() {
     }
   };
 
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
@@ -161,7 +115,7 @@ export default function Settings() {
 
   return (
     <div className="min-h-screen bg-background pb-20">
-      <div className="max-w-2xl mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))] pb-8">
+      <div className="max-w-2xl mx-auto px-5 pb-8">
         <PageHeader title="Settings" subtitle="Manage your account" />
 
         <motion.div
@@ -311,8 +265,8 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Tutorial & Help</CardTitle>
-              <CardDescription>Revisit the app tutorial and guidance</CardDescription>
+              <CardTitle>Onboarding</CardTitle>
+              <CardDescription>Restart the welcome flow</CardDescription>
             </CardHeader>
             <CardContent>
               <Button 
@@ -321,7 +275,7 @@ export default function Settings() {
                 disabled={isRestarting}
                 className="w-full"
               >
-                {isRestarting ? 'Loading...' : 'View Tutorial'}
+                {isRestarting ? 'Restarting...' : 'Restart Onboarding'}
               </Button>
             </CardContent>
           </Card>
@@ -336,34 +290,6 @@ export default function Settings() {
                 <Mail className="w-4 h-4 mr-2" />
                 Resend Verification Email
               </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Shield className="w-5 h-5" />Privacy</CardTitle>
-              <CardDescription>Control how others see you</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {[
-                { key: 'showOnLeaderboards', label: 'Show me on public leaderboards', desc: 'Others can see your rank' },
-                { key: 'allowFriendRequests', label: 'Allow friend requests', desc: 'Anyone can send you a friend request' },
-                { key: 'shareReadingActivity', label: 'Share my reading activity', desc: 'Friends see your chapter completions' },
-              ].map(({ key, label, desc }) => (
-                <div key={key} className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{label}</p>
-                    <p className="text-xs text-muted-foreground">{desc}</p>
-                  </div>
-                  <Switch
-                    checked={user?.[key] ?? true}
-                    onCheckedChange={async (val) => {
-                      await base44.auth.updateMe({ [key]: val });
-                      setUser(u => ({ ...u, [key]: val }));
-                    }}
-                  />
-                </div>
-              ))}
             </CardContent>
           </Card>
 
