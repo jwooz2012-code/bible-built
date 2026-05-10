@@ -1,5 +1,6 @@
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
+import { addDaysKey } from '@/components/bible/utils/dateUtils';
 
 /**
  * Normalize a chapter object to consistent shape
@@ -211,4 +212,32 @@ export function computeTodayAssignment({ plan, logs, todayKey }) {
     remaining,
     today: todayAssignment,
   };
+}
+/**
+ * Find the oldest missed day in the past 7 days.
+ * Returns { dateKey, assignment } for the oldest incomplete assigned day,
+ * or null if no missed days are found.
+ */
+export function getOldestMissedDay({ plan, logs, todayKey }) {
+  if (!plan?.startDate || !plan?.scope || !plan?.chaptersPerDay || plan?.scope === 'NONE' || plan?.scope === 'CUSTOM') {
+    return null;
+  }
+
+  const completedIds = new Set(logs.map((l) => l.chapterId));
+
+  // Iterate from 7 days ago → yesterday, return the FIRST (oldest) incomplete day
+  for (let daysBack = 7; daysBack >= 1; daysBack--) {
+    const checkDate = addDaysKey(todayKey, -daysBack);
+    if (checkDate < plan.startDate) continue;
+
+    const assignment = getAssignmentForDate({ plan, dateKey: checkDate });
+    if (!assignment.length) continue;
+
+    const isIncomplete = assignment.some((ch) => !completedIds.has(ch.chapterId));
+    if (isIncomplete) {
+      return { dateKey: checkDate, assignment };
+    }
+  }
+
+  return null;
 }
