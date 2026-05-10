@@ -7,7 +7,6 @@ import { useWallet } from '@/hooks/useWallet';
 import { artifacts, ARTIFACT_RARITY_COLORS } from '../data/artifactCatalog.js';
 import ArtifactCard from '@/components/treasury/ArtifactCard';
 import ArtifactDetailModal from '@/components/treasury/ArtifactDetailModal';
-import CollectionTracker from '@/components/treasury/CollectionTracker';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
