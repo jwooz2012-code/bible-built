@@ -174,7 +174,7 @@ export default function UserDetail() {
       return order.indexOf(a.artifact.rarity) - order.indexOf(b.artifact.rarity);
     });
 
-  const name = targetUser?.full_name || targetUser?.email?.split('@')[0] || 'Builder';
+  const name = targetUser?.displayName || targetUser?.full_name || targetUser?.email?.split('@')[0] || 'Member';
   const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   const isMe = currentUser?.id === userId;
 
