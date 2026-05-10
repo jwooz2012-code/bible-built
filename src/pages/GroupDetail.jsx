@@ -28,7 +28,7 @@ function RankBadge({ rank }) {
 }
 
 function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile }) {
-  const name = member.full_name ?? member.displayName ?? 'Unknown';
+  const name = member.displayName ?? member.full_name ?? 'Member';
   return (
     <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}>
       <div className="w-7 flex items-center justify-center shrink-0">
@@ -200,13 +200,13 @@ export default function GroupDetail() {
       relatedId: groupId, isRead: false, createdAt: new Date().toISOString(),
     });
     setInvitedFriends(prev => ({ ...prev, [friend.id]: true }));
-    toast.success(`Invite sent to ${friend.full_name ?? friend.displayName ?? 'friend'}!`);
+    toast.success(`Invite sent to ${friend.displayName ?? friend.full_name ?? 'friend'}!`);
   };
 
   const handleRemoveMember = async (member) => {
     try {
       await base44.functions.invoke('removeFromGroup', { groupId, memberIdToRemove: member.id });
-      toast.success(`${member.full_name ?? member.displayName ?? 'Member'} removed`);
+      toast.success(`${member.displayName ?? member.full_name ?? 'Member'} removed`);
       setConfirmRemove(null);
       load();
     } catch (err) {
@@ -267,7 +267,7 @@ export default function GroupDetail() {
           <div className="bg-card rounded-2xl p-6 w-full max-w-sm shadow-xl">
             <p className="text-base font-semibold text-foreground mb-1">Remove member?</p>
             <p className="text-sm text-muted-foreground mb-5">
-              {confirmRemove.full_name ?? confirmRemove.displayName ?? 'This member'} will be removed from the group.
+              {confirmRemove.displayName ?? confirmRemove.full_name ?? 'This member'} will be removed from the group.
             </p>
             <div className="flex gap-3">
               <button onClick={() => setConfirmRemove(null)}
@@ -353,9 +353,9 @@ export default function GroupDetail() {
                     const alreadyMember = (group?.memberIds ?? []).includes(f.id);
                     return (
                       <div key={f.id} className="flex items-center gap-3 py-2">
-                        <AvatarDisplay initials={(f.full_name ?? f.displayName ?? '?')[0]?.toUpperCase() ?? '?'} avatarData={f} size={32} />
+                        <AvatarDisplay initials={(f.displayName ?? f.full_name ?? '?')[0]?.toUpperCase() ?? '?'} avatarData={f} size={32} />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{f.full_name ?? f.displayName}</p>
+                          <p className="text-sm font-medium text-foreground truncate">{f.displayName || f.full_name || 'Member'}</p>
                         </div>
                         {alreadyMember ? (
                           <span className="text-xs text-muted-foreground">In group</span>
@@ -457,7 +457,7 @@ export default function GroupDetail() {
               <AnimatePresence>
                 {feedLogs.map((log, i) => {
                   const fu = feedUsers[log.userId];
-                  const name = fu?.full_name ?? fu?.displayName ?? 'A member';
+                  const name = fu?.displayName ?? fu?.full_name ?? 'A member';
                   const isMe = log.userId === user?.id;
                   const hifived = highFivedLogs[log.id];
                   const testament = log.testament;
