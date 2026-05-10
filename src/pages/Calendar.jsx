@@ -7,6 +7,7 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
 import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import { groupLogsByDay } from '@/components/bible/utils/logUtils';
@@ -37,8 +38,7 @@ const WEEKLY_QUOTES = [
 
 export default function Calendar() {
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth } = useAuth();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
@@ -51,45 +51,33 @@ export default function Calendar() {
   const [showActionSheet, setShowActionSheet] = useState(false);
   const [showBulkModal, setShowBulkModal] = useState(false);
   const [showCalendarHint, setShowCalendarHint] = useState(false);
-  
+
   const queryClient = useQueryClient();
 
+  // Calendar hint logic — runs once when user is identified
   useEffect(() => {
-    let mounted = true;
-    base44.auth.me()
-      .then(u => {
-        if (mounted) {
-          setUser(u);
-          setIsLoading(false);
-          // Show hint logic: within first 14 days AND tap count < 3, and not dismissed
-          // Migrate: if dismissed flag was set before hintStartDate existed, clear it
-          // so the hint gets a proper 14-day window from today
-          if (localStorage.getItem('cal_hint_dismissed') && !localStorage.getItem('cal_hint_start')) {
-            localStorage.removeItem('cal_hint_dismissed');
-            localStorage.removeItem('cal_hint_taps');
-          }
-
-          // Initialize hintStartDate on first visit (new and existing users)
-          if (!localStorage.getItem('cal_hint_start')) {
-            localStorage.setItem('cal_hint_start', String(Date.now()));
-          }
-
-          const dismissed = localStorage.getItem('cal_hint_dismissed');
-          if (!dismissed) {
-            const hintStart = parseInt(localStorage.getItem('cal_hint_start'), 10);
-            const daysSinceStart = (Date.now() - hintStart) / (1000 * 60 * 60 * 24);
-            const tapCount = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10);
-            if (tapCount < 3 && daysSinceStart < 14) {
-              setShowCalendarHint(true);
-            } else {
-              localStorage.setItem('cal_hint_dismissed', '1');
-            }
-          }
-        }
-      })
-      .catch(() => { if (mounted) setIsLoading(false); });
-    return () => { mounted = false; };
-  }, []);
+    if (!user) return;
+    // Migrate: if dismissed flag was set before hintStartDate existed, reset it
+    if (localStorage.getItem('cal_hint_dismissed') && !localStorage.getItem('cal_hint_start')) {
+      localStorage.removeItem('cal_hint_dismissed');
+      localStorage.removeItem('cal_hint_taps');
+    }
+    // Initialize hintStartDate on first visit
+    if (!localStorage.getItem('cal_hint_start')) {
+      localStorage.setItem('cal_hint_start', String(Date.now()));
+    }
+    const dismissed = localStorage.getItem('cal_hint_dismissed');
+    if (!dismissed) {
+      const hintStart = parseInt(localStorage.getItem('cal_hint_start'), 10);
+      const daysSinceStart = (Date.now() - hintStart) / (1000 * 60 * 60 * 24);
+      const tapCount = parseInt(localStorage.getItem('cal_hint_taps') || '0', 10);
+      if (tapCount < 3 && daysSinceStart < 14) {
+        setShowCalendarHint(true);
+      } else {
+        localStorage.setItem('cal_hint_dismissed', '1');
+      }
+    }
+  }, [user?.id]);
 
   const userId = user?.id;
   const year = currentDate.getFullYear();
@@ -232,7 +220,7 @@ export default function Calendar() {
     }
   };
 
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <LoadingSpinner />
