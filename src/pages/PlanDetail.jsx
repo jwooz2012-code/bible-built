@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, Compass, Crown, Heart, Lamp, Leaf, Hourglass, Scroll } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import { PLAN_PRESETS } from '@/components/bible/plans/planPresets';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
@@ -33,8 +34,7 @@ function formatChapterList(chapters) {
 export default function PlanDetail() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, isLoadingAuth } = useAuth();
   const [showFullPreview, setShowFullPreview] = useState(false);
   const [showFullDescription, setShowFullDescription] = useState(false);
   const { mutateAsync: upsertPlan, isPending: isSaving } = useUpsertReadingPlan();
@@ -43,24 +43,7 @@ export default function PlanDetail() {
   const preset = PLAN_PRESETS.find((p) => p.id === planId);
   const existingPlan = location.state?.existingPlan || null;
 
-  useEffect(() => {
-    let mounted = true;
-    base44.auth.me()
-      .then((u) => {
-        if (mounted) {
-          setUser(u);
-          setIsLoading(false);
-        }
-      })
-      .catch(() => {
-        if (mounted) setIsLoading(false);
-      });
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  if (isLoading) {
+  if (isLoadingAuth) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Skeleton className="h-20 w-64" />
