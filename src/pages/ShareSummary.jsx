@@ -2,6 +2,7 @@ import React, { useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/lib/AuthContext';
 import html2canvas from 'html2canvas';
 import { Loader2, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -63,6 +64,7 @@ const getShareSummaryTheme = (resolvedTheme, energyMode) => {
 };
 
 export default function ShareSummary() {
+  const { user } = useAuth();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const screenshotRef = useRef(null);
@@ -143,48 +145,56 @@ export default function ShareSummary() {
     displaySubtitle = 'Reading Summary';
   }
 
-  // Fetch user first so other queries can use user?.id
-  const { data: user } = useQuery({
-    queryKey: ['user'],
-    queryFn: async () => {
-      try {
-        return await base44.auth.me();
-      } catch {
-        return null;
-      }
-    },
-  });
-
   // Fetch reading logs for the period (for display stats)
   const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', startDate, endDate, user?.id],
+    queryKey: ['readingLogs', startDate, endDate],
     queryFn: async () => {
-      if (!user?.id) return [];
       const logs = await base44.entities.ReadingLog.filter(
-        { userId: user.id, dateKey: { $gte: startDate, $lte: endDate } },
+        { dateKey: { $gte: startDate, $lte: endDate } },
         '-dateKey',
         1000
       );
       return logs || [];
     },
-    enabled: !!user?.id,
   });
 
   // Fetch LIFETIME reading logs (for accurate badge determination)
   const { data: lifetimeLogs = [] } = useQuery({
-    queryKey: ['lifetimeReadingLogs', user?.id],
+    queryKey: ['lifetimeReadingLogs'],
     queryFn: async () => {
-      if (!user?.id) return [];
-      const logs = await base44.entities.ReadingLog.filter({ userId: user.id }, '-dateKey', 10000);
+      const logs = await base44.entities.ReadingLog.list('-dateKey', 10000);
       return logs || [];
     },
-    enabled: !!user?.id,
   });
 
   // Calculate stats
   const totalChapters = readingLogs.length;
   const uniqueDays = new Set(readingLogs.map((l) => l.dateKey)).size;
   const booksRead = new Set(readingLogs.map((l) => l.bookIndex)).size;
+  const otChapters = readingLogs.filter((l) => l.testament === 'OT').length;
+  const ntChapters = readingLogs.filter((l) => l.testament === 'NT').length;
+
+  // Calculate consecutive days (streak within the period)
+  let longestStreak = 0;
+  if (readingLogs.length > 0) {
+    const sortedDates = Array.from(
+      new Set(readingLogs.map((l) => l.dateKey))
+    ).sort();
+    let currentStreak = 1;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prevDate = new Date(sortedDates[i - 1]);
+      const currDate = new Date(sortedDates[i]);
+      const diffDays = Math.floor(
+        (currDate - prevDate) / (1000 * 60 * 60 * 24)
+      );
+      if (diffDays === 1) {
+        currentStreak++;
+        longestStreak = Math.max(longestStreak, currentStreak);
+      } else {
+        currentStreak = 1;
+      }
+    }
+  }
 
   // Calculate best day (most chapters in one day)
   const chaptersPerDay = {};
@@ -192,6 +202,19 @@ export default function ShareSummary() {
     chaptersPerDay[log.dateKey] = (chaptersPerDay[log.dateKey] || 0) + 1;
   });
   const bestDay = Math.max(0, ...Object.values(chaptersPerDay));
+
+  // Calculate unique chapters for the timeframe
+  const uniqueChapters = new Set(readingLogs.map((l) => l.chapterId)).size;
+
+  // Calculate most completed book count for timeframe
+  const bookCompletionCounts = {};
+  readingLogs.forEach((log) => {
+    const key = log.book;
+    bookCompletionCounts[key] = (bookCompletionCounts[key] || 0) + 1;
+  });
+  const mostCompletedBookCount = Math.max(0, ...Object.values(bookCompletionCounts));
+
+  // User data comes from AuthContext — no extra network call needed
 
   // Weekly: Most Read Book
   const mostReadBook = useMemo(() => {
