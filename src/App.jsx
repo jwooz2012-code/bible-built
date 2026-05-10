@@ -1,28 +1,16 @@
-import { Toaster } from "@/components/ui/toaster"
 import { QueryClientProvider } from '@tanstack/react-query'
 import { queryClientInstance } from '@/lib/query-client'
 import NavigationTracker from '@/lib/NavigationTracker'
 import { pagesConfig } from './pages.config'
 import Profile from './pages/Profile';
-import Treasury from './pages/Treasury';
-import Social from './pages/Social';
-import BuildersLocked from './pages/BuildersLocked';
-import GroupDetail from './pages/GroupDetail';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
 import ReadingTrackingIntro from './pages/ReadingTrackingIntro';
-import FriendsTreasuryIntro from './pages/FriendsTreasuryIntro';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
 import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
-import TreasuryPreviewPage from './pages/TreasuryPreviewPage';
-import ShareSummary from './pages/ShareSummary';
-import ComingSoonPage from './pages/ComingSoonPage';
-import UserDetail from './pages/UserDetail';
-import AdminTools from './pages/AdminTools';
-import XpAudit from './pages/XpAudit';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -32,7 +20,7 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AppContent = () => {
+const AuthenticatedApp = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, logout, retryAuth } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
@@ -67,79 +55,58 @@ const AppContent = () => {
   const needsOnboarding = user && !user.onboardingComplete;
   // Existing users who haven't seen the reading tracking feature
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
-  // Existing users who haven't seen the Friends & Treasury intro
-  const needsFriendsTreasuryIntro = user && user.onboardingComplete && user.hasSeenReadingTrackingFeature && !user.hasSeenFriendsTreasuryIntro;
 
   // Render the main app
   return (
-    <>
-      <NavigationTracker />
-      <Routes>
-        {/* Onboarding route - takes priority */}
-        <Route path="/onboarding" element={<OnboardingFlow />} />
-        <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
-        <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
-        
-        {/* Redirect to onboarding or feature intro if needed */}
-        <Route path="/" element={
-          needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
-            <LayoutWrapper currentPageName={mainPageKey}>
-              <MainPage />
-            </LayoutWrapper>
-          )
-        } />
-        {Object.entries(Pages).map(([path, Page]) => (
-          <Route
-            key={path}
-            path={`/${path}`}
-            element={
-              needsOnboarding && path !== 'onboarding' ? (
-                <OnboardingFlow />
-              ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
-                <ReadingTrackingIntro />
-              ) : needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? (
-                <FriendsTreasuryIntro />
-              ) : (
-                <LayoutWrapper currentPageName={path}>
-                  <Page />
-                </LayoutWrapper>
-              )
-            }
-          />
-        ))}
-        <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-        <Route path="/social" element={
-          <LayoutWrapper currentPageName="social">
-            <Social />
+    <Routes>
+      {/* Onboarding route - takes priority */}
+      <Route path="/onboarding" element={<OnboardingFlow />} />
+      <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
+      
+      {/* Redirect to onboarding or feature intro if needed */}
+      <Route path="/" element={
+        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
+          <LayoutWrapper currentPageName={mainPageKey}>
+            <MainPage />
           </LayoutWrapper>
-        } />
-        <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
-        <Route path="/treasury-preview" element={<LayoutWrapper currentPageName="treasury-preview"><TreasuryPreviewPage /></LayoutWrapper>} />
-        <Route path="/coming-soon" element={<ComingSoonPage />} />
-        <Route path="/share-summary" element={<LayoutWrapper currentPageName="share-summary"><ShareSummary /></LayoutWrapper>} />
-        <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
-        <Route path="/admin-tools" element={<LayoutWrapper currentPageName="admin-tools"><AdminTools /></LayoutWrapper>} />
-        <Route path="/xp-audit" element={<XpAudit />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Routes>
-    </>
+        )
+      } />
+      {Object.entries(Pages).map(([path, Page]) => (
+        <Route
+          key={path}
+          path={`/${path}`}
+          element={
+            needsOnboarding && path !== 'onboarding' ? (
+              <OnboardingFlow />
+            ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
+              <ReadingTrackingIntro />
+            ) : (
+              <LayoutWrapper currentPageName={path}>
+                <Page />
+              </LayoutWrapper>
+            )
+          }
+        />
+      ))}
+      <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
+      <Route path="*" element={<PageNotFound />} />
+    </Routes>
   );
 };
 
 
 function App() {
   return (
-    <QueryClientProvider client={queryClientInstance}>
-      <AuthProvider>
+    <AuthProvider>
+      <QueryClientProvider client={queryClientInstance}>
         <CelebrationProvider>
           <Router>
-            <AppContent />
+            <NavigationTracker />
+            <AuthenticatedApp />
           </Router>
-          <Toaster />
         </CelebrationProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+      </QueryClientProvider>
+    </AuthProvider>
   );
 }
 
