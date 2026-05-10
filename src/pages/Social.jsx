@@ -37,7 +37,7 @@ function FriendCard({ friend, index }) {
       >
         <AvatarDisplay initials={(friend.displayName || friend.full_name || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{friend.displayName ?? friend.full_name}</p>
+          <p className="text-sm font-bold text-foreground truncate">{friend.displayName || friend.full_name || 'Member'}</p>
           <div className="flex items-center gap-2 mt-0.5">
             {streak > 0 && (
               <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
@@ -303,7 +303,7 @@ export default function Social() {
               <div key={u.id} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
                 <AvatarDisplay initials={(u.displayName || u.full_name || u.email || '?')[0].toUpperCase()} avatarData={u} size={32} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground truncate">{u.displayName ?? u.full_name}</p>
+                  <p className="text-sm font-medium text-foreground truncate">{u.displayName || u.full_name || 'Member'}</p>
                 </div>
                 <button
                   onClick={() => sendRequest(u.id)}
