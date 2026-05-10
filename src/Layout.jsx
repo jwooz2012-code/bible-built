@@ -1,10 +1,8 @@
 import React, { useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { useAuth } from '@/lib/AuthContext';
-import { Home, Calendar, BarChart3, User, Users, Landmark, Lock } from 'lucide-react';
+import { Home, Calendar, BarChart3, User } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
-
 import { Toaster } from 'sonner';
 import { AnimatePresence, motion } from 'framer-motion';
 import CelebrationRenderer from '@/components/celebration/CelebrationRenderer';
@@ -13,7 +11,6 @@ export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
-  const { user } = useAuth();
 
   useEffect(() => {
     // Root-only landing fix. Do not affect deep links.
@@ -24,15 +21,13 @@ export default function Layout({ children }) {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [location.pathname, currentPath]);
+  }, [location.pathname]);
 
   const navItems = [
-    { name: 'Home', icon: Home, path: '/home', pageName: 'home', color: 'text-foreground' },
-    { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar', color: 'text-rose-500' },
-    { name: 'Friends', icon: Users, path: '/social', pageName: 'social', color: 'text-blue-500' },
-    { name: 'Treasury', icon: Landmark, path: '/treasury', pageName: 'treasury', color: 'text-amber-500' },
-    { name: 'Progress', icon: BarChart3, path: '/Stats', pageName: 'Stats', color: 'text-emerald-500' },
-    { name: 'Profile', icon: User, path: '/profile', pageName: 'profile', color: 'text-violet-500' },
+    { name: 'Home', icon: Home, path: '/home', pageName: 'home' },
+    { name: 'Calendar', icon: Calendar, path: '/calendar', pageName: 'calendar' },
+    { name: 'Stats', icon: BarChart3, path: '/stats', pageName: 'stats' },
+    { name: 'Profile', icon: User, path: '/profile', pageName: 'profile' },
   ];
 
   // Ensure Accountability page is accessible via direct navigation
@@ -42,11 +37,25 @@ export default function Layout({ children }) {
 
   return (
     <ThemeProvider>
-      <div className="app-safe-shell">
-        {children}
+      <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPath}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
-      <nav className="app-bottom-nav fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card/95 backdrop-blur-xl border-t border-border z-[60]" style={{
+        paddingBottom: 'var(--sab)',
+        paddingLeft: 'var(--sal)',
+        paddingRight: 'var(--sar)'
+      }}>
           <div className="max-w-lg mx-auto flex justify-around items-center h-20 px-6">
               {navItems.map((item) => {
                 const isActive = currentPath === item.path || 
@@ -66,25 +75,18 @@ export default function Layout({ children }) {
                     }}
                     className="flex flex-col items-center justify-center gap-1 transition-all relative"
                   >
-                    <div className="relative w-7 h-7">
-                     <item.icon 
-                       className={`w-7 h-7 stroke-[1.75] transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'scale-110' : 'scale-100'}`}
-                     />
-                     {item.locked && (
-                       <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-black border border-white flex items-center justify-center">
-                         <Lock className="w-1.5 h-1.5 text-white" />
-                       </div>
-                     )}
-                    </div>
+                    <item.icon 
+                      className={`w-6 h-6 transition-all ${isActive ? 'stroke-[2] text-foreground' : 'stroke-[1.5] text-muted-foreground'}`}
+                    />
                     <span 
-                     className={`text-[11px] flex items-center gap-0.5 transition-all duration-200 ${item.color || 'text-muted-foreground'} ${isActive ? 'font-semibold' : 'font-medium'}`}
+                      className={`text-[10px] ${isActive ? 'font-semibold text-foreground' : 'font-medium text-muted-foreground'}`}
                     >
-                     {item.name}
+                      {item.name}
                     </span>
                     {isActive && (
-                     <div 
-                       className={`absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full ${item.color?.replace('text-', 'bg-') || 'bg-border'}`}
-                     />
+                      <div 
+                        className="absolute bottom-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-border"
+                      />
                     )}
                   </button>
                 );
