@@ -45,7 +45,6 @@ import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
 import BibleReader from '@/components/shared/BibleReader';
-import { AnimatePresence } from 'framer-motion';
 
 const WEEKLY_QUOTES = [
   "Faithfulness is built one chapter at a time.",
@@ -388,7 +387,6 @@ export default function Home() {
   }
 
   if (!user || !userId) {
-    console.warn('[Home] user or userId missing after auth resolved. user:', user, 'userId:', userId);
     return (
       <AuthRecoveryScreen
         errorType="session_missing"
