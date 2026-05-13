@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, startTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -91,6 +91,33 @@ export default function Home() {
     window.addEventListener('biblebuilt:homeTap', onHomeTap);
     return () => window.removeEventListener('biblebuilt:homeTap', onHomeTap);
   }, [selectedBook]);
+
+  // Populate optimisticLogs instantly when a chapter is tapped (before server responds)
+  useEffect(() => {
+    const onChapterRead = (e) => {
+      const { optimisticLog } = e.detail || {};
+      if (!optimisticLog) return;
+      startTransition(() => {
+        setOptimisticLogs((prev) => {
+          if (prev.some((l) => l.chapterId === optimisticLog.chapterId && l._optimistic)) return prev;
+          return [...prev, optimisticLog];
+        });
+      });
+    };
+    const onChapterReadError = (e) => {
+      const { chapterId } = e.detail || {};
+      if (!chapterId) return;
+      startTransition(() => {
+        setOptimisticLogs((prev) => prev.filter((l) => !(l._optimistic && l.chapterId === chapterId)));
+      });
+    };
+    window.addEventListener('biblebuilt:chapterRead', onChapterRead);
+    window.addEventListener('biblebuilt:chapterReadError', onChapterReadError);
+    return () => {
+      window.removeEventListener('biblebuilt:chapterRead', onChapterRead);
+      window.removeEventListener('biblebuilt:chapterReadError', onChapterReadError);
+    };
+  }, []);
 
   useEffect(() => {
     const countKey = 'bb_app_open_count';
@@ -332,8 +359,12 @@ export default function Home() {
 
   const getChapterStats = (bookIndex, chapter) => {
     const chapterId = generateChapterId(bookIndex, chapter);
-    const optimisticCount = optimisticLogs.filter((log) => log.chapterId === chapterId).length;
-    return { timesRead: (chapterStatsMap[chapterId] || 0) + optimisticCount };
+    const confirmedCount = chapterStatsMap[chapterId] || 0;
+    // Only add optimistic count when server hasn't confirmed yet (avoids double-count)
+    const optimisticCount = confirmedCount === 0
+      ? optimisticLogs.filter((log) => log.chapterId === chapterId && log._optimistic).length
+      : 0;
+    return { timesRead: confirmedCount + optimisticCount };
   };
 
   const handleChapterClick = async (book, chapter, chapterId) => {
@@ -346,22 +377,20 @@ export default function Home() {
       setReaderState({ book, chapter });
       return;
     }
-    // Log Mode: mark as read immediately
-    try {
-      const now = new Date();
-      await markRead({
-        userId,
-        dateKey: getDateKey(now),
-        timestamp: now.toISOString(),
-        book: book.name,
-        bookIndex: book.index,
-        chapter,
-        chapterId,
-        testament: book.testament
-      });
-    } catch (error) {
+    // Log Mode: mark as read — fire-and-forget so UI updates instantly via onMutate
+    const now = new Date();
+    markRead({
+      userId,
+      dateKey: getDateKey(now),
+      timestamp: now.toISOString(),
+      book: book.name,
+      bookIndex: book.index,
+      chapter,
+      chapterId,
+      testament: book.testament
+    }).catch((error) => {
       toast.error(error?.message || 'Action failed. Please try again.');
-    }
+    });
   };
 
   const handleToggleReadMode = () => {
