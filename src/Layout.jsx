@@ -78,12 +78,12 @@ export default function Layout({ children }) {
               >
                 <item.icon
                   className={`w-6 h-6 transition-all duration-200 ${
-                    isActive ? `${item.color} stroke-[2.2]` : 'text-muted-foreground/50 stroke-[1.5]'
+                    isActive ? `${item.color} stroke-[2.2]` : `${item.color} opacity-40 stroke-[1.5]`
                   }`}
                 />
                 <span
                   className={`text-[9px] leading-none transition-all duration-200 ${
-                    isActive ? `${item.color} font-bold` : 'text-muted-foreground/50 font-medium'
+                    isActive ? `${item.color} font-bold` : `${item.color} opacity-40 font-medium`
                   }`}
                 >
                   {item.name}
