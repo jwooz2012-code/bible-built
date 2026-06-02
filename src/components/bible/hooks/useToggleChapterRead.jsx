@@ -16,23 +16,19 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       if (!userId) {
         throw new Error('User ID is required. Please log in again.');
       }
-      
-      const result = await base44.entities.ReadingLog.create({
-        userId,
-        timestamp,
-        dateKey,
-        book,
-        bookIndex,
-        chapter,
-        chapterId,
-        testament,
+
+      // Route through logChapterRead so XP is awarded on every chapter tap
+      const result = await base44.functions.invoke('logChapterRead', {
+        chapters: [{ userId, dateKey, timestamp, book, bookIndex, chapter, chapterId, testament }],
       });
-      
-      if (!result || !result.id) {
+      const data = result?.data ?? result;
+      const createdLog = Array.isArray(data?.created) ? data.created[0] : null;
+
+      if (!createdLog?.id) {
         throw new Error('Failed to save reading log - no ID returned');
       }
-      
-      return result;
+
+      return createdLog;
     },
     onMutate: ({ chapterId, userId, dateKey, timestamp, book, bookIndex, chapter, testament }) => {
       // Instant visual feedback — fire event before the network call returns
@@ -85,6 +81,8 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
       queryClient.invalidateQueries({ 
         predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
       });
+      // Refresh wallet so XPBar shows updated balance
+      queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
       
       // Celebration checks — after successful persistence
       if (allLogs && createdLog) {
