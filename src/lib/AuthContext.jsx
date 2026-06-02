@@ -57,10 +57,9 @@ export const AuthProvider = ({ children }) => {
         setAppPublicSettings(publicSettings);
 
         if (!appParams.token) {
-          // No token at all — treat as auth required so navigateToLogin() fires
+          // No token — unauthenticated, let ProtectedRoute redirect to /login
           setIsLoadingAuth(false);
           setIsAuthenticated(false);
-          setAuthError({ type: 'auth_required', message: 'Authentication required' });
         } else {
           // Wait for the already-in-flight auth call to finish
           await authPromise;
@@ -129,7 +128,8 @@ export const AuthProvider = ({ children }) => {
       setIsLoadingAuth(false);
       setIsAuthenticated(false);
       if (error.status === 401 || error.status === 403) {
-        setAuthError({ type: 'auth_required', message: 'Authentication required' });
+        // Token expired/invalid — just mark unauthenticated, ProtectedRoute handles redirect
+        setIsAuthenticated(false);
       } else {
         // Network or unexpected error — show recovery screen instead of blank
         setAuthError({ type: 'unknown', message: error.message || 'Failed to load user' });

@@ -57,57 +57,40 @@ const AppInner = () => {
 
       {/* All app routes — gated by ProtectedRoute */}
       <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
-        {/* Handle auth errors for registered users */}
-        {authError && authError.type === 'user_not_registered' ? (
-          <Route path="*" element={<UserNotRegisteredError />} />
-        ) : authError && authError.type !== 'auth_required' ? (
-          <Route path="*" element={
-            <AuthRecoveryScreen
-              errorType={authError.type}
-              onRetry={retryAuth}
-              onLogout={() => logout(true)}
-            />
-          } />
-        ) : (
-          <>
-            <Route path="/onboarding" element={<OnboardingFlow />} />
-            <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
+        <Route path="/onboarding" element={<OnboardingFlow />} />
+        <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
 
-            <Route path="/" element={
-              needsOnboarding ? <OnboardingFlow /> :
-              needsReadingTrackingIntro ? <ReadingTrackingIntro /> :
-              needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
-                <LayoutWrapper currentPageName={mainPageKey}>
-                  <MainPage />
-                </LayoutWrapper>
+        <Route path="/" element={
+          authError?.type === 'user_not_registered' ? <UserNotRegisteredError /> :
+          authError ? <AuthRecoveryScreen errorType={authError.type} onRetry={retryAuth} onLogout={() => logout(true)} /> :
+          needsOnboarding ? <OnboardingFlow /> :
+          needsReadingTrackingIntro ? <ReadingTrackingIntro /> :
+          needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
+            <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>
+          )
+        } />
+
+        {Object.entries(Pages).map(([path, Page]) => (
+          <Route
+            key={path}
+            path={`/${path}`}
+            element={
+              needsOnboarding && path !== 'onboarding' ? <OnboardingFlow /> :
+              needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? <ReadingTrackingIntro /> :
+              needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? <FriendsTreasuryIntro /> : (
+                <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>
               )
-            } />
+            }
+          />
+        ))}
 
-            {Object.entries(Pages).map(([path, Page]) => (
-              <Route
-                key={path}
-                path={`/${path}`}
-                element={
-                  needsOnboarding && path !== 'onboarding' ? <OnboardingFlow /> :
-                  needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? <ReadingTrackingIntro /> :
-                  needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? <FriendsTreasuryIntro /> : (
-                    <LayoutWrapper currentPageName={path}>
-                      <Page />
-                    </LayoutWrapper>
-                  )
-                }
-              />
-            ))}
-
-            <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
-            <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
-            <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
-            <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-            <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-            <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
-            <Route path="*" element={<PageNotFound />} />
-          </>
-        )}
+        <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
+        <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
+        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
+        <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
+        <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
+        <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
+        <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>
   );
