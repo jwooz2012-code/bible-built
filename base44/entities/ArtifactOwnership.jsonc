@@ -33,21 +33,10 @@
   ],
   "rls": {
     "create": true,
-    "update": {
-      "data.userId": "{{user.id}}"
-    },
+    "update": true,
     "delete": {
       "data.userId": "{{user.id}}"
     },
-    "read": {
-      "$or": [
-        {
-          "data.userId": "{{user.id}}"
-        },
-        {
-          "user.role": "admin"
-        }
-      ]
-    }
+    "read": true
   }
 }

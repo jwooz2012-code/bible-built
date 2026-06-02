@@ -1,0 +1,97 @@
+{
+  "name": "NotificationSettings",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User ID who owns these settings"
+    },
+    "enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Master toggle for all notifications"
+    },
+    "permissionStatus": {
+      "type": "string",
+      "enum": [
+        "unknown",
+        "granted",
+        "denied"
+      ],
+      "default": "unknown",
+      "description": "Native OS permission status"
+    },
+    "reminderTime": {
+      "type": "string",
+      "default": "19:00",
+      "description": "Daily reminder time in HH:MM 24h format"
+    },
+    "reminderDays": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
+        "Sun"
+      ],
+      "description": "Days of week for reminders"
+    },
+    "timezone": {
+      "type": "string",
+      "description": "User IANA timezone string"
+    },
+    "dailyRemindersEnabled": {
+      "type": "boolean",
+      "default": true,
+      "description": "Send daily reading reminders"
+    },
+    "streakMilestonesEnabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Reserved: streak milestone notifications"
+    },
+    "missedDayRemindersEnabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Reserved: missed day reminders"
+    },
+    "weeklySummaryEnabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "Reserved: weekly summary notifications"
+    },
+    "promptDismissed": {
+      "type": "boolean",
+      "default": false,
+      "description": "Whether user dismissed the first-time notification prompt"
+    },
+    "lastReminderSentAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO timestamp of last reminder sent (for deduplication)"
+    }
+  },
+  "required": [
+    "userId"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

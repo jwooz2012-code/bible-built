@@ -1,0 +1,57 @@
+{
+  "name": "PlanDay",
+  "type": "object",
+  "properties": {
+    "planId": {
+      "type": "string",
+      "description": "ID of the parent reading plan"
+    },
+    "userId": {
+      "type": "string",
+      "description": "User ID who owns this plan day"
+    },
+    "date": {
+      "type": "string",
+      "description": "Date for this day's assignments in YYYY-MM-DD format"
+    },
+    "assignments": {
+      "type": "array",
+      "description": "Array of chapter assignments for the day",
+      "items": {
+        "type": "object",
+        "properties": {
+          "bookName": {
+            "type": "string"
+          },
+          "chapter": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "bookName",
+          "chapter"
+        ]
+      }
+    }
+  },
+  "required": [
+    "planId",
+    "userId",
+    "date",
+    "assignments"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

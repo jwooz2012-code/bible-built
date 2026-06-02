@@ -8,7 +8,7 @@ import Treasury from './pages/Treasury';
 import FriendsTreasuryIntro from './pages/FriendsTreasuryIntro';
 import GroupDetail from './pages/GroupDetail';
 import UserDetail from './pages/UserDetail';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
 import ReadingTrackingIntro from './pages/ReadingTrackingIntro';
@@ -16,6 +16,11 @@ import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
 import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
+import ProtectedRoute from '@/components/ProtectedRoute';
+import Login from '@/pages/Login';
+import Register from '@/pages/Register';
+import ForgotPassword from '@/pages/ForgotPassword';
+import ResetPassword from '@/pages/ResetPassword';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -25,8 +30,8 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
 
-const AuthenticatedApp = () => {
-  const { isLoadingAuth, isLoadingPublicSettings, authError, navigateToLogin, user, logout, retryAuth } = useAuth();
+const AppInner = () => {
+  const { isLoadingAuth, isLoadingPublicSettings, authError, user, logout, retryAuth } = useAuth();
 
   // Show loading spinner while checking app public settings or auth
   if (isLoadingPublicSettings || isLoadingAuth) {
@@ -37,73 +42,73 @@ const AuthenticatedApp = () => {
     );
   }
 
-  // Handle authentication errors
-  if (authError) {
-    if (authError.type === 'user_not_registered') {
-      return <UserNotRegisteredError />;
-    } else if (authError.type === 'auth_required') {
-      navigateToLogin();
-      return null;
-    } else {
-      // Unknown error or timeout — show recovery screen instead of permanent spinner
-      return (
-        <AuthRecoveryScreen
-          errorType={authError.type}
-          onRetry={retryAuth}
-          onLogout={() => logout(true)}
-        />
-      );
-    }
-  }
-
-  // Check if user needs to complete onboarding
+  // Check if user needs to complete onboarding (only for authenticated users)
   const needsOnboarding = user && !user.onboardingComplete;
-  // Existing users who haven't seen the reading tracking feature
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
-  // Users who haven't seen the Friends & Treasury intro
   const needsFriendsTreasuryIntro = user && user.onboardingComplete && user.hasSeenReadingTrackingFeature && !user.hasSeenFriendsTreasuryIntro;
 
-  // Render the main app
   return (
     <Routes>
-      {/* Onboarding route - takes priority */}
-      <Route path="/onboarding" element={<OnboardingFlow />} />
-      <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
-      
-      {/* Redirect to onboarding or feature intro if needed */}
-      <Route path="/" element={
-        needsOnboarding ? <OnboardingFlow /> : needsReadingTrackingIntro ? <ReadingTrackingIntro /> : needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
-          <LayoutWrapper currentPageName={mainPageKey}>
-            <MainPage />
-          </LayoutWrapper>
-        )
-      } />
-      {Object.entries(Pages).map(([path, Page]) => (
-        <Route
-          key={path}
-          path={`/${path}`}
-          element={
-            needsOnboarding && path !== 'onboarding' ? (
-              <OnboardingFlow />
-            ) : needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? (
-              <ReadingTrackingIntro />
-            ) : needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? (
-              <FriendsTreasuryIntro />
-            ) : (
-              <LayoutWrapper currentPageName={path}>
-                <Page />
-              </LayoutWrapper>
-            )
-          }
-        />
-      ))}
-      <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
-      <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
-      <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
-      <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-      <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-      <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
-      <Route path="*" element={<PageNotFound />} />
+      {/* Public auth routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
+
+      {/* All app routes — gated by ProtectedRoute */}
+      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+        {/* Handle auth errors for registered users */}
+        {authError && authError.type === 'user_not_registered' ? (
+          <Route path="*" element={<UserNotRegisteredError />} />
+        ) : authError && authError.type !== 'auth_required' ? (
+          <Route path="*" element={
+            <AuthRecoveryScreen
+              errorType={authError.type}
+              onRetry={retryAuth}
+              onLogout={() => logout(true)}
+            />
+          } />
+        ) : (
+          <>
+            <Route path="/onboarding" element={<OnboardingFlow />} />
+            <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
+
+            <Route path="/" element={
+              needsOnboarding ? <OnboardingFlow /> :
+              needsReadingTrackingIntro ? <ReadingTrackingIntro /> :
+              needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
+                <LayoutWrapper currentPageName={mainPageKey}>
+                  <MainPage />
+                </LayoutWrapper>
+              )
+            } />
+
+            {Object.entries(Pages).map(([path, Page]) => (
+              <Route
+                key={path}
+                path={`/${path}`}
+                element={
+                  needsOnboarding && path !== 'onboarding' ? <OnboardingFlow /> :
+                  needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? <ReadingTrackingIntro /> :
+                  needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? <FriendsTreasuryIntro /> : (
+                    <LayoutWrapper currentPageName={path}>
+                      <Page />
+                    </LayoutWrapper>
+                  )
+                }
+              />
+            ))}
+
+            <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
+            <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
+            <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
+            <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
+            <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
+            <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
+            <Route path="*" element={<PageNotFound />} />
+          </>
+        )}
+      </Route>
     </Routes>
   );
 };
@@ -116,7 +121,7 @@ function App() {
         <CelebrationProvider>
           <Router>
             <NavigationTracker />
-            <AuthenticatedApp />
+            <AppInner />
           </Router>
         </CelebrationProvider>
       </QueryClientProvider>
