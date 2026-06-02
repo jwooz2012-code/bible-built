@@ -36,6 +36,7 @@ import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 
 import { dedupeChapterIds, groupByDateKey, computeStreaks, computeWeeklySummary, computeRecords } from '@/components/trackers/deriveStats';
 import XPBar from '@/components/energy/XPBar';
+import { useWallet } from '@/hooks/useWallet';
 import { useTheme } from '@/components/ThemeProvider';
 import TodayAssignmentCard from '@/components/bible/plans/TodayAssignmentCard';
 import MissedDayBanner from '@/components/bible/plans/MissedDayBanner';
@@ -62,6 +63,7 @@ const WEEKLY_QUOTES = [
 export default function Home() {
   const navigate = useNavigate();
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
+  const { xpBalance, walletLevel } = useWallet();
   const { user, isLoadingAuth, retryAuth, logout } = useAuth();
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
@@ -477,7 +479,7 @@ export default function Home() {
 
             {energyMode && (
               <div className="mb-5">
-                <XPBar todayCount={todayLogs.length} />
+                <XPBar user={user} xpBalance={xpBalance} walletLevel={walletLevel} />
               </div>
             )}
 
