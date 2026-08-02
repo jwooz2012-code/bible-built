@@ -13,6 +13,7 @@ import { Layers, BookOpen, ArrowRight, CalendarDays } from 'lucide-react';
 
 export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
   const queryClient = useQueryClient();
+  const [selectedTestament, setSelectedTestament] = useState('OT');
   const [selectedBook, setSelectedBook] = useState('');
   const [startChapter, setStartChapter] = useState('');
   const [endChapter, setEndChapter] = useState('');
@@ -32,6 +33,7 @@ export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
     : '';
 
   const handleClose = () => {
+    setSelectedTestament('OT');
     setSelectedBook('');
     setStartChapter('');
     setEndChapter('');
@@ -103,6 +105,32 @@ export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
         </div>
 
         <div className="px-6 py-5 space-y-4">
+          {/* Testament selector */}
+          <div className="space-y-1.5">
+            <Label className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Testament</Label>
+            <div className="grid grid-cols-2 gap-2">
+              {['OT', 'NT'].map(t => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTestament(t);
+                    setSelectedBook('');
+                    setStartChapter('');
+                    setEndChapter('');
+                  }}
+                  className={`h-11 rounded-xl text-sm font-semibold transition-all ${
+                    selectedTestament === t
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-secondary text-muted-foreground'
+                  }`}
+                >
+                  {t === 'OT' ? 'Old Testament' : 'New Testament'}
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Book selector */}
           <div className="space-y-1.5">
             <Label htmlFor="book" className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Book</Label>
@@ -118,7 +146,7 @@ export default function BulkAddModal({ open, onOpenChange, userId, dateKey }) {
                 </div>
               </SelectTrigger>
               <SelectContent className="max-h-[300px]">
-                {BIBLE_BOOKS.map(b => (
+                {BIBLE_BOOKS.filter(b => b.testament === selectedTestament).map(b => (
                   <SelectItem key={b.index} value={b.name}>
                     {b.name}
                   </SelectItem>

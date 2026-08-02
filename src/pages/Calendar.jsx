@@ -42,6 +42,7 @@ export default function Calendar() {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedTestament, setSelectedTestament] = useState('OT');
   const [selectedBook, setSelectedBook] = useState('');
   const [selectedChapter, setSelectedChapter] = useState('');
   const [isAdding, setIsAdding] = useState(false);
@@ -476,6 +477,26 @@ export default function Calendar() {
                   <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">New Reading</p>
                 </div>
 
+                <div className="grid grid-cols-2 gap-2">
+                  {['OT', 'NT'].map(t => (
+                    <button
+                      key={t}
+                      onClick={() => {
+                        setSelectedTestament(t);
+                        setSelectedBook('');
+                        setSelectedChapter('');
+                      }}
+                      className={`h-10 rounded-xl text-sm font-semibold transition-all ${
+                        selectedTestament === t
+                          ? 'bg-emerald-600 text-white'
+                          : 'bg-secondary text-muted-foreground'
+                      }`}
+                    >
+                      {t === 'OT' ? 'Old Testament' : 'New Testament'}
+                    </button>
+                  ))}
+                </div>
+
                 <Select value={selectedBook} onValueChange={(val) => {
                   setSelectedBook(val);
                   setSelectedChapter('');
@@ -484,7 +505,7 @@ export default function Calendar() {
                     <SelectValue placeholder="Select book" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
-                    {BIBLE_BOOKS.map(book => (
+                    {BIBLE_BOOKS.filter(b => b.testament === selectedTestament).map(book => (
                       <SelectItem key={book.index} value={book.name}>
                         {book.name}
                       </SelectItem>
