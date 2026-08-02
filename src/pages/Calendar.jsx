@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronLeft, ChevronRight, X, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, X, Plus, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -467,13 +467,20 @@ export default function Calendar() {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="bg-secondary p-4 rounded-xl space-y-3"
+                className="bg-gradient-to-br from-emerald-500/8 via-teal-500/5 to-transparent border border-emerald-500/15 p-4 rounded-2xl space-y-3"
               >
+                <div className="flex items-center gap-2 mb-1">
+                  <div className="w-7 h-7 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                    <BookOpen className="w-4 h-4 text-emerald-500" />
+                  </div>
+                  <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wide">New Reading</p>
+                </div>
+
                 <Select value={selectedBook} onValueChange={(val) => {
                   setSelectedBook(val);
                   setSelectedChapter('');
                 }}>
-                  <SelectTrigger>
+                  <SelectTrigger className="h-11">
                     <SelectValue placeholder="Select book" />
                   </SelectTrigger>
                   <SelectContent className="max-h-[300px]">
@@ -487,7 +494,7 @@ export default function Calendar() {
 
                 {selectedBook && (
                   <Select value={selectedChapter} onValueChange={setSelectedChapter}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Select chapter" />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
@@ -500,16 +507,21 @@ export default function Calendar() {
                   </Select>
                 )}
 
-                <div className="flex gap-2">
-                  <Button 
+                <div className="flex gap-2 pt-0.5">
+                  <Button
                     onClick={handleAddReading}
                     disabled={isAdding || !selectedBook || !selectedChapter}
-                    className="flex-1"
+                    className="flex-1 h-10 bg-emerald-600 hover:bg-emerald-700"
                     size="sm"
                   >
-                    {isAdding ? 'Adding...' : 'Add Chapter'}
+                    {isAdding ? 'Adding...' : (
+                      <span className="flex items-center gap-1.5">
+                        <Plus className="w-4 h-4" />
+                        Add Chapter
+                      </span>
+                    )}
                   </Button>
-                  <Button 
+                  <Button
                     onClick={() => {
                       setShowAddForm(false);
                       setSelectedBook('');
@@ -517,6 +529,7 @@ export default function Calendar() {
                     }}
                     variant="outline"
                     size="sm"
+                    className="h-10"
                   >
                     Cancel
                   </Button>
