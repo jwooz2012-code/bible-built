@@ -173,28 +173,39 @@ export default function Calendar() {
       const book = BIBLE_BOOKS.find(b => b.name === selectedBook);
       const chapter = parseInt(selectedChapter);
       const chapterId = generateChapterId(book.index, chapter);
-      
+
       const timestamp = new Date(selectedDay + 'T12:00:00').toISOString();
-      
-      await base44.entities.ReadingLog.create({
-        userId,
-        timestamp,
-        dateKey: selectedDay,
-        book: book.name,
-        bookIndex: book.index,
-        chapter,
-        chapterId,
-        testament: book.testament,
+
+      // Route through trusted server function — ReadingLog has RLS create:false,
+      // so client-side creates are blocked. This also awards XP correctly.
+      const res = await base44.functions.invoke('logChapterRead', {
+        chapters: [{
+          userId,
+          timestamp,
+          dateKey: selectedDay,
+          book: book.name,
+          bookIndex: book.index,
+          chapter,
+          chapterId,
+          testament: book.testament,
+        }],
       });
+      const created = Array.isArray(res?.data?.created) ? res.data.created : [];
 
       await queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
       await queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
       setShowAddForm(false);
       setSelectedBook('');
       setSelectedChapter('');
-      toast.success(`${book.name} ${chapter} added to this day`);
+
+      if (created.length > 0) {
+        toast.success(`${book.name} ${chapter} added to this day`);
+      } else {
+        toast.info('Already logged for this day');
+      }
     } catch (error) {
-      toast.error('Failed to add reading');
+      const message = error?.message || 'Failed to add reading';
+      toast.error(message);
     } finally {
       setIsAdding(false);
     }
