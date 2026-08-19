@@ -76,8 +76,9 @@ export default function TodayAssignmentCard({
       }).filter(Boolean);
     }
     
-    return getAssignmentForDate({ plan, dateKey: todayKey });
-  }, [hasPlan, plan, todayKey, isCustomPlan, todayPlanDay]);
+    // Progress-based: always show the next incomplete day, not today's calendar date
+    return assignment?.today ?? [];
+  }, [hasPlan, plan, todayKey, isCustomPlan, todayPlanDay, assignment]);
 
   const { summary, parts, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
     if (!assignedToday.length) {
@@ -166,11 +167,14 @@ export default function TodayAssignmentCard({
 
   // Compute plan progress for active plan
   const planDayNumber = useMemo(() => {
-    if (!hasPlan || !plan?.startDate) return null;
-    const start = new Date(plan.startDate);
-    const today = new Date(todayKey);
-    return Math.max(1, Math.floor((today - start) / (1000 * 60 * 60 * 24)) + 1);
-  }, [hasPlan, plan, todayKey]);
+    if (!hasPlan || !assignment || !plan?.chaptersPerDay) return null;
+    // Progress-based: count completed plan days from how many chapters have been read
+    const perDay = Number(plan.chaptersPerDay);
+    const remaining = assignment.remaining ?? 0;
+    const totalPlanChapters = (planTotalDays ?? 1) * perDay;
+    const completedChapters = Math.max(0, totalPlanChapters - remaining);
+    return Math.min(planTotalDays ?? 1, Math.floor(completedChapters / perDay) + 1);
+  }, [hasPlan, assignment, plan, planTotalDays]);
 
   const planTotalDays = useMemo(() => {
     if (!hasPlan || !plan?.startDate || !plan?.endDate) return null;
