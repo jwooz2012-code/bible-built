@@ -166,10 +166,17 @@ export default function TodayAssignmentCard({
   };
 
   // Compute plan progress for active plan
+  const planTotalDays = useMemo(() => {
+    if (!hasPlan || !plan?.startDate || !plan?.endDate) return null;
+    const start = new Date(plan.startDate);
+    const end = new Date(plan.endDate);
+    return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
+  }, [hasPlan, plan]);
+
   const planDayNumber = useMemo(() => {
     if (!hasPlan || !plan?.chaptersPerDay || !planTotalDays) return null;
     const perDay = Number(plan.chaptersPerDay);
-    // Unique chapter IDs read that belong to the plan
+    // Count unique chapter IDs read before the current plan day
     const currentDayIds = new Set(assignedToday.map(a => a.chapterId));
     const priorReadIds = new Set(
       allTimeLogs
@@ -177,16 +184,8 @@ export default function TodayAssignmentCard({
         .map(l => l.chapterId)
         .filter(id => !currentDayIds.has(id))
     );
-    // Each completed prior plan day = perDay chapters. +1 for the current (incomplete) day.
     return Math.min(planTotalDays, Math.floor(priorReadIds.size / perDay) + 1);
   }, [hasPlan, plan, planTotalDays, allTimeLogs, assignedToday]);
-
-  const planTotalDays = useMemo(() => {
-    if (!hasPlan || !plan?.startDate || !plan?.endDate) return null;
-    const start = new Date(plan.startDate);
-    const end = new Date(plan.endDate);
-    return Math.max(1, Math.floor((end - start) / (1000 * 60 * 60 * 24)) + 1);
-  }, [hasPlan, plan]);
 
   if (!hasPlan) {
     return (
