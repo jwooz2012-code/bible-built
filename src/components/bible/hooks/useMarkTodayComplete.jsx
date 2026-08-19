@@ -74,6 +74,7 @@ export function useMarkTodayComplete() {
       setTimeout(() => {
         queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
         queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+        queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
       }, 800);
 
       toast.success(`Marked ${count} chapter${count !== 1 ? 's' : ''} complete`);
