@@ -216,3 +216,34 @@ export function getOldestMissedDay({ plan, logs, todayKey }) {
 
   return null;
 }
+
+/**
+ * Find the first incomplete plan day (progress-based, not date-based).
+ * Returns the full set of chapters for that plan day — including any already read,
+ * so the card can show a stable assignment with per-chapter completion state.
+ * Advances to the next plan day only when ALL chapters in the current day are read.
+ */
+export function getNextIncompletePlanDay({ plan, logs }) {
+  if (!plan?.startDate || !plan?.scope || !plan?.chaptersPerDay) return [];
+  if (plan.scope === 'NONE' || plan.scope === 'CUSTOM') return [];
+
+  const scopeChapters = buildScopeChapters(plan.scope);
+  const perDay = Number(plan.chaptersPerDay);
+  if (!perDay || !scopeChapters.length) return [];
+
+  // Build set of all read chapter IDs from plan-relevant logs
+  const relevantLogs = logs.filter(log =>
+    log.dateKey >= plan.startDate &&
+    scopeChapters.some(ch => ch.chapterId === log.chapterId)
+  );
+  const readIds = new Set(relevantLogs.map(l => l.chapterId));
+
+  // Walk through plan days in order — return first day that is not fully read
+  for (let i = 0; i < scopeChapters.length; i += perDay) {
+    const dayChapters = scopeChapters.slice(i, i + perDay);
+    const allRead = dayChapters.every(ch => readIds.has(ch.chapterId));
+    if (!allRead) return dayChapters;
+  }
+
+  return []; // Entire plan complete
+}
