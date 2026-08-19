@@ -18,17 +18,13 @@ export function useCompleteTodaysAssignment() {
         ? assignedChapters
         : getAssignmentForDate({ plan, dateKey: todayKey });
       
-      console.log('[completeToday] assignedToday:', assignedToday.map(c => `${c.book} ${c.chapter} (${c.chapterId})`));
-      
       if (!assignedToday.length) {
-        console.warn('[completeToday] No chapters assigned for today - returning early');
-        return { added: 0, createdLogs: [] };
+          return { added: 0, createdLogs: [] };
       }
 
       // Only skip chapters already logged FOR TODAY specifically
       const todayLogs = allTimeLogs.filter(log => log.dateKey === todayKey);
       const completedIds = new Set(todayLogs.map(log => log.chapterId));
-      console.log('[completeToday] todayLogs count:', todayLogs.length, 'completedIds:', [...completedIds]);
 
       // Filter to only missing chapters
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
@@ -78,6 +74,7 @@ export function useCompleteTodaysAssignment() {
       setTimeout(() => {
         queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
         queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+        queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
       }, 800);
 
       toast.success(`Marked ${data.added} chapter${data.added > 1 ? 's' : ''} complete`);
