@@ -168,20 +168,17 @@ export default function TodayAssignmentCard({
   // Compute plan progress for active plan
   const planDayNumber = useMemo(() => {
     if (!hasPlan || !plan?.chaptersPerDay || !planTotalDays) return null;
-    // Count how many full plan days have been completed (all chapters read)
     const perDay = Number(plan.chaptersPerDay);
-    const completedIds = new Set(
+    // Unique chapter IDs read that belong to the plan
+    const currentDayIds = new Set(assignedToday.map(a => a.chapterId));
+    const priorReadIds = new Set(
       allTimeLogs
-        .filter(log => log.dateKey >= (plan.startDate || ''))
-        .map(log => log.chapterId)
+        .filter(l => l.dateKey >= (plan.startDate || ''))
+        .map(l => l.chapterId)
+        .filter(id => !currentDayIds.has(id))
     );
-    const { buildScopeChapters: _build } = { buildScopeChapters: null }; // unused, use assignedToday
-    // Simpler: day number = 1 + completed days before current incomplete day
-    // assignedToday is the current plan day — its offset in scope tells us the day number
-    const dayNum = assignedToday.length > 0
-      ? Math.floor(allTimeLogs.filter(l => l.dateKey >= (plan.startDate || '') && assignedToday.every(a => a.chapterId !== l.chapterId)).length / perDay) + 1
-      : planTotalDays;
-    return Math.min(planTotalDays, Math.max(1, dayNum));
+    // Each completed prior plan day = perDay chapters. +1 for the current (incomplete) day.
+    return Math.min(planTotalDays, Math.floor(priorReadIds.size / perDay) + 1);
   }, [hasPlan, plan, planTotalDays, allTimeLogs, assignedToday]);
 
   const planTotalDays = useMemo(() => {
