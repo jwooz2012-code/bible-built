@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, BookOpen, ChevronRight, Pencil } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
-import { computeTodayAssignment, getAssignmentForDate } from '@/components/bible/plans/planUtils';
+import { computeTodayAssignment, getAssignmentForDate, getNextIncompletePlanDay } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
 import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
 import { useMarkTodayComplete } from '@/components/bible/hooks/useMarkTodayComplete';
@@ -76,18 +76,18 @@ export default function TodayAssignmentCard({
       }).filter(Boolean);
     }
     
-    // Progress-based: always show the next incomplete day, not today's calendar date
-    return assignment?.today ?? [];
-  }, [hasPlan, plan, todayKey, isCustomPlan, todayPlanDay, assignment]);
+    // Progress-based: stable plan-day chunk — all chapters for the current plan day
+    // (including already-read ones, so the card shows per-chapter completion state)
+    return getNextIncompletePlanDay({ plan, logs: allTimeLogs });
+  }, [hasPlan, plan, allTimeLogs, isCustomPlan, todayPlanDay]);
 
   const { summary, parts, doneCount, totalCount, isComplete, readTodayCount } = useMemo(() => {
     if (!assignedToday.length) {
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
 
-    // A day is complete when today's logs contain all assigned chapters
-    const todayLogs = allTimeLogs.filter((log) => log.dateKey === todayKey);
-    const completedIds = new Set(todayLogs.map((log) => log.chapterId));
+    // A plan day is complete when ALL its chapters appear in any log (any date)
+    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
     const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignedToday.length;
 
@@ -167,14 +167,22 @@ export default function TodayAssignmentCard({
 
   // Compute plan progress for active plan
   const planDayNumber = useMemo(() => {
-    if (!hasPlan || !assignment || !plan?.chaptersPerDay) return null;
-    // Progress-based: count completed plan days from how many chapters have been read
+    if (!hasPlan || !plan?.chaptersPerDay || !planTotalDays) return null;
+    // Count how many full plan days have been completed (all chapters read)
     const perDay = Number(plan.chaptersPerDay);
-    const remaining = assignment.remaining ?? 0;
-    const totalPlanChapters = (planTotalDays ?? 1) * perDay;
-    const completedChapters = Math.max(0, totalPlanChapters - remaining);
-    return Math.min(planTotalDays ?? 1, Math.floor(completedChapters / perDay) + 1);
-  }, [hasPlan, assignment, plan, planTotalDays]);
+    const completedIds = new Set(
+      allTimeLogs
+        .filter(log => log.dateKey >= (plan.startDate || ''))
+        .map(log => log.chapterId)
+    );
+    const { buildScopeChapters: _build } = { buildScopeChapters: null }; // unused, use assignedToday
+    // Simpler: day number = 1 + completed days before current incomplete day
+    // assignedToday is the current plan day — its offset in scope tells us the day number
+    const dayNum = assignedToday.length > 0
+      ? Math.floor(allTimeLogs.filter(l => l.dateKey >= (plan.startDate || '') && assignedToday.every(a => a.chapterId !== l.chapterId)).length / perDay) + 1
+      : planTotalDays;
+    return Math.min(planTotalDays, Math.max(1, dayNum));
+  }, [hasPlan, plan, planTotalDays, allTimeLogs, assignedToday]);
 
   const planTotalDays = useMemo(() => {
     if (!hasPlan || !plan?.startDate || !plan?.endDate) return null;
