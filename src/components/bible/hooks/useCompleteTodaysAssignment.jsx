@@ -71,7 +71,7 @@ export function useCompleteTodaysAssignment() {
         return;
       }
 
-      const { createdLogs, userId, todayKey } = data;
+      const { createdLogs } = data;
 
       // A) Update today's cache — just prepend new logs
       queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => [...createdLogs, ...(old || [])]);
