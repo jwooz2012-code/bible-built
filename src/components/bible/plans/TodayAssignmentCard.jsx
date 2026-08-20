@@ -86,8 +86,12 @@ export default function TodayAssignmentCard({
       return { summary: '', doneCount: 0, totalCount: 0, isComplete: true, readTodayCount: 0 };
     }
 
-    // A plan day is complete when ALL its chapters appear in any log (any date)
-    const completedIds = new Set(allTimeLogs.map((log) => log.chapterId));
+    // A plan day is complete when ALL its chapters have been logged since plan start
+    // (scoped to plan start so pre-plan reads don't falsely mark days as done)
+    const planStart = plan?.startDate || '';
+    const completedIds = new Set(
+      allTimeLogs.filter(log => log.dateKey >= planStart).map(log => log.chapterId)
+    );
     const done = assignedToday.filter((ch) => completedIds.has(ch.chapterId)).length;
     const total = assignedToday.length;
 
