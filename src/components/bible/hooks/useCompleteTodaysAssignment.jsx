@@ -56,6 +56,17 @@ export function useCompleteTodaysAssignment() {
       return { added: createdLogs.length, createdLogs, userId, todayKey };
     },
     onSuccess: (data) => {
+      // Always invalidate so allTimeLogs refreshes even when chapters were already logged
+      const userId = data?.userId;
+      const todayKey = data?.todayKey;
+      if (userId && todayKey) {
+        setTimeout(() => {
+          queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+          queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+          queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
+        }, 800);
+      }
+
       if (data.added === 0 || !data.createdLogs?.length) {
         return;
       }
@@ -71,13 +82,6 @@ export function useCompleteTodaysAssignment() {
         { predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId },
         (old = []) => [...createdLogs, ...(old || [])]
       );
-
-      // Delay refetch to avoid race with server write propagation
-      setTimeout(() => {
-        queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
-        queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
-        queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
-      }, 800);
 
       toast.success(`Marked ${data.added} chapter${data.added > 1 ? 's' : ''} complete`);
     },
