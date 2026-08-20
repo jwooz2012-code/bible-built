@@ -231,11 +231,9 @@ export function getNextIncompletePlanDay({ plan, logs }) {
   const perDay = Number(plan.chaptersPerDay);
   if (!perDay || !scopeChapters.length) return [];
 
-  // Build set of all read chapter IDs from plan-relevant logs
-  const relevantLogs = logs.filter(log =>
-    log.dateKey >= plan.startDate &&
-    scopeChapters.some(ch => ch.chapterId === log.chapterId)
-  );
+  // Build set of all read chapter IDs since plan start
+  // (no scope filter here — the has() check below handles matching)
+  const relevantLogs = logs.filter(log => log.dateKey >= plan.startDate);
   const readIds = new Set(relevantLogs.map(l => l.chapterId));
 
   // Walk through plan days in order — return first day that is not fully read
