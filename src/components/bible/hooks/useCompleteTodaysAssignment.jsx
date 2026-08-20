@@ -22,8 +22,11 @@ export function useCompleteTodaysAssignment() {
           return { added: 0, createdLogs: [] };
       }
 
-      // Skip chapters already logged on ANY date (progress-based: prior days count)
-      const completedIds = new Set(allTimeLogs.map(log => log.chapterId));
+      // Skip chapters already logged since plan start (prior plan days count, pre-plan reads don't)
+      const planStart = plan?.startDate || '';
+      const completedIds = new Set(
+        allTimeLogs.filter(log => log.dateKey >= planStart).map(log => log.chapterId)
+      );
 
       // Filter to only missing chapters
       const missingChapters = assignedToday.filter(ch => !completedIds.has(ch.chapterId));
