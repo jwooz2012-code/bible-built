@@ -58,8 +58,19 @@ export function useMarkTodayComplete() {
       return { count: actualCreated.length, userId, todayKey, logsToCreate: actualCreated };
     },
     onSuccess: (data) => {
+      // Always invalidate so allTimeLogs refreshes even when chapters were already logged
+      const userId = data?.userId;
+      const todayKey = data?.todayKey;
+      if (userId && todayKey) {
+        setTimeout(() => {
+          queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
+          queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
+          queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
+        }, 800);
+      }
+
       if (!data || data.count === 0) return;
-      const { userId, todayKey, logsToCreate, count } = data;
+      const { logsToCreate, count } = data;
 
       // Optimistically update all-time logs cache
       queryClient.setQueriesData(
@@ -69,13 +80,6 @@ export function useMarkTodayComplete() {
 
       // Optimistically update today's logs cache
       queryClient.setQueryData(['dayLogs', userId, todayKey], (old = []) => [...logsToCreate, ...old]);
-
-      // Delay refetch to avoid race with server write propagation
-      setTimeout(() => {
-        queryClient.invalidateQueries({ predicate: q => q.queryKey?.[0] === 'readingLogs' && q.queryKey?.[1] === userId });
-        queryClient.invalidateQueries({ queryKey: ['dayLogs', userId, todayKey] });
-        queryClient.invalidateQueries({ queryKey: ['userWallet', userId] });
-      }, 800);
 
       toast.success(`Marked ${count} chapter${count !== 1 ? 's' : ''} complete`);
     },
