@@ -19,7 +19,7 @@ export function useCompleteTodaysAssignment() {
         : getAssignmentForDate({ plan, dateKey: todayKey });
       
       if (!assignedToday.length) {
-          return { added: 0, createdLogs: [] };
+          return { added: 0, createdLogs: [], userId, todayKey };
       }
 
       // Skip chapters already logged since plan start (prior plan days count, pre-plan reads don't)
@@ -33,7 +33,7 @@ export function useCompleteTodaysAssignment() {
 
       if (missingChapters.length === 0) {
         toast.success('Already complete for today');
-        return { added: 0, createdLogs: [] };
+        return { added: 0, createdLogs: [], userId, todayKey };
       }
 
       // Route through trusted server function for duplicate protection
