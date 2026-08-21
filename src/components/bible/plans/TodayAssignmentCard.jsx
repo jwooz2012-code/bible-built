@@ -5,7 +5,7 @@ import { CheckCircle2, BookOpen, ChevronRight, ChevronLeft, Pencil } from 'lucid
 import { triggerHaptic } from '@/components/utils/haptics';
 import { buildScopeChapters } from '@/components/bible/plans/planUtils';
 import { useCompleteTodaysAssignment } from '@/components/bible/hooks/useCompleteTodaysAssignment';
-import { useTodayPlanDay } from '@/components/bible/hooks/usePlanDays';
+import { usePlanDays } from '@/components/bible/hooks/usePlanDays';
 import { useMarkTodayComplete } from '@/components/bible/hooks/useMarkTodayComplete';
 import { formatDateKey } from '@/components/bible/utils/dateUtils';
 import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
@@ -44,15 +44,38 @@ export default function TodayAssignmentCard({
   const [viewOffset, setViewOffset] = useState(0);
 
   const isCustomPlan = plan?.scope === 'CUSTOM';
-  const { data: todayPlanDay } = useTodayPlanDay({
+
+  // For CUSTOM plans: fetch all plan days sorted by date
+  const { data: rawCustomDays = [] } = usePlanDays({
     planId: plan?.id,
-    todayKey,
-    enabled: isCustomPlan
+    enabled: isCustomPlan && hasPlan,
   });
 
-  // Build all plan day chunks for non-CUSTOM plans (memoized, only changes when plan changes)
-  const allPlanDayChunks = useMemo(() => {
-    if (!hasPlan || isCustomPlan || !plan?.chaptersPerDay) return [];
+  // Build navigation chunks — same shape for both plan types:
+  // [ [{ book, chapter, chapterId, bookIndex?, testament? }, ...], ... ]
+  const navigationChunks = useMemo(() => {
+    if (!hasPlan) return [];
+
+    if (isCustomPlan) {
+      // Sort plan days by date, then map each to its chapter array
+      const sorted = [...rawCustomDays].sort((a, b) => (a.date < b.date ? -1 : 1));
+      return sorted.map(day =>
+        (day.assignments || []).map(a => {
+          const book = BIBLE_BOOKS.find(b => b.name === a.bookName);
+          if (!book) return null;
+          return {
+            book: book.name,
+            bookIndex: book.index,
+            chapter: a.chapter,
+            chapterId: generateChapterId(book.index, a.chapter),
+            testament: book.testament,
+          };
+        }).filter(Boolean)
+      );
+    }
+
+    // Non-CUSTOM: chunk scope chapters by chaptersPerDay
+    if (!plan?.chaptersPerDay) return [];
     const scope = buildScopeChapters(plan.scope);
     const perDay = Number(plan.chaptersPerDay);
     if (!perDay || !scope.length) return [];
@@ -61,51 +84,34 @@ export default function TodayAssignmentCard({
       chunks.push(scope.slice(i, i + perDay));
     }
     return chunks;
-  }, [hasPlan, isCustomPlan, plan]);
+  }, [hasPlan, isCustomPlan, rawCustomDays, plan]);
 
   // Index of the first plan day that is not fully read since plan start
   const firstIncompleteIdx = useMemo(() => {
-    if (!allPlanDayChunks.length || !plan?.startDate) return 0;
+    if (!navigationChunks.length || !plan?.startDate) return 0;
     const readIds = new Set(
       allTimeLogs.filter(l => l.dateKey >= plan.startDate).map(l => l.chapterId)
     );
-    for (let i = 0; i < allPlanDayChunks.length; i++) {
-      if (!allPlanDayChunks[i].every(ch => readIds.has(ch.chapterId))) return i;
+    for (let i = 0; i < navigationChunks.length; i++) {
+      if (!navigationChunks[i].every(ch => readIds.has(ch.chapterId))) return i;
     }
-    return allPlanDayChunks.length; // all done
-  }, [allPlanDayChunks, allTimeLogs, plan?.startDate]);
+    return navigationChunks.length; // all done
+  }, [navigationChunks, allTimeLogs, plan?.startDate]);
 
-  // Auto-reset view to first incomplete day when progress advances
+  // Auto-reset view when progress advances (firstIncompleteIdx changes)
   useEffect(() => {
     setViewOffset(0);
   }, [firstIncompleteIdx]);
 
-  // CUSTOM plan chapter list
-  const customAssignment = useMemo(() => {
-    if (!isCustomPlan || !todayPlanDay) return [];
-    return (todayPlanDay.assignments || []).map(a => {
-      const book = BIBLE_BOOKS.find(b => b.name === a.bookName);
-      if (!book) return null;
-      return {
-        book: book.name,
-        chapter: a.chapter,
-        chapterId: generateChapterId(book.index, a.chapter),
-      };
-    }).filter(Boolean);
-  }, [isCustomPlan, todayPlanDay]);
-
-  // What the user is currently viewing
-  const viewedDayIdx = isCustomPlan ? 0 : (firstIncompleteIdx + viewOffset);
-  const assignedToday = isCustomPlan
-    ? customAssignment
-    : (allPlanDayChunks[viewedDayIdx] || []);
-
-  const isViewingAhead = !isCustomPlan && viewOffset > 0;
-  const canGoBack = !isCustomPlan && viewOffset > 0;
-  const canGoForward = !isCustomPlan && viewedDayIdx < allPlanDayChunks.length - 1;
-  const isPlanComplete = !isCustomPlan && firstIncompleteIdx >= allPlanDayChunks.length;
+  // Unified navigation state
+  const totalDays = navigationChunks.length;
+  const viewedDayIdx = firstIncompleteIdx + viewOffset;
+  const assignedToday = navigationChunks[viewedDayIdx] || [];
+  const isViewingAhead = viewOffset > 0;
+  const canGoBack = viewOffset > 0;
+  const canGoForward = viewedDayIdx < totalDays - 1;
+  const isPlanComplete = firstIncompleteIdx >= totalDays && totalDays > 0;
   const viewedDayNumber = viewedDayIdx + 1;
-  const totalPlanDays = allPlanDayChunks.length;
 
   // Completion state for whatever day is being viewed
   const { summary, parts, isComplete } = useMemo(() => {
@@ -187,10 +193,9 @@ export default function TodayAssignmentCard({
 
   const successBg = 'hsl(142 70% 35%)';
   const successFg = 'hsl(0 0% 100%)';
-  const aheadColor = 'hsl(217 91% 55%)'; // blue for read-ahead state
+  const aheadColor = 'hsl(217 91% 55%)';
   const isBusy = isCompleting || isMarkingToday;
 
-  // Determine card border/background based on state
   const cardStyle = isPlanComplete ? {
     background: 'hsl(var(--card))',
     border: '1px solid hsl(var(--border))',
@@ -221,8 +226,8 @@ export default function TodayAssignmentCard({
   const labelText = isPlanComplete
     ? 'Plan Complete'
     : isViewingAhead
-    ? `Read Ahead · Day ${viewedDayNumber}${totalPlanDays ? ` of ${totalPlanDays}` : ''}`
-    : `Today’s Reading`;
+    ? `Read Ahead · Day ${viewedDayNumber}${totalDays ? ` of ${totalDays}` : ''}`
+    : `Today's Reading`;
 
   return (
     <motion.div
@@ -234,38 +239,32 @@ export default function TodayAssignmentCard({
       onClick={onOpenPlanPreview}
       style={cardStyle}>
 
-      {/* Header row: date/label + nav arrows + edit */}
+      {/* Header row: date + nav arrows + edit */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-sm text-muted-foreground">
-          {isViewingAhead ? '' : `${formatDateKey(todayKey)}`}
+          {isViewingAhead ? '' : formatDateKey(todayKey)}
         </p>
         <div className="flex items-center gap-0.5 -mr-1">
-          {/* Back arrow */}
           <motion.button
             onClick={(e) => { e.stopPropagation(); triggerHaptic(); setViewOffset(v => v - 1); }}
             whileTap={{ scale: 0.8 }}
             disabled={!canGoBack}
             className="p-1.5 rounded-md transition-colors"
-            style={{ opacity: canGoBack ? 1 : 0, pointerEvents: canGoBack ? 'auto' : 'none' }}
-          >
+            style={{ opacity: canGoBack ? 1 : 0, pointerEvents: canGoBack ? 'auto' : 'none' }}>
             <ChevronLeft className="w-4 h-4 text-muted-foreground" />
           </motion.button>
-          {/* Forward arrow */}
           <motion.button
             onClick={(e) => { e.stopPropagation(); triggerHaptic(); setViewOffset(v => v + 1); }}
             whileTap={{ scale: 0.8 }}
             disabled={!canGoForward}
             className="p-1.5 rounded-md transition-colors"
-            style={{ opacity: canGoForward ? 1 : 0.25, pointerEvents: canGoForward ? 'auto' : 'none' }}
-          >
+            style={{ opacity: canGoForward ? 1 : 0.25, pointerEvents: canGoForward ? 'auto' : 'none' }}>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
           </motion.button>
-          {/* Edit plan */}
           <motion.button
             onClick={(e) => { e.stopPropagation(); triggerHaptic(); onOpenPlanModal(); }}
             whileTap={{ scale: 0.85, opacity: 0.6 }}
-            className="p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground transition-colors"
-          >
+            className="p-1.5 rounded-md text-muted-foreground/60 hover:text-muted-foreground transition-colors">
             <Pencil className="w-3.5 h-3.5" />
           </motion.button>
         </div>
@@ -302,7 +301,7 @@ export default function TodayAssignmentCard({
         </div>
       )}
 
-      {/* Action button */}
+      {/* Action button + read-ahead nudge */}
       {!isPlanComplete && summary && (
         <div className="space-y-2">
           <motion.div whileTap={!isComplete ? { scale: 0.97 } : {}}>
@@ -334,7 +333,7 @@ export default function TodayAssignmentCard({
             </Button>
           </motion.div>
 
-          {/* Read-ahead nudge: shown when current day is done and tomorrow exists */}
+          {/* Nudge to read ahead when today is done */}
           {!isViewingAhead && isComplete && canGoForward && (
             <motion.button
               onClick={(e) => { e.stopPropagation(); triggerHaptic(); setViewOffset(1); }}
