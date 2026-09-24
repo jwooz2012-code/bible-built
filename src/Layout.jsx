@@ -4,7 +4,7 @@ import { createPageUrl } from '@/utils';
 import { Home, Calendar, BarChart3, User, Users, Zap } from 'lucide-react';
 import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from 'sonner';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import CelebrationRenderer from '@/components/celebration/CelebrationRenderer';
 
 export default function Layout({ children }) {
@@ -34,17 +34,14 @@ export default function Layout({ children }) {
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-background" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 56px)' }}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={currentPath}
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
-            transition={{ duration: 0.2, ease: 'easeInOut' }}
-          >
-            {children}
-          </motion.div>
-        </AnimatePresence>
+        <motion.div
+          key={currentPath}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+        >
+          {children}
+        </motion.div>
       </div>
 
       <nav
