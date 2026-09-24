@@ -344,7 +344,9 @@ export default function Home() {
     BIBLE_BOOKS.forEach((book) => {
       const counts = perBookChapterCounts[book.index] || {};
       const allCounts = Array.from({ length: book.chapters }, (_, i) => counts[i + 1] || 0);
-      map[book.index] = { completions: allCounts.length ? Math.min(...allCounts) : 0 };
+      const completions = allCounts.length ? Math.min(...allCounts) : 0;
+      const passRead = allCounts.filter((c) => c > completions).length;
+      map[book.index] = { completions, passRead };
     });
     return map;
   }, [allTimeLogs]);
@@ -357,7 +359,7 @@ export default function Home() {
     return map;
   }, [allTimeLogs]);
 
-  const getBookStats = (book) => bookStatsMap[book.index] || { completions: 0 };
+  const getBookStats = (book) => bookStatsMap[book.index] || { completions: 0, passRead: 0 };
 
   const getChapterStats = (bookIndex, chapter) => {
     const chapterId = generateChapterId(bookIndex, chapter);
@@ -496,6 +498,7 @@ export default function Home() {
                         key={book.index}
                         book={book}
                         completions={stats.completions}
+                        chaptersRead={stats.passRead}
                         onClick={() => setSelectedBook(book)}
                         compact={true}
                       />
@@ -551,6 +554,7 @@ export default function Home() {
                   key={book.index}
                   book={book}
                   completions={stats.completions}
+                  chaptersRead={stats.passRead}
                   onClick={() => setSelectedBook(book)}
                 />
               );

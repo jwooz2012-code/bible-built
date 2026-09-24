@@ -1,7 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-export default function BookCard({ book, completions, onClick, compact = false }) {
+export default function BookCard({ book, completions, chaptersRead = 0, onClick, compact = false }) {
+  // Progress through the current read-through; a finished book with no new pass started shows full.
+  const progress = chaptersRead > 0
+    ? Math.min(chaptersRead / book.chapters, 1)
+    : completions > 0 ? 1 : 0;
+
   return (
     <motion.button
       whileTap={{ scale: 0.97 }}
@@ -46,16 +51,29 @@ export default function BookCard({ book, completions, onClick, compact = false }
         );
       })()}
       <div className="relative z-10 flex items-center h-full">
-        <div className={`flex flex-col w-full ${compact ? 'gap-1 pr-7' : 'gap-1.5 pr-8'}`}>
+        <div className={`flex flex-col w-full ${compact ? 'pr-7' : 'pr-8'}`}>
           <h3 className={`font-semibold text-foreground leading-tight whitespace-nowrap overflow-hidden text-ellipsis ${compact ? 'text-sm' : 'text-base'}`}>{book.name}</h3>
-          {completions > 0 && (
-            <div 
-              className="w-8 h-0.5 rounded-full"
-              style={{ background: 'var(--energy-gradient)' }}
-            />
-          )}
         </div>
       </div>
+      {progress > 0 && (
+        <div
+          className="absolute bottom-0 left-0 right-0 h-[3px] z-10"
+          style={{ background: 'hsl(var(--muted))' }}
+          role="progressbar"
+          aria-label={`${book.name} progress`}
+          aria-valuenow={Math.round(progress * 100)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <motion.div
+            className="h-full"
+            style={{ background: 'linear-gradient(90deg, #16A34A, #22C55E)' }}
+            initial={false}
+            animate={{ width: `${progress * 100}%` }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+          />
+        </div>
+      )}
     </motion.button>
   );
 }
