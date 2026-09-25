@@ -23,7 +23,7 @@ import BadgeGrid from '@/components/badges/BadgeGrid';
 import { computeBadgeState } from '@/components/badges/badgeEngine';
 import ChallengeCard from '@/components/challenge/ChallengeCard';
 import { useChallengeAttempts, summarizeAttempts } from '@/components/challenge/useChallengeAttempts';
-import { CHALLENGES, isBookComplete } from '@/data/challenges';
+import { CHALLENGES, isBookComplete, hasUnlockedChallenge } from '@/data/challenges';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
 import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleSections';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -90,6 +90,7 @@ export default function Stats() {
   // Use centralized badge engine
   const badgeState = computeBadgeState(lifetimeLogs, user, { debug: false });
   const achievements = badgeState.badges;
+  const showChallenges = hasUnlockedChallenge(lifetimeLogs, challengeAttempts.length);
 
 
   if (isLoadingAuth) {
@@ -253,6 +254,7 @@ export default function Stats() {
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
         </motion.div>
 
+        {showChallenges && (
         <motion.div
           custom={3} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
@@ -275,8 +277,8 @@ export default function Stats() {
               );
             })}
           </div>
-          <p className="text-xs text-muted-foreground mt-3">More books coming soon.</p>
         </motion.div>
+        )}
 
         <motion.div
           custom={3} variants={cardVariants} initial="hidden" animate="visible">

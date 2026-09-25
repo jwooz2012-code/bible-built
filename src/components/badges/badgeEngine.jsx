@@ -1,5 +1,6 @@
 import { TOTAL_CHAPTERS, OT_CHAPTERS, NT_CHAPTERS, BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { computeStreakWithGrace, computeStreaks } from '@/components/trackers/deriveStats';
+import { hasUnlockedChallenge } from '@/data/challenges';
 
 /**
  * BADGE ENGINE — SINGLE SOURCE OF TRUTH
@@ -81,6 +82,7 @@ function computeCanonicalMetrics(logs, user = null) {
   const statsReceivedCount = user?.statsReceivedCount || 0;
   const challengeAttempts = user?.challengeAttempts || 0;
   const challengePerfects = user?.challengePerfects || 0;
+  const challengeUnlocked = hasUnlockedChallenge(logs, challengeAttempts);
   
   // Grace-aware streak computation — consistent with Home, Profile, Stats, GroupDetail
   const todayKey = new Date().toISOString().split('T')[0];
@@ -115,6 +117,7 @@ function computeCanonicalMetrics(logs, user = null) {
     statsReceivedCount,
     challengeAttempts,
     challengePerfects,
+    challengeUnlocked,
     longestStreak,
     currentStreak
   };
@@ -429,7 +432,8 @@ export function computeBadgeState(logs = [], user = null, options = {}) {
   const metrics = computeCanonicalMetrics(logs, user);
   
   // Step 2: Get badge definitions with computed achievement states
-  const badges = getBadgeDefinitions(metrics);
+  // (challenge badges stay hidden until the reader has unlocked a challenge)
+  const badges = getBadgeDefinitions(metrics).filter(b => !b.isChallenge || metrics.challengeUnlocked);
   
   // Step 3: Extract earned badge IDs and progress map
   const earnedBadgeIds = badges.filter(b => b.achieved).map(b => b.id);

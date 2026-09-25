@@ -1,3 +1,4 @@
+import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { HOSEA_CHALLENGE } from './hosea';
 
 export const CHALLENGES = [HOSEA_CHALLENGE];
@@ -52,4 +53,11 @@ export function buildTest(challenge, previousQuestionIds = []) {
 export function isBookComplete(logs, challenge, chapterCount) {
   const read = new Set(logs.filter((l) => l.book === challenge.book).map((l) => l.chapter));
   return { readCount: read.size, complete: read.size >= chapterCount };
+}
+
+// Challenges roll out quietly: nothing about them shows (Stats section, challenge
+// badges) until the reader has finished a challenge book or already taken one.
+export function hasUnlockedChallenge(logs = [], attemptCount = 0) {
+  if (attemptCount > 0) return true;
+  return CHALLENGES.some((c) => isBookComplete(logs, c, BIBLE_BOOKS[c.bookIndex].chapters).complete);
 }
