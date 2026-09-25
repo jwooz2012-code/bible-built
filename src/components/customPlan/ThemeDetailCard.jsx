@@ -1,7 +1,7 @@
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross } from 'lucide-react';
+import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross, Swords, Flag, HandHeart } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { CURATED_PLANS } from '@/components/bible/plans/curatedPlans';
 
@@ -13,9 +13,13 @@ const ICON_MAP = {
   compass: Compass,
   crown: Crown,
   heart: Heart,
+  swords: Swords,
+  flag: Flag,
+  handHeart: HandHeart,
 };
 
 const COLOR_MAP = {
+  red: 'bg-red-500/10 text-red-600 dark:text-red-400',
   gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
@@ -27,6 +31,49 @@ const COLOR_MAP = {
 };
 
 const THEME_INFO = {
+  WARRIORS_OF_GOD: {
+    name: "Warriors of God",
+    hook: "Courage that comes from faith.",
+    description: "Meet the men and women who fought in faith, from Caleb and Joshua to Deborah, Gideon, Samson, Jonathan, and David's mighty men. Then learn to stand as a soldier of Christ in the armour of God.",
+    iconKey: 'swords',
+    colorKey: 'red',
+    sections: [
+      { title: "Called to Courage", count: 4 },
+      { title: "Judges & Deliverers", count: 9 },
+      { title: "Warriors of the Kingdom", count: 5 },
+      { title: "Standing Firm", count: 2 },
+      { title: "The Christian Soldier", count: 6 },
+    ]
+  },
+  BATTLE_IS_THE_LORDS: {
+    name: "The Battle Is the LORD's",
+    hook: "Watch God fight for His people.",
+    description: "Walk through Scripture's great victories: the Red Sea, Jericho, Gideon's 300, Goliath, Jehoshaphat's singers, and the fall of Assyria's army. The journey ends with Christ's victory over sin and death.",
+    iconKey: 'flag',
+    colorKey: 'gold',
+    sections: [
+      { title: "The LORD Is a Man of War", count: 3 },
+      { title: "Conquest", count: 3 },
+      { title: "Deliverers & Kings", count: 4 },
+      { title: "When God Fought for His People", count: 8 },
+      { title: "Victory in Christ", count: 6 },
+    ]
+  },
+  FAMOUS_PRAYERS: {
+    name: "Famous Prayers",
+    hook: "Learn to pray from the prayers of the Bible.",
+    description: "Pray alongside Abraham, Moses, Hannah, David, Solomon, Elijah, Daniel, Jonah, Jesus, and the early church, from Genesis to the last prayer in Revelation.",
+    iconKey: 'handHeart',
+    colorKey: 'purple',
+    sections: [
+      { title: "Patriarchs & Moses", count: 6 },
+      { title: "Kings & Prophets", count: 10 },
+      { title: "Exile & Return", count: 6 },
+      { title: "Prayers of the Psalms", count: 5 },
+      { title: "Jesus Prays", count: 5 },
+      { title: "The Early Church Prays", count: 9 },
+    ]
+  },
   WHO_IS_JESUS: {
     name: 'Who Is Jesus?',
     hook: 'From prophecy to person, from cross to crown.',

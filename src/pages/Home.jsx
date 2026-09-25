@@ -47,6 +47,10 @@ import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
 import BibleReader from '@/components/shared/BibleReader';
 import TourPromptCard from '@/components/home/TourPromptCard';
+import NewPlansCard from '@/components/home/NewPlansCard';
+import { THEMED_PLANS_DROP } from '@/components/bible/plans/newThemes';
+import { THEME_OPTIONS } from '@/components/customPlan/ThemesTab';
+import { createPageUrl } from '@/utils';
 import NotificationPrompt, { canAskForReminders } from '@/components/notifications/NotificationPrompt';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
 import ChallengeCard from '@/components/challenge/ChallengeCard';
@@ -154,6 +158,25 @@ export default function Home() {
   const dismissTourCard = () => {
     updateUser({ tourStatus: 'dismissed' });
     base44.auth.updateMe({ tourStatus: 'dismissed' }).catch((error) => console.error('Failed to save tour status:', error));
+  };
+
+  // One-time announcement for readers who joined before the new themed plans shipped.
+  const seenAnnouncements = user?.announcementsSeen || [];
+  const joinedBeforePlansDrop = !user?.created_date || user.created_date.slice(0, 10) < THEMED_PLANS_DROP.releasedOn;
+  const showNewPlansCard = !seenAnnouncements.includes(THEMED_PLANS_DROP.id)
+    && joinedBeforePlansDrop
+    && getDateKey() <= THEMED_PLANS_DROP.newUntil
+    && user?.tourStatus !== 'skipped';
+
+  const markNewPlansSeen = () => {
+    const announcementsSeen = [...seenAnnouncements, THEMED_PLANS_DROP.id];
+    updateUser({ announcementsSeen });
+    base44.auth.updateMe({ announcementsSeen }).catch((error) => console.error('Failed to save announcement:', error));
+  };
+
+  const exploreNewPlans = () => {
+    markNewPlansSeen();
+    navigate(createPageUrl('CustomPlanBuilder'), { state: { activeTab: 'themes' } });
   };
 
   useEffect(() => {
@@ -488,6 +511,14 @@ export default function Home() {
                   key="tour-card"
                   onStart={() => navigate('/tour', { state: { returnTo: '/home' } })}
                   onDismiss={dismissTourCard}
+                />
+              )}
+              {showNewPlansCard && (
+                <NewPlansCard
+                  key="new-plans-card"
+                  planNames={THEMED_PLANS_DROP.themeKeys.map((key) => THEME_OPTIONS.find((t) => t.id === key)?.name).filter(Boolean)}
+                  onExplore={exploreNewPlans}
+                  onDismiss={markNewPlansSeen}
                 />
               )}
             </AnimatePresence>
