@@ -38,7 +38,7 @@ export default function BookCelebration({ data, onDismiss }) {
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
               {challenge
-                ? `🏆 ${challenge.title} unlocked! Find it on the ${bookName} page.`
+                ? `🏆 ${challenge.title} unlocked! Find it at the bottom of the ${bookName} page.`
                 : 'Another book down. Keep building.'}
             </p>
           </div>

@@ -703,19 +703,6 @@ export default function Home() {
                 </button>
               </div>
 
-              {(() => {
-                const bookChallenge = getChallengeForBook(selectedBook.name);
-                if (!bookChallenge) return null;
-                return (
-                  <ChallengeCard
-                    challenge={bookChallenge}
-                    chapterCount={selectedBook.chapters}
-                    readCount={isBookComplete(allTimeLogs, bookChallenge, selectedBook.chapters).readCount}
-                    summary={summarizeAttempts(challengeAttempts, bookChallenge.id)}
-                    onOpen={() => navigate(`/challenge?id=${bookChallenge.id}`, { state: { returnTo: '/home' } })}
-                  />
-                );
-              })()}
             </div>
             <p key={isReadModeActive ? 'read' : 'mark'} className="text-xs text-center mb-5 animate-in fade-in duration-200" style={{ opacity: 0.55, color: 'inherit' }}>
               {isReadModeActive ? '📖 Tap a chapter to read' : '✅ Tap a chapter to mark complete'}
@@ -736,6 +723,23 @@ export default function Home() {
                 );
               })}
             </div>
+
+            {/* Book challenge sits below every chapter, so readers scroll past the book to reach it */}
+            {(() => {
+              const bookChallenge = getChallengeForBook(selectedBook.name);
+              if (!bookChallenge) return null;
+              return (
+                <div className="mt-10">
+                  <ChallengeCard
+                    challenge={bookChallenge}
+                    chapterCount={selectedBook.chapters}
+                    readCount={isBookComplete(allTimeLogs, bookChallenge, selectedBook.chapters).readCount}
+                    summary={summarizeAttempts(challengeAttempts, bookChallenge.id)}
+                    onOpen={() => navigate(`/challenge?id=${bookChallenge.id}`, { state: { returnTo: '/home' } })}
+                  />
+                </div>
+              );
+            })()}
           </motion.div>
         )}
       </div>
