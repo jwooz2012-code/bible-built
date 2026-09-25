@@ -49,6 +49,9 @@ import BibleReader from '@/components/shared/BibleReader';
 import TourPromptCard from '@/components/home/TourPromptCard';
 import NotificationPrompt, { canAskForReminders } from '@/components/notifications/NotificationPrompt';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
+import ChallengeCard from '@/components/challenge/ChallengeCard';
+import { useChallengeAttempts, summarizeAttempts } from '@/components/challenge/useChallengeAttempts';
+import { getChallengeForBook, isBookComplete } from '@/data/challenges';
 
 const WEEKLY_QUOTES = [
   "Faithfulness is built one chapter at a time.",
@@ -179,6 +182,7 @@ export default function Home() {
   const { data: todayLogs = [] } = useDayReadingLogs(userId, today);
   const { data: allTimeLogs = [], isLoading: isLoadingLogs } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
   const { data: plan } = useReadingPlan(userId);
+  const { data: challengeAttempts = [] } = useChallengeAttempts(userId);
 
   const currentStreak = useStreakWithGrace(allTimeLogs, userId).currentStreak;
 
@@ -667,6 +671,20 @@ export default function Home() {
                   <span style={{ color: 'var(--btn-inactive-text)' }}>{isMarkingAll ? 'Marking...' : 'Mark All as Read'}</span>
                 </button>
               </div>
+
+              {(() => {
+                const bookChallenge = getChallengeForBook(selectedBook.name);
+                if (!bookChallenge) return null;
+                return (
+                  <ChallengeCard
+                    challenge={bookChallenge}
+                    chapterCount={selectedBook.chapters}
+                    readCount={isBookComplete(allTimeLogs, bookChallenge, selectedBook.chapters).readCount}
+                    summary={summarizeAttempts(challengeAttempts, bookChallenge.id)}
+                    onOpen={() => navigate(`/challenge?id=${bookChallenge.id}`, { state: { returnTo: '/home' } })}
+                  />
+                );
+              })()}
             </div>
             <p key={isReadModeActive ? 'read' : 'mark'} className="text-xs text-center mb-5 animate-in fade-in duration-200" style={{ opacity: 0.55, color: 'inherit' }}>
               {isReadModeActive ? '📖 Tap a chapter to read' : '✅ Tap a chapter to mark complete'}

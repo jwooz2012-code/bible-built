@@ -79,6 +79,8 @@ function computeCanonicalMetrics(logs, user = null) {
   // User-specific metrics (accountability)
   const statsSharedCount = user?.statsSharedCount || 0;
   const statsReceivedCount = user?.statsReceivedCount || 0;
+  const challengeAttempts = user?.challengeAttempts || 0;
+  const challengePerfects = user?.challengePerfects || 0;
   
   // Grace-aware streak computation — consistent with Home, Profile, Stats, GroupDetail
   const todayKey = new Date().toISOString().split('T')[0];
@@ -111,6 +113,8 @@ function computeCanonicalMetrics(logs, user = null) {
     uniqueBooksRead,
     statsSharedCount,
     statsReceivedCount,
+    challengeAttempts,
+    challengePerfects,
     longestStreak,
     currentStreak
   };
@@ -384,6 +388,26 @@ function getBadgeDefinitions(metrics) {
       current: metrics.longestStreak,
       target: 365,
       isStreak: true
+    },
+    {
+      id: 28,
+      title: 'Study Approved',
+      subtitle: 'Completed your first Bible Challenge',
+      metric: 'challengeAttempts',
+      achieved: metrics.challengeAttempts >= 1,
+      current: metrics.challengeAttempts,
+      target: 1,
+      isChallenge: true
+    },
+    {
+      id: 29,
+      title: 'Hidden in the Heart',
+      subtitle: 'Perfect score on a Bible Challenge',
+      metric: 'challengePerfects',
+      achieved: metrics.challengePerfects >= 1,
+      current: metrics.challengePerfects,
+      target: 1,
+      isChallenge: true
     }
   ];
 }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 import { motion } from 'framer-motion';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
@@ -21,6 +21,9 @@ import PersonalRecordsCard from '@/components/trackers/PersonalRecordsCard';
 import BadgeGrid from '@/components/badges/BadgeGrid';
 
 import { computeBadgeState } from '@/components/badges/badgeEngine';
+import ChallengeCard from '@/components/challenge/ChallengeCard';
+import { useChallengeAttempts, summarizeAttempts } from '@/components/challenge/useChallengeAttempts';
+import { CHALLENGES, isBookComplete } from '@/data/challenges';
 import { groupByDateKey, computeVelocity, computeBookProgress, computeSectionCoverage, computeRecords } from '@/components/trackers/deriveStats';
 import { BOOK_TO_SECTION, computeSectionTotals } from '@/components/bible/bibleSections';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
@@ -39,6 +42,8 @@ export default function Stats() {
 
   const { data: yearLogs = [], isLoading: yearLoading } = useReadingLogsRange(userId, yearStart, yearEnd);
   const { data: lifetimeLogs = [], isLoading: lifetimeLoading } = useReadingLogsRange(userId, '2000-01-01', '2099-12-31');
+  const { data: challengeAttempts = [] } = useChallengeAttempts(userId);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isLoadingAuth && !lifetimeLoading && location.hash === '#badges-section') {
@@ -246,6 +251,31 @@ export default function Stats() {
           custom={2} variants={cardVariants} initial="hidden" animate="visible"
           className="mb-8">
           <VelocityMeter avg7={trackerStats.velocity.avg7} trend={trackerStats.velocity.trend} />
+        </motion.div>
+
+        <motion.div
+          custom={3} variants={cardVariants} initial="hidden" animate="visible"
+          className="mb-8">
+          <div id="challenges-section" className="mb-4">
+            <h2 className="text-[19px] font-bold text-foreground tracking-tight mb-0.5">Bible Challenges</h2>
+            <p className="text-[13px] text-muted-foreground">Finish a book, then test what you know</p>
+          </div>
+          <div className="space-y-2.5">
+            {CHALLENGES.map((challenge) => {
+              const chapterCount = BIBLE_BOOKS[challenge.bookIndex].chapters;
+              return (
+                <ChallengeCard
+                  key={challenge.id}
+                  challenge={challenge}
+                  chapterCount={chapterCount}
+                  readCount={isBookComplete(lifetimeLogs, challenge, chapterCount).readCount}
+                  summary={summarizeAttempts(challengeAttempts, challenge.id)}
+                  onOpen={() => navigate(`/challenge?id=${challenge.id}`, { state: { returnTo: '/stats' } })}
+                />
+              );
+            })}
+          </div>
+          <p className="text-xs text-muted-foreground mt-3">More books coming soon.</p>
         </motion.div>
 
         <motion.div
