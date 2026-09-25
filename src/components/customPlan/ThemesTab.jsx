@@ -1,7 +1,8 @@
 import React from 'react';
-import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross, Check } from 'lucide-react';
+import { Shield, Lamp, Leaf, Compass, Crown, Heart, Cross, Check, Swords, Flag, HandHeart } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ChronologicalJourneyCard from './ChronologicalJourneyCard';
+import { isNewTheme } from '@/components/bible/plans/newThemes';
 
 const ICON_MAP = {
   cross: Cross,
@@ -11,9 +12,13 @@ const ICON_MAP = {
   compass: Compass,
   crown: Crown,
   heart: Heart,
+  swords: Swords,
+  flag: Flag,
+  handHeart: HandHeart,
 };
 
 const COLOR_MAP = {
+  red: 'bg-red-500/10 text-red-600 dark:text-red-400',
   gold: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
   blue: 'bg-blue-500/10 text-blue-600 dark:text-blue-400',
   purple: 'bg-purple-500/10 text-purple-600 dark:text-purple-400',
@@ -38,6 +43,27 @@ const THEME_OPTIONS = [
     iconKey: 'compass',
     colorKey: 'cyan',
     description: 'Read the NT as one unfolding story in historical order'
+  },
+  {
+    id: 'WARRIORS_OF_GOD',
+    name: 'Warriors of God',
+    iconKey: 'swords',
+    colorKey: 'red',
+    description: 'Courage that comes from faith'
+  },
+  {
+    id: 'BATTLE_IS_THE_LORDS',
+    name: "The Battle Is the LORD's",
+    iconKey: 'flag',
+    colorKey: 'gold',
+    description: 'Watch God fight for His people'
+  },
+  {
+    id: 'FAMOUS_PRAYERS',
+    name: 'Famous Prayers',
+    iconKey: 'handHeart',
+    colorKey: 'purple',
+    description: 'Learn to pray from the prayers of the Bible'
   },
   {
     id: 'WHO_IS_JESUS',
@@ -148,6 +174,11 @@ export default function ThemesTab({ onThemeClick, selectedTheme }) {
                 
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-foreground">{theme.name}</div>
+                  {isNewTheme(theme.id) && (
+                    <span className="inline-block mt-1 px-1.5 py-0.5 rounded bg-amber-500 text-white text-[9px] font-black tracking-wider">
+                      NEW
+                    </span>
+                  )}
                 </div>
                 
                 {isSelected && (
