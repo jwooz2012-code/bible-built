@@ -6,9 +6,22 @@ import { Hand } from 'lucide-react';
 
 const MOCK_FRIENDS = [
   { initials: 'M', name: 'Marcus R.', streak: 14, level: 7, color: 'from-orange-500 to-orange-700' },
-  { initials: 'J', name: 'Jordan H.', streak: 5,  level: 3, color: 'from-blue-500 to-blue-700' },
   { initials: 'S', name: 'Sarah K.', streak: 22, level: 9, color: 'from-violet-500 to-violet-700' },
 ];
+
+const MOCK_GROUP = {
+  name: 'The Faithful Five',
+  members: [
+    { initials: 'M', color: 'bg-orange-500' },
+    { initials: 'J', color: 'bg-blue-500' },
+    { initials: 'S', color: 'bg-violet-500' },
+    { initials: 'R', color: 'bg-emerald-500' },
+    { initials: 'T', color: 'bg-rose-500' },
+  ],
+  readToday: 4,
+  total: 5,
+  streak: 9,
+};
 
 export default function FriendsIntroScreen({ onContinue }) {
   const [fived, setFived] = useState(null);
@@ -31,54 +44,39 @@ export default function FriendsIntroScreen({ onContinue }) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 pb-24 pt-6"
+      className="flex flex-col items-center px-6 pt-2 pb-10"
     >
       <motion.div
         initial={{ y: 22, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="w-full max-w-sm flex flex-col items-center space-y-6"
+        className="w-full max-w-sm flex flex-col items-center space-y-5"
       >
-        {/* NEW badge */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ delay: 0.05, type: 'spring', stiffness: 300, damping: 18 }}
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-500/30 text-blue-500 text-xs font-bold tracking-wide"
-        >
-          <span>✨</span> NEW
-        </motion.div>
-
-        {/* Heading */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black text-foreground">Your Crew is Here</h1>
+          <h1 className="text-3xl font-black text-foreground">Read Together</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            See your friends' streaks, cheer them on, and send a high five when they show up.
+            Follow friends' streaks and cheer them on. Start a group to keep each other on track.
           </p>
         </div>
 
-        {/* Friend cards */}
-        <div className="w-full space-y-3">
+        <div className="w-full space-y-2.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Friends</p>
           {MOCK_FRIENDS.map((f, idx) => (
             <motion.div
               key={f.name}
               initial={{ opacity: 0, x: -12 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.25 + idx * 0.08 }}
+              transition={{ delay: 0.2 + idx * 0.08 }}
               className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card"
             >
-              {/* Avatar */}
               <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${f.color} flex items-center justify-center flex-shrink-0`}>
                 <span className="text-white font-black text-sm">{f.initials}</span>
               </div>
-              {/* Info */}
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-bold text-foreground truncate">{f.name}</p>
                 <p className="text-xs text-orange-500 font-semibold">🔥 {f.streak}d · Lvl {f.level}</p>
               </div>
-              {/* High Five button */}
               <motion.button
                 whileTap={{ scale: 0.88 }}
                 onClick={() => handleHighFive(f.name)}
@@ -106,17 +104,51 @@ export default function FriendsIntroScreen({ onContinue }) {
           ))}
         </div>
 
-        <p className="text-xs text-muted-foreground/60 text-center italic">
-          Tap 🙌 to try it — your friends will get a notification
+        <div className="w-full space-y-2.5">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Groups</p>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="px-4 py-4 rounded-2xl border border-border bg-card"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <p className="text-sm font-bold text-foreground">{MOCK_GROUP.name}</p>
+                <p className="text-xs text-orange-500 font-semibold mt-0.5">🔥 {MOCK_GROUP.streak}-day group streak</p>
+              </div>
+              <span className="text-xs font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/20 px-2 py-1 rounded-lg">
+                {MOCK_GROUP.readToday}/{MOCK_GROUP.total} read today
+              </span>
+            </div>
+            <div className="flex gap-1.5">
+              {MOCK_GROUP.members.map((m, i) => (
+                <div key={i} className={`w-8 h-8 rounded-full ${m.color} flex items-center justify-center`}>
+                  <span className="text-white font-black text-xs">{m.initials}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 h-1.5 rounded-full bg-border overflow-hidden">
+              <motion.div
+                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-400"
+                initial={{ width: 0 }}
+                animate={{ width: `${(MOCK_GROUP.readToday / MOCK_GROUP.total) * 100}%` }}
+                transition={{ delay: 0.6, duration: 0.7, ease: 'easeOut' }}
+              />
+            </div>
+          </motion.div>
+        </div>
+
+        <p className="text-xs text-muted-foreground/70 text-center">
+          Tap 🙌 to try it. Find friends and groups in the Friends tab.
         </p>
       </motion.div>
 
-      {/* CTA */}
       <motion.div
         initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.65, duration: 0.4 }}
-        className="mt-10 w-full max-w-sm"
+        transition={{ delay: 0.5, duration: 0.4 }}
+        className="mt-8 w-full max-w-sm"
       >
         <motion.div whileTap={{ scale: 0.96 }}>
           <Button onClick={handleContinue} disabled={activating} size="lg" className="w-full h-14 rounded-full text-base font-bold">

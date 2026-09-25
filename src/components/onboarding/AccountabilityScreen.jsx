@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { getAchievementIcon, getAchievementColor } from '@/components/badges/badgeIcons';
@@ -15,6 +16,8 @@ const MOCK_BADGES = [
 
 export default function AccountabilityScreen({ onContinue }) {
   const [isActivating, setIsActivating] = useState(false);
+  const now = new Date();
+  const weekLabel = `${format(startOfWeek(now), 'MMM d')} – ${format(endOfWeek(now), 'MMM d')}`;
 
   const handleContinue = () => {
     if (isActivating) return;
@@ -29,7 +32,7 @@ export default function AccountabilityScreen({ onContinue }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center justify-center px-6 pb-24"
+      className="flex flex-col items-center px-6 pt-2 pb-10"
     >
       <motion.div
         initial={{ y: 20, opacity: 0 }}
@@ -39,9 +42,9 @@ export default function AccountabilityScreen({ onContinue }) {
       >
         {/* Heading */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-black text-foreground">Accountability</h1>
+          <h1 className="text-3xl font-black text-foreground">Share Your Progress</h1>
           <p className="text-sm text-muted-foreground">
-            Share your progress and inspire others
+            Send your weekly recap to a friend and inspire others.
           </p>
         </div>
 
@@ -61,7 +64,7 @@ export default function AccountabilityScreen({ onContinue }) {
                 This Week
               </h2>
               <p className="text-[10px] font-bold uppercase tracking-widest mt-0.5" style={{ color: '#A1A1AA' }}>
-                Mar 22 – Mar 28
+                {weekLabel}
               </p>
             </div>
 
@@ -152,7 +155,7 @@ export default function AccountabilityScreen({ onContinue }) {
         </motion.div>
 
         <p className="text-xs text-center text-muted-foreground opacity-60">
-          Found on your Profile page → Share Summary
+          Find it on your Profile or Stats page
         </p>
       </motion.div>
 
@@ -170,7 +173,7 @@ export default function AccountabilityScreen({ onContinue }) {
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold"
           >
-            {isActivating ? 'Continue...' : 'Next'}
+            Next →
           </Button>
         </motion.div>
       </motion.div>

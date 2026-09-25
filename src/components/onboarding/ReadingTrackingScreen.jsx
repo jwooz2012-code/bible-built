@@ -47,10 +47,10 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
     // Don't close the reader here — let the user close via X or Mark as Read button
   };
 
-  const canContinue = hasMarkedComplete && hasReadChapter;
+  const triedBoth = hasMarkedComplete && hasReadChapter;
 
   const handleContinue = () => {
-    if (!canContinue || isActivating) return;
+    if (isActivating) return;
     setIsActivating(true);
     triggerHaptic();
     setTimeout(() => onContinue(), 300);
@@ -196,14 +196,14 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
           transition={{ delay: 0.7, duration: 0.4 }}
           className="mt-8 w-full max-w-sm"
         >
-          <motion.div whileTap={{ scale: canContinue ? 0.96 : 1 }}>
+          <motion.div whileTap={{ scale: 0.96 }}>
             <Button
               onClick={handleContinue}
-              disabled={!canContinue || isActivating}
+              disabled={isActivating}
               size="lg"
               className="w-full h-14 rounded-full text-base font-bold"
             >
-              {canContinue ? "Got it! 🙌" : "Try both modes to continue"}
+              {triedBoth ? "Got it! 🙌" : "Next →"}
             </Button>
           </motion.div>
         </motion.div>

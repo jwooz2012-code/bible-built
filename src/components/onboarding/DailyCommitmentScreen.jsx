@@ -1,24 +1,39 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Plus, X } from 'lucide-react';
 import { triggerHaptic } from '@/components/utils/haptics';
 
-// Static mock month: March 2026, starts on Sunday
-const MOCK_MONTH = 'March 2026';
-const DAYS_IN_MONTH = 31;
-const FIRST_DOW = 0; // Sunday
+// Sample readings placed on days before today, so the demo always shows the current month.
+const SAMPLE_READINGS = [
+  [22, ['Genesis 1', 'Genesis 2']],
+  [18, ['Psalms 23']],
+  [15, ['John 3', 'Romans 8', 'Genesis 3']],
+  [11, ['Matthew 5']],
+  [7, ['Proverbs 3', 'Isaiah 40']],
+  [4, ['Luke 15']],
+  [1, ['Genesis 4']],
+];
 
-// Pre-seed some days with readings
-const INITIAL_LOGS = {
-  3:  [{ id: 1, label: 'Genesis 1' }, { id: 2, label: 'Genesis 2' }],
-  7:  [{ id: 3, label: 'Psalms 23' }],
-  10: [{ id: 4, label: 'John 3' }, { id: 5, label: 'Romans 8' }, { id: 6, label: 'Genesis 3' }],
-  14: [{ id: 7, label: 'Matthew 5' }],
-  18: [{ id: 8, label: 'Proverbs 3' }, { id: 9, label: 'Isaiah 40' }],
-  21: [{ id: 10, label: 'Luke 15' }],
-  25: [{ id: 11, label: 'Genesis 4' }],
-};
+function buildDemoMonth(now = new Date()) {
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const todayNum = now.getDate();
+  const logs = {};
+  let id = 1;
+  for (const [daysAgo, labels] of SAMPLE_READINGS) {
+    const day = todayNum - daysAgo;
+    if (day >= 1) logs[day] = labels.map((label) => ({ id: id++, label }));
+  }
+  return {
+    monthName: now.toLocaleString('en-US', { month: 'long' }),
+    year,
+    daysInMonth: new Date(year, month + 1, 0).getDate(),
+    firstDow: new Date(year, month, 1).getDay(),
+    todayNum,
+    logs,
+  };
+}
 
 const ADD_OPTIONS = [
   'Genesis 5', 'Exodus 1', 'Psalms 1', 'John 1', 'Romans 1',
@@ -28,7 +43,8 @@ const ADD_OPTIONS = [
 let nextId = 100;
 
 export default function DailyCommitmentScreen({ onContinue }) {
-  const [logs, setLogs] = useState(INITIAL_LOGS);
+  const demo = useMemo(() => buildDemoMonth(), []);
+  const [logs, setLogs] = useState(demo.logs);
   const [selectedDay, setSelectedDay] = useState(null);
   const [isActivating, setIsActivating] = useState(false);
   const [hasTappedCalendar, setHasTappedCalendar] = useState(false);
@@ -58,17 +74,16 @@ export default function DailyCommitmentScreen({ onContinue }) {
   };
 
   const handleContinue = () => {
-    if (!hasTappedCalendar || isActivating) return;
+    if (isActivating) return;
     setIsActivating(true);
     triggerHaptic();
     setTimeout(() => onContinue(), 300);
   };
 
-  // Build calendar grid
-  const blanks = Array(FIRST_DOW).fill(null);
-  const days = Array.from({ length: DAYS_IN_MONTH }, (_, i) => i + 1);
+  const blanks = Array(demo.firstDow).fill(null);
+  const days = Array.from({ length: demo.daysInMonth }, (_, i) => i + 1);
   const grid = [...blanks, ...days];
-  const todayNum = 25; // mock "today"
+  const { todayNum } = demo;
 
   const selectedLogs = selectedDay ? (logs[selectedDay] || []) : [];
 
@@ -78,7 +93,7 @@ export default function DailyCommitmentScreen({ onContinue }) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="min-h-screen flex flex-col items-center justify-center px-4 pb-24"
+      className="flex flex-col items-center px-4 pt-2 pb-10"
     >
       <motion.div
         initial={{ y: 24, opacity: 0 }}
@@ -106,7 +121,7 @@ export default function DailyCommitmentScreen({ onContinue }) {
             <Button variant="ghost" size="icon" className="opacity-30 cursor-default" tabIndex={-1}>
               <ChevronLeft className="w-4 h-4" />
             </Button>
-            <span className="text-sm font-semibold text-foreground">{MOCK_MONTH}</span>
+            <span className="text-sm font-semibold text-foreground">{demo.monthName} {demo.year}</span>
             <Button variant="ghost" size="icon" className="opacity-30 cursor-default" tabIndex={-1}>
               <ChevronRight className="w-4 h-4" />
             </Button>
@@ -174,7 +189,7 @@ export default function DailyCommitmentScreen({ onContinue }) {
               className="w-full bg-card border border-border rounded-2xl p-4 space-y-3 shadow-sm"
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold text-foreground">March {selectedDay}, 2026</span>
+                <span className="text-sm font-semibold text-foreground">{demo.monthName} {selectedDay}, {demo.year}</span>
                 <button onClick={() => setSelectedDay(null)} className="text-muted-foreground hover:text-foreground transition-colors">
                   <X className="w-4 h-4" />
                 </button>
@@ -241,11 +256,11 @@ export default function DailyCommitmentScreen({ onContinue }) {
         <motion.div whileTap={{ scale: 0.96 }}>
           <Button
             onClick={handleContinue}
-            disabled={!hasTappedCalendar || isActivating}
+            disabled={isActivating}
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold"
           >
-            {hasTappedCalendar ? 'Got it! 👍' : 'Tap a day to continue'}
+            {hasTappedCalendar ? 'Got it! 👍' : 'Next →'}
           </Button>
         </motion.div>
       </motion.div>

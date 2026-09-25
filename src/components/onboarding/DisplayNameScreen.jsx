@@ -18,7 +18,7 @@ export default function DisplayNameScreen({ onContinue, initialValue = '' }) {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col px-6 pt-12 pb-8"
+      className="flex flex-col px-6 pt-4 pb-8"
     >
       <div>
         <h1 className="text-3xl font-black mb-2 text-foreground">First—what should we call you?</h1>

@@ -10,7 +10,7 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import PageHeader from '@/components/shared/PageHeader';
 import { useTheme } from '@/components/ThemeProvider';
-import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2 } from 'lucide-react';
+import { LogOut, Mail, Palette, Monitor, Sun, Moon, Zap, User, Pencil, Trash2, Compass } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { toast } from 'sonner';
 
@@ -265,17 +265,26 @@ export default function Settings() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Onboarding</CardTitle>
-              <CardDescription>Restart the welcome flow</CardDescription>
+              <CardTitle className="flex items-center gap-2">
+                <Compass className="w-5 h-5" />
+                App Tour
+              </CardTitle>
+              <CardDescription>See how Bible Built works, or redo your setup</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Button 
-                onClick={handleRestartOnboarding} 
-                variant="outline" 
+            <CardContent className="space-y-2">
+              <Button
+                onClick={() => navigate('/tour', { state: { returnTo: '/settings' } })}
+                className="w-full"
+              >
+                Take the Tour
+              </Button>
+              <Button
+                onClick={handleRestartOnboarding}
+                variant="outline"
                 disabled={isRestarting}
                 className="w-full"
               >
-                {isRestarting ? 'Restarting...' : 'Restart Onboarding'}
+                {isRestarting ? 'Restarting...' : 'Restart Setup'}
               </Button>
             </CardContent>
           </Card>
