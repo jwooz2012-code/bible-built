@@ -10,6 +10,9 @@ import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_LABELS } from '@/data/artifactCatalog';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { toast } from 'sonner';
+import { CheerTiles } from '@/components/community/CheerButton';
+import { BuddyInviteSheet } from '@/components/community/BuddiesSection';
+import { useBuddies } from '@/components/community/useBuddies';
 
 
 
@@ -67,6 +70,7 @@ export default function UserDetail() {
   const groupId = params.get('groupId');
   const [confirmRemove, setConfirmRemove] = useState(false);
   const [removing, setRemoving] = useState(false);
+  const [inviteBuddy, setInviteBuddy] = useState(false);
 
   const { data: targetUser, isLoading: loadingUser } = useQuery({
     queryKey: ['userDetail', userId],
@@ -109,6 +113,23 @@ export default function UserDetail() {
   });
 
   const isGroupOwner = ownerGroup?.ownerId === currentUser?.id;
+
+  const { data: isFriend = false } = useQuery({
+    queryKey: ['isFriend', currentUser?.id, userId],
+    queryFn: async () => {
+      const [a, b] = await Promise.all([
+        base44.entities.Friendship.filter({ user1Id: currentUser.id, user2Id: userId, status: 'accepted' }),
+        base44.entities.Friendship.filter({ user1Id: userId, user2Id: currentUser.id, status: 'accepted' }),
+      ]);
+      return a.length + b.length > 0;
+    },
+    enabled: !!currentUser?.id && !!userId && currentUser?.id !== userId,
+    staleTime: 60000,
+  });
+  const { buddies } = useBuddies(currentUser?.id);
+  const buddy = buddies.find((b) => b.other.id === userId);
+  // Cheering is open to friends, buddies, and fellow group members (the server double-checks).
+  const canCheer = isFriend || !!buddy || !!groupId;
 
   const handleRemove = async () => {
     setRemoving(true);
@@ -249,6 +270,24 @@ export default function UserDetail() {
       </div>
 
       <div className="max-w-lg mx-auto px-5 mt-5 space-y-6">
+        {!isMe && canCheer && targetUser && (
+          <div className="rounded-2xl border border-border bg-card p-4" data-testid="profile-cheer">
+            <p className="text-base font-bold text-foreground mb-3">Cheer on {name.split(' ')[0]} 🙌</p>
+            <CheerTiles toUser={targetUser} compact />
+            {isFriend && !buddy && (
+              <button onClick={() => setInviteBuddy(true)}
+                className="mt-3 w-full h-11 rounded-xl text-sm font-semibold flex items-center justify-center gap-2"
+                style={{ background: 'rgba(34,197,94,0.12)', color: '#16A34A' }}>
+                🤝 Invite as reading buddy
+              </button>
+            )}
+            {buddy && (
+              <p className="mt-3 text-center text-xs font-semibold text-muted-foreground">
+                {buddy.status === 'accepted' ? `🤝 ${name.split(' ')[0]} is your reading buddy` : '🤝 Buddy invite pending'}
+              </p>
+            )}
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <StatCard label="Streak" value={streak} unit="days in a row 🔥" icon={Flame} gradient="bg-gradient-to-br from-orange-400 to-red-500" />
           <StatCard label="This Week" value={weekChapters} unit="chapters read 📖" icon={BookOpen} gradient="bg-gradient-to-br from-blue-500 to-violet-600" />
@@ -301,6 +340,9 @@ export default function UserDetail() {
           )}
         </div>
       </div>
+      {targetUser && (
+        <BuddyInviteSheet open={inviteBuddy} onClose={() => setInviteBuddy(false)} friends={[targetUser]} preselectId={targetUser.id} />
+      )}
     </div>
   );
 }

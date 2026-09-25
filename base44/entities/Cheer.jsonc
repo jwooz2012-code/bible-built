@@ -1,0 +1,59 @@
+{
+  "name": "Cheer",
+  "type": "object",
+  "properties": {
+    "fromUserId": {
+      "type": "string",
+      "description": "User who sent the cheer"
+    },
+    "toUserId": {
+      "type": "string",
+      "description": "User who received the cheer"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "high_five",
+        "keep_going",
+        "praying",
+        "amen"
+      ],
+      "description": "Reaction sent"
+    },
+    "targetType": {
+      "type": "string",
+      "enum": [
+        "session",
+        "milestone",
+        "profile"
+      ],
+      "description": "What was cheered: a reading session, a milestone, or the person"
+    },
+    "targetKey": {
+      "type": "string",
+      "description": "Stable key for the cheered item (one cheer per sender per key)"
+    },
+    "label": {
+      "type": "string",
+      "description": "Short description of the cheered item, e.g. Genesis 1–5"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "fromUserId",
+    "toUserId",
+    "kind",
+    "targetKey"
+  ],
+  "rls": {
+    "create": false,
+    "update": false,
+    "delete": false,
+    "read": {
+      "data.toUserId": "{{user.id}}"
+    }
+  }
+}

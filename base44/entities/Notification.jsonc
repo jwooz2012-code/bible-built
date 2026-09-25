@@ -13,7 +13,11 @@
         "group_invite",
         "nudge",
         "league_promotion",
-        "high_five"
+        "high_five",
+        "cheer",
+        "weekly_recap",
+        "buddy_invite",
+        "buddy_accepted"
       ],
       "description": "Type of notification"
     },
@@ -32,6 +36,10 @@
     "createdAt": {
       "type": "string",
       "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Extra details for rich notifications (cheer kind, weekly recap stats, buddy plan)"
     }
   },
   "required": [
@@ -40,7 +48,7 @@
     "message"
   ],
   "rls": {
-    "create": true,
+    "create": false,
     "update": {
       "data.userId": "{{user.id}}"
     },

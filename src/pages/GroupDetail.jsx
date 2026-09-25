@@ -1,24 +1,17 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Zap, HandHeart, Target, UserPlus, Share2, Hand, Sparkles, Pencil } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Target, UserPlus, Share2, Sparkles, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/components/ThemeProvider';
-import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import GroupEditSheet from '@/components/group/GroupEditSheet';
 import { groupByDateKey, computeStreakWithGrace } from '@/components/trackers/deriveStats';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-
-function timeAgo(isoString) {
-  const diff = (Date.now() - new Date(isoString)) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
+import CommunityFeed from '@/components/community/CommunityFeed';
+import CheerButton from '@/components/community/CheerButton';
+import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 
 function RankBadge({ rank }) {
   if (rank === 1) return <span className="text-lg">🥇</span>;
@@ -27,7 +20,7 @@ function RankBadge({ rank }) {
   return <span className="w-7 text-center text-sm font-bold text-muted-foreground">{rank}</span>;
 }
 
-function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, onViewProfile }) {
+function LeaderRow({ rank, member, stat, unit, isMe, onViewProfile }) {
   const name = member.displayName ?? member.full_name ?? 'Member';
   return (
     <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}>
@@ -43,15 +36,7 @@ function LeaderRow({ rank, member, stat, unit, isMe, onEncourage, encouraged, on
           <p className="text-xs text-muted-foreground">{stat} {unit}</p>
         </div>
       </button>
-      {!isMe && (
-        <button
-          onClick={() => onEncourage(member)}
-          className={`h-8 w-8 flex items-center justify-center rounded-lg transition-colors ${encouraged ? 'bg-green-100 dark:bg-green-900/30' : 'bg-muted hover:bg-muted/80'}`}
-          title={`Encourage ${name}`}
-        >
-          <HandHeart className={`w-4 h-4 ${encouraged ? 'text-green-600' : 'text-muted-foreground'}`} />
-        </button>
-      )}
+      {!isMe && <CheerButton toUser={member} />}
     </div>
   );
 }
@@ -67,11 +52,10 @@ export default function GroupDetail() {
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
   const [allLogs, setAllLogs] = useState([]);
-  const [feedLogs, setFeedLogs] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
+  const [recap, setRecap] = useState(null);
   const [tab, setTab] = useState('streak');
   const [copied, setCopied] = useState(false);
-  const [encouraged, setEncouraged] = useState({});
   const [loading, setLoading] = useState(true);
   const [graceDayRecords, setGraceDayRecords] = useState({});
   const [friends, setFriends] = useState([]);
@@ -79,7 +63,6 @@ export default function GroupDetail() {
   const [friendSearch, setFriendSearch] = useState('');
   const [invitedFriends, setInvitedFriends] = useState({});
   const [confirmRemove, setConfirmRemove] = useState(null); // member object to remove
-  const [highFivedLogs, setHighFivedLogs] = useState({});
   const [showEditSheet, setShowEditSheet] = useState(false);
 
   const load = useCallback(async () => {
@@ -99,15 +82,21 @@ export default function GroupDetail() {
       graceMap[g.userId].push(g);
     });
     setGraceDayRecords(graceMap);
-    const sortedLogs = [...(memberLogs ?? [])].sort((a, b) =>
-      new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp)
-    );
-    setFeedLogs(sortedLogs.slice(0, 40));
     setFeedUsers(uMap);
     setLoading(false);
   }, [groupId]);
 
   useEffect(() => { load(); }, [load]);
+
+  useEffect(() => {
+    if (!user?.id || !groupId) return;
+    base44.entities.Notification.filter({ userId: user.id, type: 'weekly_recap', relatedId: groupId, isRead: false })
+      .then((list) => {
+        const latest = [...list].sort((a, b) => new Date(b.createdAt ?? b.created_date) - new Date(a.createdAt ?? a.created_date))[0];
+        setRecap(latest ?? null);
+      })
+      .catch(() => {});
+  }, [user?.id, groupId]);
 
   useEffect(() => {
     if (!shouldAutoJoin || !groupId || !user?.id || !group) return;
@@ -192,15 +181,13 @@ export default function GroupDetail() {
   };
 
   const handleInviteFriend = async (friend) => {
-    const senderName = user?.full_name ?? user?.displayName ?? 'Someone';
-    const groupLabel = group?.name ?? groupName;
-    await base44.entities.Notification.create({
-      userId: friend.id, type: 'group_invite',
-      message: `${senderName} invited you to join the group "${groupLabel}"!`,
-      relatedId: groupId, isRead: false, createdAt: new Date().toISOString(),
-    });
-    setInvitedFriends(prev => ({ ...prev, [friend.id]: true }));
-    toast.success(`Invite sent to ${friend.displayName ?? friend.full_name ?? 'friend'}!`);
+    try {
+      await base44.functions.invoke('sendGroupInvite', { groupId, friendId: friend.id });
+      setInvitedFriends(prev => ({ ...prev, [friend.id]: true }));
+      toast.success(`Invite sent to ${friend.displayName ?? friend.full_name ?? 'friend'}!`);
+    } catch {
+      toast.error('Could not send the invite. Try again.');
+    }
   };
 
   const handleRemoveMember = async (member) => {
@@ -216,30 +203,6 @@ export default function GroupDetail() {
 
   const { energyMode } = useTheme();
   const isOwner = group?.ownerId === user?.id;
-
-  const handleEncourage = async (member) => {
-    triggerHaptic();
-    setEncouraged(prev => ({ ...prev, [member.id]: true }));
-    await base44.functions.invoke('sendNudge', { receiverId: member.id });
-    toast('🙏 Encouragement sent!', { duration: 1500 });
-  };
-
-  const handleHighFive = async (log) => {
-    if (highFivedLogs[log.id] || log.userId === user?.id) return;
-    triggerHaptic();
-    setHighFivedLogs(prev => ({ ...prev, [log.id]: true }));
-    try {
-      await base44.functions.invoke('sendHighFive', {
-        receiverId: log.userId,
-        book: log.book,
-        chapter: log.chapter,
-      });
-      toast('🙌 High five sent!', { duration: 1200 });
-    } catch {
-      setHighFivedLogs(prev => ({ ...prev, [log.id]: false }));
-      toast.error('Could not send high five');
-    }
-  };
 
   if (loading) {
     return (
@@ -376,6 +339,19 @@ export default function GroupDetail() {
           </div>
         )}
 
+        {recap && (
+          <div className="mt-4">
+            <WeeklyRecapCard
+              message={recap.message}
+              payload={recap.payload}
+              onDismiss={async () => {
+                setRecap(null);
+                await base44.entities.Notification.update(recap.id, { isRead: true }).catch(() => {});
+              }}
+            />
+          </div>
+        )}
+
         {/* Community Goal */}
         {group?.communityGoalTarget > 0 && (() => {
           const monthStart = new Date(); monthStart.setDate(1); monthStart.setHours(0,0,0,0);
@@ -427,8 +403,6 @@ export default function GroupDetail() {
                 <LeaderRow key={row.member.id} rank={idx + 1} member={row.member}
                   stat={cfg.stat(row)} unit={cfg.unit(row)}
                   isMe={row.member.id === user?.id}
-                  onEncourage={handleEncourage}
-                  encouraged={!!encouraged[row.member.id]}
                   onViewProfile={() => navigate(`/user-detail?id=${row.member.id}&groupId=${groupId}`)} />
               ))}
             </div>
@@ -442,83 +416,14 @@ export default function GroupDetail() {
               <Sparkles className="w-4 h-4 text-amber-500" /> Group Activity
             </h2>
           </div>
-          {feedLogs.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-card py-10 flex flex-col items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                <BookOpen className="w-6 h-6 text-muted-foreground/40" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-foreground">No activity yet</p>
-                <p className="text-xs text-muted-foreground mt-1">Start reading to see activity here</p>
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              <AnimatePresence>
-                {feedLogs.map((log, i) => {
-                  const fu = feedUsers[log.userId];
-                  const name = fu?.displayName ?? fu?.full_name ?? 'A member';
-                  const isMe = log.userId === user?.id;
-                  const hifived = highFivedLogs[log.id];
-                  const testament = log.testament;
-                  return (
-                    <motion.div
-                      key={log.id}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.03 }}
-                      className="rounded-2xl border border-border bg-card overflow-hidden"
-                    >
-                      <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
-                        <AvatarDisplay initials={name[0]?.toUpperCase() ?? '?'} avatarData={fu} size={38} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-foreground truncate">
-                            {isMe ? 'You' : name}
-                            {isMe && <span className="text-xs font-normal text-muted-foreground ml-1">(you)</span>}
-                          </p>
-                          <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
-                        </div>
-                        {testament && (
-                          <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                            testament === 'NT'
-                              ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300'
-                              : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300'
-                          }`}>
-                            {testament}
-                          </span>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between px-4 pb-3.5">
-                        <div className="flex items-center gap-2">
-                          <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
-                          <p className="text-sm text-foreground">
-                            <span className="font-semibold">{log.book}</span>
-                            <span className="text-muted-foreground"> · Ch. {log.chapter}</span>
-                            {'  🔥'}
-                          </p>
-                        </div>
-                        {!isMe && (
-                          <motion.button
-                            whileTap={{ scale: 0.85 }}
-                            onClick={() => handleHighFive(log)}
-                            disabled={hifived}
-                            className={`flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                              hifived
-                                ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                                : 'bg-muted hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20 text-muted-foreground'
-                            }`}
-                          >
-                            <Hand className="w-3.5 h-3.5" />
-                            {hifived ? 'High-fived! 🙌' : 'High Five'}
-                          </motion.button>
-                        )}
-                      </div>
-                    </motion.div>
-                  );
-                })}
-              </AnimatePresence>
-            </div>
-          )}
+          <CommunityFeed
+            logs={allLogs}
+            usersById={feedUsers}
+            people={members}
+            meId={user?.id}
+            emptyTitle="No activity yet"
+            emptyText="Start reading to see activity here"
+          />
         </div>
       </div>
     </div>

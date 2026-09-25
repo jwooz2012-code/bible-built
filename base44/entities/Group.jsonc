@@ -50,8 +50,10 @@
     "ownerId"
   ],
   "rls": {
-    "create": true,
-    "update": true,
+    "create": false,
+    "update": {
+      "data.ownerId": "{{user.id}}"
+    },
     "delete": {
       "data.ownerId": "{{user.id}}"
     },

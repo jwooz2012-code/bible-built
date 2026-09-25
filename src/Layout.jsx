@@ -6,11 +6,15 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import { Toaster } from 'sonner';
 import { motion } from 'framer-motion';
 import CelebrationRenderer from '@/components/celebration/CelebrationRenderer';
+import { useAuth } from '@/lib/AuthContext';
+import { useNotifications } from '@/components/notifications/useNotifications';
 
 export default function Layout({ children }) {
   const location = useLocation();
   const navigate = useNavigate();
   const currentPath = location.pathname;
+  const { user } = useAuth();
+  const { unreadCount } = useNotifications(user?.id);
 
   useEffect(() => {
     if (location.pathname === "/") {
@@ -72,12 +76,22 @@ export default function Layout({ children }) {
                   }
                 }}
                 className="flex flex-col items-center justify-center gap-1 relative px-1 min-w-[44px] min-h-[44px]"
+                aria-label={item.path === '/social' && unreadCount > 0 ? `${item.name}, ${unreadCount} unread` : item.name}
               >
                 <item.icon
                   className={`w-6 h-6 transition-all duration-200 ${
                     isActive ? `${item.color} stroke-[2.2]` : `${item.color} opacity-40 stroke-[1.5]`
                   }`}
                 />
+                {item.path === '/social' && unreadCount > 0 && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute top-0 right-0 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                    style={{ background: '#EF4444', boxShadow: '0 0 0 2px hsl(var(--card))' }}
+                  >
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
                 <span
                   className={`text-[9px] leading-none transition-all duration-200 ${
                     isActive ? `${item.color} font-bold` : `${item.color} opacity-40 font-medium`
