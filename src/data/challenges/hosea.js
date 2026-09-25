@@ -146,7 +146,7 @@ export const HOSEA_CHALLENGE = {
       answer: 0,
       ref: { chapter: 1, verse: 10 },
       quote: 'Ye are the sons of the living God',
-      explain: 'Paul quotes this in Romans 9:26 to show God calling people who were once “not my people.” The KJV even spells Hosea\'s name “Osee” there (Romans 9:25).',
+      explain: 'Paul quotes this in Romans 9:26 to show God calling people who were once “not my people.” Just before it, in Romans 9:25, Hosea\'s name is spelled “Osee.”',
       also: [
         { book: 'Romans', chapter: 9, verse: 26, quote: 'children of the living God' },
         { book: 'Romans', chapter: 9, verse: 25, quote: 'As he saith also in Osee' },
