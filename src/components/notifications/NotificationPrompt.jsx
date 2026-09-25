@@ -18,6 +18,14 @@ export function shouldShowNotificationPrompt() {
   return Date.now() - lastShown >= HOURS_24;
 }
 
+/** Like shouldShowNotificationPrompt, but also skips when the device has already granted or blocked permission. */
+export function canAskForReminders() {
+  if (!shouldShowNotificationPrompt()) return false;
+  if (window.OneSignal?.Notifications?.permission === true) return false;
+  if (typeof Notification !== 'undefined' && Notification.permission !== 'default') return false;
+  return true;
+}
+
 /** Soft notification prompt — centered modal, shown after first chapter mark, retried once after 24h. */
 export default function NotificationPrompt({ onClose }) {
   const count = parseInt(localStorage.getItem(PROMPT_COUNT_KEY) || '0');

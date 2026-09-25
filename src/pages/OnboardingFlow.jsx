@@ -1,70 +1,107 @@
 import React, { useState, useEffect } from 'react';
-import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
+import { useReadingPlan, useUpsertReadingPlan } from '@/components/bible/hooks/useReadingPlan';
 
 import ProgressIndicator from '@/components/onboarding/ProgressIndicator';
 import WelcomeScreen from '@/components/onboarding/WelcomeScreen';
 import DisplayNameScreen from '@/components/onboarding/DisplayNameScreen';
-import MotivationScreen from '@/components/onboarding/MotivationScreen';
-import HabitLevelScreen from '@/components/onboarding/HabitLevelScreen';
 import ExperienceTypeScreen from '@/components/onboarding/ExperienceTypeScreen';
-import PlanGuidanceScreen from '@/components/onboarding/PlanGuidanceScreen';
-import AccountabilityScreen from '@/components/onboarding/AccountabilityScreen';
-import CommunityScreen from '@/components/onboarding/CommunityScreen';
-import DailyCommitmentScreen from '@/components/onboarding/DailyCommitmentScreen';
-import FinalScreen from '@/components/onboarding/FinalScreen';
-import ReadingTrackingScreen from '@/components/onboarding/ReadingTrackingScreen';
+import TourOfferScreen from '@/components/onboarding/TourOfferScreen';
+import { getStarterPlans } from '@/components/onboarding/starterPlans';
 
-// TOTAL_SCREENS varies: 11-12 depending on whether plan guidance is shown
-const getTotalScreens = (experienceType) => {
-  return experienceType === 'follow_plan' ? 12 : 11;
-};
+const STEPS = ['welcome', 'name', 'reading_style', 'tour_offer'];
+
+function track(eventName, properties) {
+  try {
+    base44.analytics.track({ eventName, properties });
+  } catch {
+    // Analytics must never block onboarding.
+  }
+}
+
+function suggestedName(user) {
+  const name = user?.displayName || user?.full_name || '';
+  return name.includes('@') ? '' : name;
+}
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
-  const { updateUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const { triggerCelebration } = useCelebration();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [responses, setResponses] = useState({
-    displayName: '',
-    motivation: [],
-    habitLevel: '',
-    experienceType: '',
-    dailyCommitment: ''
-  });
+  const { data: existingPlan } = useReadingPlan(user?.id);
+  const { mutateAsync: upsertPlan } = useUpsertReadingPlan();
+
+  const [step, setStep] = useState(0);
+  const [responses, setResponses] = useState({ displayName: '', experienceType: '', planId: '' });
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleNext = (value) => {
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    track('onboarding_step_viewed', { step: STEPS[step], stepNumber: step + 1 });
+  }, [step]);
+
+  const goNext = () => {
     triggerHaptic();
-    
-    const stepUpdates = {
-      1: { displayName: value },
-      2: { motivation: value },
-      3: { habitLevel: value },
-      4: { experienceType: value },
-      5: { dailyCommitment: value }
-    };
-
-    if (stepUpdates[currentStep]) {
-      setResponses((prev) => ({ ...prev, ...stepUpdates[currentStep] }));
-    }
-
-    // Prevent double-tap during transition
-    if (!isSaving) {
-      setCurrentStep((prev) => prev + 1);
-    }
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
   };
 
-  const handleFinish = () => {
+  const goBack = () => {
+    if (isSaving) return;
+    triggerHaptic('light');
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
+  const selectedPlan = responses.experienceType === 'follow_plan'
+    ? getStarterPlans().find((p) => p.id === responses.planId)
+    : null;
+
+  const finish = async (wantsTour) => {
+    if (isSaving) return;
+    setIsSaving(true);
     triggerHaptic();
-    // Update local state immediately so App.jsx doesn't redirect back to onboarding
-    // Also mark hasSeenReadingTrackingFeature so new users skip the intro
-    updateUser({ displayName: responses.displayName, onboardingComplete: true, hasSeenReadingTrackingFeature: true });
-    // Trigger Battle badge celebration before navigating
+
+    // Restarting setup with the same plan must not reset its progress.
+    if (selectedPlan && user?.id && existingPlan?.scope !== selectedPlan.scope) {
+      try {
+        await upsertPlan({
+          existingPlan,
+          planData: {
+            userId: user.id,
+            scope: selectedPlan.scope,
+            startDate: selectedPlan.startDate,
+            endDate: selectedPlan.endDate,
+            chaptersPerDay: selectedPlan.chaptersPerDay,
+          },
+        });
+        localStorage.setItem('bb_plan_prompt_seen', 'true');
+      } catch (error) {
+        console.error('[onboarding] Failed to start plan:', error);
+        toast.error("Couldn't start your plan. Tap Explore Reading Plans on Home to try again.");
+      }
+    }
+
+    const updates = {
+      displayName: responses.displayName,
+      readingStyle: responses.experienceType,
+      onboardingComplete: true,
+      hasSeenReadingTrackingFeature: true,
+      tourStatus: wantsTour ? 'started' : 'skipped',
+    };
+    updateUser(updates);
+    base44.auth.updateMe(updates).catch((error) => console.error('Failed to save onboarding:', error));
+
+    track('onboarding_completed', {
+      readingStyle: responses.experienceType,
+      plan: selectedPlan?.id ?? null,
+      tourChoice: wantsTour ? 'tour' : 'skip',
+    });
+
     triggerCelebration(CELEBRATION_TYPES.BADGE, {
       badge: {
         title: 'Battle',
@@ -72,79 +109,66 @@ export default function OnboardingFlow() {
       },
       userName: responses.displayName,
     }, { dedupKey: 'onboarding-battle-badge' });
-    // Navigate instantly — save in background
-    navigate('/home', { replace: true });
-    base44.auth.updateMe({ 
-      displayName: responses.displayName,
-      onboardingComplete: true,
-      hasSeenReadingTrackingFeature: true
-    }).catch((error) => console.error('Failed to save onboarding:', error));
+
+    navigate(wantsTour ? '/tour' : '/home', { replace: true });
   };
 
-  const renderScreen = () => {
-    const commonProps = { onContinue: handleNext };
-
-    switch (currentStep) {
-      case 0:
-        return <WelcomeScreen {...commonProps} />;
-      case 1:
-        return <DisplayNameScreen {...commonProps} initialValue={responses.displayName} />;
-      case 2:
-        return <MotivationScreen {...commonProps} initialValue={responses.motivation} />;
-      case 3:
-        return <HabitLevelScreen {...commonProps} initialValue={responses.habitLevel} />;
-      case 4:
-        return <ExperienceTypeScreen {...commonProps} initialValue={responses.experienceType} />;
-      // Screen 5A: Plan guidance (only if follow_plan selected)
-      case 5:
-        if (responses.experienceType === 'follow_plan') {
-          return <PlanGuidanceScreen {...commonProps} />;
-        }
-        return <AccountabilityScreen {...commonProps} />;
-      case 6:
-        if (responses.experienceType === 'follow_plan') {
-          return <AccountabilityScreen {...commonProps} />;
-        }
-        return <CommunityScreen {...commonProps} />;
-      case 7:
-        if (responses.experienceType === 'follow_plan') {
-          return <CommunityScreen {...commonProps} />;
-        }
-        return <ReadingTrackingScreen {...commonProps} />;
-      case 8:
-        if (responses.experienceType === 'follow_plan') {
-          return <ReadingTrackingScreen {...commonProps} />;
-        }
-        return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
-      case 9:
-        if (responses.experienceType === 'follow_plan') {
-          return <DailyCommitmentScreen {...commonProps} initialValue={responses.dailyCommitment} />;
-        }
-        return <FinalScreen onContinue={handleFinish} />;
-      case 10:
-        if (responses.experienceType === 'follow_plan') {
-          return <FinalScreen onContinue={handleFinish} />;
-        }
-        return null;
-      case 11:
-        return <FinalScreen onContinue={handleFinish} />;
+  const renderStep = () => {
+    switch (STEPS[step]) {
+      case 'welcome':
+        return <WelcomeScreen onContinue={goNext} />;
+      case 'name':
+        return (
+          <DisplayNameScreen
+            initialValue={responses.displayName || suggestedName(user)}
+            onContinue={(displayName) => {
+              setResponses((prev) => ({ ...prev, displayName }));
+              goNext();
+            }}
+          />
+        );
+      case 'reading_style':
+        return (
+          <ExperienceTypeScreen
+            initialValue={responses.experienceType}
+            initialPlanId={responses.planId}
+            onContinue={({ experienceType, planId }) => {
+              setResponses((prev) => ({ ...prev, experienceType, planId }));
+              goNext();
+            }}
+          />
+        );
+      case 'tour_offer':
+        return (
+          <TourOfferScreen
+            name={responses.displayName}
+            planName={selectedPlan?.name}
+            isSaving={isSaving}
+            onTour={() => finish(true)}
+            onSkip={() => finish(false)}
+          />
+        );
       default:
         return null;
     }
   };
 
   return (
-    <div className="min-h-screen bg-background overflow-hidden" style={{ paddingTop: 'max(env(safe-area-inset-top), 44px)' }}>
-
-      {/* Progress indicator - hidden on welcome and final screens */}
-      {currentStep > 0 && currentStep < getTotalScreens(responses.experienceType) - 1 && (
-        <ProgressIndicator currentStep={currentStep} totalSteps={getTotalScreens(responses.experienceType)} />
+    <div className="min-h-screen bg-background overflow-x-hidden" style={{ paddingTop: 'max(env(safe-area-inset-top), 44px)' }}>
+      {step > 0 && (
+        <div className="relative flex items-center justify-center h-14 px-4">
+          <button
+            onClick={goBack}
+            disabled={isSaving}
+            aria-label="Back"
+            className="absolute left-3 h-10 w-10 flex items-center justify-center rounded-full text-foreground hover:bg-muted transition-colors disabled:opacity-40"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          <ProgressIndicator currentStep={step - 1} totalSteps={STEPS.length - 1} />
+        </div>
       )}
-
-      {/* Screen container */}
-      <AnimatePresence mode="wait" onExitComplete={() => {}}>
-        <div key={currentStep}>{renderScreen()}</div>
-      </AnimatePresence>
+      <div key={step}>{renderStep()}</div>
     </div>
   );
 }

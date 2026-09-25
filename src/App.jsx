@@ -5,7 +5,7 @@ import { pagesConfig } from './pages.config'
 import Profile from './pages/Profile';
 import Social from './pages/Social';
 import Treasury from './pages/Treasury';
-import FriendsTreasuryIntro from './pages/FriendsTreasuryIntro';
+import FeatureTour from '@/components/onboarding/FeatureTour';
 import GroupDetail from './pages/GroupDetail';
 import UserDetail from './pages/UserDetail';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -45,7 +45,6 @@ const AppInner = () => {
   // Check if user needs to complete onboarding (only for authenticated users)
   const needsOnboarding = user && !user.onboardingComplete;
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
-  const needsFriendsTreasuryIntro = user && user.onboardingComplete && user.hasSeenReadingTrackingFeature && !user.hasSeenFriendsTreasuryIntro;
 
   return (
     <Routes>
@@ -64,8 +63,7 @@ const AppInner = () => {
           authError?.type === 'user_not_registered' ? <UserNotRegisteredError /> :
           authError ? <AuthRecoveryScreen errorType={authError.type} onRetry={retryAuth} onLogout={() => logout(true)} /> :
           needsOnboarding ? <OnboardingFlow /> :
-          needsReadingTrackingIntro ? <ReadingTrackingIntro /> :
-          needsFriendsTreasuryIntro ? <FriendsTreasuryIntro /> : (
+          needsReadingTrackingIntro ? <ReadingTrackingIntro /> : (
             <LayoutWrapper currentPageName={mainPageKey}><MainPage /></LayoutWrapper>
           )
         } />
@@ -76,15 +74,14 @@ const AppInner = () => {
             path={`/${path}`}
             element={
               needsOnboarding && path !== 'onboarding' ? <OnboardingFlow /> :
-              needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? <ReadingTrackingIntro /> :
-              needsFriendsTreasuryIntro && path !== 'friends-treasury-intro' ? <FriendsTreasuryIntro /> : (
+              needsReadingTrackingIntro && path !== 'reading-tracking-intro' ? <ReadingTrackingIntro /> : (
                 <LayoutWrapper currentPageName={path}><Page /></LayoutWrapper>
               )
             }
           />
         ))}
 
-        <Route path="/friends-treasury-intro" element={<FriendsTreasuryIntro />} />
+        <Route path="/tour" element={<FeatureTour />} />
         <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
         <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
         <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />

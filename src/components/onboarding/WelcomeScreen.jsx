@@ -52,7 +52,7 @@ export default function WelcomeScreen({ onContinue }) {
             size="lg"
             className="w-full h-14 rounded-full text-base font-bold transition-all"
           >
-            Let's Go 🚀
+            Get Started
           </Button>
         </motion.div>
       </motion.div>

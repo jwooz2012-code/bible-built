@@ -46,6 +46,9 @@ import PlanModal from '@/components/bible/plans/PlanModal';
 import PlanPreviewSheet from '@/components/bible/plans/PlanPreviewSheet';
 import { runValidation } from '@/components/bible/plans/validatePlans';
 import BibleReader from '@/components/shared/BibleReader';
+import TourPromptCard from '@/components/home/TourPromptCard';
+import NotificationPrompt, { canAskForReminders } from '@/components/notifications/NotificationPrompt';
+import { useCelebration } from '@/components/celebration/CelebrationContext';
 
 const WEEKLY_QUOTES = [
   "Faithfulness is built one chapter at a time.",
@@ -64,7 +67,10 @@ export default function Home() {
   const navigate = useNavigate();
   const { energyMode, energyPalette, resolvedTheme } = useTheme();
   const { xpBalance, walletLevel } = useWallet();
-  const { user, isLoadingAuth, retryAuth, logout } = useAuth();
+  const { user, isLoadingAuth, retryAuth, logout, updateUser } = useAuth();
+  const { current: activeCelebration } = useCelebration();
+  const [reminderPromptPending, setReminderPromptPending] = useState(false);
+  const [showReminderPrompt, setShowReminderPrompt] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
   const [selectedTestamentFilter, setSelectedTestamentFilter] = useState('OT');
   const [planOpen, setPlanOpen] = useState(false);
@@ -120,6 +126,32 @@ export default function Home() {
       window.removeEventListener('biblebuilt:chapterReadError', onChapterReadError);
     };
   }, []);
+
+  // Ask users from the new onboarding for reminders right after they log a chapter.
+  const isNewOnboardingUser = !!user?.tourStatus;
+  useEffect(() => {
+    if (!isNewOnboardingUser) return;
+    const onChapterRead = () => {
+      if (canAskForReminders()) setReminderPromptPending(true);
+    };
+    window.addEventListener('biblebuilt:chapterRead', onChapterRead);
+    return () => window.removeEventListener('biblebuilt:chapterRead', onChapterRead);
+  }, [isNewOnboardingUser]);
+
+  // Wait for any badge/streak celebration to be dismissed so the two don't stack.
+  useEffect(() => {
+    if (!reminderPromptPending || activeCelebration) return;
+    const timer = setTimeout(() => {
+      setReminderPromptPending(false);
+      setShowReminderPrompt(true);
+    }, 1200);
+    return () => clearTimeout(timer);
+  }, [reminderPromptPending, activeCelebration]);
+
+  const dismissTourCard = () => {
+    updateUser({ tourStatus: 'dismissed' });
+    base44.auth.updateMe({ tourStatus: 'dismissed' }).catch((error) => console.error('Failed to save tour status:', error));
+  };
 
   useEffect(() => {
     const countKey = 'bb_app_open_count';
@@ -446,6 +478,16 @@ export default function Home() {
               </p>
             )}
 
+            <AnimatePresence>
+              {user.tourStatus === 'skipped' && (
+                <TourPromptCard
+                  key="tour-card"
+                  onStart={() => navigate('/tour', { state: { returnTo: '/home' } })}
+                  onDismiss={dismissTourCard}
+                />
+              )}
+            </AnimatePresence>
+
             <GraceAlertBanner tierColor={getTier(currentStreak).color} />
 
             <AnimatePresence>
@@ -663,6 +705,12 @@ export default function Home() {
               setReaderState(null);
             }}
           />
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {showReminderPrompt && (
+          <NotificationPrompt key="reminder-prompt" onClose={() => setShowReminderPrompt(false)} />
         )}
       </AnimatePresence>
 
