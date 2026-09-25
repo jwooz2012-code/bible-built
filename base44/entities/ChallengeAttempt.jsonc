@@ -1,0 +1,65 @@
+{
+  "name": "ChallengeAttempt",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "User who took the challenge"
+    },
+    "challengeId": {
+      "type": "string",
+      "description": "Challenge key, e.g. 'hosea'"
+    },
+    "score": {
+      "type": "number",
+      "description": "Number of questions answered correctly"
+    },
+    "total": {
+      "type": "number",
+      "description": "Number of questions in the test"
+    },
+    "medal": {
+      "type": "string",
+      "enum": [
+        "gold",
+        "silver",
+        "bronze",
+        "none"
+      ],
+      "description": "Medal earned on this attempt"
+    },
+    "questionIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Questions shown in this attempt, so the next retake can prefer fresh ones"
+    },
+    "completedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the attempt was finished"
+    }
+  },
+  "required": [
+    "userId",
+    "challengeId",
+    "score",
+    "total",
+    "medal"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

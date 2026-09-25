@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import Social from './pages/Social';
 import Treasury from './pages/Treasury';
 import FeatureTour from '@/components/onboarding/FeatureTour';
+import ChallengePage from '@/components/challenge/ChallengePage';
 import GroupDetail from './pages/GroupDetail';
 import UserDetail from './pages/UserDetail';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
@@ -82,6 +83,7 @@ const AppInner = () => {
         ))}
 
         <Route path="/tour" element={<FeatureTour />} />
+        <Route path="/challenge" element={<ChallengePage />} />
         <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
         <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
         <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />

@@ -95,4 +95,12 @@ export const BADGE_SCRIPTURES = {
     reference: 'Isaiah 35:3',
     text: 'Strengthen ye the weak hands, and confirm the feeble knees.',
   },
+  'Study Approved': {
+    reference: '2 Timothy 2:15',
+    text: 'Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.',
+  },
+  'Hidden in the Heart': {
+    reference: 'Psalm 119:11',
+    text: 'Thy word have I hid in mine heart, that I might not sin against thee.',
+  },
 };

@@ -1,9 +1,11 @@
 import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BookOpen } from 'lucide-react';
+import { getChallengeForBook } from '@/data/challenges';
 
 export default function BookCelebration({ data, onDismiss }) {
   const { bookName } = data;
+  const challenge = getChallengeForBook(bookName);
   const DURATION = 4500;
 
   useEffect(() => {
@@ -35,7 +37,9 @@ export default function BookCelebration({ data, onDismiss }) {
               {bookName}
             </p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Another book down. Keep building.
+              {challenge
+                ? `🏆 ${challenge.title} unlocked! Find it on the ${bookName} page.`
+                : 'Another book down. Keep building.'}
             </p>
           </div>
         </div>

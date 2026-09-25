@@ -26,7 +26,9 @@ import {
   Sun,
   Shield,
   Mountain,
-  Star
+  Star,
+  GraduationCap,
+  Trophy
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
@@ -94,6 +96,10 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
       return <Mountain {...iconProps} style={{ color }} />;
     case 'Year of the Word':
       return <Star {...iconProps} style={{ color }} />;
+    case 'Study Approved':
+      return <GraduationCap {...iconProps} style={{ color }} />;
+    case 'Hidden in the Heart':
+      return <Trophy {...iconProps} style={{ color }} />;
     default:
       return <Circle {...iconProps} style={{ color }} />;
   }
@@ -131,6 +137,9 @@ export const getAchievementColor = (title) => {
     case 'Unbroken':        return 'from-[#EF4444] to-[#DC2626]'; // Fierce red — pure intensity, no breaks
     case 'Iron Streak':     return 'from-[#64748B] to-[#475569]'; // Steel slate — forged, cold, unyielding
     case 'Year of the Word': return 'from-[#EAB308] to-[#CA8A04]'; // Deep refined gold — a year of faithfulness
+    // Bible Challenge badges
+    case 'Study Approved':      return 'from-[#0D9488] to-[#0F766E]';
+    case 'Hidden in the Heart': return 'from-[#EAB308] to-[#B45309]';
     default: return 'from-[#F59E0B] to-[#D97706]';
   }
 };
