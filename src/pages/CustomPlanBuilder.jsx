@@ -48,6 +48,9 @@ export default function CustomPlanBuilder() {
     'Chronological Old Testament Journey': 'CHRONOLOGICAL_OT_JOURNEY',
     'Chronological New Testament Journey': 'CHRONOLOGICAL_NT_JOURNEY',
     '12 Voices · 1 Holy God': 'TWELVE_VOICES_ONE_HOLY_GOD',
+    'Warriors of God': 'WARRIORS_OF_GOD',
+    "The Battle Is the LORD's": 'BATTLE_IS_THE_LORDS',
+    'Famous Prayers': 'FAMOUS_PRAYERS',
   };
   const existingThemeKey = existingPlan?.name ? NAME_TO_THEME[existingPlan.name] : null;
 
@@ -240,6 +243,9 @@ export default function CustomPlanBuilder() {
               WHO_IS_JESUS: 'Who Is Jesus',
               CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
               CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
+              WARRIORS_OF_GOD: 'Warriors of God',
+              BATTLE_IS_THE_LORDS: "The Battle Is the LORD's",
+              FAMOUS_PRAYERS: 'Famous Prayers',
             }[selectedTheme];
             autoName = themeName || 'Theme Plan';
       } else if (activeTab === 'people') {
@@ -546,6 +552,9 @@ export default function CustomPlanBuilder() {
                 CHRONOLOGICAL_OT_JOURNEY: 'Chronological Old Testament Journey',
                 CHRONOLOGICAL_NT_JOURNEY: 'Chronological New Testament Journey',
                 TWELVE_VOICES_ONE_HOLY_GOD: '12 Voices · 1 Holy God',
+                WARRIORS_OF_GOD: 'Warriors of God',
+                BATTLE_IS_THE_LORDS: "The Battle Is the LORD's",
+                FAMOUS_PRAYERS: 'Famous Prayers',
               }[themeKey] || themeKey;
 
               const plan = await base44.entities.ReadingPlan.create({
