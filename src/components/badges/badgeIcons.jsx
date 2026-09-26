@@ -28,6 +28,8 @@ import {
   Mountain,
   Star,
   GraduationCap,
+  HandHeart,
+  Megaphone,
   Trophy
 } from 'lucide-react';
 
@@ -100,6 +102,12 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
       return <GraduationCap {...iconProps} style={{ color }} />;
     case 'Hidden in the Heart':
       return <Trophy {...iconProps} style={{ color }} />;
+    case 'Encourager':
+      return <HandHeart {...iconProps} style={{ color }} />;
+    case 'Son of Encouragement':
+      return <Megaphone {...iconProps} style={{ color }} />;
+    case 'Iron Sharpens Iron':
+      return <Swords {...iconProps} style={{ color }} />;
     default:
       return <Circle {...iconProps} style={{ color }} />;
   }
@@ -140,6 +148,9 @@ export const getAchievementColor = (title) => {
     // Bible Challenge badges
     case 'Study Approved':      return 'from-[#0D9488] to-[#0F766E]';
     case 'Hidden in the Heart': return 'from-[#EAB308] to-[#B45309]';
+    case 'Encourager':          return 'from-[#F472B6] to-[#DB2777]';
+    case 'Son of Encouragement': return 'from-[#FB923C] to-[#EA580C]';
+    case 'Iron Sharpens Iron':  return 'from-[#64748B] to-[#334155]';
     default: return 'from-[#F59E0B] to-[#D97706]';
   }
 };

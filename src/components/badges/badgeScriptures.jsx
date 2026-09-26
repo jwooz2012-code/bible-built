@@ -103,4 +103,16 @@ export const BADGE_SCRIPTURES = {
     reference: 'Psalm 119:11',
     text: 'Thy word have I hid in mine heart, that I might not sin against thee.',
   },
+  'Encourager': {
+    reference: '1 Thessalonians 5:11',
+    text: 'Wherefore comfort yourselves together, and edify one another, even as also ye do.',
+  },
+  'Son of Encouragement': {
+    reference: 'Acts 4:36',
+    text: 'And Joses, who by the apostles was surnamed Barnabas, (which is, being interpreted, The son of consolation,) a Levite, and of the country of Cyprus,',
+  },
+  'Iron Sharpens Iron': {
+    reference: 'Proverbs 27:17',
+    text: 'Iron sharpeneth iron; so a man sharpeneth the countenance of his friend.',
+  },
 };

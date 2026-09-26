@@ -56,6 +56,7 @@ import { useCelebration } from '@/components/celebration/CelebrationContext';
 import ChallengeCard from '@/components/challenge/ChallengeCard';
 import { useChallengeAttempts, summarizeAttempts } from '@/components/challenge/useChallengeAttempts';
 import { getChallengeForBook, isBookComplete } from '@/data/challenges';
+import CheeredPopup from '@/components/community/CheeredPopup';
 
 const WEEKLY_QUOTES = [
   "Faithfulness is built one chapter at a time.",
@@ -760,6 +761,8 @@ export default function Home() {
           />
         )}
       </AnimatePresence>
+
+      <CheeredPopup blocked={showReminderPrompt || !!readerState || planOpen || planPreviewOpen} />
 
       <AnimatePresence>
         {showReminderPrompt && (

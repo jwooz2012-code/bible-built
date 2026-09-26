@@ -13,7 +13,9 @@
         "group_invite",
         "nudge",
         "league_promotion",
-        "high_five"
+        "high_five",
+        "cheer",
+        "weekly_recap"
       ],
       "description": "Type of notification"
     },
@@ -32,6 +34,10 @@
     "createdAt": {
       "type": "string",
       "format": "date-time"
+    },
+    "payload": {
+      "type": "object",
+      "description": "Extra details for rich notifications (cheer kind, weekly recap stats)"
     }
   },
   "required": [
@@ -40,7 +46,7 @@
     "message"
   ],
   "rls": {
-    "create": true,
+    "create": false,
     "update": {
       "data.userId": "{{user.id}}"
     },

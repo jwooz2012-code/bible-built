@@ -1,27 +1,22 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useFriendStreak } from '@/components/bible/hooks/useFriendStreak';
-import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, Flame, Hand, RefreshCw, Sparkles, BookOpen, Trophy, Copy, CheckCheck } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Users, UserPlus, Search, Plus, X, Check, ChevronRight, RefreshCw, Sparkles, Copy, CheckCheck } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { useAuth } from '@/lib/AuthContext';
 import { triggerHaptic } from '@/components/utils/haptics';
 import { toast } from 'sonner';
-
-// ── helpers ────────────────────────────────────────────────────
-function timeAgo(isoString) {
-  const diff = (Date.now() - new Date(isoString)) / 1000;
-  if (diff < 60) return 'just now';
-  if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
-  if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`;
-  return `${Math.floor(diff / 86400)}d ago`;
-}
+import { getDateKey } from '@/components/bible/utils/dateUtils';
+import CommunityFeed from '@/components/community/CommunityFeed';
+import CheerButton from '@/components/community/CheerButton';
+import { readOnDay, latestBookByUser } from '@/components/community/buildFeed';
 
 // ── Friend Card with Dynamic Streak ────────────────────────────
-function FriendCard({ friend, index }) {
+function FriendCard({ friend, index, readToday, book }) {
   const navigate = useNavigate();
   const streak = useFriendStreak(friend.id);
 
@@ -30,27 +25,31 @@ function FriendCard({ friend, index }) {
       initial={{ opacity: 0, x: -8 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.05 }}
+      className="flex items-center gap-2 pr-3 rounded-2xl border border-border bg-card"
     >
       <button
         onClick={() => navigate(`/user-detail?id=${friend.id}`)}
-        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-card hover:bg-muted/40 transition-colors text-left"
+        className="flex-1 min-w-0 flex items-center gap-3 pl-4 py-3 text-left"
       >
-        <AvatarDisplay initials={(friend.displayName || friend.full_name || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
+        <div className="relative shrink-0">
+          <AvatarDisplay initials={(friend.displayName || friend.full_name || friend.email || '?')[0].toUpperCase()} avatarData={friend} size={40} />
+          {readToday && (
+            <span className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-green-500 text-white text-[9px] font-black flex items-center justify-center ring-2 ring-card">✓</span>
+          )}
+        </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{friend.displayName || friend.full_name || 'Member'}</p>
-          <div className="flex items-center gap-2 mt-0.5">
+          <div className="flex items-center gap-1.5 min-w-0">
+            <p className="text-sm font-bold text-foreground truncate">{friend.displayName || friend.full_name || 'Member'}</p>
             {streak > 0 && (
-              <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5">
-                🔥 {streak}d
-              </span>
-            )}
-            {friend.level > 0 && (
-              <span className="text-xs text-muted-foreground">Lvl {friend.level}</span>
+              <span className="text-xs text-orange-500 font-semibold shrink-0">🔥 {streak}d</span>
             )}
           </div>
+          <p className={`text-xs mt-0.5 truncate ${readToday ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-muted-foreground'}`}>
+            {readToday ? `Read today${book ? ` · ${book}` : ''}` : 'Not yet today'}
+          </p>
         </div>
-        <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />
       </button>
+      <CheerButton toUser={friend} />
     </motion.div>
   );
 }
@@ -99,10 +98,11 @@ export default function Social() {
   const [copiedGroupId, setCopiedGroupId] = useState(null);
 
   // Feed state
-  const [feedItems, setFeedItems] = useState([]);
+  const [feedLogs, setFeedLogs] = useState([]);
   const [feedUsers, setFeedUsers] = useState({});
   const [refreshing, setRefreshing] = useState(false);
-  const [highFivedLogs, setHighFivedLogs] = useState({});
+  const location = useLocation();
+  const openNotifications = new URLSearchParams(location.search).get('notifications') === '1';
 
   // Recap
   const [recapNotif, setRecapNotif] = useState(null);
@@ -110,7 +110,11 @@ export default function Social() {
   // ── Data loading ───────────────────────────────────────────
   const loadRecap = useCallback(async () => {
     if (!user?.id) return;
-    const notifs = await base44.entities.Notification.filter({ userId: user.id, type: 'league_promotion', isRead: false });
+    const [legacy, recaps] = await Promise.all([
+      base44.entities.Notification.filter({ userId: user.id, type: 'league_promotion', isRead: false }),
+      base44.entities.Notification.filter({ userId: user.id, type: 'weekly_recap', isRead: false }),
+    ]);
+    const notifs = [...recaps, ...legacy];
     if (notifs.length > 0) {
       notifs.sort((a, b) => new Date(b.createdAt ?? b.created_date) - new Date(a.createdAt ?? a.created_date));
       setRecapNotif(notifs[0]);
@@ -145,53 +149,63 @@ export default function Social() {
 
   const loadGroups = useCallback(async () => {
     if (!user?.id) return;
-    const all = await base44.entities.Group.filter({});
+    const all = await base44.entities.Group.filter({}, '-created_date', 1000);
     const myGroups = all.filter(g =>
       (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id
     );
     setGroups(myGroups);
   }, [user?.id]);
 
-  const loadFeed = useCallback(async () => {
+  // Friends and Activity tabs share this data; reuse it for a minute unless refreshed.
+  const feedLoadedAt = useRef(0);
+  const feedLoadSeq = useRef(0); // newest load wins if two overlap
+  const loadFeed = useCallback(async ({ force = false } = {}) => {
     if (!user?.id) return;
-    // Collect friend IDs
-    const [sent, received] = await Promise.all([
-      base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
-      base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
-    ]);
-    const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
+    if (!force && Date.now() - feedLoadedAt.current < 60000) return;
+    feedLoadedAt.current = Date.now();
+    const seq = ++feedLoadSeq.current;
+    const isLatest = () => seq === feedLoadSeq.current;
+    try {
+      // Collect friend IDs
+      const [sent, received] = await Promise.all([
+        base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
+        base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
+      ]);
+      const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
 
-    // Also collect group member IDs
-    const groupIds = user.groupIds ?? [];
-    let groupMemberIds = [];
-    if (groupIds.length > 0) {
-      const allGroups = await base44.entities.Group.filter({});
-      const myGroups = allGroups.filter(g => groupIds.includes(g.id));
-      myGroups.forEach(g => { groupMemberIds.push(...(g.memberIds ?? [])); });
+      // Also collect group member IDs. Membership comes from the group itself (same check as the
+      // Groups tab and the server), not user.groupIds, which isn't cleared when someone is removed.
+      const allGroups = await base44.entities.Group.filter({}, '-created_date', 1000);
+      const myGroups = allGroups.filter(g => (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id);
+      const groupMemberIds = myGroups.flatMap(g => [g.ownerId, ...(g.memberIds ?? [])]);
+
+      // Union of friends + group members, excluding self
+      const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id && id !== user.id);
+      if (allSocialIds.length === 0) { if (isLatest()) { setFeedLogs([]); setFeedUsers({}); } return; }
+
+      // Fetch recent logs for everyone (you included, so you can see cheers on your reading)
+      const [logsRes, res] = await Promise.all([
+        base44.functions.invoke('getGroupReadingLogs', { memberIds: [user.id, ...allSocialIds] }),
+        base44.functions.invoke('getUsersByIds', { ids: [user.id, ...allSocialIds] }),
+      ]);
+      if (!isLatest()) return;
+      const map = {};
+      (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
+      setFeedLogs(logsRes.data?.logs ?? []);
+      setFeedUsers(map);
+    } catch (err) {
+      if (isLatest()) feedLoadedAt.current = 0; // let the next visit retry
+      throw err;
     }
-
-    // Union of friends + group members, excluding self
-    const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id !== user.id);
-    if (allSocialIds.length === 0) { setFeedItems([]); return; }
-
-    // Fetch recent logs for all social members in a single batched backend call
-    const logsRes = await base44.functions.invoke('getGroupReadingLogs', { memberIds: allSocialIds });
-    const allLogs = logsRes.data?.logs ?? [];
-    allLogs.sort((a, b) => new Date(b.created_date ?? b.timestamp) - new Date(a.created_date ?? a.timestamp));
-    setFeedItems(allLogs.slice(0, 40));
-
-    const res = await base44.functions.invoke('getUsersByIds', { ids: allSocialIds });
-    const map = {};
-    (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
-    setFeedUsers(map);
-  }, [user?.id, user?.groupIds]);
+  }, [user?.id]);
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
 
   useEffect(() => {
-    if (tab === 'friends') { loadFriends(); loadPending(); }
+    // A failed feed load just leaves the last data on screen; the next visit or refresh retries.
+    if (tab === 'friends') { loadFriends(); loadPending(); loadFeed().catch(() => {}); }
     if (tab === 'groups') loadGroups();
-    if (tab === 'feed') loadFeed();
+    if (tab === 'feed') loadFeed().catch(() => {});
   }, [tab, loadFriends, loadPending, loadGroups, loadFeed]);
 
   // ── Search ─────────────────────────────────────────────────
@@ -228,60 +242,68 @@ export default function Social() {
     toast.success('Friend accepted!');
     loadPending();
     loadFriends();
+    loadFeed({ force: true }).catch(() => {});
   };
 
   const declineRequest = async (friendship) => {
-    await base44.entities.Friendship.delete(friendship.id);
-    toast('Request declined');
+    // Re-check first: if it was already accepted (e.g. from the bell), don't delete the friendship.
+    try {
+      const [current] = await base44.entities.Friendship.filter({ id: friendship.id });
+      if (current?.status === 'pending') await base44.entities.Friendship.delete(friendship.id);
+      toast(current?.status === 'accepted' ? "You're already friends" : 'Request declined');
+    } catch {
+      toast.error('Could not decline. Try again.');
+    }
     loadPending();
+    loadFriends();
   };
 
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) return;
     setCreatingGroup(true);
-    const res = await base44.functions.invoke('createGroup', { name: newGroupName.trim() });
-    const newGroup = res.data?.group;
-    if (newGroup) {
-      updateUser({ groupIds: [...(user.groupIds ?? []), newGroup.id] });
-      toast.success('Group created!');
-      setShowCreateGroup(false);
-      setNewGroupName('');
-      loadGroups();
+    try {
+      const res = await base44.functions.invoke('createGroup', { name: newGroupName.trim() });
+      const newGroup = res.data?.group;
+      if (newGroup) {
+        updateUser({ groupIds: [...(user.groupIds ?? []), newGroup.id] });
+        toast.success('Group created!');
+        setShowCreateGroup(false);
+        setNewGroupName('');
+        loadGroups();
+        loadFeed({ force: true }).catch(() => {});
+      }
+    } catch {
+      toast.error('Could not create the group. Try again.');
+    } finally {
+      setCreatingGroup(false);
     }
-    setCreatingGroup(false);
   };
 
   const handleJoinGroup = async () => {
     if (!joinGroupId.trim()) return;
     setJoiningGroup(true);
     const code = joinGroupId.trim().toUpperCase();
-    const res = await base44.functions.invoke('joinGroup', { joinCode: code });
-    const joinedId = res.data?.group?.id ?? code;
-    updateUser({ groupIds: [...(user.groupIds ?? []), joinedId] });
-    toast.success('Joined group!');
-    setJoinGroupId('');
-    loadGroups();
-    setJoiningGroup(false);
-  };
-
-  const sendHighFive = async (log) => {
-    if (highFivedLogs[log.id]) return;
-    triggerHaptic();
-    setHighFivedLogs(prev => ({ ...prev, [log.id]: true }));
     try {
-      await base44.functions.invoke('sendHighFive', {
-        receiverId: log.userId,
-        book: log.book,
-        chapter: log.chapter,
-      });
-      toast('🙌 High five sent!', { duration: 1200 });
-    } catch {
-      setHighFivedLogs(prev => ({ ...prev, [log.id]: false }));
-      toast.error('Could not send high five');
+      const res = await base44.functions.invoke('joinGroup', { joinCode: code });
+      const joinedId = res.data?.group?.id ?? code;
+      updateUser({ groupIds: [...(user.groupIds ?? []), joinedId] });
+      toast.success('Joined group!');
+      setJoinGroupId('');
+      loadGroups();
+      loadFeed({ force: true }).catch(() => {});
+    } catch (err) {
+      const status = err?.response?.status ?? err?.status;
+      toast.error(status === 404 ? 'No group found with that code' : 'Could not join the group. Try again.');
+    } finally {
+      setJoiningGroup(false);
     }
   };
 
   // ── Tab content ────────────────────────────────────────────
+  const todayKey = getDateKey();
+  const readToday = readOnDay(feedLogs, todayKey);
+  const todaysBooks = latestBookByUser(feedLogs.filter(l => l.dateKey === todayKey));
+
   const renderFriends = () => (
     <div className="space-y-5">
       {/* Search */}
@@ -335,6 +357,7 @@ export default function Social() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => acceptRequest(fr)}
+                    aria-label="Accept friend request"
                     className="h-8 w-8 flex items-center justify-center rounded-lg"
                     style={{ background: 'rgba(34,197,94,0.12)' }}
                   >
@@ -342,6 +365,7 @@ export default function Social() {
                   </button>
                   <button
                     onClick={() => declineRequest(fr)}
+                    aria-label="Decline friend request"
                     className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
@@ -368,9 +392,11 @@ export default function Social() {
           </div>
         ) : (
           <div className="space-y-2">
-            {friends.map((f, i) => (
-              <FriendCard key={f.id} friend={f} index={i} />
-            ))}
+            {[...friends]
+              .sort((a, b) => readToday.has(b.id) - readToday.has(a.id))
+              .map((f, i) => (
+                <FriendCard key={f.id} friend={f} index={i} readToday={readToday.has(f.id)} book={todaysBooks.get(f.id)} />
+              ))}
           </div>
         )}
       </div>
@@ -545,11 +571,14 @@ export default function Social() {
 
   const handleRefreshFeed = async () => {
     setRefreshing(true);
-    await loadFeed();
-    setRefreshing(false);
+    try {
+      await loadFeed({ force: true });
+    } catch {
+      toast.error("Couldn't refresh right now. Try again in a moment.");
+    } finally {
+      setRefreshing(false);
+    }
   };
-
-  const testament_color = (t) => t === 'NT' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300';
 
   const renderFeed = () => (
     <div>
@@ -563,78 +592,21 @@ export default function Social() {
         <button
           onClick={handleRefreshFeed}
           disabled={refreshing}
+          aria-label="Refresh activity"
           className="h-8 w-8 flex items-center justify-center rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
         </button>
       </div>
 
-      {feedItems.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-border bg-card py-12 flex flex-col items-center gap-3">
-          <div className="w-14 h-14 rounded-full bg-muted flex items-center justify-center">
-            <BookOpen className="w-7 h-7 text-muted-foreground/40" />
-          </div>
-          <div className="text-center">
-            <p className="text-sm font-semibold text-foreground">No activity yet</p>
-            <p className="text-xs text-muted-foreground mt-1">Add friends or join a group to see their reading here</p>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          <AnimatePresence>
-            {feedItems.map((log, i) => {
-              const friendUser = feedUsers[log.userId];
-              const name = friendUser?.displayName ?? friendUser?.full_name ?? 'A friend';
-              const hifived = highFivedLogs[log.id];
-              return (
-                <motion.div
-                  key={log.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.04 }}
-                  className="rounded-2xl border border-border bg-card overflow-hidden"
-                >
-                  <div className="flex items-center gap-3 px-4 pt-3.5 pb-2">
-                    <AvatarDisplay initials={name[0]?.toUpperCase() ?? '?'} avatarData={friendUser} size={38} />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-bold text-foreground truncate">{name}</p>
-                      <p className="text-xs text-muted-foreground">{timeAgo(log.created_date ?? log.timestamp)}</p>
-                    </div>
-                    {log.testament && (
-                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${testament_color(log.testament)}`}>
-                        {log.testament}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between px-4 pb-3.5">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
-                      <p className="text-sm text-foreground">
-                        <span className="font-semibold">{log.book}</span>
-                        <span className="text-muted-foreground"> · Ch. {log.chapter}</span>
-                        {'  🔥'}
-                      </p>
-                    </div>
-                    <motion.button
-                      whileTap={{ scale: 0.85 }}
-                      onClick={() => sendHighFive(log)}
-                      disabled={hifived}
-                      className={`flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                        hifived
-                          ? 'bg-amber-100 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400'
-                          : 'bg-muted hover:bg-amber-50 hover:text-amber-600 dark:hover:bg-amber-900/20 text-muted-foreground'
-                      }`}
-                    >
-                      <Hand className="w-3.5 h-3.5" />
-                      {hifived ? 'High-fived! 🙌' : 'High Five'}
-                    </motion.button>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </AnimatePresence>
-        </div>
-      )}
+      <CommunityFeed
+        logs={feedLogs}
+        usersById={feedUsers}
+        people={Object.values(feedUsers)}
+        meId={user?.id}
+        emptyTitle="No activity yet"
+        emptyText="Add friends or join a group to see their reading here"
+      />
     </div>
   );
 
@@ -649,7 +621,10 @@ export default function Social() {
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Friends, groups &amp; activity</p>
           </div>
-          <NotificationsBell />
+          <NotificationsBell
+            defaultOpen={openNotifications}
+            onChange={() => { loadPending(); loadFriends(); loadGroups(); loadFeed({ force: true }).catch(() => {}); }}
+          />
         </div>
 
         {/* Tabs */}
@@ -676,8 +651,10 @@ export default function Social() {
         {recapNotif && (
           <WeeklyRecapCard
             message={recapNotif.message}
+            payload={recapNotif.payload}
             onDismiss={async () => {
-              await base44.entities.Notification.update(recapNotif.id, { isRead: true });
+              // Dismissed everywhere (Friends tab and the group page), on every device.
+              await base44.entities.Notification.update(recapNotif.id, { isRead: true, payload: { ...(recapNotif.payload ?? {}), dismissed: true } }).catch(() => {});
               setRecapNotif(null);
             }}
           />

@@ -10,6 +10,7 @@ import { computeBadgeState } from '@/components/badges/badgeEngine';
 import { artifacts as artifactCatalog, ARTIFACT_RARITY_COLORS, ARTIFACT_RARITY_LABELS } from '@/data/artifactCatalog';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
 import { toast } from 'sonner';
+import { CheerTiles } from '@/components/community/CheerButton';
 
 
 
@@ -109,6 +110,23 @@ export default function UserDetail() {
   });
 
   const isGroupOwner = ownerGroup?.ownerId === currentUser?.id;
+
+  // Cheering is open to friends and fellow group members (the server double-checks).
+  const { data: canCheer = false } = useQuery({
+    queryKey: ['canCheer', currentUser?.id, userId],
+    queryFn: async () => {
+      const [a, b] = await Promise.all([
+        base44.entities.Friendship.filter({ user1Id: currentUser.id, user2Id: userId, status: 'accepted' }),
+        base44.entities.Friendship.filter({ user1Id: userId, user2Id: currentUser.id, status: 'accepted' }),
+      ]);
+      if (a.length + b.length > 0) return true;
+      const groups = await base44.entities.Group.filter({}, '-created_date', 1000);
+      const inGroup = (g, id) => g.ownerId === id || (g.memberIds ?? []).includes(id);
+      return groups.some((g) => inGroup(g, currentUser.id) && inGroup(g, userId));
+    },
+    enabled: !!currentUser?.id && !!userId && currentUser?.id !== userId,
+    staleTime: 60000,
+  });
 
   const handleRemove = async () => {
     setRemoving(true);
@@ -249,6 +267,12 @@ export default function UserDetail() {
       </div>
 
       <div className="max-w-lg mx-auto px-5 mt-5 space-y-6">
+        {!isMe && canCheer && targetUser && (
+          <div className="rounded-2xl border border-border bg-card p-4" data-testid="profile-cheer">
+            <p className="text-base font-bold text-foreground mb-3">Cheer on {name.split(' ')[0]} 🙌</p>
+            <CheerTiles toUser={targetUser} compact />
+          </div>
+        )}
         <div className="grid grid-cols-2 gap-3">
           <StatCard label="Streak" value={streak} unit="days in a row 🔥" icon={Flame} gradient="bg-gradient-to-br from-orange-400 to-red-500" />
           <StatCard label="This Week" value={weekChapters} unit="chapters read 📖" icon={BookOpen} gradient="bg-gradient-to-br from-blue-500 to-violet-600" />
