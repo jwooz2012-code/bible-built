@@ -1,7 +1,12 @@
 import { BIBLE_BOOKS } from '@/components/bible/bibleData';
 import { HOSEA_CHALLENGE } from './hosea';
+import { JONAH_CHALLENGE } from './jonah';
+import { RUTH_CHALLENGE } from './ruth';
+import { JAMES_CHALLENGE } from './james';
+import { MARK_CHALLENGE } from './mark';
 
-export const CHALLENGES = [HOSEA_CHALLENGE];
+// Bible order, so lists (like the Stats page) read naturally.
+export const CHALLENGES = [RUTH_CHALLENGE, HOSEA_CHALLENGE, JONAH_CHALLENGE, MARK_CHALLENGE, JAMES_CHALLENGE];
 
 export const getChallenge = (id) => CHALLENGES.find((c) => c.id === id) || null;
 export const getChallengeForBook = (bookName) => CHALLENGES.find((c) => c.book === bookName) || null;
