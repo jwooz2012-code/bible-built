@@ -40,34 +40,97 @@ export async function areConnected(db: any, a: string, b: string) {
   return groups.some((g: any) => inGroup(g, a) && inGroup(g, b));
 }
 
+const DATE = '\\d{4}-\\d{2}-\\d{2}';
+const BOOK = '[1-3A-Za-z ]{2,30}';
+const SESSION_KEY = new RegExp(`^s:([^:]+):(${DATE}):(${BOOK})$`);
+const BOOK_KEY = new RegExp(`^m:book:([^:]+):(${BOOK}):(${DATE})$`);
+const STREAK_KEY = new RegExp(`^m:streak:([^:]+):(\\d{1,4}):(${DATE})$`);
+const PROFILE_KEY = new RegExp(`^p:([^:]+):(${DATE})$`);
+const REPLY_KEY = /^hb:([A-Za-z0-9_-]{1,64})$/;
+const ENCOURAGEMENT_TYPES = ['cheer', 'high_five', 'nudge'];
+
+/**
+ * The text shown in the recipient's notification is built here from the item's key,
+ * never taken as-is from the app, so nobody can slip their own words into it.
+ * Returns null when the key doesn't match its type or points at someone else.
+ */
+export function labelFor(targetType: string, targetKey: string, toUserId: string, clientLabel: unknown) {
+  if (targetType === 'profile') {
+    const p = targetKey.match(PROFILE_KEY);
+    if (p) return p[1] === toUserId ? '' : null;
+    return REPLY_KEY.test(targetKey) ? '' : null;
+  }
+  let m = targetType === 'session' ? targetKey.match(SESSION_KEY) : null;
+  if (m) {
+    if (m[1] !== toUserId) return null;
+    const book = m[3];
+    const escaped = book.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const chapters = new RegExp(`^${escaped} \\d[\\d–, ]{0,40}$`);
+    return typeof clientLabel === 'string' && chapters.test(clientLabel) ? clientLabel : book;
+  }
+  if (targetType !== 'milestone') return null;
+  m = targetKey.match(BOOK_KEY);
+  if (m) return m[1] === toUserId ? `Finished ${m[2]}` : null;
+  m = targetKey.match(STREAK_KEY);
+  if (m) return m[1] === toUserId ? `${Number(m[2])}-day streak` : null;
+  return null;
+}
+
 export async function handleSendCheer(base44: any, user: any, body: any) {
   const db = base44.asServiceRole;
   const { toUserId, kind, targetType = 'session', targetKey } = body ?? {};
-  const label = typeof body?.label === 'string' ? body.label.slice(0, 120) : '';
 
   if (!toUserId || typeof toUserId !== 'string') return reply(400, { error: 'toUserId is required' });
   if (toUserId === user.id) return reply(400, { error: 'Cannot cheer yourself' });
-  if (!KINDS[kind]) return reply(400, { error: 'Unknown cheer kind' });
+  if (typeof kind !== 'string' || !Object.prototype.hasOwnProperty.call(KINDS, kind)) return reply(400, { error: 'Unknown cheer kind' });
   if (!TARGET_TYPES.includes(targetType)) return reply(400, { error: 'Unknown target type' });
   if (!targetKey || typeof targetKey !== 'string' || targetKey.length > 200) return reply(400, { error: 'targetKey is required' });
+  const label = labelFor(targetType, targetKey, toUserId, body?.label);
+  if (label === null) return reply(400, { error: 'Invalid item' });
 
-  if (!(await areConnected(db, user.id, toUserId))) {
-    return reply(403, { error: 'You can only cheer friends and group members' });
+  // A "High five back" must answer a real encouragement you received from this person,
+  // and replies can't be answered again (no endless ping-pong). Whether a notification was
+  // itself a reply is checked against the server-only Cheer records, which users can't edit.
+  const replyTo = targetKey.match(REPLY_KEY);
+  if (replyTo) {
+    const [original] = await fetchWithRetry(() => db.entities.Notification.filter({ id: replyTo[1] }));
+    const valid = original && original.userId === user.id && original.relatedId === toUserId
+      && ENCOURAGEMENT_TYPES.includes(original.type);
+    if (!valid) return reply(400, { error: 'Invalid item' });
+    const theirs = await fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: toUserId, toUserId: user.id }, '-created_date', 500));
+    const originalAt = original.createdAt ?? original.created_date;
+    if (original.payload?.reply || theirs.some((c: any) => String(c.targetKey).startsWith('hb:') && (c.createdAt ?? c.created_date) === originalAt)) {
+      return reply(400, { error: 'Invalid item' });
+    }
   }
 
-  const mine = await fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', 5000));
-  const stats = (list: any[]) => ({ sent: list.length, recipients: new Set(list.map((c) => c.toUserId)).size });
+  const [connected, senderRows, existingRows, recent] = await Promise.all([
+    areConnected(db, user.id, toUserId),
+    fetchWithRetry(() => db.entities.User.filter({ id: user.id })),
+    fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id, targetKey })),
+    fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', 1000)),
+  ]);
+  if (!connected) return reply(403, { error: 'You can only cheer friends and group members' });
+  const senderProfile = senderRows[0];
+
+  // Badge totals are recounted from the sender's recent cheers every time, so a missed update
+  // corrects itself; they never go below what's already stored (the recount window is capped).
+  const stored = { sent: senderProfile?.cheersSent ?? 0, recipients: senderProfile?.cheerRecipients ?? 0 };
+  const countOf = (list: any[], isNew = false) => ({
+    sent: Math.max(list.length, stored.sent + (isNew ? 1 : 0)),
+    recipients: Math.max(new Set(list.map((c: any) => c.toUserId)).size, stored.recipients),
+  });
 
   // One cheer per sender per item: tapping a different reaction switches it, same one is a no-op.
-  const existing = mine.find((c: any) => c.targetKey === targetKey);
+  const existing = existingRows[0];
   if (existing) {
-    if (existing.kind === kind) return reply(200, { cheer: existing, duplicate: true, stats: stats(mine) });
+    if (existing.kind === kind) return reply(200, { cheer: existing, duplicate: true, stats: countOf(recent) });
     const updated = await db.entities.Cheer.update(existing.id, { kind });
-    return reply(200, { cheer: { ...existing, ...updated, kind }, changed: true, stats: stats(mine) });
+    return reply(200, { cheer: { ...existing, ...updated, kind }, changed: true, stats: countOf(recent) });
   }
 
   const since = Date.now() - DAY_MS;
-  const sentToday = mine.filter((c: any) => new Date(c.createdAt ?? c.created_date).getTime() >= since).length;
+  const sentToday = recent.filter((c: any) => new Date(c.createdAt ?? c.created_date).getTime() >= since).length;
   if (sentToday >= DAILY_LIMIT) return reply(429, { error: 'Daily cheer limit reached' });
 
   const now = new Date().toISOString();
@@ -81,7 +144,6 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
     createdAt: now,
   });
 
-  const senderProfile = (await db.entities.User.filter({ id: user.id }))[0];
   const senderName = senderProfile?.displayName || senderProfile?.full_name || user.full_name || user.email?.split('@')[0] || 'Someone';
   await db.entities.Notification.create({
     userId: toUserId,
@@ -90,10 +152,10 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
     relatedId: user.id,
     isRead: false,
     createdAt: now,
-    payload: { kind, label, targetKey, targetType },
+    payload: { kind, label, targetKey, targetType, ...(replyTo ? { reply: true } : {}) },
   });
 
-  const newStats = stats([...mine, cheer]);
+  const newStats = countOf([cheer, ...recent], true);
   try {
     await db.entities.User.update(user.id, { cheersSent: newStats.sent, cheerRecipients: newStats.recipients });
   } catch (err) {

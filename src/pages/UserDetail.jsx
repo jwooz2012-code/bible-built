@@ -120,7 +120,7 @@ export default function UserDetail() {
         base44.entities.Friendship.filter({ user1Id: userId, user2Id: currentUser.id, status: 'accepted' }),
       ]);
       if (a.length + b.length > 0) return true;
-      const groups = await base44.entities.Group.filter({});
+      const groups = await base44.entities.Group.filter({}, '-created_date', 1000);
       const inGroup = (g, id) => g.ownerId === id || (g.memberIds ?? []).includes(id);
       return groups.some((g) => inGroup(g, currentUser.id) && inGroup(g, userId));
     },

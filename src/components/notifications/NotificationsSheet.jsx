@@ -7,7 +7,7 @@ import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { cheerKind, ENCOURAGEMENT_TYPES, profileCheerKey, timeAgo } from '@/components/community/cheers';
+import { cheerKind, ENCOURAGEMENT_TYPES, timeAgo } from '@/components/community/cheers';
 import { useSendCheer } from '@/components/community/useCheers';
 
 const TYPE_EMOJI = {
@@ -35,7 +35,8 @@ function ActionButton({ onClick, primary, children }) {
 
 function NotificationRow({ notif, onOpen, onAction, sentBack, onSendBack }) {
   const unread = !notif.isRead;
-  const canSendBack = ENCOURAGEMENT_TYPES.includes(notif.type) && notif.relatedId;
+  // Replies ("X gave you a high five back") don't get their own reply button.
+  const canSendBack = ENCOURAGEMENT_TYPES.includes(notif.type) && notif.relatedId && !notif.payload?.reply;
   return (
     <div
       onClick={() => onOpen(notif)}
@@ -77,7 +78,7 @@ function NotificationRow({ notif, onOpen, onAction, sentBack, onSendBack }) {
   );
 }
 
-export default function NotificationsSheet({ open, onClose, notifications, markRead, markAllRead, remove }) {
+export default function NotificationsSheet({ open, onClose, notifications, markRead, markAllRead, remove, patch, onChange }) {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
   const sendCheer = useSendCheer();
@@ -104,9 +105,14 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
   const sendBack = async (n) => {
     setSentBack((prev) => ({ ...prev, [n.id]: true }));
     markRead(n.id);
-    const ok = await sendCheer({ toUserId: n.relatedId, kind: 'high_five', targetType: 'profile', targetKey: profileCheerKey(n.relatedId), silent: true });
-    if (!ok) setSentBack((prev) => ({ ...prev, [n.id]: false }));
-    else toast('🙌 High five sent back!', { duration: 1400 });
+    // Keyed to this notification, so every cheer you got can be answered with its own high five.
+    const ok = await sendCheer({ toUserId: n.relatedId, kind: 'high_five', targetType: 'profile', targetKey: `hb:${n.id}`, silent: true });
+    if (!ok) { setSentBack((prev) => ({ ...prev, [n.id]: false })); return; }
+    toast('🙌 High five sent back!', { duration: 1400 });
+    // Remember it on the notification itself, so it shows as sent on every device, forever.
+    const payload = { ...(n.payload ?? {}), sentBack: true };
+    patch?.(n.id, { payload });
+    base44.entities.Notification.update(n.id, { payload }).catch(() => {});
   };
 
   const onAction = async (action, n) => {
@@ -114,11 +120,19 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
       try { await base44.functions.invoke('acceptFriendRequest', { friendshipId: n.relatedId }); toast.success('Friend accepted!'); }
       catch { toast('Request no longer available'); }
       markRead(n.id);
+      onChange?.();
     }
     if (action === 'declineFriend') {
-      try { if (n.relatedId) await base44.entities.Friendship.delete(n.relatedId); } catch { /* already gone */ }
+      // Only a still-pending request is deleted, never a friendship that was already accepted.
+      let alreadyFriends = false;
+      try {
+        const [friendship] = n.relatedId ? await base44.entities.Friendship.filter({ id: n.relatedId }) : [];
+        if (friendship?.status === 'pending') await base44.entities.Friendship.delete(friendship.id);
+        alreadyFriends = friendship?.status === 'accepted';
+      } catch { /* already gone */ }
       remove(n.id);
-      toast('Request declined');
+      toast(alreadyFriends ? "You're already friends" : 'Request declined');
+      onChange?.();
     }
     if (action === 'joinGroup') {
       try {
@@ -126,6 +140,7 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
         updateUser({ groupIds: [...(user.groupIds ?? []), n.relatedId] });
         toast.success('Joined the group!');
         markRead(n.id);
+        onChange?.();
         onClose();
         navigate(`/group-detail?id=${n.relatedId}`);
       } catch { toast.error('Could not join group'); }
@@ -141,7 +156,7 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
       <p className="px-4 pt-4 pb-1.5 text-[11px] font-bold uppercase tracking-widest text-muted-foreground">{title}</p>
       <div className="divide-y divide-border">
         {list.map((n) => (
-          <NotificationRow key={n.id} notif={n} onOpen={openNotif} onAction={onAction} sentBack={sentBack[n.id]} onSendBack={sendBack} />
+          <NotificationRow key={n.id} notif={n} onOpen={openNotif} onAction={onAction} sentBack={sentBack[n.id] || n.payload?.sentBack} onSendBack={sendBack} />
         ))}
       </div>
     </div>

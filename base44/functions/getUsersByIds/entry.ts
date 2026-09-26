@@ -25,8 +25,9 @@ Deno.serve(async (req) => {
     return Response.json({ users: [] });
   }
 
-  const allUsers = await fetchWithRetry(() => base44.asServiceRole.entities.User.list());
-  const allWallets = await fetchWithRetry(() => base44.asServiceRole.entities.UserWallet.list());
+  // Explicit limits so nobody is missed if the default page size is smaller than the user base
+  const allUsers = await fetchWithRetry(() => base44.asServiceRole.entities.User.list('-created_date', 5000));
+  const allWallets = await fetchWithRetry(() => base44.asServiceRole.entities.UserWallet.list('-created_date', 5000));
   const walletMap = {};
   allWallets.forEach(w => { walletMap[w.userId] = w; });
   
@@ -41,7 +42,14 @@ Deno.serve(async (req) => {
       avatarType: u.avatarType, 
       avatarPhotoUrl: u.avatarPhotoUrl, 
       avatarEmoji: u.avatarEmoji, 
-      avatarDefaultId: u.avatarDefaultId 
+      avatarDefaultId: u.avatarDefaultId,
+      // Public badge counters so other people's profiles show their badges correctly
+      cheersSent: u.cheersSent ?? 0,
+      cheerRecipients: u.cheerRecipients ?? 0,
+      challengeAttempts: u.challengeAttempts ?? 0,
+      challengePerfects: u.challengePerfects ?? 0,
+      statsSharedCount: u.statsSharedCount ?? 0,
+      statsReceivedCount: u.statsReceivedCount ?? 0
     }));
 
   return Response.json({ users: filtered });

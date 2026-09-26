@@ -38,19 +38,15 @@ function FriendCard({ friend, index, readToday, book }) {
           )}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-foreground truncate">{friend.displayName || friend.full_name || 'Member'}</p>
-          <div className="flex items-center gap-2 mt-0.5 min-w-0">
-            {readToday ? (
-              <span className="text-xs text-green-600 dark:text-green-400 font-semibold truncate">Read today{book ? ` · ${book}` : ''}</span>
-            ) : (
-              <span className="text-xs text-muted-foreground">Not yet today</span>
-            )}
+          <div className="flex items-center gap-1.5 min-w-0">
+            <p className="text-sm font-bold text-foreground truncate">{friend.displayName || friend.full_name || 'Member'}</p>
             {streak > 0 && (
-              <span className="text-xs text-orange-500 font-semibold flex items-center gap-0.5 shrink-0">
-                🔥 {streak}d
-              </span>
+              <span className="text-xs text-orange-500 font-semibold shrink-0">🔥 {streak}d</span>
             )}
           </div>
+          <p className={`text-xs mt-0.5 truncate ${readToday ? 'text-green-600 dark:text-green-400 font-semibold' : 'text-muted-foreground'}`}>
+            {readToday ? `Read today${book ? ` · ${book}` : ''}` : 'Not yet today'}
+          </p>
         </div>
       </button>
       <CheerButton toUser={friend} />
@@ -153,7 +149,7 @@ export default function Social() {
 
   const loadGroups = useCallback(async () => {
     if (!user?.id) return;
-    const all = await base44.entities.Group.filter({});
+    const all = await base44.entities.Group.filter({}, '-created_date', 1000);
     const myGroups = all.filter(g =>
       (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id
     );
@@ -162,10 +158,13 @@ export default function Social() {
 
   // Friends and Activity tabs share this data; reuse it for a minute unless refreshed.
   const feedLoadedAt = useRef(0);
+  const feedLoadSeq = useRef(0); // newest load wins if two overlap
   const loadFeed = useCallback(async ({ force = false } = {}) => {
     if (!user?.id) return;
     if (!force && Date.now() - feedLoadedAt.current < 60000) return;
     feedLoadedAt.current = Date.now();
+    const seq = ++feedLoadSeq.current;
+    const isLatest = () => seq === feedLoadSeq.current;
     try {
       // Collect friend IDs
       const [sent, received] = await Promise.all([
@@ -174,36 +173,39 @@ export default function Social() {
       ]);
       const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
 
-      // Also collect group member IDs (same membership check as the Groups tab)
-      const groupIds = user.groupIds ?? [];
-      const allGroups = await base44.entities.Group.filter({});
-      const myGroups = allGroups.filter(g => groupIds.includes(g.id) || (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id);
+      // Also collect group member IDs. Membership comes from the group itself (same check as the
+      // Groups tab and the server), not user.groupIds, which isn't cleared when someone is removed.
+      const allGroups = await base44.entities.Group.filter({}, '-created_date', 1000);
+      const myGroups = allGroups.filter(g => (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id);
       const groupMemberIds = myGroups.flatMap(g => [g.ownerId, ...(g.memberIds ?? [])]);
 
       // Union of friends + group members, excluding self
       const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id && id !== user.id);
-      if (allSocialIds.length === 0) { setFeedLogs([]); setFeedUsers({}); return; }
+      if (allSocialIds.length === 0) { if (isLatest()) { setFeedLogs([]); setFeedUsers({}); } return; }
 
       // Fetch recent logs for everyone (you included, so you can see cheers on your reading)
-      const logsRes = await base44.functions.invoke('getGroupReadingLogs', { memberIds: [user.id, ...allSocialIds] });
-      setFeedLogs(logsRes.data?.logs ?? []);
-
-      const res = await base44.functions.invoke('getUsersByIds', { ids: [user.id, ...allSocialIds] });
+      const [logsRes, res] = await Promise.all([
+        base44.functions.invoke('getGroupReadingLogs', { memberIds: [user.id, ...allSocialIds] }),
+        base44.functions.invoke('getUsersByIds', { ids: [user.id, ...allSocialIds] }),
+      ]);
+      if (!isLatest()) return;
       const map = {};
       (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
+      setFeedLogs(logsRes.data?.logs ?? []);
       setFeedUsers(map);
     } catch (err) {
-      feedLoadedAt.current = 0; // let the next visit retry
+      if (isLatest()) feedLoadedAt.current = 0; // let the next visit retry
       throw err;
     }
-  }, [user?.id, user?.groupIds]);
+  }, [user?.id]);
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
 
   useEffect(() => {
-    if (tab === 'friends') { loadFriends(); loadPending(); loadFeed(); }
+    // A failed feed load just leaves the last data on screen; the next visit or refresh retries.
+    if (tab === 'friends') { loadFriends(); loadPending(); loadFeed().catch(() => {}); }
     if (tab === 'groups') loadGroups();
-    if (tab === 'feed') loadFeed();
+    if (tab === 'feed') loadFeed().catch(() => {});
   }, [tab, loadFriends, loadPending, loadGroups, loadFeed]);
 
   // ── Search ─────────────────────────────────────────────────
@@ -240,40 +242,61 @@ export default function Social() {
     toast.success('Friend accepted!');
     loadPending();
     loadFriends();
+    loadFeed({ force: true }).catch(() => {});
   };
 
   const declineRequest = async (friendship) => {
-    await base44.entities.Friendship.delete(friendship.id);
-    toast('Request declined');
+    // Re-check first: if it was already accepted (e.g. from the bell), don't delete the friendship.
+    try {
+      const [current] = await base44.entities.Friendship.filter({ id: friendship.id });
+      if (current?.status === 'pending') await base44.entities.Friendship.delete(friendship.id);
+      toast(current?.status === 'accepted' ? "You're already friends" : 'Request declined');
+    } catch {
+      toast.error('Could not decline. Try again.');
+    }
     loadPending();
+    loadFriends();
   };
 
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) return;
     setCreatingGroup(true);
-    const res = await base44.functions.invoke('createGroup', { name: newGroupName.trim() });
-    const newGroup = res.data?.group;
-    if (newGroup) {
-      updateUser({ groupIds: [...(user.groupIds ?? []), newGroup.id] });
-      toast.success('Group created!');
-      setShowCreateGroup(false);
-      setNewGroupName('');
-      loadGroups();
+    try {
+      const res = await base44.functions.invoke('createGroup', { name: newGroupName.trim() });
+      const newGroup = res.data?.group;
+      if (newGroup) {
+        updateUser({ groupIds: [...(user.groupIds ?? []), newGroup.id] });
+        toast.success('Group created!');
+        setShowCreateGroup(false);
+        setNewGroupName('');
+        loadGroups();
+        loadFeed({ force: true }).catch(() => {});
+      }
+    } catch {
+      toast.error('Could not create the group. Try again.');
+    } finally {
+      setCreatingGroup(false);
     }
-    setCreatingGroup(false);
   };
 
   const handleJoinGroup = async () => {
     if (!joinGroupId.trim()) return;
     setJoiningGroup(true);
     const code = joinGroupId.trim().toUpperCase();
-    const res = await base44.functions.invoke('joinGroup', { joinCode: code });
-    const joinedId = res.data?.group?.id ?? code;
-    updateUser({ groupIds: [...(user.groupIds ?? []), joinedId] });
-    toast.success('Joined group!');
-    setJoinGroupId('');
-    loadGroups();
-    setJoiningGroup(false);
+    try {
+      const res = await base44.functions.invoke('joinGroup', { joinCode: code });
+      const joinedId = res.data?.group?.id ?? code;
+      updateUser({ groupIds: [...(user.groupIds ?? []), joinedId] });
+      toast.success('Joined group!');
+      setJoinGroupId('');
+      loadGroups();
+      loadFeed({ force: true }).catch(() => {});
+    } catch (err) {
+      const status = err?.response?.status ?? err?.status;
+      toast.error(status === 404 ? 'No group found with that code' : 'Could not join the group. Try again.');
+    } finally {
+      setJoiningGroup(false);
+    }
   };
 
   // ── Tab content ────────────────────────────────────────────
@@ -334,6 +357,7 @@ export default function Social() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => acceptRequest(fr)}
+                    aria-label="Accept friend request"
                     className="h-8 w-8 flex items-center justify-center rounded-lg"
                     style={{ background: 'rgba(34,197,94,0.12)' }}
                   >
@@ -341,6 +365,7 @@ export default function Social() {
                   </button>
                   <button
                     onClick={() => declineRequest(fr)}
+                    aria-label="Decline friend request"
                     className="h-8 w-8 flex items-center justify-center rounded-lg bg-muted"
                   >
                     <X className="w-4 h-4 text-muted-foreground" />
@@ -546,8 +571,13 @@ export default function Social() {
 
   const handleRefreshFeed = async () => {
     setRefreshing(true);
-    await loadFeed({ force: true });
-    setRefreshing(false);
+    try {
+      await loadFeed({ force: true });
+    } catch {
+      toast.error("Couldn't refresh right now. Try again in a moment.");
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   const renderFeed = () => (
@@ -562,6 +592,7 @@ export default function Social() {
         <button
           onClick={handleRefreshFeed}
           disabled={refreshing}
+          aria-label="Refresh activity"
           className="h-8 w-8 flex items-center justify-center rounded-xl hover:bg-muted transition-colors disabled:opacity-50"
         >
           <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
@@ -590,7 +621,10 @@ export default function Social() {
             </h1>
             <p className="text-sm text-muted-foreground mt-0.5">Friends, groups &amp; activity</p>
           </div>
-          <NotificationsBell defaultOpen={openNotifications} />
+          <NotificationsBell
+            defaultOpen={openNotifications}
+            onChange={() => { loadPending(); loadFriends(); loadGroups(); loadFeed({ force: true }).catch(() => {}); }}
+          />
         </div>
 
         {/* Tabs */}
@@ -619,7 +653,8 @@ export default function Social() {
             message={recapNotif.message}
             payload={recapNotif.payload}
             onDismiss={async () => {
-              await base44.entities.Notification.update(recapNotif.id, { isRead: true });
+              // Dismissed everywhere (Friends tab and the group page), on every device.
+              await base44.entities.Notification.update(recapNotif.id, { isRead: true, payload: { ...(recapNotif.payload ?? {}), dismissed: true } }).catch(() => {});
               setRecapNotif(null);
             }}
           />

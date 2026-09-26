@@ -10,7 +10,7 @@ const MILESTONE_STYLE = {
   streak: { emoji: '🔥', bg: 'linear-gradient(135deg, rgba(249,115,22,0.16), rgba(245,158,11,0.06))', border: 'rgba(249,115,22,0.35)' },
 };
 
-export default function FeedCard({ item, user, isMine, cheers, meId, onCheer, onOpenProfile, index = 0 }) {
+export default function FeedCard({ item, user, isMine, readOnly, cheers, meId, onCheer, onOpenProfile, index = 0 }) {
   const name = isMine ? 'You' : displayName(user, 'A friend');
   const milestone = item.type === 'milestone' ? MILESTONE_STYLE[item.kind] : null;
 
@@ -61,7 +61,7 @@ export default function FeedCard({ item, user, isMine, cheers, meId, onCheer, on
         </div>
       )}
 
-      <ReactionBar cheers={cheers} meId={meId} isMine={isMine} onCheer={onCheer} />
+      <ReactionBar cheers={cheers} meId={meId} isMine={isMine} readOnly={readOnly} onCheer={onCheer} />
     </motion.div>
   );
 }

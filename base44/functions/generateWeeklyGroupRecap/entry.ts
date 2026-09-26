@@ -4,7 +4,7 @@ const BOOK_CHAPTERS: Record<string, number> = {"Genesis":50,"Exodus":40,"Levitic
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
 // Base44 answers 429 when too many requests arrive at once; back off and try again.
-async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 4): Promise<T> {
   for (let i = 0; ; i++) {
     try {
       return await fn();
@@ -57,6 +57,13 @@ export function bookCompletions(logs: any[], truncated = false) {
 
 const nameOf = (u: any) => u?.displayName || u?.full_name || 'A member';
 
+// Run async work over a list a few at a time: faster than one-by-one, gentle on rate limits.
+async function inBatches<T, R>(items: T[], size: number, fn: (item: T) => Promise<R>) {
+  const out: R[] = [];
+  for (let i = 0; i < items.length; i += size) out.push(...await Promise.all(items.slice(i, i + size).map(fn)));
+  return out;
+}
+
 export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
   const db = base44.asServiceRole;
   const todayKey = DATE_RE.test(body?.todayKey ?? '') ? body.todayKey : new Date().toISOString().slice(0, 10);
@@ -68,77 +75,98 @@ export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
   const groups = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
   let sent = 0;
 
-  // People in several groups are loaded once, one at a time to stay under the rate limit.
-  const people = new Map<string, any>();
-  const loadPerson = async (id: string) => {
+  // People in several groups are loaded once, a few at a time to stay under the rate limit.
+  const people = new Map<string, Promise<any>>();
+  const loadPerson = (id: string) => {
     if (!people.has(id)) {
-      const [user] = await fetchWithRetry(() => db.entities.User.filter({ id }));
-      const logs = await fetchWithRetry(() => db.entities.ReadingLog.filter({ userId: id }, '-created_date', LOG_CAP));
-      const cheers = await fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: id }, '-created_date', 500));
-      people.set(id, { id, name: nameOf(user), logs, cheers });
+      people.set(id, (async () => {
+        const [[user], logs, cheers] = await Promise.all([
+          fetchWithRetry(() => db.entities.User.filter({ id })),
+          fetchWithRetry(() => db.entities.ReadingLog.filter({ userId: id }, '-created_date', LOG_CAP)),
+          fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: id }, '-created_date', 500)),
+        ]);
+        return { id, name: nameOf(user), logs, cheers };
+      })().catch((err) => { people.delete(id); throw err; })); // a failed load is retried by the next group
     }
     return people.get(id);
   };
   let processed = 0;
+  const failedGroups: string[] = [];
 
-  for (const group of groups) {
+  const processGroup = async (group: any) => {
     const memberIds: string[] = [...new Set([group.ownerId, ...(group.memberIds ?? [])].filter(Boolean))];
-    if (memberIds.length === 0) continue;
+    if (memberIds.length === 0) return;
 
-    const members = [];
-    for (const id of memberIds) members.push(await loadPerson(id));
+    // One group's trouble (a missing user, a server hiccup) never stops the others' recaps.
+    try {
+      const members = await inBatches(memberIds, 2, loadPerson);
 
-    const stats = members.map((m) => {
-      const weekLogs = m.logs.filter((l: any) => inWeek(l.dateKey));
-      const cheersToGroup = m.cheers.filter((c: any) => memberIds.includes(c.toUserId) && inWeek(String(c.createdAt ?? c.created_date).slice(0, 10))).length;
-      return {
-        id: m.id,
-        name: m.name,
-        chapters: weekLogs.length,
-        days: new Set(weekLogs.map((l: any) => l.dateKey)).size,
-        cheers: cheersToGroup,
-        books: bookCompletions(m.logs, m.logs.length >= LOG_CAP).filter((e) => inWeek(e.dateKey)).map((e) => e.book),
+      const stats = members.map((m) => {
+        const weekLogs = m.logs.filter((l: any) => inWeek(l.dateKey));
+        const cheersToGroup = m.cheers.filter((c: any) => memberIds.includes(c.toUserId) && inWeek(String(c.createdAt ?? c.created_date).slice(0, 10))).length;
+        return {
+          id: m.id,
+          name: m.name,
+          chapters: weekLogs.length,
+          days: new Set(weekLogs.map((l: any) => l.dateKey)).size,
+          cheers: cheersToGroup,
+          books: bookCompletions(m.logs, m.logs.length >= LOG_CAP).filter((e) => inWeek(e.dateKey)).map((e) => e.book),
+        };
+      });
+
+      const totalChapters = stats.reduce((n, s) => n + s.chapters, 0);
+      if (totalChapters === 0) return;
+
+      const byChapters = [...stats].sort((a, b) => b.chapters - a.chapters);
+      const byCheers = [...stats].sort((a, b) => b.cheers - a.cheers);
+      const payload = {
+        groupId: group.id,
+        groupName: group.name,
+        weekStart,
+        weekEnd,
+        memberCount: memberIds.length,
+        totalChapters,
+        readers: stats.filter((s) => s.chapters > 0).length,
+        topReader: { id: byChapters[0].id, name: byChapters[0].name, count: byChapters[0].chapters },
+        topEncourager: byCheers[0].cheers > 0 ? { id: byCheers[0].id, name: byCheers[0].name, count: byCheers[0].cheers } : null,
+        booksFinished: stats.flatMap((s) => s.books.map((book) => ({ id: s.id, name: s.name, book }))).slice(0, 6),
+        everyDay: stats.filter((s) => s.days === 7).map((s) => ({ id: s.id, name: s.name })).slice(0, 8),
       };
-    });
+      const message = `${group.name} read ${totalChapters} chapters together this week! ${payload.topReader.name} led the way with ${payload.topReader.count}. 🏆`;
 
-    const totalChapters = stats.reduce((n, s) => n + s.chapters, 0);
-    if (totalChapters === 0) continue;
-    processed += 1;
-
-    const byChapters = [...stats].sort((a, b) => b.chapters - a.chapters);
-    const byCheers = [...stats].sort((a, b) => b.cheers - a.cheers);
-    const payload = {
-      groupId: group.id,
-      groupName: group.name,
-      weekStart,
-      weekEnd,
-      memberCount: memberIds.length,
-      totalChapters,
-      readers: stats.filter((s) => s.chapters > 0).length,
-      topReader: { id: byChapters[0].id, name: byChapters[0].name, count: byChapters[0].chapters },
-      topEncourager: byCheers[0].cheers > 0 ? { id: byCheers[0].id, name: byCheers[0].name, count: byCheers[0].cheers } : null,
-      booksFinished: stats.flatMap((s) => s.books.map((book) => ({ id: s.id, name: s.name, book }))).slice(0, 6),
-      everyDay: stats.filter((s) => s.days === 7).map((s) => ({ id: s.id, name: s.name })).slice(0, 8),
-    };
-    const message = `${group.name} read ${totalChapters} chapters together this week! ${payload.topReader.name} led the way with ${payload.topReader.count}. 🏆`;
-
-    for (const userId of memberIds) {
-      const existing = await fetchWithRetry(() => db.entities.Notification.filter({ userId, type: 'weekly_recap', relatedId: group.id }));
-      if (existing.some((n: any) => n.payload?.weekEnd === weekEnd)) continue;
-      await fetchWithRetry(() => db.entities.Notification.create({
-        userId,
-        type: 'weekly_recap',
-        message,
-        relatedId: group.id,
-        isRead: false,
-        createdAt: new Date().toISOString(),
-        payload,
-      }));
-      sent += 1;
+      await inBatches(memberIds, 2, async (userId) => {
+        const existing = await fetchWithRetry(() => db.entities.Notification.filter({ userId, type: 'weekly_recap', relatedId: group.id }, '-created_date', 5));
+        if (existing.some((n: any) => n.payload?.weekEnd === weekEnd)) return;
+        await fetchWithRetry(() => db.entities.Notification.create({
+          userId,
+          type: 'weekly_recap',
+          message,
+          relatedId: group.id,
+          isRead: false,
+          createdAt: new Date().toISOString(),
+          payload,
+        }));
+        sent += 1; // counted as each one goes out, so partial runs report accurately
+      });
+      processed += 1;
+    } catch (err) {
+      console.error('[generateWeeklyGroupRecap] Group failed', group.id, (err as Error)?.message);
+      return false;
     }
+    return true;
+  };
+
+  // One pass over every group, then one more try for any group that hit a hiccup.
+  const retry: any[] = [];
+  for (const group of groups) {
+    if ((await processGroup(group)) === false) retry.push(group);
+  }
+  if (retry.length) await new Promise((r) => setTimeout(r, 3000)); // let the rate limit cool off once
+  for (const group of retry) {
+    if ((await processGroup(group)) === false) failedGroups.push(group.id);
   }
 
-  return { status: 200, body: { success: true, weekStart, weekEnd, groupsProcessed: processed, notificationsSent: sent } };
+  return { status: 200, body: { success: true, weekStart, weekEnd, groupsProcessed: processed, notificationsSent: sent, failedGroups } };
 }
 
 Deno.serve(async (req) => {

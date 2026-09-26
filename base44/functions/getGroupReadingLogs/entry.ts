@@ -25,14 +25,18 @@ Deno.serve(async (req) => {
     return Response.json({ logs: [] });
   }
 
-  // Fetch logs for all members with rate limit retry
-  const logsByMember = await Promise.all(
-    memberIds.map(id =>
-      fetchWithRetry(() =>
-        base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 500)
+  // Fetch logs a few members at a time (with rate limit retry) so big circles don't trip 429s
+  const logsByMember = [];
+  for (let i = 0; i < memberIds.length; i += 10) {
+    const batch = await Promise.all(
+      memberIds.slice(i, i + 10).map(id =>
+        fetchWithRetry(() =>
+          base44.asServiceRole.entities.ReadingLog.filter({ userId: id }, '-created_date', 500)
+        )
       )
-    )
-  );
+    );
+    logsByMember.push(...batch);
+  }
 
   const logs = logsByMember.flat();
   return Response.json({ logs });

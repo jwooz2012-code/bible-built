@@ -3,9 +3,10 @@ import { motion } from 'framer-motion';
 import { CHEER_KINDS, joinNames } from './cheers';
 
 /**
- * Four reactions under a feed card. On your own cards it just shows who cheered you.
+ * Four reactions under a feed card. On your own cards it just shows who cheered you;
+ * `readOnly` (e.g. viewing a group you're not in) shows the counts without buttons.
  */
-export default function ReactionBar({ cheers = [], meId, isMine, onCheer }) {
+export default function ReactionBar({ cheers = [], meId, isMine, readOnly, onCheer }) {
   const myCheer = cheers.find((c) => c.fromUserId === meId);
   const counts = Object.fromEntries(CHEER_KINDS.map((k) => [k.id, cheers.filter((c) => c.kind === k.id).length]));
   const others = [...new Map(cheers.filter((c) => c.fromUserId !== meId).map((c) => [c.fromUserId, c.fromName])).values()];
@@ -22,6 +23,7 @@ export default function ReactionBar({ cheers = [], meId, isMine, onCheer }) {
   if (isMine) {
     return summary || <p className="text-xs text-muted-foreground/60 mt-2">Cheers from friends show up here</p>;
   }
+  if (readOnly) return summary || null;
 
   return (
     <div>

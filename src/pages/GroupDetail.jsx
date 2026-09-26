@@ -20,7 +20,7 @@ function RankBadge({ rank }) {
   return <span className="w-7 text-center text-sm font-bold text-muted-foreground">{rank}</span>;
 }
 
-function LeaderRow({ rank, member, stat, unit, isMe, onViewProfile }) {
+function LeaderRow({ rank, member, stat, unit, isMe, canCheer, onViewProfile }) {
   const name = member.displayName ?? member.full_name ?? 'Member';
   return (
     <div className={`flex items-center gap-3 px-4 py-3 border-b border-border last:border-0 transition-colors ${isMe ? 'bg-primary/5' : ''}`}>
@@ -36,7 +36,7 @@ function LeaderRow({ rank, member, stat, unit, isMe, onViewProfile }) {
           <p className="text-xs text-muted-foreground">{stat} {unit}</p>
         </div>
       </button>
-      {!isMe && <CheerButton toUser={member} />}
+      {!isMe && canCheer && <CheerButton toUser={member} />}
     </div>
   );
 }
@@ -88,12 +88,15 @@ export default function GroupDetail() {
 
   useEffect(() => { load(); }, [load]);
 
+  // This week's recap stays on the group page (even after the notification is opened)
+  // until it's a week old or the reader dismisses it here or on the Friends tab.
   useEffect(() => {
     if (!user?.id || !groupId) return;
-    base44.entities.Notification.filter({ userId: user.id, type: 'weekly_recap', relatedId: groupId, isRead: false })
+    base44.entities.Notification.filter({ userId: user.id, type: 'weekly_recap', relatedId: groupId }, '-created_date', 5)
       .then((list) => {
         const latest = [...list].sort((a, b) => new Date(b.createdAt ?? b.created_date) - new Date(a.createdAt ?? a.created_date))[0];
-        setRecap(latest ?? null);
+        const fresh = latest && Date.now() - new Date(latest.createdAt ?? latest.created_date).getTime() < 7 * 86400000;
+        setRecap(fresh && !latest.payload?.dismissed ? latest : null);
       })
       .catch(() => {});
   }, [user?.id, groupId]);
@@ -203,6 +206,8 @@ export default function GroupDetail() {
 
   const { energyMode } = useTheme();
   const isOwner = group?.ownerId === user?.id;
+  // Only members can cheer here (the server enforces the same rule).
+  const isMember = isOwner || (group?.memberIds ?? []).includes(user?.id);
 
   if (loading) {
     return (
@@ -346,7 +351,7 @@ export default function GroupDetail() {
               payload={recap.payload}
               onDismiss={async () => {
                 setRecap(null);
-                await base44.entities.Notification.update(recap.id, { isRead: true }).catch(() => {});
+                await base44.entities.Notification.update(recap.id, { isRead: true, payload: { ...(recap.payload ?? {}), dismissed: true } }).catch(() => {});
               }}
             />
           </div>
@@ -403,6 +408,7 @@ export default function GroupDetail() {
                 <LeaderRow key={row.member.id} rank={idx + 1} member={row.member}
                   stat={cfg.stat(row)} unit={cfg.unit(row)}
                   isMe={row.member.id === user?.id}
+                  canCheer={isMember}
                   onViewProfile={() => navigate(`/user-detail?id=${row.member.id}&groupId=${groupId}`)} />
               ))}
             </div>
@@ -422,6 +428,7 @@ export default function GroupDetail() {
             people={members}
             meId={user?.id}
             historyCap={2000}
+            canCheer={isMember}
             emptyTitle="No activity yet"
             emptyText="Start reading to see activity here"
           />

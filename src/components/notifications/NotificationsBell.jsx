@@ -4,9 +4,9 @@ import { useAuth } from '@/lib/AuthContext';
 import { useNotifications } from './useNotifications';
 import NotificationsSheet from './NotificationsSheet';
 
-export default function NotificationsBell({ defaultOpen = false }) {
+export default function NotificationsBell({ defaultOpen = false, onChange }) {
   const { user } = useAuth();
-  const { notifications, unreadCount, refetch, markRead, markAllRead, remove } = useNotifications(user?.id);
+  const { notifications, unreadCount, refetch, markRead, markAllRead, remove, patch } = useNotifications(user?.id);
   const [open, setOpen] = useState(defaultOpen);
 
   useEffect(() => { if (defaultOpen) setOpen(true); }, [defaultOpen]);
@@ -35,6 +35,8 @@ export default function NotificationsBell({ defaultOpen = false }) {
         markRead={markRead}
         markAllRead={markAllRead}
         remove={remove}
+        patch={patch}
+        onChange={onChange}
       />
     </>
   );

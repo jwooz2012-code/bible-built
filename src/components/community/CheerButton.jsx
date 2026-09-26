@@ -53,10 +53,12 @@ export default function CheerButton({ toUser, className = '', label = 'Cheer' })
         whileTap={{ scale: 0.9 }}
         onClick={(e) => { e.stopPropagation(); setOpen(true); }}
         aria-label={`Cheer on ${name}`}
-        className={`flex items-center gap-1 h-8 px-3 rounded-full text-xs font-bold shrink-0 ${className}`}
+        className={`flex items-center gap-1 h-8 px-2.5 min-[360px]:px-3 rounded-full text-xs font-bold shrink-0 ${className}`}
         style={{ background: 'rgba(245,158,11,0.15)', color: '#B45309' }}
       >
-        <span className="text-sm leading-none">🙌</span> {label}
+        <span className="text-sm leading-none">🙌</span>
+        {/* Just the emoji on the smallest phones so names have room */}
+        <span className="hidden min-[360px]:inline">{label}</span>
       </motion.button>
       {createPortal(
         <AnimatePresence>

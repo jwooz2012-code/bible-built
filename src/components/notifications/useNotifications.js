@@ -33,6 +33,9 @@ export function useNotifications(userId) {
     await Promise.all(list.map((id) => base44.entities.Notification.update(id, { isRead: true }).catch(() => {})));
   }, [patch]);
 
+  // Update one notification locally (the caller saves it to the server).
+  const patchOne = useCallback((id, changes) => patch((prev) => prev.map((n) => (n.id === id ? { ...n, ...changes } : n))), [patch]);
+
   const remove = useCallback(async (id) => {
     patch((prev) => prev.filter((n) => n.id !== id));
     await base44.entities.Notification.delete(id).catch(() => {});
@@ -46,5 +49,6 @@ export function useNotifications(userId) {
     markRead,
     markAllRead: () => markRead(notifications.filter((n) => !n.isRead).map((n) => n.id)),
     remove,
+    patch: patchOne,
   };
 }

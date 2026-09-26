@@ -65,6 +65,7 @@ export async function handleGetCheers(base44: any, user: any, body: any) {
       return true;
     });
 
+  // Senders can be outside the caller's circle (a friend's friend), so names come from here.
   const senderIds = [...new Set(cheers.map((c: any) => c.fromUserId as string))].slice(0, 150);
   const senders = await inBatches(senderIds, 5, (id) => fetchWithRetry(() => db.entities.User.filter({ id })).then((r: any[]) => r[0]));
   const names: Record<string, string> = {};
