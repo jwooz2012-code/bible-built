@@ -203,7 +203,7 @@ export default function ReadingTrackingScreen({ onContinue, isNewFeature = false
               size="lg"
               className="w-full h-14 rounded-full text-base font-bold"
             >
-              {triedBoth ? "Got it! 🙌" : "Next →"}
+              {triedBoth ? "Got it! 👏" : "Next →"}
             </Button>
           </motion.div>
         </motion.div>

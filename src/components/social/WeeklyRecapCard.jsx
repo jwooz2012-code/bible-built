@@ -54,7 +54,7 @@ export default function WeeklyRecapCard({ message, payload, onDismiss }) {
             </div>
             <div className="mt-3 space-y-2">
               {p.topReader && <Shoutout emoji="📖" title={p.topReader.name} text={`led the way with ${p.topReader.count} chapters.`} />}
-              {p.topEncourager && <Shoutout emoji="🙌" title={p.topEncourager.name} text={`was the top encourager with ${p.topEncourager.count} cheers.`} />}
+              {p.topEncourager && <Shoutout emoji="👏" title={p.topEncourager.name} text={`was the top encourager with ${p.topEncourager.count} cheers.`} />}
               {p.booksFinished?.map((b, i) => (
                 <Shoutout key={`${b.id}-${b.book}-${i}`} emoji="🎉" title={b.name} text={`finished ${b.book}.`} />
               ))}

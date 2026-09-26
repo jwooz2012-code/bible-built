@@ -7,11 +7,11 @@ import { useAuth } from '@/lib/AuthContext';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
 import { useNotifications } from '@/components/notifications/useNotifications';
 import { AvatarDisplay } from '@/components/profile/AvatarPicker';
-import { cheerKind, ENCOURAGEMENT_TYPES, firstName, joinNames } from './cheers';
+import { cheerKind, ENCOURAGEMENT_TYPES, firstName, joinNames, notificationText } from './cheers';
 
 const SESSION_FLAG = 'bb_cheered_popup_shown';
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
-const emojiFor = (n) => (n.type === 'cheer' ? cheerKind(n.payload?.kind).emoji : n.type === 'nudge' ? '🙏' : '🙌');
+const emojiFor = (n) => (n.type === 'cheer' ? cheerKind(n.payload?.kind).emoji : n.type === 'nudge' ? '🙏' : '✋');
 
 /** "Sarah, Jake and 2 others cheered you on" — shown on Home when new encouragement arrived. */
 export default function CheeredPopup({ blocked }) {
@@ -82,13 +82,13 @@ export default function CheeredPopup({ blocked }) {
                 </div>
               ))}
             </div>
-            <motion.div initial={{ rotate: -20, scale: 0.5 }} animate={{ rotate: 0, scale: 1 }} transition={{ delay: 0.15, type: 'spring' }} className="text-4xl">🙌</motion.div>
+            <motion.div initial={{ rotate: -20, scale: 0.5 }} animate={{ rotate: 0, scale: 1 }} transition={{ delay: 0.15, type: 'spring' }} className="text-4xl">👏</motion.div>
             <h2 className="text-xl font-black text-foreground mt-2 leading-tight">{headline}</h2>
             <div className="mt-4 space-y-2 text-left">
               {fresh.slice(0, 4).map((n) => (
                 <div key={n.id} className="flex items-start gap-2.5 rounded-xl bg-muted/60 px-3 py-2">
                   <span className="text-lg leading-none mt-0.5">{emojiFor(n)}</span>
-                  <p className="text-[13px] text-foreground leading-snug">{n.message}</p>
+                  <p className="text-[13px] text-foreground leading-snug">{notificationText(n.message)}</p>
                 </div>
               ))}
               {fresh.length > 4 && <p className="text-xs text-muted-foreground text-center">+{fresh.length - 4} more</p>}
@@ -98,7 +98,7 @@ export default function CheeredPopup({ blocked }) {
               className="mt-5 w-full h-12 rounded-full text-base font-bold text-white"
               style={{ background: 'linear-gradient(135deg,#16A34A,#22C55E)' }}
             >
-              Thanks! 🙌
+              Thanks! 👏
             </button>
             <button onClick={() => close(true)} className="mt-2 w-full h-10 rounded-full text-sm font-semibold text-muted-foreground">
               See all & cheer back

@@ -1,13 +1,16 @@
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 
 export const CHEER_KINDS = [
-  { id: 'high_five', emoji: '🙌', label: 'High five' },
+  { id: 'high_five', emoji: '✋', label: 'High five' },
   { id: 'keep_going', emoji: '🔥', label: 'Keep going' },
   { id: 'praying', emoji: '🙏', label: 'Praying for you' },
   { id: 'amen', emoji: '❤️', label: 'Amen' },
 ];
 
 export const cheerKind = (id) => CHEER_KINDS.find((k) => k.id === id) ?? CHEER_KINDS[0];
+
+// Older notifications were saved with 🙌 for high fives; show them with today's ✋.
+export const notificationText = (message = '') => message.replace(/🙌/g, '✋');
 
 // Notification types that mean "someone encouraged you".
 export const ENCOURAGEMENT_TYPES = ['cheer', 'high_five', 'nudge'];

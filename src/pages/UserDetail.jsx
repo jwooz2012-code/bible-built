@@ -269,7 +269,7 @@ export default function UserDetail() {
       <div className="max-w-lg mx-auto px-5 mt-5 space-y-6">
         {!isMe && canCheer && targetUser && (
           <div className="rounded-2xl border border-border bg-card p-4" data-testid="profile-cheer">
-            <p className="text-base font-bold text-foreground mb-3">Cheer on {name.split(' ')[0]} 🙌</p>
+            <p className="text-base font-bold text-foreground mb-3">Cheer on {name.split(' ')[0]} 👏</p>
             <CheerTiles toUser={targetUser} compact />
           </div>
         )}
