@@ -95,7 +95,7 @@ export default function FriendsIntroScreen({ onContinue }) {
                     </motion.span>
                   ) : (
                     <motion.span key="hand" className="flex items-center gap-1">
-                      <Hand className="w-3 h-3" /> 🙌
+                      <Hand className="w-3 h-3" /> ✋
                     </motion.span>
                   )}
                 </AnimatePresence>
@@ -140,7 +140,7 @@ export default function FriendsIntroScreen({ onContinue }) {
         </div>
 
         <p className="text-xs text-muted-foreground/70 text-center">
-          Tap 🙌 to try it. Find friends and groups in the Friends tab.
+          Tap ✋ to try it. Find friends and groups in the Friends tab.
         </p>
       </motion.div>
 

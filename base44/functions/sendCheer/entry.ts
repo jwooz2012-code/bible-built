@@ -1,7 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 const KINDS: Record<string, string> = {
-  high_five: 'gave you a high five 🙌',
+  high_five: 'gave you a high five ✋',
   keep_going: 'says keep going 🔥',
   praying: 'is praying for you 🙏',
   amen: 'sent you an amen ❤️',

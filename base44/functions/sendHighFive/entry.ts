@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
     const senderProfile = senderUsers[0];
     const senderName = senderProfile?.full_name || senderProfile?.displayName || user.full_name || user.email?.split('@')[0] || 'Someone';
     const chapterText = book && chapter ? ` for reading ${book} ${chapter}` : '';
-    const message = `${senderName} gave you a high five 🙌${chapterText}!`;
+    const message = `${senderName} gave you a high five ✋${chapterText}!`;
 
     await base44.asServiceRole.entities.Notification.create({
       userId: receiverId,

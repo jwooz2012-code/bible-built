@@ -7,11 +7,11 @@ import { toast } from 'sonner';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
-import { cheerKind, ENCOURAGEMENT_TYPES, timeAgo } from '@/components/community/cheers';
+import { cheerKind, ENCOURAGEMENT_TYPES, notificationText, timeAgo } from '@/components/community/cheers';
 import { useSendCheer } from '@/components/community/useCheers';
 
 const TYPE_EMOJI = {
-  high_five: '🙌',
+  high_five: '✋',
   nudge: '🙏',
   friend_request: '👋',
   group_invite: '✨',
@@ -48,7 +48,7 @@ function NotificationRow({ notif, onOpen, onAction, sentBack, onSendBack }) {
         {emojiFor(notif)}
       </div>
       <div className="flex-1 min-w-0">
-        <p className={`text-sm leading-snug ${unread ? 'font-semibold text-foreground' : 'text-foreground/85'}`}>{notif.message}</p>
+        <p className={`text-sm leading-snug ${unread ? 'font-semibold text-foreground' : 'text-foreground/85'}`}>{notificationText(notif.message)}</p>
         <p className="text-xs text-muted-foreground mt-0.5">{timeAgo(notif.createdAt ?? notif.created_date)}</p>
 
         {notif.type === 'friend_request' && unread && (
@@ -66,9 +66,9 @@ function NotificationRow({ notif, onOpen, onAction, sentBack, onSendBack }) {
         {canSendBack && (
           <div className="mt-2">
             {sentBack ? (
-              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">🙌 High five sent back</span>
+              <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">✋ High five sent back</span>
             ) : (
-              <ActionButton onClick={() => onSendBack(notif)}>🙌 High five back</ActionButton>
+              <ActionButton onClick={() => onSendBack(notif)}>✋ High five back</ActionButton>
             )}
           </div>
         )}
@@ -108,7 +108,7 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
     // Keyed to this notification, so every cheer you got can be answered with its own high five.
     const ok = await sendCheer({ toUserId: n.relatedId, kind: 'high_five', targetType: 'profile', targetKey: `hb:${n.id}`, silent: true });
     if (!ok) { setSentBack((prev) => ({ ...prev, [n.id]: false })); return; }
-    toast('🙌 High five sent back!', { duration: 1400 });
+    toast('✋ High five sent back!', { duration: 1400 });
     // Remember it on the notification itself, so it shows as sent on every device, forever.
     const payload = { ...(n.payload ?? {}), sentBack: true };
     patch?.(n.id, { payload });
