@@ -2,7 +2,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 // Must match src/data/challenges/index.js.
-const CHALLENGE_TOTALS: Record<string, number> = { hosea: 10 };
+const CHALLENGE_TOTALS: Record<string, number> = { hosea: 10, jonah: 10, ruth: 10, james: 10, mark: 10 };
 const MEDALS = [
   { id: 'bronze', minRatio: 0.6, xp: 100 },
   { id: 'silver', minRatio: 0.8, xp: 150 },
