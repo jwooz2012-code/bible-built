@@ -3,19 +3,70 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 const DAY_MS = 24 * 60 * 60 * 1000;
 const MAX_USERS = 200;
 
-// Recent cheers received by the given people, so feeds can show reaction counts and who reacted.
+// Base44 answers 429 when too many requests arrive at once; back off and try again.
+export async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if ((err as any)?.status === 429 && i < maxRetries - 1) {
+        await new Promise((r) => setTimeout(r, Math.pow(2, i) * 1000));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+// People the caller may see cheers for: themselves, friends, and members of their groups.
+async function circleOf(db: any, userId: string) {
+  const [sent, received, groups] = await Promise.all([
+    fetchWithRetry(() => db.entities.Friendship.filter({ user1Id: userId, status: 'accepted' })),
+    fetchWithRetry(() => db.entities.Friendship.filter({ user2Id: userId, status: 'accepted' })),
+    fetchWithRetry(() => db.entities.Group.list('-created_date', 1000)),
+  ]);
+  const circle = new Set<string>([userId]);
+  sent.forEach((f: any) => circle.add(f.user2Id));
+  received.forEach((f: any) => circle.add(f.user1Id));
+  groups
+    .filter((g: any) => g.ownerId === userId || (g.memberIds ?? []).includes(userId))
+    .forEach((g: any) => [g.ownerId, ...(g.memberIds ?? [])].forEach((id: string) => id && circle.add(id)));
+  return circle;
+}
+
+// Run async work over a list a few at a time, so big feeds don't trip the rate limit.
+async function inBatches<T, R>(items: T[], size: number, fn: (item: T) => Promise<R>) {
+  const out: R[] = [];
+  for (let i = 0; i < items.length; i += size) out.push(...await Promise.all(items.slice(i, i + size).map(fn)));
+  return out;
+}
+
+// Recent cheers received by people in the caller's circle, so feeds can show reaction counts and who reacted.
 export async function handleGetCheers(base44: any, user: any, body: any) {
   const db = base44.asServiceRole;
-  const ids = Array.isArray(body?.userIds) ? [...new Set(body.userIds.filter((id: unknown) => typeof id === 'string'))].slice(0, MAX_USERS) : [];
+  const requested = Array.isArray(body?.userIds) ? [...new Set(body.userIds.filter((id: unknown) => typeof id === 'string'))].slice(0, MAX_USERS) : [];
   const sinceDays = Math.min(Math.max(Number(body?.sinceDays) || 21, 1), 60);
-  if (ids.length === 0) return { status: 200, body: { cheers: [] } };
+  if (requested.length === 0) return { status: 200, body: { cheers: [] } };
 
+  const circle = await circleOf(db, user.id);
+  const ids = requested.filter((id) => circle.has(id as string)) as string[];
   const since = Date.now() - sinceDays * DAY_MS;
-  const lists = await Promise.all(ids.map((id) => db.entities.Cheer.filter({ toUserId: id }, '-created_date', 300)));
-  const cheers = lists.flat().filter((c: any) => new Date(c.createdAt ?? c.created_date).getTime() >= since);
+  const lists = await inBatches(ids, 5, (id) => fetchWithRetry(() => db.entities.Cheer.filter({ toUserId: id }, '-created_date', 300)));
 
-  const senderIds = [...new Set(cheers.map((c: any) => c.fromUserId))].slice(0, 150);
-  const senders = await Promise.all(senderIds.map((id) => db.entities.User.filter({ id }).then((r: any[]) => r[0])));
+  // Newest first, so if a double tap ever saved two cheers for one item, only the latest counts.
+  const seen = new Set<string>();
+  const cheers = lists.flat()
+    .filter((c: any) => new Date(c.createdAt ?? c.created_date).getTime() >= since)
+    .sort((a: any, b: any) => new Date(b.createdAt ?? b.created_date).getTime() - new Date(a.createdAt ?? a.created_date).getTime())
+    .filter((c: any) => {
+      const key = `${c.fromUserId}|${c.targetKey}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
+
+  const senderIds = [...new Set(cheers.map((c: any) => c.fromUserId as string))].slice(0, 150);
+  const senders = await inBatches(senderIds, 5, (id) => fetchWithRetry(() => db.entities.User.filter({ id })).then((r: any[]) => r[0]));
   const names: Record<string, string> = {};
   senders.forEach((u: any) => { if (u) names[u.id] = u.displayName || u.full_name || 'Someone'; });
 

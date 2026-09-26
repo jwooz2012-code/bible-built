@@ -27,22 +27,29 @@ export function formatChapterRanges(chapters) {
 }
 
 // Each time a reader completes every chapter of a book (first time or a reread).
-export function bookCompletions(logs) {
+// With `truncated` history (only the newest logs loaded), a book's first completion may
+// stitch together two separate read-throughs, so it's skipped.
+export function bookCompletions(logs, { truncated = false } = {}) {
   const seen = new Map();
+  const completedBefore = new Set();
   const events = [];
   [...logs].sort((a, b) => timeOf(a) - timeOf(b)).forEach((l) => {
     const total = CHAPTERS_BY_BOOK[l.book];
     if (!total) return;
     const set = seen.get(l.book) ?? new Set();
     set.add(l.chapter);
-    if (set.size >= total) { events.push({ book: l.book, dateKey: l.dateKey, time: timeOf(l) }); seen.set(l.book, new Set()); }
-    else seen.set(l.book, set);
+    if (set.size >= total) {
+      if (!truncated || completedBefore.has(l.book)) events.push({ book: l.book, dateKey: l.dateKey, time: timeOf(l) });
+      completedBefore.add(l.book);
+      seen.set(l.book, new Set());
+    } else seen.set(l.book, set);
   });
   return events;
 }
 
 // Days a reader reached a streak milestone (consecutive calendar days with reading).
-export function streakMilestones(logs) {
+// With `truncated` history, a run touching the oldest loaded day may have started earlier, so it's skipped.
+export function streakMilestones(logs, { truncated = false } = {}) {
   const lastTimeByDay = new Map();
   logs.forEach((l) => {
     const t = timeOf(l);
@@ -51,8 +58,11 @@ export function streakMilestones(logs) {
   const days = [...lastTimeByDay.keys()].sort();
   const events = [];
   let run = 0;
+  let runStart = null;
   days.forEach((d, i) => {
-    run = i > 0 && shiftKey(days[i - 1], 1) === d ? run + 1 : 1;
+    if (i > 0 && shiftKey(days[i - 1], 1) === d) run += 1;
+    else { run = 1; runStart = d; }
+    if (truncated && runStart === days[0]) return;
     if (STREAK_MILESTONES.includes(run)) events.push({ days: run, dateKey: d, time: lastTimeByDay.get(d) });
   });
   return events;
@@ -61,11 +71,17 @@ export function streakMilestones(logs) {
 /**
  * Turn raw chapter logs into a friendly feed: one card per person per book per day,
  * plus milestone cards (finished a book, streaks). Newest first.
+ * `historyCap` is how many logs per person the server returns; anyone at the cap may be
+ * missing older history, so their milestones are computed conservatively.
  */
-export function buildFeed(logs, { now = Date.now(), days = 14, limit = 60 } = {}) {
+export function buildFeed(logs, { now = Date.now(), days = 14, limit = 60, historyCap = 500 } = {}) {
   const since = now - days * DAY_MS;
   const byUser = new Map();
-  logs.forEach((l) => { if (l.userId && l.book) byUser.set(l.userId, [...(byUser.get(l.userId) ?? []), l]); });
+  logs.forEach((l) => {
+    if (!l.userId || !l.book) return;
+    if (!byUser.has(l.userId)) byUser.set(l.userId, []);
+    byUser.get(l.userId).push(l);
+  });
 
   const items = [];
   byUser.forEach((userLogs, userId) => {
@@ -80,11 +96,12 @@ export function buildFeed(logs, { now = Date.now(), days = 14, limit = 60 } = {}
     });
     sessions.forEach((s) => items.push({ ...s, label: `${s.book} ${formatChapterRanges(s.chapters)}`, count: new Set(s.chapters).size }));
 
-    bookCompletions(userLogs).filter((e) => e.time >= since).forEach((e) => items.push({
+    const truncated = userLogs.length >= historyCap;
+    bookCompletions(userLogs, { truncated }).filter((e) => e.time >= since).forEach((e) => items.push({
       type: 'milestone', kind: 'book', key: `m:book:${userId}:${e.book}:${e.dateKey}`, userId, book: e.book, dateKey: e.dateKey,
       time: e.time + 1, label: `Finished ${e.book}`,
     }));
-    streakMilestones(userLogs).filter((e) => e.time >= since).forEach((e) => items.push({
+    streakMilestones(userLogs, { truncated }).filter((e) => e.time >= since).forEach((e) => items.push({
       type: 'milestone', kind: 'streak', key: `m:streak:${userId}:${e.days}:${e.dateKey}`, userId, days: e.days, dateKey: e.dateKey,
       time: e.time + 2, label: `${e.days}-day streak`,
     }));

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import NotificationsBell from '@/components/notifications/NotificationsBell';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -13,7 +13,6 @@ import { toast } from 'sonner';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import CommunityFeed from '@/components/community/CommunityFeed';
 import CheerButton from '@/components/community/CheerButton';
-import BuddiesSection from '@/components/community/BuddiesSection';
 import { readOnDay, latestBookByUser } from '@/components/community/buildFeed';
 
 // ── Friend Card with Dynamic Streak ────────────────────────────
@@ -161,33 +160,42 @@ export default function Social() {
     setGroups(myGroups);
   }, [user?.id]);
 
-  const loadFeed = useCallback(async () => {
+  // Friends and Activity tabs share this data; reuse it for a minute unless refreshed.
+  const feedLoadedAt = useRef(0);
+  const loadFeed = useCallback(async ({ force = false } = {}) => {
     if (!user?.id) return;
-    // Collect friend IDs
-    const [sent, received] = await Promise.all([
-      base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
-      base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
-    ]);
-    const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
+    if (!force && Date.now() - feedLoadedAt.current < 60000) return;
+    feedLoadedAt.current = Date.now();
+    try {
+      // Collect friend IDs
+      const [sent, received] = await Promise.all([
+        base44.entities.Friendship.filter({ user1Id: user.id, status: 'accepted' }),
+        base44.entities.Friendship.filter({ user2Id: user.id, status: 'accepted' }),
+      ]);
+      const friendIds = [...sent, ...received].map(f => f.user1Id === user.id ? f.user2Id : f.user1Id);
 
-    // Also collect group member IDs (same membership check as the Groups tab)
-    const groupIds = user.groupIds ?? [];
-    const allGroups = await base44.entities.Group.filter({});
-    const myGroups = allGroups.filter(g => groupIds.includes(g.id) || (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id);
-    const groupMemberIds = myGroups.flatMap(g => [g.ownerId, ...(g.memberIds ?? [])]);
+      // Also collect group member IDs (same membership check as the Groups tab)
+      const groupIds = user.groupIds ?? [];
+      const allGroups = await base44.entities.Group.filter({});
+      const myGroups = allGroups.filter(g => groupIds.includes(g.id) || (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id);
+      const groupMemberIds = myGroups.flatMap(g => [g.ownerId, ...(g.memberIds ?? [])]);
 
-    // Union of friends + group members, excluding self
-    const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id && id !== user.id);
-    if (allSocialIds.length === 0) { setFeedLogs([]); setFeedUsers({}); return; }
+      // Union of friends + group members, excluding self
+      const allSocialIds = [...new Set([...friendIds, ...groupMemberIds])].filter(id => id && id !== user.id);
+      if (allSocialIds.length === 0) { setFeedLogs([]); setFeedUsers({}); return; }
 
-    // Fetch recent logs for everyone (you included, so you can see cheers on your reading)
-    const logsRes = await base44.functions.invoke('getGroupReadingLogs', { memberIds: [user.id, ...allSocialIds] });
-    setFeedLogs(logsRes.data?.logs ?? []);
+      // Fetch recent logs for everyone (you included, so you can see cheers on your reading)
+      const logsRes = await base44.functions.invoke('getGroupReadingLogs', { memberIds: [user.id, ...allSocialIds] });
+      setFeedLogs(logsRes.data?.logs ?? []);
 
-    const res = await base44.functions.invoke('getUsersByIds', { ids: [user.id, ...allSocialIds] });
-    const map = {};
-    (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
-    setFeedUsers(map);
+      const res = await base44.functions.invoke('getUsersByIds', { ids: [user.id, ...allSocialIds] });
+      const map = {};
+      (res.data?.users ?? []).forEach(u => { map[u.id] = u; });
+      setFeedUsers(map);
+    } catch (err) {
+      feedLoadedAt.current = 0; // let the next visit retry
+      throw err;
+    }
   }, [user?.id, user?.groupIds]);
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
@@ -275,8 +283,6 @@ export default function Social() {
 
   const renderFriends = () => (
     <div className="space-y-5">
-      <BuddiesSection friends={friends} />
-
       {/* Search */}
       <div>
         <SectionHeader title="Find Friends" />
@@ -540,7 +546,7 @@ export default function Social() {
 
   const handleRefreshFeed = async () => {
     setRefreshing(true);
-    await loadFeed();
+    await loadFeed({ force: true });
     setRefreshing(false);
   };
 

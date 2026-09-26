@@ -3,6 +3,21 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 const BOOK_CHAPTERS: Record<string, number> = {"Genesis":50,"Exodus":40,"Leviticus":27,"Numbers":36,"Deuteronomy":34,"Joshua":24,"Judges":21,"Ruth":4,"1 Samuel":31,"2 Samuel":24,"1 Kings":22,"2 Kings":25,"1 Chronicles":29,"2 Chronicles":36,"Ezra":10,"Nehemiah":13,"Esther":10,"Job":42,"Psalms":150,"Proverbs":31,"Ecclesiastes":12,"Song of Solomon":8,"Isaiah":66,"Jeremiah":52,"Lamentations":5,"Ezekiel":48,"Daniel":12,"Hosea":14,"Joel":3,"Amos":9,"Obadiah":1,"Jonah":4,"Micah":7,"Nahum":3,"Habakkuk":3,"Zephaniah":3,"Haggai":2,"Zechariah":14,"Malachi":4,"Matthew":28,"Mark":16,"Luke":24,"John":21,"Acts":28,"Romans":16,"1 Corinthians":16,"2 Corinthians":13,"Galatians":6,"Ephesians":6,"Philippians":4,"Colossians":4,"1 Thessalonians":5,"2 Thessalonians":3,"1 Timothy":6,"2 Timothy":4,"Titus":3,"Philemon":1,"Hebrews":13,"James":5,"1 Peter":5,"2 Peter":3,"1 John":5,"2 John":1,"3 John":1,"Jude":1,"Revelation":22};
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 
+// Base44 answers 429 when too many requests arrive at once; back off and try again.
+async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if ((err as any)?.status === 429 && i < maxRetries - 1) {
+        await new Promise((r) => setTimeout(r, Math.pow(2, i) * 1000));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
 function shiftDate(key: string, days: number) {
   const d = new Date(`${key}T12:00:00Z`);
   d.setUTCDate(d.getUTCDate() + days);
@@ -16,18 +31,26 @@ export function lastFullWeek(todayKey: string) {
   return { weekStart: shiftDate(weekEnd, -6), weekEnd };
 }
 
+const LOG_CAP = 2000;
+
 // Every time a reader completes all chapters of a book (first time or a reread).
-export function bookCompletions(logs: any[]) {
+// With `truncated` history (only the newest logs loaded), a book's first completion may
+// stitch together two separate read-throughs, so it's skipped.
+export function bookCompletions(logs: any[], truncated = false) {
   const sorted = [...logs].sort((a, b) => new Date(a.created_date ?? a.timestamp).getTime() - new Date(b.created_date ?? b.timestamp).getTime());
   const seen = new Map<string, Set<number>>();
+  const completedBefore = new Set<string>();
   const events: { book: string; dateKey: string }[] = [];
   for (const l of sorted) {
     const total = BOOK_CHAPTERS[l.book];
     if (!total) continue;
     const set = seen.get(l.book) ?? new Set<number>();
     set.add(l.chapter);
-    if (set.size >= total) { events.push({ book: l.book, dateKey: l.dateKey }); seen.set(l.book, new Set()); }
-    else seen.set(l.book, set);
+    if (set.size >= total) {
+      if (!truncated || completedBefore.has(l.book)) events.push({ book: l.book, dateKey: l.dateKey });
+      completedBefore.add(l.book);
+      seen.set(l.book, new Set());
+    } else seen.set(l.book, set);
   }
   return events;
 }
@@ -42,20 +65,28 @@ export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
     : lastFullWeek(todayKey);
   const inWeek = (k?: string) => !!k && k >= weekStart && k <= weekEnd;
 
-  const groups = await db.entities.Group.list('-created_date', 1000);
+  const groups = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
   let sent = 0;
+
+  // People in several groups are loaded once, one at a time to stay under the rate limit.
+  const people = new Map<string, any>();
+  const loadPerson = async (id: string) => {
+    if (!people.has(id)) {
+      const [user] = await fetchWithRetry(() => db.entities.User.filter({ id }));
+      const logs = await fetchWithRetry(() => db.entities.ReadingLog.filter({ userId: id }, '-created_date', LOG_CAP));
+      const cheers = await fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: id }, '-created_date', 500));
+      people.set(id, { id, name: nameOf(user), logs, cheers });
+    }
+    return people.get(id);
+  };
   let processed = 0;
 
   for (const group of groups) {
     const memberIds: string[] = [...new Set([group.ownerId, ...(group.memberIds ?? [])].filter(Boolean))];
     if (memberIds.length === 0) continue;
 
-    const members = await Promise.all(memberIds.map(async (id) => {
-      const [user] = await db.entities.User.filter({ id });
-      const logs = await db.entities.ReadingLog.filter({ userId: id }, '-created_date', 2000);
-      const cheers = await db.entities.Cheer.filter({ fromUserId: id }, '-created_date', 500);
-      return { id, name: nameOf(user), logs, cheers };
-    }));
+    const members = [];
+    for (const id of memberIds) members.push(await loadPerson(id));
 
     const stats = members.map((m) => {
       const weekLogs = m.logs.filter((l: any) => inWeek(l.dateKey));
@@ -66,7 +97,7 @@ export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
         chapters: weekLogs.length,
         days: new Set(weekLogs.map((l: any) => l.dateKey)).size,
         cheers: cheersToGroup,
-        books: bookCompletions(m.logs).filter((e) => inWeek(e.dateKey)).map((e) => e.book),
+        books: bookCompletions(m.logs, m.logs.length >= LOG_CAP).filter((e) => inWeek(e.dateKey)).map((e) => e.book),
       };
     });
 
@@ -92,9 +123,9 @@ export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
     const message = `${group.name} read ${totalChapters} chapters together this week! ${payload.topReader.name} led the way with ${payload.topReader.count}. 🏆`;
 
     for (const userId of memberIds) {
-      const existing = await db.entities.Notification.filter({ userId, type: 'weekly_recap', relatedId: group.id });
+      const existing = await fetchWithRetry(() => db.entities.Notification.filter({ userId, type: 'weekly_recap', relatedId: group.id }));
       if (existing.some((n: any) => n.payload?.weekEnd === weekEnd)) continue;
-      await db.entities.Notification.create({
+      await fetchWithRetry(() => db.entities.Notification.create({
         userId,
         type: 'weekly_recap',
         message,
@@ -102,7 +133,7 @@ export async function handleWeeklyRecap(base44: any, _user: any, body: any) {
         isRead: false,
         createdAt: new Date().toISOString(),
         payload,
-      });
+      }));
       sent += 1;
     }
   }

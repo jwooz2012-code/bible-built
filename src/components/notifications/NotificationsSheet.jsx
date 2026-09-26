@@ -9,7 +9,6 @@ import { useAuth } from '@/lib/AuthContext';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { cheerKind, ENCOURAGEMENT_TYPES, profileCheerKey, timeAgo } from '@/components/community/cheers';
 import { useSendCheer } from '@/components/community/useCheers';
-import BuddyInviteActions from '@/components/community/BuddyInviteActions';
 
 const TYPE_EMOJI = {
   high_five: '🙌',
@@ -18,8 +17,6 @@ const TYPE_EMOJI = {
   group_invite: '✨',
   league_promotion: '🏆',
   weekly_recap: '🏆',
-  buddy_invite: '📖',
-  buddy_accepted: '🤝',
 };
 
 const emojiFor = (n) => (n.type === 'cheer' ? cheerKind(n.payload?.kind).emoji : TYPE_EMOJI[n.type] ?? '🔔');
@@ -65,9 +62,6 @@ function NotificationRow({ notif, onOpen, onAction, sentBack, onSendBack }) {
             <ActionButton onClick={() => onAction('declineGroup', notif)}>Decline</ActionButton>
           </div>
         )}
-        {notif.type === 'buddy_invite' && unread && (
-          <BuddyInviteActions notif={notif} onDone={() => onAction('buddyDone', notif)} />
-        )}
         {canSendBack && (
           <div className="mt-2">
             {sentBack ? (
@@ -101,7 +95,6 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
       cheer: `/user-detail?id=${n.relatedId}`,
       high_five: `/user-detail?id=${n.relatedId}`,
       nudge: `/user-detail?id=${n.relatedId}`,
-      buddy_accepted: `/user-detail?id=${n.relatedId}`,
       weekly_recap: `/group-detail?id=${n.relatedId}`,
       league_promotion: `/group-detail?id=${n.relatedId}`,
     }[n.type];
@@ -141,7 +134,6 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
       remove(n.id);
       toast('Invite declined');
     }
-    if (action === 'buddyDone') markRead(n.id);
   };
 
   const section = (title, list) => list.length > 0 && (

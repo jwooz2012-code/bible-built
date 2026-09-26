@@ -17,8 +17,8 @@ export function useNotifications(userId) {
       return [...list].sort(byNewest);
     },
     enabled: !!userId,
-    refetchInterval: 30000,
-    staleTime: 15000,
+    refetchInterval: 60000,
+    staleTime: 30000,
   });
 
   const notifications = query.data ?? [];

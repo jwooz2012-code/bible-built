@@ -421,6 +421,7 @@ export default function GroupDetail() {
             usersById={feedUsers}
             people={members}
             meId={user?.id}
+            historyCap={2000}
             emptyTitle="No activity yet"
             emptyText="Start reading to see activity here"
           />

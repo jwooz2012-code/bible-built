@@ -15,9 +15,7 @@
         "league_promotion",
         "high_five",
         "cheer",
-        "weekly_recap",
-        "buddy_invite",
-        "buddy_accepted"
+        "weekly_recap"
       ],
       "description": "Type of notification"
     },
@@ -39,7 +37,7 @@
     },
     "payload": {
       "type": "object",
-      "description": "Extra details for rich notifications (cheer kind, weekly recap stats, buddy plan)"
+      "description": "Extra details for rich notifications (cheer kind, weekly recap stats)"
     }
   },
   "required": [

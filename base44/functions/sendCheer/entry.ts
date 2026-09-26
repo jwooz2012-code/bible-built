@@ -12,21 +12,30 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 
 const reply = (status: number, body: Record<string, unknown>) => ({ status, body });
 
-// Cheers are only allowed between friends, reading buddies, or members of a shared group.
+// Base44 answers 429 when too many requests arrive at once; back off and try again.
+async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if ((err as any)?.status === 429 && i < maxRetries - 1) {
+        await new Promise((r) => setTimeout(r, Math.pow(2, i) * 1000));
+      } else {
+        throw err;
+      }
+    }
+  }
+}
+
+// Cheers are only allowed between friends or members of a shared group.
 export async function areConnected(db: any, a: string, b: string) {
   const [ab, ba] = await Promise.all([
-    db.entities.Friendship.filter({ user1Id: a, user2Id: b, status: 'accepted' }),
-    db.entities.Friendship.filter({ user1Id: b, user2Id: a, status: 'accepted' }),
+    fetchWithRetry(() => db.entities.Friendship.filter({ user1Id: a, user2Id: b, status: 'accepted' })),
+    fetchWithRetry(() => db.entities.Friendship.filter({ user1Id: b, user2Id: a, status: 'accepted' })),
   ]);
   if (ab.length || ba.length) return true;
 
-  const [buddyAb, buddyBa] = await Promise.all([
-    db.entities.ReadingBuddy.filter({ user1Id: a, user2Id: b, status: 'accepted' }),
-    db.entities.ReadingBuddy.filter({ user1Id: b, user2Id: a, status: 'accepted' }),
-  ]);
-  if (buddyAb.length || buddyBa.length) return true;
-
-  const groups = await db.entities.Group.list('-created_date', 1000);
+  const groups = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
   const inGroup = (g: any, id: string) => g.ownerId === id || (g.memberIds ?? []).includes(id);
   return groups.some((g: any) => inGroup(g, a) && inGroup(g, b));
 }
@@ -43,10 +52,10 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
   if (!targetKey || typeof targetKey !== 'string' || targetKey.length > 200) return reply(400, { error: 'targetKey is required' });
 
   if (!(await areConnected(db, user.id, toUserId))) {
-    return reply(403, { error: 'You can only cheer friends, buddies, and group members' });
+    return reply(403, { error: 'You can only cheer friends and group members' });
   }
 
-  const mine = await db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', 5000);
+  const mine = await fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', 5000));
   const stats = (list: any[]) => ({ sent: list.length, recipients: new Set(list.map((c) => c.toUserId)).size });
 
   // One cheer per sender per item: tapping a different reaction switches it, same one is a no-op.

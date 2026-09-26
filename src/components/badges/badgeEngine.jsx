@@ -12,6 +12,13 @@ import { hasUnlockedChallenge } from '@/data/challenges';
  * Output: canonical metrics + badge states
  */
 
+// Cheering-on-others badges. Also used by useSendCheer to celebrate the moment one is earned.
+export const ENCOURAGEMENT_BADGES = [
+  { id: 30, title: 'Encourager', subtitle: 'Cheered on others 10 times', metric: 'cheersSent', target: 10 },
+  { id: 31, title: 'Son of Encouragement', subtitle: 'Cheered on others 50 times', metric: 'cheersSent', target: 50 },
+  { id: 32, title: 'Iron Sharpens Iron', subtitle: 'Cheered on 10 different people', metric: 'cheerRecipients', target: 10 },
+];
+
 /**
  * Computes canonical metrics from reading logs
  * These are the ONLY metrics badges can reference
@@ -420,33 +427,11 @@ function getBadgeDefinitions(metrics) {
     // ============================================
     // ENCOURAGEMENT (cheering on friends and group members)
     // ============================================
-    {
-      id: 30,
-      title: 'Encourager',
-      subtitle: 'Cheered on others 10 times',
-      metric: 'cheersSent',
-      achieved: metrics.cheersSent >= 10,
-      current: metrics.cheersSent,
-      target: 10
-    },
-    {
-      id: 31,
-      title: 'Son of Encouragement',
-      subtitle: 'Cheered on others 50 times',
-      metric: 'cheersSent',
-      achieved: metrics.cheersSent >= 50,
-      current: metrics.cheersSent,
-      target: 50
-    },
-    {
-      id: 32,
-      title: 'Iron Sharpens Iron',
-      subtitle: 'Cheered on 10 different people',
-      metric: 'cheerRecipients',
-      achieved: metrics.cheerRecipients >= 10,
-      current: metrics.cheerRecipients,
-      target: 10
-    }
+    ...ENCOURAGEMENT_BADGES.map((b) => ({
+      ...b,
+      achieved: metrics[b.metric] >= b.target,
+      current: metrics[b.metric],
+    }))
   ];
 }
 

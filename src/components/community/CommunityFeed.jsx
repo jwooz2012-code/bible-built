@@ -13,10 +13,10 @@ const PAGE = 15;
  * Friends/group activity: who read today, reading sessions, milestones, and reactions.
  * `people` are the users to show in the "Read today" row (include yourself).
  */
-export default function CommunityFeed({ logs, usersById, people, meId, emptyTitle = 'No activity yet', emptyText }) {
+export default function CommunityFeed({ logs, usersById, people, meId, historyCap = 500, emptyTitle = 'No activity yet', emptyText }) {
   const navigate = useNavigate();
   const [shown, setShown] = useState(PAGE);
-  const items = useMemo(() => buildFeed(logs), [logs]);
+  const items = useMemo(() => buildFeed(logs, { historyCap }), [logs, historyCap]);
   const ownerIds = useMemo(() => [...new Set(items.map((i) => i.userId))], [items]);
   const { byTarget } = useCheersFor(ownerIds);
   const sendCheer = useSendCheer();
