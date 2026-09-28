@@ -1,43 +1,47 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UserPlus, Mail, Lock, Loader2 } from "lucide-react";
+import { UserPlus, Mail, Loader2 } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
+import PasswordInput from "@/components/auth/PasswordInput";
+import SocialSignInButtons from "@/components/auth/SocialSignInButtons";
 import { toast } from "@/components/ui/use-toast";
+import { safeReturnTo, withReturnTo } from "@/lib/authReturnTo";
 
-function AppleIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.7 9.05 7.4c1.32.07 2.24.72 3.01.76.96-.17 1.87-.84 3.06-.89 1.47-.07 2.74.59 3.52 1.69-3.2 1.87-2.56 5.96.61 7.37-.62 1.66-1.4 3.31-2.2 3.95zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-    </svg>
-  );
-}
+const RESEND_WAIT_SECONDS = 30;
+
+// Registration errors don't carry a stable code, so match the wording.
+const looksLikeExistingAccount = (message = "") => /already|exists|registered|in use/i.test(message);
 
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showOtp, setShowOtp] = useState(false);
   const [otpCode, setOtpCode] = useState("");
+  const [resendIn, setResendIn] = useState(0);
+  const verifying = useRef(false);
+
+  useEffect(() => {
+    if (resendIn <= 0) return undefined;
+    const timer = setTimeout(() => setResendIn((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
     setLoading(true);
     try {
       await base44.auth.register({ email, password });
+      setOtpCode("");
       setShowOtp(true);
+      setResendIn(RESEND_WAIT_SECONDS);
     } catch (err) {
       setError(err.message || "Registration failed");
     } finally {
@@ -45,24 +49,30 @@ export default function Register() {
     }
   };
 
-  const handleVerify = async () => {
+  // Runs on its own once all 6 digits are typed or pasted.
+  const handleVerify = async (code = otpCode) => {
+    if (verifying.current || code.length < 6) return;
+    verifying.current = true;
     setError("");
     setLoading(true);
     try {
-      const result = await base44.auth.verifyOtp({ email, otpCode });
+      const result = await base44.auth.verifyOtp({ email, otpCode: code });
       if (result?.access_token) {
         base44.auth.setToken(result.access_token);
       }
-      window.location.href = "/";
+      window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Invalid verification code");
-    } finally {
+      setOtpCode("");
+      verifying.current = false;
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
+    if (resendIn > 0) return;
     setError("");
+    setResendIn(RESEND_WAIT_SECONDS);
     try {
       await base44.auth.resendOtp(email);
       toast({
@@ -70,16 +80,15 @@ export default function Register() {
         description: "Check your email for the new code.",
       });
     } catch (err) {
+      setResendIn(0);
       setError(err.message || "Failed to resend code");
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
-  };
-
-  const handleApple = () => {
-    base44.auth.loginWithProvider("apple", "/");
+  const changeEmail = () => {
+    setShowOtp(false);
+    setOtpCode("");
+    setError("");
   };
 
   if (showOtp) {
@@ -87,10 +96,10 @@ export default function Register() {
       <AuthLayout
         icon={Mail}
         title="Verify your email"
-        subtitle={`We sent a code to ${email}`}
+        subtitle={`We sent a 6-digit code to ${email}`}
       >
         {error && (
-          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+          <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm" role="alert">
             {error}
           </div>
         )}
@@ -99,8 +108,10 @@ export default function Register() {
             maxLength={6}
             value={otpCode}
             onChange={setOtpCode}
+            onComplete={handleVerify}
             autoFocus
             autoComplete="one-time-code"
+            inputMode="numeric"
           >
             <InputOTPGroup>
               <InputOTPSlot index={0} />
@@ -114,7 +125,7 @@ export default function Register() {
         </div>
         <Button
           className="w-full h-12 font-medium"
-          onClick={handleVerify}
+          onClick={() => handleVerify()}
           disabled={loading || otpCode.length < 6}
         >
           {loading ? (
@@ -128,8 +139,18 @@ export default function Register() {
         </Button>
         <p className="text-center text-sm text-muted-foreground mt-4">
           Didn't receive the code?{" "}
-          <button onClick={handleResend} className="text-primary font-medium hover:underline">
-            Resend
+          {resendIn > 0 ? (
+            <span>Resend in {resendIn}s</span>
+          ) : (
+            <button type="button" onClick={handleResend} className="text-primary font-medium hover:underline">
+              Resend
+            </button>
+          )}
+        </p>
+        <p className="text-center text-sm text-muted-foreground mt-2">
+          Wrong email?{" "}
+          <button type="button" onClick={changeEmail} className="text-primary font-medium hover:underline">
+            Change it
           </button>
         </p>
       </AuthLayout>
@@ -144,42 +165,22 @@ export default function Register() {
       footer={
         <>
           Already have an account?{" "}
-          <Link to="/login" className="text-primary font-medium hover:underline">
+          <Link to={withReturnTo("/login")} className="text-primary font-medium hover:underline">
             Log in
           </Link>
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-3"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
-
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleApple}
-      >
-        <AppleIcon className="w-5 h-5 mr-2" />
-        Continue with Apple
-      </Button>
-
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
+      <SocialSignInButtons />
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm" role="alert">
           {error}
+          {looksLikeExistingAccount(error) && (
+            <Link to={withReturnTo("/login")} className="block mt-1 text-primary font-medium hover:underline">
+              Log in instead
+            </Link>
+          )}
         </div>
       )}
 
@@ -192,7 +193,6 @@ export default function Register() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -203,35 +203,12 @@ export default function Register() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
-        </div>
-        <div className="space-y-2">
-          <Label htmlFor="confirm">Confirm Password</Label>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="confirm"
-              type="password"
-              autoComplete="new-password"
-              placeholder="••••••••"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
+          <PasswordInput
+            id="password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
           {loading ? (

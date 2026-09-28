@@ -9,7 +9,7 @@ import FeatureTour from '@/components/onboarding/FeatureTour';
 import ChallengePage from '@/components/challenge/ChallengePage';
 import GroupDetail from './pages/GroupDetail';
 import UserDetail from './pages/UserDetail';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
 import ReadingTrackingIntro from './pages/ReadingTrackingIntro';
@@ -22,6 +22,7 @@ import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
 import ResetPassword from '@/pages/ResetPassword';
+import { loginPathFor } from '@/lib/authReturnTo';
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -30,6 +31,13 @@ const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
 const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   <Layout currentPageName={currentPageName}>{children}</Layout>
   : <>{children}</>;
+
+// Signed-out visitors (e.g. someone opening a group invite link) go to Log in,
+// which brings them back to this page once they're in.
+const RedirectToLogin = () => {
+  const location = useLocation();
+  return <Navigate to={loginPathFor(location.pathname + location.search)} replace />;
+};
 
 const AppInner = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, user, logout, retryAuth } = useAuth();
@@ -46,6 +54,8 @@ const AppInner = () => {
   // Check if user needs to complete onboarding (only for authenticated users)
   const needsOnboarding = user && !user.onboardingComplete;
   const needsReadingTrackingIntro = user && user.onboardingComplete && !user.hasSeenReadingTrackingFeature;
+  // New users finish setup first, then land on the page they opened.
+  const afterSetup = (element) => needsOnboarding ? <OnboardingFlow /> : element;
 
   return (
     <Routes>
@@ -56,7 +66,7 @@ const AppInner = () => {
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* All app routes — gated by ProtectedRoute */}
-      <Route element={<ProtectedRoute unauthenticatedElement={<Navigate to="/login" replace />} />}>
+      <Route element={<ProtectedRoute unauthenticatedElement={<RedirectToLogin />} />}>
         <Route path="/onboarding" element={<OnboardingFlow />} />
         <Route path="/reading-tracking-intro" element={<ReadingTrackingIntro />} />
 
@@ -83,12 +93,12 @@ const AppInner = () => {
         ))}
 
         <Route path="/tour" element={<FeatureTour />} />
-        <Route path="/challenge" element={<ChallengePage />} />
-        <Route path="/social" element={<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>} />
-        <Route path="/treasury" element={<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>} />
-        <Route path="/profile" element={<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>} />
-        <Route path="/group-detail" element={<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>} />
-        <Route path="/user-detail" element={<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>} />
+        <Route path="/challenge" element={afterSetup(<ChallengePage />)} />
+        <Route path="/social" element={afterSetup(<LayoutWrapper currentPageName="social"><Social /></LayoutWrapper>)} />
+        <Route path="/treasury" element={afterSetup(<LayoutWrapper currentPageName="treasury"><Treasury /></LayoutWrapper>)} />
+        <Route path="/profile" element={afterSetup(<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>)} />
+        <Route path="/group-detail" element={afterSetup(<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>)} />
+        <Route path="/user-detail" element={afterSetup(<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>)} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

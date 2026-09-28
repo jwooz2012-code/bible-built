@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
@@ -25,6 +25,14 @@ function track(eventName, properties) {
   }
 }
 
+// Where to go after setup: the page a new user opened (e.g. a group invite
+// link), or Home when they simply opened the app.
+function destinationAfterSetup(location) {
+  const path = location.pathname.toLowerCase();
+  if (['/', '/home', '/index', '/onboarding'].includes(path)) return '/home';
+  return location.pathname + location.search;
+}
+
 function suggestedName(user) {
   const name = user?.displayName || user?.full_name || '';
   return name.includes('@') ? '' : name;
@@ -32,6 +40,7 @@ function suggestedName(user) {
 
 export default function OnboardingFlow() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, updateUser } = useAuth();
   const { triggerCelebration } = useCelebration();
   const { data: existingPlan } = useReadingPlan(user?.id);
@@ -110,7 +119,12 @@ export default function OnboardingFlow() {
       userName: responses.displayName,
     }, { dedupKey: 'onboarding-battle-badge' });
 
-    navigate(wantsTour ? '/tour' : '/home', { replace: true });
+    const destination = destinationAfterSetup(location);
+    if (wantsTour) {
+      navigate('/tour', { replace: true, state: destination === '/home' ? undefined : { next: destination } });
+    } else {
+      navigate(destination, { replace: true });
+    }
   };
 
   const renderStep = () => {

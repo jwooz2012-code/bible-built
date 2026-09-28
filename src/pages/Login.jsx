@@ -1,14 +1,18 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LogIn, Mail, Lock, Loader2 } from "lucide-react";
+import { BookOpen, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import AuthLayout from "@/components/AuthLayout";
-import GoogleIcon from "@/components/GoogleIcon";
+import PasswordInput from "@/components/auth/PasswordInput";
+import SocialSignInButtons from "@/components/auth/SocialSignInButtons";
+import { safeReturnTo, withReturnTo } from "@/lib/authReturnTo";
 
 export default function Login() {
+  const [searchParams] = useSearchParams();
+  const justReset = searchParams.get("reset") === "done";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -20,7 +24,7 @@ export default function Login() {
     setLoading(true);
     try {
       await base44.auth.loginViaEmailPassword(email, password);
-      window.location.href = "/";
+      window.location.href = safeReturnTo();
     } catch (err) {
       setError(err.message || "Invalid email or password");
     } finally {
@@ -28,45 +32,38 @@ export default function Login() {
     }
   };
 
-  const handleGoogle = () => {
-    base44.auth.loginWithProvider("google", "/");
-  };
-
   return (
     <AuthLayout
-      icon={LogIn}
-      title="Welcome back"
-      subtitle="Log in to your account"
+      icon={BookOpen}
+      title="Welcome to Bible Built"
+      subtitle="Log in or create an account to start reading"
       footer={
         <>
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary font-medium hover:underline">
-            Create one
+          <span className="block mb-3">New here?</span>
+          <Link
+            to={withReturnTo("/register")}
+            className="flex w-full h-12 items-center justify-center rounded-md border border-border bg-card text-sm font-medium text-foreground shadow-sm hover:bg-accent"
+          >
+            Create an account
           </Link>
         </>
       }
     >
-      <Button
-        variant="outline"
-        className="w-full h-12 text-sm font-medium mb-6"
-        onClick={handleGoogle}
-      >
-        <GoogleIcon className="w-5 h-5 mr-2" />
-        Continue with Google
-      </Button>
+      {justReset && !error && (
+        <div className="mb-4 p-3 rounded-lg bg-primary/10 text-foreground text-sm flex items-start gap-2" role="status">
+          <CheckCircle2 className="w-4 h-4 mt-0.5 text-primary shrink-0" aria-hidden="true" />
+          <span>Password updated. Log in with your new password.</span>
+        </div>
+      )}
 
-      <div className="relative mb-6">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-3 text-muted-foreground">or</span>
-        </div>
-      </div>
+      <SocialSignInButtons />
 
       {error && (
-        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm">
+        <div className="mb-4 p-3 rounded-lg bg-destructive/10 text-destructive text-sm" role="alert">
           {error}
+          <span className="block mt-1 text-muted-foreground">
+            Signed up with Google or Apple? Use those buttons above.
+          </span>
         </div>
       )}
 
@@ -79,7 +76,6 @@ export default function Login() {
               id="email"
               type="email"
               autoComplete="email"
-              autoFocus
               placeholder="you@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -95,19 +91,12 @@ export default function Login() {
               Forgot password?
             </Link>
           </div>
-          <div className="relative">
-            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" aria-hidden="true" />
-            <Input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="pl-10 h-12"
-              required
-            />
-          </div>
+          <PasswordInput
+            id="password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <Button type="submit" className="w-full h-12 font-medium" disabled={loading}>
           {loading ? (
