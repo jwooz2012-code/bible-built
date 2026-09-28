@@ -2,6 +2,8 @@
 // after sign-in, e.g. the MCP OAuth consent page). Keep the redirect
 // validation in one place — it is security-sensitive and easy to drift.
 
+const AUTH_PATHS = ["/login", "/register", "/forgot-password", "/reset-password"];
+
 // Resolve ?returnTo= to a safe same-origin path, else "/".
 //
 // The same-origin check alone is not enough: a value like /.//evil.com or
@@ -26,8 +28,22 @@ export function safeReturnTo() {
     }
     const path = url.pathname + url.search;
     if (!path.startsWith("/") || path.startsWith("//") || path.includes("\\")) return "/";
+    // Never bounce a freshly signed-in user back onto a sign-in screen.
+    if (AUTH_PATHS.includes(url.pathname)) return "/";
     return path;
   } catch {
     return "/";
   }
+}
+
+// Link to another auth page (e.g. Log in <-> Create account) without losing
+// where the user was headed.
+export function withReturnTo(path) {
+  const to = safeReturnTo();
+  return to === "/" ? path : `${path}?returnTo=${encodeURIComponent(to)}`;
+}
+
+// Login URL that brings a signed-out visitor back to `target` afterwards.
+export function loginPathFor(target) {
+  return !target || target === "/" ? "/login" : `/login?returnTo=${encodeURIComponent(target)}`;
 }

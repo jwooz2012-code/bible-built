@@ -28,11 +28,13 @@ function track(eventName, properties) {
 }
 
 // Callers other than onboarding pass `state.returnTo` so the tour ends where it started.
+// Onboarding may pass `state.next` (e.g. a group invite link) for where the first tour ends.
 export default function FeatureTour() {
   const navigate = useNavigate();
   const location = useLocation();
   const { updateUser } = useAuth();
   const returnTo = location.state?.returnTo;
+  const afterTour = location.state?.next;
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -44,7 +46,7 @@ export default function FeatureTour() {
     track(completed ? 'tour_completed' : 'tour_skipped', { atStep: TOUR_STEPS[step].id, replay: !!returnTo });
     updateUser({ tourStatus: 'seen' });
     base44.auth.updateMe({ tourStatus: 'seen' }).catch((error) => console.error('Failed to save tour status:', error));
-    navigate(returnTo || '/home', { replace: true });
+    navigate(returnTo || afterTour || '/home', { replace: true });
   };
 
   const next = () => {
