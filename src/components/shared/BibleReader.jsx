@@ -11,8 +11,20 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-const FONT_SIZES = ['text-lg', 'text-xl'];
-const FONT_SIZE_CLASSES = ['text-base', 'text-lg']; // size of the 'A' indicator button
+// Verse text sizes (px): 22 by default, A+ goes up to 26. Remembered per device.
+const FONT_SIZES = ['text-[18px]', 'text-[20px]', 'text-[22px]', 'text-[24px]', 'text-[26px]'];
+const FONT_SIZE_PX = [18, 20, 22, 24, 26];
+const DEFAULT_FONT_SIZE_IDX = 2;
+const FONT_SIZE_KEY = 'bb_reader_font_px';
+
+function loadFontSizeIdx() {
+  try {
+    const idx = FONT_SIZE_PX.indexOf(Number(localStorage.getItem(FONT_SIZE_KEY)));
+    return idx >= 0 ? idx : DEFAULT_FONT_SIZE_IDX;
+  } catch {
+    return DEFAULT_FONT_SIZE_IDX;
+  }
+}
 const SPEEDS = [0.75, 1, 1.25, 1.5];
 
 /**
@@ -30,7 +42,7 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
   const [verses, setVerses] = useState([]);
-  const [fontSizeIdx, setFontSizeIdx] = useState(0); // default 'text-base'
+  const [fontSizeIdx, setFontSizeIdx] = useState(loadFontSizeIdx);
 
   // Audio state
   const [audioVisible, setAudioVisible] = useState(false);
@@ -221,6 +233,15 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const verseList = useMemo(() => verses, [verses]);
   const chapterTitle = `${book.name} ${chapter}`;
   const fontSize = FONT_SIZES[fontSizeIdx];
+  const changeFontSize = (step) => {
+    const next = Math.min(Math.max(fontSizeIdx + step, 0), FONT_SIZES.length - 1);
+    setFontSizeIdx(next);
+    try {
+      localStorage.setItem(FONT_SIZE_KEY, String(FONT_SIZE_PX[next]));
+    } catch {
+      // Private mode etc. — the size still applies for this session.
+    }
+  };
 
   return (
     <motion.div
@@ -283,13 +304,13 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
               <p
                 key={verse.number}
                 ref={el => verseRefs.current[idx] = el}
-                className={`${fontSize} font-serif leading-relaxed mb-3 transition-colors duration-300 ${
+                className={`${fontSize} font-serif leading-[1.7] mb-3 transition-colors duration-300 ${
                   isPlaying && idx === currentVerse
                     ? 'text-foreground bg-primary/10 rounded-md px-2 -mx-2'
                     : 'text-foreground/90'
                 }`}
               >
-                <sup className="text-[10px] text-muted-foreground font-sans mr-1.5 select-none">{verse.number}</sup>
+                <sup className="text-[0.55em] text-muted-foreground font-sans mr-1.5 select-none">{verse.number}</sup>
                 {verse.text}
               </p>
             ))}
@@ -353,14 +374,25 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <div className="max-w-2xl mx-auto flex items-center gap-2">
-          {/* Font size */}
-          <button
-            onClick={() => setFontSizeIdx(idx => (idx + 1) % FONT_SIZES.length)}
-            className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-muted transition-colors font-serif font-bold text-muted-foreground shrink-0"
-            title="Change font size"
-          >
-            <span className={`${FONT_SIZE_CLASSES[fontSizeIdx]} leading-none`}>A</span>
-          </button>
+          {/* Text size */}
+          <div className="flex items-center rounded-xl bg-muted shrink-0">
+            <button
+              onClick={() => changeFontSize(-1)}
+              disabled={fontSizeIdx === 0}
+              className="w-10 h-10 flex items-center justify-center rounded-xl font-serif font-bold text-foreground disabled:opacity-30 transition-opacity"
+              aria-label="Smaller text"
+            >
+              <span className="text-sm leading-none">A−</span>
+            </button>
+            <button
+              onClick={() => changeFontSize(1)}
+              disabled={fontSizeIdx === FONT_SIZES.length - 1}
+              className="w-10 h-10 flex items-center justify-center rounded-xl font-serif font-bold text-foreground disabled:opacity-30 transition-opacity"
+              aria-label="Larger text"
+            >
+              <span className="text-lg leading-none">A+</span>
+            </button>
+          </div>
 
           <button
             onClick={handleMarkRead}
