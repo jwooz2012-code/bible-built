@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   X, ChevronLeft, ChevronRight, Volume2, VolumeX, Play, Pause,
-  BookOpen
+  BookOpen, StickyNote
 } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { fetchChapter, prefetchChapter } from '@/components/bible/utils/readerUtils';
@@ -10,6 +10,10 @@ import { BIBLE_BOOKS, generateChapterId } from '@/components/bible/bibleData';
 import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { triggerHaptic } from '@/components/utils/haptics';
+import { useChapterMarks, useVerseMarkActions, colorById, formatVerseRef } from '@/components/bible/hooks/useVerseMarks';
+import VerseActionBar from '@/components/bible/VerseActionBar';
+import VerseNoteSheet from '@/components/bible/VerseNoteSheet';
 
 // Verse text sizes (px): 22 by default, A+ goes up to 26. Remembered per device.
 const FONT_SIZES = ['text-[18px]', 'text-[20px]', 'text-[22px]', 'text-[24px]', 'text-[26px]'];
@@ -27,6 +31,29 @@ function loadFontSizeIdx() {
 }
 const SPEEDS = [0.75, 1, 1.25, 1.5];
 
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch {
+    // Older web views: fall back to a hidden text box.
+    try {
+      const area = document.createElement('textarea');
+      area.value = text;
+      area.setAttribute('readonly', '');
+      area.style.position = 'fixed';
+      area.style.opacity = '0';
+      document.body.appendChild(area);
+      area.select();
+      const ok = document.execCommand('copy');
+      document.body.removeChild(area);
+      return ok;
+    } catch {
+      return false;
+    }
+  }
+}
+
 /**
  * BibleReader — full-screen overlay reader (z-[55], below nav z-[60])
  *
@@ -36,8 +63,11 @@ const SPEEDS = [0.75, 1, 1.25, 1.5];
  *   userId     — for marking chapters read
  *   onClose    — dismiss callback
  *   onMarkRead — called with { book, chapter, chapterId, testament } after logging
+ *   initialVerse — optional verse to scroll to when the reader opens
+ *
+ * Tapping verses selects them for highlighting, notes, or copying (private to the user).
  */
-export default function BibleReader({ book, chapter: initialChapter, userId, onClose, onMarkRead, demoMode = false }) {
+export default function BibleReader({ book, chapter: initialChapter, userId, onClose, onMarkRead, demoMode = false, initialVerse }) {
   const [chapter, setChapter] = useState(initialChapter);
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState(null);
@@ -63,6 +93,15 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   const [isMarkingRead, setIsMarkingRead] = useState(false);
   const [isMarked, setIsMarked] = useState(false);
 
+  // Highlights & notes
+  const canMark = !demoMode && !!userId;
+  const { data: marks = [] } = useChapterMarks(canMark ? userId : null, book.index, chapter);
+  const markActions = useVerseMarkActions(userId, book, chapter);
+  const [selected, setSelected] = useState([]); // verse numbers
+  const [noteEditor, setNoteEditor] = useState(null); // { key, verse, endVerse, note, text }
+  const noteKeyRef = useRef(null);
+  const scrolledToInitialVerse = useRef(false);
+
   // Populate voices
   useEffect(() => {
     const populate = () => {
@@ -84,6 +123,8 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
     setIsLoading(true);
     setLoadError(null);
     setVerses([]);
+    setSelected([]);
+    setNoteEditor(null);
     stopAudio();
 
     fetchChapter(book.index, chapter)
@@ -100,6 +141,14 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   }, [book.index, book.chapters, chapter]);
 
 
+
+  // Opened from Highlights & Notes: bring that verse into view once.
+  useEffect(() => {
+    if (isLoading || scrolledToInitialVerse.current || !initialVerse || chapter !== initialChapter) return;
+    scrolledToInitialVerse.current = true;
+    const el = verseRefs.current[initialVerse - 1];
+    if (el) el.scrollIntoView({ block: 'center' });
+  }, [isLoading, initialVerse, chapter, initialChapter]);
 
   // Auto-scroll to highlighted verse
   useEffect(() => {
@@ -231,6 +280,120 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
   }, [demoMode, userId, isMarkingRead, isMarked, book, chapter, stopAudio, onMarkRead, onClose]);
 
   const verseList = useMemo(() => verses, [verses]);
+
+  const highlightByVerse = useMemo(() => {
+    const map = new Map();
+    for (const m of marks) if (m.kind === 'highlight') map.set(m.verse, m.color);
+    return map;
+  }, [marks]);
+  const notesEndingAt = useMemo(() => {
+    const map = new Map();
+    for (const m of marks) {
+      if (m.kind !== 'note') continue;
+      const end = m.endVerse || m.verse;
+      map.set(end, [...(map.get(end) || []), m]);
+    }
+    return map;
+  }, [marks]);
+
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const selectedVerses = useMemo(
+    () => verses.filter((v) => selectedSet.has(v.number)),
+    [verses, selectedSet],
+  );
+  const selectionRef = useMemo(() => {
+    if (!selectedVerses.length) return '';
+    const nums = selectedVerses.map((v) => v.number);
+    const contiguous = nums[nums.length - 1] - nums[0] === nums.length - 1;
+    return contiguous
+      ? formatVerseRef(book.name, chapter, nums[0], nums[nums.length - 1])
+      : `${book.name} ${chapter}:${nums.join(', ')}`;
+  }, [selectedVerses, book.name, chapter]);
+  const selectionColor = useMemo(() => {
+    const colors = new Set(selectedVerses.map((v) => highlightByVerse.get(v.number) || null));
+    return colors.size === 1 ? [...colors][0] : null;
+  }, [selectedVerses, highlightByVerse]);
+  const selectionHasHighlight = selectedVerses.some((v) => highlightByVerse.has(v.number));
+
+  const toggleVerse = (number) => {
+    if (!canMark) return;
+    triggerHaptic('light');
+    setSelected((s) => (s.includes(number) ? s.filter((n) => n !== number) : [...s, number]));
+  };
+
+  const handleColor = (color) => {
+    triggerHaptic();
+    markActions.setHighlight(selectedVerses, color);
+    setSelected([]);
+  };
+
+  const handleClearHighlight = () => {
+    triggerHaptic('light');
+    markActions.clearHighlight(selectedVerses.map((v) => v.number));
+    setSelected([]);
+  };
+
+  const openNote = (note) => {
+    noteKeyRef.current = note._key;
+    const range = verses.filter((v) => v.number >= note.verse && v.number <= (note.endVerse || note.verse));
+    setNoteEditor({
+      key: note._key,
+      verse: note.verse,
+      endVerse: note.endVerse || note.verse,
+      note: note.note || '',
+      text: range.map((v) => v.text).join(' ') || note.text || '',
+    });
+  };
+
+  const handleNote = () => {
+    const first = selectedVerses[0].number;
+    const last = selectedVerses[selectedVerses.length - 1].number;
+    const existing = marks.find((m) => m.kind === 'note' && m.verse === first && (m.endVerse || m.verse) === last);
+    setSelected([]);
+    if (existing) return openNote(existing);
+    noteKeyRef.current = null;
+    setNoteEditor({
+      key: null,
+      verse: first,
+      endVerse: last,
+      note: '',
+      text: verses.filter((v) => v.number >= first && v.number <= last).map((v) => v.text).join(' '),
+    });
+  };
+
+  const handleSaveNote = (value) => {
+    if (!noteEditor) return;
+    if (!value.trim()) {
+      if (noteKeyRef.current) markActions.deleteNote(noteKeyRef.current);
+      noteKeyRef.current = null;
+      setNoteEditor((e) => (e ? { ...e, key: null } : e));
+      return;
+    }
+    const key = markActions.saveNote({
+      key: noteKeyRef.current,
+      verse: noteEditor.verse,
+      endVerse: noteEditor.endVerse,
+      note: value,
+      text: noteEditor.text,
+    });
+    noteKeyRef.current = key;
+    setNoteEditor((e) => (e ? { ...e, key } : e));
+  };
+
+  const handleDeleteNote = () => {
+    if (noteKeyRef.current) markActions.deleteNote(noteKeyRef.current);
+    noteKeyRef.current = null;
+    setNoteEditor(null);
+    toast.success('Note deleted');
+  };
+
+  const handleCopy = async () => {
+    const body = selectedVerses.map((v) => v.text).join(' ');
+    const ok = await copyText(`“${body}” — ${selectionRef}`);
+    setSelected([]);
+    if (ok) toast.success('Copied');
+    else toast.error("Couldn't copy on this device");
+  };
   const chapterTitle = `${book.name} ${chapter}`;
   const fontSize = FONT_SIZES[fontSizeIdx];
   const changeFontSize = (step) => {
@@ -300,20 +463,39 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
         )}
         {!isLoading && !loadError && (
           <div className="max-w-2xl mx-auto">
-            {verseList.map((verse, idx) => (
-              <p
-                key={verse.number}
-                ref={el => verseRefs.current[idx] = el}
-                className={`${fontSize} font-serif leading-[1.7] mb-3 transition-colors duration-300 ${
-                  isPlaying && idx === currentVerse
-                    ? 'text-foreground bg-primary/10 rounded-md px-2 -mx-2'
-                    : 'text-foreground/90'
-                }`}
-              >
-                <sup className="text-[0.55em] text-muted-foreground font-sans mr-1.5 select-none">{verse.number}</sup>
-                {verse.text}
-              </p>
-            ))}
+            {verseList.map((verse, idx) => {
+              const color = colorById(highlightByVerse.get(verse.number));
+              const isSelected = selectedSet.has(verse.number);
+              const notes = notesEndingAt.get(verse.number);
+              return (
+                <p
+                  key={verse.number}
+                  ref={el => verseRefs.current[idx] = el}
+                  onClick={() => toggleVerse(verse.number)}
+                  data-verse={verse.number}
+                  data-selected={isSelected || undefined}
+                  className={`${fontSize} font-serif leading-[1.7] mb-3 rounded-md px-2 -mx-2 transition-colors duration-300 ${
+                    isPlaying && idx === currentVerse
+                      ? 'text-foreground bg-primary/10'
+                      : 'text-foreground/90'
+                  } ${isSelected ? 'underline decoration-dotted decoration-2 underline-offset-[6px] decoration-primary' : ''} ${canMark ? 'cursor-pointer' : ''}`}
+                  style={color ? { backgroundColor: color.bg } : undefined}
+                >
+                  <sup className="text-[0.55em] text-muted-foreground font-sans mr-1.5 select-none">{verse.number}</sup>
+                  {verse.text}
+                  {notes?.map((n) => (
+                    <button
+                      key={n._key}
+                      onClick={(e) => { e.stopPropagation(); openNote(n); }}
+                      className="inline-flex align-middle ml-1.5 p-1 rounded-md text-primary hover:bg-primary/10"
+                      aria-label={`Open note on ${formatVerseRef(book.name, chapter, n.verse, n.endVerse)}`}
+                    >
+                      <StickyNote className="w-[0.8em] h-[0.8em]" />
+                    </button>
+                  ))}
+                </p>
+              );
+            })}
           </div>
         )}
       </div>
@@ -368,9 +550,23 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
         )}
       </AnimatePresence>
 
+      {/* ── Selected verses: highlight / note / copy ── */}
+      {selectedVerses.length > 0 && (
+        <VerseActionBar
+          refLabel={selectionRef}
+          activeColor={selectionColor}
+          canClear={selectionHasHighlight}
+          onColor={handleColor}
+          onClear={handleClearHighlight}
+          onNote={handleNote}
+          onCopy={handleCopy}
+          onClose={() => setSelected([])}
+        />
+      )}
+
       {/* ── Mark as Read / bottom bar ── */}
       <div
-        className="shrink-0 px-5 py-3 border-t border-border bg-card"
+        className={`shrink-0 px-5 py-3 border-t border-border bg-card ${selectedVerses.length > 0 ? 'hidden' : ''}`}
         style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
       >
         <div className="max-w-2xl mx-auto flex items-center gap-2">
@@ -418,6 +614,22 @@ export default function BibleReader({ book, chapter: initialChapter, userId, onC
           </button>
         </div>
       </div>
+
+      {/* ── Note editor ── */}
+      <AnimatePresence>
+        {noteEditor && (
+          <VerseNoteSheet
+            key={`${noteEditor.verse}-${noteEditor.endVerse}`}
+            refLabel={formatVerseRef(book.name, chapter, noteEditor.verse, noteEditor.endVerse)}
+            previewText={noteEditor.text}
+            initialNote={noteEditor.note}
+            isExisting={!!noteEditor.key}
+            onSave={handleSaveNote}
+            onDelete={handleDeleteNote}
+            onClose={() => setNoteEditor(null)}
+          />
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 }
