@@ -1,0 +1,83 @@
+{
+  "name": "VerseMark",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string",
+      "description": "Owner — highlights and notes are private to this user"
+    },
+    "kind": {
+      "type": "string",
+      "enum": [
+        "highlight",
+        "note"
+      ],
+      "description": "highlight: one verse in a color. note: text on a verse range."
+    },
+    "bookIndex": {
+      "type": "number",
+      "description": "0-based index into BIBLE_BOOKS"
+    },
+    "bookName": {
+      "type": "string"
+    },
+    "chapter": {
+      "type": "number"
+    },
+    "verse": {
+      "type": "number",
+      "description": "First verse"
+    },
+    "endVerse": {
+      "type": "number",
+      "description": "Last verse (same as verse for a single verse)"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "yellow",
+        "green",
+        "blue",
+        "pink",
+        "purple"
+      ]
+    },
+    "note": {
+      "type": "string",
+      "description": "Note text (kind = note)"
+    },
+    "text": {
+      "type": "string",
+      "description": "The verse text at the time it was marked, for the Highlights & Notes list"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "userId",
+    "kind",
+    "bookIndex",
+    "chapter",
+    "verse"
+  ],
+  "rls": {
+    "create": {
+      "data.userId": "{{user.id}}"
+    },
+    "update": {
+      "data.userId": "{{user.id}}"
+    },
+    "delete": {
+      "data.userId": "{{user.id}}"
+    },
+    "read": {
+      "data.userId": "{{user.id}}"
+    }
+  }
+}

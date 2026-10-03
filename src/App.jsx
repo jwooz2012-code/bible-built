@@ -9,6 +9,7 @@ import FeatureTour from '@/components/onboarding/FeatureTour';
 import ChallengePage from '@/components/challenge/ChallengePage';
 import GroupDetail from './pages/GroupDetail';
 import UserDetail from './pages/UserDetail';
+import MyHighlights from './pages/MyHighlights';
 import { BrowserRouter as Router, Route, Routes, Navigate, useLocation } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import OnboardingFlow from './pages/OnboardingFlow';
@@ -99,6 +100,7 @@ const AppInner = () => {
         <Route path="/profile" element={afterSetup(<LayoutWrapper currentPageName="profile"><Profile /></LayoutWrapper>)} />
         <Route path="/group-detail" element={afterSetup(<LayoutWrapper currentPageName="group-detail"><GroupDetail /></LayoutWrapper>)} />
         <Route path="/user-detail" element={afterSetup(<LayoutWrapper currentPageName="user-detail"><UserDetail /></LayoutWrapper>)} />
+        <Route path="/highlights" element={afterSetup(<LayoutWrapper currentPageName="highlights"><MyHighlights /></LayoutWrapper>)} />
         <Route path="*" element={<PageNotFound />} />
       </Route>
     </Routes>

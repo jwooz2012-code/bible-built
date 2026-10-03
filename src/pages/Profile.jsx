@@ -16,7 +16,7 @@ import AvatarPicker from '@/components/profile/AvatarPicker';
 import { Link } from 'react-router-dom';
 import {
   ChevronRight, Share2, UserPlus, Settings,
-  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Zap,
+  Flame, BookOpen, CalendarDays, CalendarRange, Calendar, X, Users, Zap, Highlighter,
 } from 'lucide-react';
 
 // ── Tap-animated row ──────────────────────────────────────────────────────────
@@ -257,6 +257,12 @@ export default function Profile() {
               <SummaryRow icon={CalendarDays} label="This Week" chapters={weekChapters} streak={currentStreak} onPress={() => navigateToSummary('weekly')} />
               <SummaryRow icon={CalendarRange} label="This Month" chapters={monthChapters} streak={0} onPress={() => navigateToSummary('monthly')} />
               <SummaryRow icon={Calendar} label="This Year" chapters={yearChapters} streak={0} onPress={() => navigateToSummary('yearly')} />
+            </div>
+
+            {/* ── My Bible ── */}
+            <SectionHeader title="My Bible" />
+            <div className="space-y-2">
+              <ProfileRow icon={Highlighter} label="Highlights & Notes" onPress={() => navigate('/highlights')} />
             </div>
 
             {/* ── Badges Preview ── */}
