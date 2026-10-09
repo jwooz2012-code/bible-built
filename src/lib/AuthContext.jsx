@@ -117,6 +117,9 @@ export const AuthProvider = ({ children }) => {
       }
       setIsAuthenticated(true);
       setIsLoadingAuth(false);
+      // A slow server can trip the startup timeout before this answer arrives;
+      // once it does, carry on into the app instead of staying on the timeout screen.
+      setAuthError((prev) => (prev?.type === 'timeout' ? null : prev));
 
       const registeredKey = `bb_user_registered_tracked_${currentUser.id}`;
       if (!localStorage.getItem(registeredKey)) {
