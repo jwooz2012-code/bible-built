@@ -32,44 +32,34 @@
     <!-- Theme color -->
     <meta name="theme-color" content="#ffffff" />
 
-    <!-- OneSignal queue: the app pushes its OneSignal calls here; they run
-         once OneSignal is available (see the loader at the end of <body>). -->
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "44cb7eb8-7aca-44c1-b180-40e871493808",
-          serviceWorkerPath: "/OneSignalSDKWorker.js",
-          // Do NOT auto-prompt — we control when the prompt appears
-          promptOptions: { autoPrompt: false },
-        });
-      });
-    </script>
-
-    <!-- Startup screen shown until the app draws its first screen. -->
+    <!-- Startup screen: shown the moment the page arrives (its styles are
+         right here, not in the app's style file) and reused by the app while
+         it signs the user in, so opening the app never looks blank. -->
     <style>
-      #bb-boot { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #ffffff; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-      #bb-boot.bb-dark { background: #0a0a0a; color: #fafafa; }
-      #bb-boot .bb-logo { width: 72px; height: 72px; border-radius: 18px; background: currentColor; display: flex; align-items: center; justify-content: center; }
-      #bb-boot .bb-logo svg { width: 36px; height: 36px; stroke: #ffffff; }
-      #bb-boot.bb-dark .bb-logo svg { stroke: #0a0a0a; }
-      #bb-boot .bb-spin { width: 28px; height: 28px; border: 3px solid rgba(127, 127, 127, 0.25); border-top-color: currentColor; border-radius: 50%; animation: bb-spin 0.8s linear infinite; }
-      #bb-boot .bb-retry { display: none; flex-direction: column; align-items: center; gap: 12px; font-size: 15px; text-align: center; padding: 0 24px; }
-      #bb-boot.bb-slow .bb-retry { display: flex; }
-      #bb-boot button { font: inherit; font-weight: 600; padding: 12px 28px; border-radius: 12px; border: 0; background: currentColor; }
-      #bb-boot button span { color: #ffffff; }
-      #bb-boot.bb-dark button span { color: #0a0a0a; }
+      .bb-boot { position: fixed; inset: 0; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; background: #ffffff; color: #0a0a0a; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+      .bb-boot.bb-dark { background: #0a0a0a; color: #fafafa; }
+      .bb-boot .bb-logo { width: 72px; height: 72px; border-radius: 18px; background: currentColor; display: flex; align-items: center; justify-content: center; }
+      .bb-boot .bb-logo svg { width: 36px; height: 36px; stroke: #ffffff; }
+      .bb-boot.bb-dark .bb-logo svg { stroke: #0a0a0a; }
+      .bb-boot .bb-spin { width: 28px; height: 28px; border: 3px solid rgba(127, 127, 127, 0.25); border-top-color: currentColor; border-radius: 50%; animation: bb-spin 0.8s linear infinite; }
+      .bb-boot .bb-status { font-size: 14px; opacity: 0.6; min-height: 20px; }
+      .bb-boot .bb-retry { display: none; flex-direction: column; align-items: center; gap: 12px; font-size: 15px; text-align: center; padding: 0 24px; }
+      .bb-boot.bb-slow .bb-retry { display: flex; }
+      .bb-boot button { font: inherit; font-weight: 600; padding: 12px 28px; border-radius: 12px; border: 0; background: currentColor; }
+      .bb-boot button span { color: #ffffff; }
+      .bb-boot.bb-dark button span { color: #0a0a0a; }
       @keyframes bb-spin { to { transform: rotate(360deg); } }
     </style>
   </head>
   <body>
     <div id="root">
-      <div id="bb-boot" role="status" aria-label="Loading Bible Built">
+      <div id="bb-boot" class="bb-boot" role="status" aria-label="Loading Bible Built">
         <!-- Drawn in the page (no download), so nothing here can delay startup. -->
         <div class="bb-logo" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg>
         </div>
         <div class="bb-spin"></div>
+        <div class="bb-status">Opening Bible Built…</div>
         <div class="bb-retry">
           <div>Taking longer than usual.</div>
           <button type="button" onclick="location.reload()"><span>Tap to retry</span></button>
@@ -85,7 +75,7 @@
         try {
           var theme = localStorage.getItem('theme') || 'system';
           var dark = theme === 'dark' || (theme === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-          if (dark) boot.className = 'bb-dark';
+          if (dark) boot.classList.add('bb-dark');
         } catch (e) {}
         function slow() {
           var b = document.getElementById('bb-boot');
@@ -99,39 +89,5 @@
       })();
     </script>
     <script type="module" src="/src/main.jsx"></script>
-
-    <!-- OneSignal loader. Runs only after the page has finished loading: the
-         iPhone app (AppMyWeb) keeps a white screen up until then, so a slow or
-         stalled OneSignal download here used to leave the app stuck on white.
-         - Inside the iPhone app, AppMyWeb provides its own window.OneSignal;
-           the queued calls (init, login) are handed to it and the web SDK is
-           not loaded on top of it.
-         - On the website, the OneSignal Web SDK loads as before and drains
-           the same queue. -->
-    <script>
-      (function () {
-        function startOneSignal() {
-          var native = window.OneSignal;
-          if (native && !Array.isArray(native) && typeof native.login === 'function') {
-            var run = function (fn) {
-              try {
-                var result = fn(native);
-                if (result && typeof result.catch === 'function') result.catch(function () {});
-              } catch (e) {}
-            };
-            var queued = Array.isArray(window.OneSignalDeferred) ? window.OneSignalDeferred : [];
-            window.OneSignalDeferred = { push: run };
-            for (var i = 0; i < queued.length; i++) run(queued[i]);
-            return;
-          }
-          var s = document.createElement('script');
-          s.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
-          s.async = true;
-          document.head.appendChild(s);
-        }
-        if (document.readyState === 'complete') setTimeout(startOneSignal, 0);
-        else window.addEventListener('load', function () { setTimeout(startOneSignal, 0); });
-      })();
-    </script>
   </body>
 </html>

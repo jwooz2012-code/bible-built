@@ -19,6 +19,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import { CelebrationProvider } from '@/components/celebration/CelebrationContext';
 import AuthRecoveryScreen from '@/components/auth/AuthRecoveryScreen';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import StartupScreen from '@/components/StartupScreen';
 import Login from '@/pages/Login';
 import Register from '@/pages/Register';
 import ForgotPassword from '@/pages/ForgotPassword';
@@ -34,22 +35,23 @@ const LayoutWrapper = ({ children, currentPageName }) => Layout ?
   : <>{children}</>;
 
 // Signed-out visitors (e.g. someone opening a group invite link) go to Log in,
-// which brings them back to this page once they're in.
+// which brings them back to this page once they're in. A sign-in check that
+// timed out is not a sign-out: offer Try Again instead of the Log in screen.
 const RedirectToLogin = () => {
   const location = useLocation();
+  const { authError, retryAuth, logout } = useAuth();
+  if (authError?.type === 'timeout') {
+    return <AuthRecoveryScreen errorType="timeout" onRetry={retryAuth} onLogout={() => logout(true)} />;
+  }
   return <Navigate to={loginPathFor(location.pathname + location.search)} replace />;
 };
 
 const AppInner = () => {
   const { isLoadingAuth, isLoadingPublicSettings, authError, user, logout, retryAuth } = useAuth();
 
-  // Show loading spinner while checking app public settings or auth
+  // Keep the branded startup screen up while checking app settings and sign-in
   if (isLoadingPublicSettings || isLoadingAuth) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center">
-        <div className="w-8 h-8 border-4 border-slate-200 border-t-slate-800 rounded-full animate-spin"></div>
-      </div>
-    );
+    return <StartupScreen status="Signing you in…" />;
   }
 
   // Check if user needs to complete onboarding (only for authenticated users)
