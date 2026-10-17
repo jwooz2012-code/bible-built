@@ -40,7 +40,7 @@ export function useMarkAllRead({ user, allLogs } = {}) {
     onSuccess: (createdLogs, variables) => {
       const today = getDateKey(new Date());
       queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, today] });
-      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId, '2000-01-01', '2099-12-31'] });
+      queryClient.invalidateQueries({ queryKey: ['readingLogs', variables.userId] });
       toast.success(`All chapters of ${variables.book.name} marked as read!`);
 
       // Celebration check — compare before/after
