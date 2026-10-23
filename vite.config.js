@@ -2,30 +2,52 @@ import base44 from "@base44/vite-plugin"
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// Published build only: load the app's style file without blocking the first
-// paint, so the startup screen in index.html (styled inline) shows the moment
-// the page arrives instead of a white screen. main.jsx waits on
-// window.__bbStyles before drawing the app, so nothing shows unstyled.
-function nonBlockingStyles() {
+// Published build only. The startup screen in index.html is styled inline, so it
+// can show the moment the page arrives. The app's code and style file are then
+// loaded right after the page reports it has finished loading, instead of the
+// page waiting for them first: app wrappers like the iPhone app keep a white
+// screen up until that "finished" signal, so with the code (1.6 MB) holding it
+// back, a reopen on a slow connection showed white for seconds. main.jsx waits
+// on window.__bbStyles before drawing the app, so nothing shows unstyled.
+function startAfterLoad() {
   return {
-    name: 'bb-non-blocking-styles',
+    name: 'bb-start-after-load',
     apply: 'build',
     transformIndexHtml: {
       order: 'post',
       handler(html) {
-        const link = /<link rel="stylesheet"([^>]*?) href="([^"]+\.css)"([^>]*)>/g;
-        if (!link.test(html)) return html;
-        const done = "window.__bbStylesReady&&window.__bbStylesReady()";
+        const script = /\s*<script type="module" crossorigin src="([^"]+\.js)"><\/script>/;
+        const style = /\s*<link rel="stylesheet" crossorigin href="([^"]+\.css)">/;
+        const js = html.match(script)?.[1];
+        const css = html.match(style)?.[1];
+        if (!js || !css) return html;
+        const loader = `
+    <script>
+      (function () {
+        function start() {
+          var css = document.createElement('link');
+          css.rel = 'stylesheet'; css.crossOrigin = ''; css.href = '${css}';
+          css.onload = css.onerror = function () { window.__bbStylesReady && window.__bbStylesReady(); };
+          document.head.appendChild(css);
+          var js = document.createElement('script');
+          js.type = 'module'; js.crossOrigin = ''; js.src = '${js}';
+          document.head.appendChild(js);
+        }
+        if (document.readyState === 'complete') start();
+        else window.addEventListener('load', start);
+      })();
+    </script>
+  </body>`;
         return html
           .replace('<head>', '<head>\n    <script>window.__bbStyles=new Promise(function(r){window.__bbStylesReady=r;setTimeout(r,8000);});</script>')
-          .replace(link, (m, before, href, after) =>
-            `<link rel="stylesheet"${before} href="${href}"${after} media="print" onload="this.media='all';${done}" onerror="${done}">`);
+          .replace(script, '')
+          .replace(style, '')
+          .replace('</body>', loader);
       },
     },
   };
 }
 
-// https://vite.dev/config/
 export default defineConfig({
   logLevel: 'error', // Suppress warnings, only show errors
   plugins: [
@@ -38,6 +60,6 @@ export default defineConfig({
       visualEditAgent: true
     }),
     react(),
-    nonBlockingStyles(),
+    startAfterLoad(),
   ]
 });
