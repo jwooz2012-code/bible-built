@@ -1,0 +1,1088 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bible Showdown</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800;900&family=Figtree:wght@400;600;700&family=Literata:ital,opsz,wght@0,7..72,500;1,7..72,400;1,7..72,500&display=swap">
+<style>
+/* Layout: a projector-first game-show stage. Scoreboard band along the bottom, question center stage, host controls in one bar. */
+:root{
+  color-scheme: dark;
+  --night:#0c1230;      /* stage background, lapis night */
+  --panel:#151d45;      /* raised surfaces */
+  --panel-2:#1d275a;
+  --line:#2e3a78;
+  --ink:#f5f0e2;        /* parchment white text */
+  --muted:#a7afd6;
+  --gold:#f4b942;       /* primary accent: lamp gold */
+  --gold-ink:#241800;
+  --ember:#ff6a3d;      /* streaks, low timer */
+  --ok:#3fd18a;
+  --bad:#ff5b6b;
+  --f-display:"Big Shoulders Display","Arial Narrow","Helvetica Neue",Impact,sans-serif;
+  --f-body:"Figtree",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-verse:"Literata",Georgia,"Times New Roman",serif;
+  --r:14px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(244,185,66,.13), transparent 60%),
+    radial-gradient(900px 500px at 100% 110%, rgba(255,106,61,.08), transparent 60%),
+    var(--night);
+  background-attachment:fixed;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:clamp(15px, .55vw + 10px, 22px);
+  line-height:1.45;
+}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px;border-radius:8px}
+#app{
+  min-height:100%;
+  padding-block:clamp(14px,2vw,28px);
+  padding-left:max(16px, env(safe-area-inset-left, 0px));
+  padding-right:max(16px, env(safe-area-inset-right, 0px));
+  max-width:1680px;margin:0 auto;
+  display:flex;flex-direction:column;gap:clamp(14px,1.6vw,24px);
+}
+h1,h2,h3{font-family:var(--f-display);font-weight:900;letter-spacing:.01em;line-height:.95;margin:0;text-wrap:balance}
+.eyebrow{font-family:var(--f-display);font-weight:800;text-transform:uppercase;letter-spacing:.14em;color:var(--gold);font-size:.85em}
+.muted{color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Buttons */
+.btn{
+  border:2px solid var(--line);background:var(--panel-2);border-radius:999px;
+  padding:.6em 1.15em;font-weight:700;display:inline-flex;align-items:center;gap:.5em;
+  transition:transform .12s, background .12s, border-color .12s;
+}
+.btn:hover{border-color:var(--muted)}
+.btn:active{transform:translateY(1px)}
+.btn[disabled]{opacity:.4;cursor:not-allowed}
+.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--gold-ink)}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn.big{font-size:1.15em;padding:.75em 1.5em}
+.btn.ghost{background:transparent}
+.btn.sm{font-size:.82em;padding:.4em .85em}
+kbd{font-family:var(--f-body);font-size:.72em;border:1px solid currentColor;border-radius:5px;padding:0 .35em;opacity:.65}
+
+/* ---------- Setup ---------- */
+.setup{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(18px,3vw,48px);align-items:start}
+.hero{display:flex;flex-direction:column;gap:1.1em;padding-top:1em}
+.wordmark{font-family:var(--f-display);font-weight:900;text-transform:uppercase;line-height:.82;font-size:clamp(64px,10vw,180px);letter-spacing:-.005em}
+.wordmark span{display:block;color:var(--gold);-webkit-text-stroke:0}
+.wordmark em{font-style:normal;display:block;color:transparent;-webkit-text-stroke:2px var(--ink)}
+.hero p{max-width:34em;margin:0;font-size:1.05em}
+.roundlist{list-style:none;margin:0;padding:0;display:grid;gap:.5em;counter-reset:r}
+.roundlist li{display:grid;grid-template-columns:2.2em 1fr auto;gap:.8em;align-items:baseline;border-top:1px solid var(--line);padding-top:.5em}
+.roundlist li::before{counter-increment:r;content:counter(r);font-family:var(--f-display);font-weight:900;font-size:1.6em;color:var(--gold);line-height:1}
+.roundlist b{font-family:var(--f-display);font-size:1.25em;letter-spacing:.02em;text-transform:uppercase}
+.roundlist small{display:block;color:var(--muted);font-size:.85em}
+.roundlist .pts{font-family:var(--f-display);font-weight:800;color:var(--muted);white-space:nowrap}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:clamp(16px,1.6vw,26px);display:flex;flex-direction:column;gap:1em;min-width:0}
+.field{display:flex;flex-direction:column;gap:.45em}
+.field>label,.label{font-weight:700;font-size:.85em;text-transform:uppercase;letter-spacing:.08em;color:var(--muted)}
+.stepper{display:flex;align-items:center;gap:.6em}
+.stepper output{font-family:var(--f-display);font-weight:900;font-size:2em;min-width:1.6em;text-align:center}
+.teaminputs{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:.5em}
+.teaminputs label{display:flex;align-items:center;gap:.5em;background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:.15em .6em;min-width:0}
+.teaminputs input{border:0;background:transparent;padding:.45em 0;width:100%;min-width:0;outline:none}
+.teaminputs label:focus-within{border-color:var(--gold)}
+.dot{width:.85em;height:.85em;border-radius:50%;flex:none;background:var(--c)}
+.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:.4em}
+.seg button{border:2px solid var(--line);background:var(--panel-2);border-radius:10px;padding:.55em .4em;text-align:center;font-weight:700;line-height:1.2}
+.seg button small{display:block;font-weight:400;color:var(--muted);font-size:.78em}
+.seg button[aria-pressed="true"]{border-color:var(--gold);background:rgba(244,185,66,.12)}
+.powers-explain{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6em}
+.powers-explain div{background:var(--panel-2);border-radius:10px;padding:.7em;font-size:.88em}
+.powers-explain b{display:flex;align-items:center;gap:.4em;font-family:var(--f-display);font-size:1.2em;text-transform:uppercase;letter-spacing:.04em;margin-bottom:.2em}
+details.howto{border-top:1px solid var(--line);padding-top:.8em}
+details.howto summary{cursor:pointer;font-weight:700}
+details.howto ol{margin:.6em 0 0;padding-left:1.3em;display:grid;gap:.35em}
+.resume{display:flex;align-items:center;justify-content:space-between;gap:1em;flex-wrap:wrap;background:rgba(244,185,66,.1);border:1px solid var(--gold);border-radius:10px;padding:.7em 1em}
+
+/* ---------- Top bar ---------- */
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:.8em;flex-wrap:wrap}
+.topbar .where{display:flex;align-items:baseline;gap:.8em;flex-wrap:wrap;min-width:0}
+.topbar .where h2{font-size:clamp(26px,2.4vw,44px);text-transform:uppercase}
+.tools{display:flex;gap:.4em;flex-wrap:wrap}
+.pips{display:flex;gap:5px;flex-wrap:wrap}
+.pips i{width:clamp(10px,1vw,16px);height:6px;border-radius:3px;background:var(--line)}
+.pips i.done{background:var(--muted)}
+.pips i.now{background:var(--gold)}
+.pill{display:inline-flex;align-items:center;gap:.35em;border-radius:999px;padding:.15em .7em;font-weight:700;font-size:.8em;text-transform:uppercase;letter-spacing:.08em;border:1px solid currentColor}
+.pill.e{color:var(--ok)}.pill.m{color:var(--gold)}.pill.h{color:var(--ember)}
+
+/* ---------- Question stage ---------- */
+.stage{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:clamp(16px,2.4vw,40px);align-items:start;flex:1}
+.qcol{display:flex;flex-direction:column;gap:clamp(14px,1.6vw,26px);min-width:0}
+.qtext{font-family:var(--f-body);font-weight:700;font-size:clamp(26px,2.9vw,58px);line-height:1.12;text-wrap:balance;margin:0}
+.quote{font-family:var(--f-verse);font-style:italic;font-weight:500;font-size:clamp(28px,3.2vw,64px);line-height:1.15;margin:0;text-wrap:balance}
+.quote::before{content:"\201C";color:var(--gold)}
+.quote::after{content:"\201D";color:var(--gold)}
+.verse{font-family:var(--f-verse);font-weight:500;font-size:clamp(26px,2.9vw,56px);line-height:1.25;margin:0;text-wrap:pretty}
+.blank{display:inline-block;min-width:4.5em;border-bottom:.08em solid var(--gold);color:var(--gold);text-align:center;font-style:italic}
+.blank.filled{animation:pop .5s ease}
+.ref{font-family:var(--f-verse);font-style:italic;color:var(--muted)}
+.opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(10px,1vw,16px)}
+.opt{display:flex;align-items:center;gap:.8em;background:var(--panel);border:2px solid var(--line);border-radius:var(--r);padding:clamp(10px,1vw,18px);font-size:clamp(18px,1.6vw,32px);font-weight:600;min-width:0;transition:opacity .3s, border-color .3s, background .3s}
+.opt .L{flex:none;width:1.8em;height:1.8em;border-radius:10px;display:grid;place-items:center;background:var(--gold);color:var(--gold-ink);font-family:var(--f-display);font-weight:900}
+.opt span:last-child{min-width:0;overflow-wrap:anywhere}
+.revealed .opt{opacity:.35}
+.revealed .opt.right{opacity:1;border-color:var(--ok);background:color-mix(in srgb, var(--ok) 18%, var(--panel))}
+.revealed .opt.right .L{background:var(--ok)}
+.answer{display:flex;flex-wrap:wrap;align-items:baseline;gap:.4em 1em;background:color-mix(in srgb, var(--ok) 14%, var(--panel));border:2px solid var(--ok);border-radius:var(--r);padding:clamp(12px,1.2vw,20px);animation:pop .45s ease}
+.answer .label{color:var(--ok)}
+.answer strong{font-size:clamp(22px,2.2vw,44px);font-weight:800;line-height:1.15}
+.seq{display:flex;flex-wrap:wrap;gap:.4em;align-items:center;font-family:var(--f-display);font-weight:900;font-size:clamp(26px,2.6vw,52px)}
+.seq b{background:var(--ok);color:var(--gold-ink);border-radius:8px;padding:0 .3em;min-width:1.3em;text-align:center}
+.seq i{font-style:normal;color:var(--muted);font-size:.6em}
+.ordered{margin:.4em 0 0;padding-left:1.4em;display:grid;gap:.2em;font-size:.95em}
+.note{font-size:.9em;color:var(--muted);margin:0}
+
+/* Timer */
+.timer{position:relative;width:clamp(120px,12vw,220px);aspect-ratio:1;max-width:100%;flex:none}
+.timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer circle{fill:none;stroke-width:9}
+.timer .track{stroke:var(--line)}
+.timer .bar{stroke:var(--gold);stroke-linecap:round;transition:stroke-dashoffset .2s linear, stroke .3s}
+.timer.low .bar{stroke:var(--ember)}
+.timer.out .bar{stroke:var(--bad)}
+.timer .t{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-display);font-weight:900;font-size:clamp(44px,4.6vw,88px)}
+.timer.low .t{color:var(--ember);animation:throb 1s infinite}
+.timer.out .t{color:var(--bad);font-size:clamp(26px,2.4vw,44px)}
+.timecol{display:flex;flex-direction:column;align-items:center;gap:.6em}
+
+/* Host bar */
+.hostbar{display:flex;align-items:center;gap:.6em;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:.45em .5em .45em 1.1em}
+.hostbar .hint{flex:1;min-width:12em;font-weight:600}
+.hostbar .hint em{font-style:normal;color:var(--gold)}
+
+/* Scoreboard strip */
+.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,168px),1fr));gap:clamp(8px,.8vw,14px)}
+.team{position:relative;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--c);border-radius:var(--r);padding:.6em .75em .7em;display:flex;flex-direction:column;gap:.25em;min-width:0;transition:border-color .2s, transform .15s, background .2s}
+.team.markable{cursor:pointer}
+.team.markable:hover{transform:translateY(-2px);border-color:var(--muted);border-top-color:var(--c)}
+.team.m1{border-color:var(--ok);border-top-color:var(--c);background:color-mix(in srgb, var(--ok) 14%, var(--panel))}
+.team.m2{border-color:var(--gold);border-top-color:var(--c);background:color-mix(in srgb, var(--gold) 16%, var(--panel))}
+.team .tn{font-weight:700;font-size:.92em;line-height:1.2;overflow-wrap:anywhere;padding-right:2em}
+.team .ts{font-family:var(--f-display);font-weight:900;font-size:clamp(26px,2.1vw,42px);line-height:1}
+.team .mk{position:absolute;top:.35em;right:.45em;font-family:var(--f-display);font-weight:900;font-size:1.4em;line-height:1}
+.team.m1 .mk{color:var(--ok)}.team.m2 .mk{color:var(--gold)}
+.team .meta{display:flex;align-items:center;gap:.4em;min-height:1.4em;flex-wrap:wrap}
+.flame{display:inline-flex;align-items:center;gap:.15em;color:var(--ember);font-weight:800;font-size:.85em}
+.flame svg{width:1em;height:1em}
+.delta{font-family:var(--f-display);font-weight:900;font-size:1.05em;animation:rise .7s ease}
+.delta.up{color:var(--ok)}.delta.down{color:var(--bad)}.delta.zero{color:var(--muted)}
+.tag{font-size:.68em;font-weight:800;text-transform:uppercase;letter-spacing:.06em;border-radius:4px;padding:.05em .35em;background:var(--panel-2);color:var(--muted)}
+.tag.hot{background:var(--ember);color:#1d0800}
+.tag.x2{background:var(--gold);color:var(--gold-ink)}
+.pw{display:flex;gap:.3em;margin-top:.15em;flex-wrap:wrap}
+.pw button,.pw .sh{font-size:.72em;font-weight:800;text-transform:uppercase;letter-spacing:.05em;border-radius:6px;border:1.5px solid var(--line);background:var(--panel-2);padding:.25em .5em;display:inline-flex;align-items:center;gap:.25em}
+.pw button:hover:not([disabled]){border-color:var(--gold)}
+.pw button[disabled]{opacity:.3;text-decoration:line-through;cursor:not-allowed}
+.pw button.armed{background:var(--gold);border-color:var(--gold);color:var(--gold-ink);animation:throb 1.2s infinite}
+.pw .sh{color:var(--muted)}
+.pw .sh.on{color:#9fd8ff;border-color:#5c8fd1}
+.pw .sh.off{opacity:.3;text-decoration:line-through}
+.pw svg,.powers-explain svg,.pick svg{width:1em;height:1em;flex:none}
+.wagerline{font-size:.8em;color:var(--muted)}
+.wagerline b{color:var(--gold)}
+
+/* ---------- Intro splash ---------- */
+.splash{flex:1;display:flex;flex-direction:column;justify-content:center;gap:clamp(14px,2vw,28px);padding-block:clamp(10px,4vw,60px);max-width:60em}
+.splash .rn{font-family:var(--f-display);font-weight:900;color:var(--gold);font-size:clamp(22px,2vw,36px);text-transform:uppercase;letter-spacing:.12em}
+.splash h1{font-size:clamp(64px,9vw,170px);text-transform:uppercase;line-height:.85;animation:slam .6s cubic-bezier(.2,1.4,.4,1)}
+.splash .rules{margin:0;padding-left:1.2em;display:grid;gap:.4em;font-size:1.15em;max-width:42em}
+.splash .stats{display:flex;gap:clamp(16px,3vw,48px);flex-wrap:wrap}
+.splash .stats div{display:flex;flex-direction:column}
+.splash .stats b{font-family:var(--f-display);font-weight:900;font-size:clamp(32px,3.4vw,64px);line-height:1}
+.splash .stats span{color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-size:.8em;font-weight:700}
+
+/* ---------- Leaderboard ---------- */
+.board{display:flex;flex-direction:column;gap:clamp(6px,.7vw,12px)}
+.row{display:grid;grid-template-columns:2.4em minmax(0,14em) minmax(0,1fr) 5.5em 4.5em;gap:.8em;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:.45em .9em;animation:slidein .5s both}
+.row .rk{font-family:var(--f-display);font-weight:900;font-size:1.8em;color:var(--muted);line-height:1}
+.board:not(.rest) .row:first-child{border-color:var(--gold)}
+.board:not(.rest) .row:first-child .rk{color:var(--gold)}
+.row .nm{font-weight:700;display:flex;align-items:center;gap:.5em;min-width:0;overflow-wrap:anywhere}
+.row .barwrap{height:clamp(14px,1.4vw,26px);background:var(--panel-2);border-radius:999px;overflow:hidden}
+.row .barfill{height:100%;background:var(--c);border-radius:999px;width:var(--from);transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+.row .sc{font-family:var(--f-display);font-weight:900;font-size:1.7em;text-align:right;line-height:1}
+.row .mv{font-weight:800;font-size:.85em;text-align:right;white-space:nowrap}
+.mv.up{color:var(--ok)}.mv.down{color:var(--bad)}.mv.same{color:var(--muted)}
+
+/* ---------- Wager ---------- */
+.wagers{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,220px),1fr));gap:.7em}
+.wagers label{display:flex;flex-direction:column;gap:.35em;background:var(--panel);border:2px solid var(--line);border-top:6px solid var(--c);border-radius:var(--r);padding:.7em .8em}
+.wagers label span{font-weight:700;overflow-wrap:anywhere}
+.wagers label small{color:var(--muted)}
+.wagers input{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:.5em .6em;font-family:var(--f-display);font-weight:900;font-size:1.6em;width:100%;min-width:0}
+.wagers input:focus{border-color:var(--gold);outline:none}
+
+/* ---------- End ---------- */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(8px,1.4vw,22px);align-items:end;max-width:1100px;width:100%;margin:0 auto}
+.pod{display:flex;flex-direction:column;align-items:center;gap:.5em;text-align:center;min-width:0}
+.pod .who{font-weight:800;font-size:clamp(16px,1.5vw,28px);overflow-wrap:anywhere}
+.pod .block{width:100%;border-radius:var(--r) var(--r) 0 0;background:linear-gradient(var(--c), color-mix(in srgb, var(--c) 35%, var(--night)));display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:.6em;animation:grow 1s cubic-bezier(.2,.9,.3,1) both}
+.pod .place{font-family:var(--f-display);font-weight:900;font-size:clamp(40px,5vw,96px);line-height:1;color:var(--night)}
+.pod .pts{font-family:var(--f-display);font-weight:900;font-size:clamp(22px,2vw,40px);color:var(--night)}
+.p1 .block{height:clamp(160px,22vw,340px);animation-delay:.9s}
+.p2 .block{height:clamp(120px,16vw,250px);animation-delay:.5s}
+.p3 .block{height:clamp(90px,11vw,180px);animation-delay:.2s}
+.champ{text-align:center;display:flex;flex-direction:column;gap:.4em;align-items:center}
+.champ h1{font-size:clamp(48px,7vw,130px);text-transform:uppercase;color:var(--gold);animation:slam .7s 1.4s cubic-bezier(.2,1.4,.4,1) both}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:5}
+.center{display:flex;justify-content:center;gap:.6em;flex-wrap:wrap}
+
+/* ---------- Modal + toast ---------- */
+.scrim{position:fixed;inset:0;background:rgba(5,8,25,.72);display:grid;place-items:center;z-index:20;padding:16px}
+.modal{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(16px,2vw,28px);width:min(720px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:1em}
+.modal h3{font-size:2em;text-transform:uppercase}
+.pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,190px),1fr));gap:.5em}
+.pick button{display:flex;align-items:center;justify-content:space-between;gap:.5em;text-align:left;background:var(--panel-2);border:2px solid var(--line);border-left:6px solid var(--c);border-radius:10px;padding:.6em .8em;font-weight:700}
+.pick button:hover{border-color:var(--gold);border-left-color:var(--c)}
+.pick small{font-weight:600;color:var(--muted);display:flex;align-items:center;gap:.3em;white-space:nowrap}
+.adj{display:grid;gap:.4em}
+.adj div{display:grid;grid-template-columns:auto minmax(0,1fr) auto auto auto;gap:.5em;align-items:center}
+.adj input{background:var(--panel-2);border:1px solid var(--line);border-radius:8px;padding:.4em .6em;min-width:0;width:100%}
+.adj .num{font-family:var(--f-display);font-weight:900;font-size:1.4em;min-width:3em;text-align:right}
+.modal .foot{display:flex;justify-content:flex-end;gap:.5em;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--gold);color:var(--gold-ink);font-weight:800;padding:.7em 1.3em;border-radius:999px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;z-index:30;max-width:calc(100% - 32px);text-align:center;font-size:1.1em}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+@keyframes pop{0%{transform:scale(.94);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes rise{0%{transform:translateY(10px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes throb{50%{transform:scale(1.06)}}
+@keyframes slam{0%{transform:scale(1.4);opacity:0}100%{transform:none;opacity:1}}
+@keyframes slidein{0%{transform:translateX(-20px);opacity:0}100%{transform:none;opacity:1}}
+@keyframes grow{0%{transform:scaleY(0);transform-origin:bottom}100%{transform:scaleY(1);transform-origin:bottom}}
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+@media (max-width: 860px){
+  .setup{grid-template-columns:minmax(0,1fr)}
+  .stage{grid-template-columns:minmax(0,1fr)}
+  .timecol{flex-direction:row;justify-content:flex-start}
+  .timer{width:96px}
+  .timer .t{font-size:36px}
+  .opts{grid-template-columns:minmax(0,1fr)}
+  .row{grid-template-columns:1.8em minmax(0,1fr) 4em;row-gap:.3em}
+  .row .barwrap{grid-column:1 / -1;grid-row:2}
+  .row .mv{display:none}
+  .hostbar{border-radius:var(--r)}
+  .powers-explain{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+<div id="app" aria-live="polite"></div>
+<div id="toast" role="status"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+/* =====================================================================
+   QUESTION BANK
+   rapid:  [difficulty e|m|h, question, [correct, wrong, wrong, wrong], reference]
+   who:    [quote, [correct speaker, wrong, wrong, wrong], reference]
+   order:  [prompt, [events in the correct order], reference]
+   verse:  [text with ___ for the blank, answer, reference, note?]
+   book:   [question, [correct book, wrong, wrong, wrong], reference]
+   final:  [category, question, answer, reference]
+   ===================================================================== */
+const BANK = {
+rapid: [
+ ["e","How many books are in the Protestant Bible?",["66","72","39","59"],"39 Old Testament + 27 New Testament"],
+ ["e","Who was swallowed by a huge fish?",["Jonah","Elijah","Peter","Amos"],"Jonah 1:17"],
+ ["e","What did Esau trade his birthright for?",["A bowl of stew","Thirty pieces of silver","A ram","A colorful robe"],"Genesis 25:29–34"],
+ ["e","What was the name of Abraham's wife?",["Sarah","Rebekah","Rachel","Leah"],"Genesis 17:15"],
+ ["e","On which day of creation did God rest?",["The seventh","The sixth","The first","The eighth"],"Genesis 2:2"],
+ ["m","How many smooth stones did David choose from the stream before facing Goliath?",["Five","Three","Seven","One"],"1 Samuel 17:40"],
+ ["e","Which judge's great strength was tied to his uncut hair?",["Samson","Gideon","Ehud","Jephthah"],"Judges 16:17"],
+ ["m","God cut Gideon's army down to how many men?",["300","3,000","30","12,000"],"Judges 7:7"],
+ ["h","Which left-handed judge killed Eglon, king of Moab?",["Ehud","Othniel","Shamgar","Barak"],"Judges 3:15–21"],
+ ["m","What was the first plague on Egypt?",["Water turned to blood","Frogs","Gnats","Hail"],"Exodus 7:20"],
+ ["e","Who interpreted Pharaoh's dreams about cows and grain?",["Joseph","Daniel","Moses","Aaron"],"Genesis 41"],
+ ["m","Who read the mysterious writing on the wall for King Belshazzar?",["Daniel","Joseph","Ezekiel","Shadrach"],"Daniel 5"],
+ ["e","Where was Saul (later Paul) heading when Jesus appeared to him in a bright light?",["Damascus","Jerusalem","Rome","Antioch"],"Acts 9:3"],
+ ["m","Which prophet went up to heaven in a whirlwind?",["Elijah","Elisha","Isaiah","Jeremiah"],"2 Kings 2:11"],
+ ["e","How many days and nights did it rain during the flood?",["40","7","150","12"],"Genesis 7:12"],
+ ["m","Which disciple was a tax collector before following Jesus?",["Matthew","Luke","Thomas","Andrew"],"Matthew 9:9"],
+ ["e","Who was the first king of Israel?",["Saul","David","Solomon","Samuel"],"1 Samuel 10:1"],
+ ["e","In John's Gospel, what was Jesus' first miracle?",["Turning water into wine","Healing a blind man","Feeding 5,000","Raising Lazarus"],"John 2:11"],
+ ["e","Who climbed a sycamore-fig tree to see Jesus?",["Zacchaeus","Nicodemus","Bartimaeus","Lazarus"],"Luke 19:4"],
+ ["e","What food appeared on the ground each morning for Israel in the wilderness?",["Manna","Locusts","Barley loaves","Figs"],"Exodus 16:14–15"],
+ ["m","Which book comes right after Acts?",["Romans","Galatians","James","Hebrews"],"New Testament book order"],
+ ["h","What is the shortest book in the Old Testament?",["Obadiah","Haggai","Ruth","Joel"],"Obadiah has 21 verses"],
+ ["m","Who was Samuel's mother?",["Hannah","Naomi","Elizabeth","Deborah"],"1 Samuel 1:20"],
+ ["m","Which woman led Israel as a judge and prophet?",["Deborah","Jael","Miriam","Huldah"],"Judges 4:4"],
+ ["e","Which Roman governor sentenced Jesus to be crucified?",["Pontius Pilate","Herod Antipas","Caiaphas","Felix"],"Matthew 27:26"],
+ ["h","Who was chosen to replace Judas as one of the Twelve?",["Matthias","Barnabas","Silas","Stephen"],"Acts 1:26"],
+ ["m","Who was the first Christian martyr?",["Stephen","James","Peter","Philip"],"Acts 7:59–60"],
+ ["m","What was Paul's trade?",["Tentmaker","Fisherman","Carpenter","Potter"],"Acts 18:3"],
+ ["e","Which king asked God for wisdom instead of riches?",["Solomon","David","Hezekiah","Josiah"],"1 Kings 3:9"],
+ ["m","What did Joseph's brothers make their father believe had happened to Joseph?",["A wild animal killed him","He drowned","He ran away to Egypt","He was taken captive"],"Genesis 37:33"],
+ ["e","How many sons did Jacob have?",["12","10","7","13"],"Genesis 35:22"],
+ ["h","Which king had Daniel thrown into the lions' den?",["Darius","Nebuchadnezzar","Cyrus","Belshazzar"],"Daniel 6:16"],
+ ["h","Which prophet married Gomer as a picture of God's love for unfaithful Israel?",["Hosea","Amos","Micah","Joel"],"Hosea 1:3"],
+ ["m","Which priest raised young Samuel at the tabernacle?",["Eli","Aaron","Zadok","Phinehas"],"1 Samuel 3"],
+ ["m","On Mount Carmel, Elijah challenged the prophets of which god?",["Baal","Dagon","Molech","Chemosh"],"1 Kings 18:19–40"],
+ ["e","Jesus fed about how many men with five loaves and two fish?",["5,000","4,000","3,000","12,000"],"Matthew 14:21"],
+ ["m","Which Gospel writer was a doctor?",["Luke","Mark","Matthew","John"],"Colossians 4:14"],
+ ["m","On which island did John receive the visions in Revelation?",["Patmos","Malta","Cyprus","Crete"],"Revelation 1:9"],
+ ["h","On which island was Paul shipwrecked?",["Malta","Patmos","Crete","Rhodes"],"Acts 28:1"],
+ ["e","Who was Moses' brother?",["Aaron","Joshua","Caleb","Jethro"],"Exodus 4:14"],
+ ["m","What is the last book of the Old Testament?",["Malachi","Zechariah","Nehemiah","Haggai"],"Old Testament book order"],
+ ["m","Jesus descended from which tribe of Israel?",["Judah","Levi","Benjamin","Ephraim"],"Hebrews 7:14"],
+ ["e","How many years did Israel wander in the wilderness?",["40","7","70","12"],"Numbers 14:33"],
+ ["m","Who hid the two Israelite spies in Jericho?",["Rahab","Deborah","Jael","Tamar"],"Joshua 2:1–6"],
+ ["m","What did God provide for Abraham to sacrifice instead of Isaac?",["A ram","A lamb","A dove","A goat"],"Genesis 22:13"],
+ ["h","Which king dreamed of a statue of gold, silver, bronze, iron and clay?",["Nebuchadnezzar","Pharaoh","Darius","Cyrus"],"Daniel 2"],
+ ["m","Who was the father of John the Baptist?",["Zechariah","Joseph","Zebedee","Simeon"],"Luke 1:13"],
+ ["h","Which of Jesus' disciples was called 'the Zealot'?",["Simon","Thaddaeus","Bartholomew","James son of Alphaeus"],"Luke 6:15"],
+ ["h","What did Jesus write with his finger when the woman caught in adultery was brought to him?",["The Bible doesn't say","The Ten Commandments","The accusers' names","'Go and sin no more'"],"John 8:6–8"],
+ ["m","How many times did Peter deny knowing Jesus?",["Three","Two","Seven","Once"],"Luke 22:61"],
+ ["h","Who was the Ethiopian official reading Isaiah when Philip met him?",["A treasurer for Queen Candace","A captain of the guard","A prince of Ethiopia","A merchant of spices"],"Acts 8:27"],
+ ["h","How many people were saved on Noah's ark?",["Eight","Two","Twelve","Six"],"1 Peter 3:20"]
+],
+who: [
+ ["Am I my brother's keeper?",["Cain","Abel","Esau","Joseph's brother Reuben"],"Genesis 4:9"],
+ ["Here am I. Send me!",["Isaiah","Jeremiah","Samuel","Moses"],"Isaiah 6:8"],
+ ["Where you go I will go, and where you stay I will stay.",["Ruth","Naomi","Esther","Orpah"],"Ruth 1:16"],
+ ["If I perish, I perish.",["Esther","Mordecai","Ruth","Deborah"],"Esther 4:16"],
+ ["Unless I see the nail marks in his hands… I will not believe.",["Thomas","Peter","Philip","Nathanael"],"John 20:25"],
+ ["Nazareth! Can anything good come from there?",["Nathanael","Thomas","Nicodemus","Pilate"],"John 1:46"],
+ ["What is truth?",["Pilate","Herod","Caiaphas","Felix"],"John 18:38"],
+ ["Did God really say, 'You must not eat from any tree in the garden'?",["The serpent","Eve","Adam","Cain"],"Genesis 3:1"],
+ ["As for me and my household, we will serve the LORD.",["Joshua","Caleb","Moses","David"],"Joshua 24:15"],
+ ["Speak, for your servant is listening.",["Samuel","Eli","Isaiah","Solomon"],"1 Samuel 3:10"],
+ ["The LORD gave and the LORD has taken away; may the name of the LORD be praised.",["Job","David","Naomi","Elijah"],"Job 1:21"],
+ ["I have fought the good fight, I have finished the race, I have kept the faith.",["Paul","Peter","Timothy","Stephen"],"2 Timothy 4:7"],
+ ["He must become greater; I must become less.",["John the Baptist","Paul","Peter","Andrew"],"John 3:30"],
+ ["How can someone be born when they are old?",["Nicodemus","Zacchaeus","Nathanael","Peter"],"John 3:4"],
+ ["I don't know the man!",["Peter","Judas","Thomas","Pilate"],"Matthew 26:72"],
+ ["Lord, if it's you, tell me to come to you on the water.",["Peter","John","Andrew","James"],"Matthew 14:28"],
+ ["Silver or gold I do not have, but what I do have I give you.",["Peter","Paul","Barnabas","Philip"],"Acts 3:6"],
+ ["You are the man!",["Nathan","Samuel","Elijah","Gad"],"2 Samuel 12:7"],
+ ["Surely the LORD is in this place, and I was not aware of it.",["Jacob","Abraham","Isaac","Moses"],"Genesis 28:16"],
+ ["Is anything too hard for the LORD?",["The LORD, speaking to Abraham","Sarah","Hagar","Abraham"],"Genesis 18:14"],
+ ["Not my will, but yours be done.",["Jesus","Paul","Mary","Peter"],"Luke 22:42"],
+ ["I am the Lord's servant. May your word to me be fulfilled.",["Mary","Elizabeth","Hannah","Anna"],"Luke 1:38"],
+ ["One thing I do know. I was blind but now I see!",["The man born blind","Bartimaeus","Paul","Zacchaeus"],"John 9:25"],
+ ["Go, wash yourself seven times in the Jordan.",["Elisha","Elijah","Isaiah","Jonah"],"2 Kings 5:10"],
+ ["Should I not have concern for the great city of Nineveh?",["God","Jonah","Nahum","Jeremiah"],"Jonah 4:11"],
+ ["I will not let you go unless you bless me.",["Jacob","Esau","Isaac","Joseph"],"Genesis 32:26"],
+ ["Jesus, remember me when you come into your kingdom.",["A criminal crucified beside Jesus","Peter","The centurion","Joseph of Arimathea"],"Luke 23:42"],
+ ["Surely he was the Son of God!",["The centurion at the cross","Pilate's wife","Peter","Nicodemus"],"Matthew 27:54"],
+ ["No, you shall never wash my feet.",["Peter","John","Judas","Thomas"],"John 13:8"],
+ ["You intended to harm me, but God intended it for good.",["Joseph","Jacob","Moses","David"],"Genesis 50:20"],
+ ["Who knows but that you have come to your royal position for such a time as this?",["Mordecai","Esther","Haman","King Xerxes"],"Esther 4:14"],
+ ["My grace is sufficient for you, for my power is made perfect in weakness.",["Jesus, speaking to Paul","Paul, speaking to Timothy","Peter","John"],"2 Corinthians 12:9"]
+],
+order: [
+ ["Put these days of creation in order.",["Light","Sky separating the waters","Dry land and plants","Sun, moon and stars"],"Genesis 1"],
+ ["Put these patriarchs in order, oldest generation first.",["Abraham","Isaac","Jacob","Joseph"],"Genesis 12–50"],
+ ["Put these plagues of Egypt in order.",["Frogs","Boils","Hail","Darkness"],"Exodus 8–10"],
+ ["Put these kings in order.",["Saul","David","Solomon","Rehoboam"],"1 Samuel – 1 Kings 12"],
+ ["Put these events in Jesus' life in order.",["Baptized by John","Tempted in the wilderness","Triumphal entry into Jerusalem","The Last Supper"],"Matthew 3–26"],
+ ["Put these moments from Holy Week in order.",["Triumphal entry","Cleansing the temple","Praying in Gethsemane","Crucifixion"],"Mark 11–15"],
+ ["Put these events in Moses' life in order.",["The burning bush","Crossing the Red Sea","Receiving the Ten Commandments","Death on Mount Nebo"],"Exodus 3 – Deuteronomy 34"],
+ ["Put these books in Bible order.",["Isaiah","Jeremiah","Ezekiel","Daniel"],"Old Testament book order"],
+ ["Put these books in Bible order.",["Romans","Galatians","Philippians","Hebrews"],"New Testament book order"],
+ ["Put these events in David's life in order.",["Anointed by Samuel","Defeats Goliath","Crowned king in Hebron","Sins with Bathsheba"],"1 Samuel 16 – 2 Samuel 11"],
+ ["Put these events from Acts in order.",["Pentecost","Stephen is stoned","Saul's conversion","Shipwreck on Malta"],"Acts 2–28"],
+ ["Put these moments in Israel's history in order.",["The northern kingdom falls to Assyria","Babylon destroys Jerusalem","Cyrus lets the exiles return","Nehemiah rebuilds the walls"],"2 Kings 17 – Nehemiah 6"],
+ ["Put these events in Joseph's life in order.",["Given an ornate robe","Sold by his brothers","Thrown into prison","Made second-in-command of Egypt"],"Genesis 37–41"],
+ ["Put these events in Elijah's life in order.",["Fed by ravens","Showdown on Mount Carmel","Hears a gentle whisper at Horeb","Taken up in a whirlwind"],"1 Kings 17 – 2 Kings 2"],
+ ["Put these events in Genesis in order.",["The fall in Eden","The flood","The tower of Babel","God calls Abram"],"Genesis 3–12"],
+ ["Put these events in order.",["Walls of Jericho fall","Deborah and Barak defeat Sisera","Gideon's 300 rout Midian","Samson brings down the temple"],"Joshua 6 – Judges 16"],
+ ["Put these events in Peter's life in order.",["Called while fishing","Walks on water","Denies Jesus three times","Preaches at Pentecost"],"Matthew 4 – Acts 2"],
+ ["Put these books in Bible order.",["Ruth","1 Samuel","Ezra","Esther"],"Old Testament book order"]
+],
+verse: [
+ ["For God so loved the world that he gave his one and only ___.","Son","John 3:16"],
+ ["I can do all this through him who gives me ___.","strength","Philippians 4:13"],
+ ["Trust in the LORD with all your heart and lean not on your own ___.","understanding","Proverbs 3:5"],
+ ["In the beginning was the Word, and the Word was with God, and the Word was ___.","God","John 1:1"],
+ ["For all have sinned and fall short of the ___ of God.","glory","Romans 3:23"],
+ ["For the wages of sin is death, but the gift of God is ___ in Christ Jesus our Lord.","eternal life","Romans 6:23"],
+ ["Your word is a lamp for my feet, a ___ on my path.","light","Psalm 119:105"],
+ ["Be still, and know that I am ___.","God","Psalm 46:10"],
+ ["Do not conform to the pattern of this world, but be transformed by the ___.","renewing of your mind","Romans 12:2","Award half for 'your mind' alone."],
+ ["Don't let anyone look down on you because you are ___.","young","1 Timothy 4:12"],
+ ["Jesus answered, 'I am the way and the truth and the ___.'","life","John 14:6"],
+ ["And we know that in all things God works for the good of those who ___ him.","love","Romans 8:28"],
+ ["Love is patient, love is ___.","kind","1 Corinthians 13:4"],
+ ["The fruit of the Spirit is: ___.","love, joy, peace, patience (forbearance), kindness, goodness, faithfulness, gentleness, self-control","Galatians 5:22–23","Full points for all 9, half for 6–8."],
+ ["Come to me, all you who are weary and burdened, and I will give you ___.","rest","Matthew 11:28"],
+ ["Therefore go and make ___ of all nations.","disciples","Matthew 28:19"],
+ ["Those who hope in the LORD will renew their strength. They will soar on wings like ___.","eagles","Isaiah 40:31"],
+ ["'For I know the plans I have for you,' declares the LORD, '…plans to give you hope and a ___.'","future","Jeremiah 29:11"],
+ ["But seek first his kingdom and his ___, and all these things will be given to you as well.","righteousness","Matthew 6:33"],
+ ["For it is by grace you have been saved, through ___.","faith","Ephesians 2:8"],
+ ["The heavens declare the glory of God; the skies proclaim the work of his ___.","hands","Psalm 19:1"],
+ ["If we confess our sins, he is faithful and just and will forgive us our sins and purify us from all ___.","unrighteousness","1 John 1:9"],
+ ["Now faith is confidence in what we hope for and assurance about what we do not ___.","see","Hebrews 11:1"],
+ ["To act justly and to love mercy and to walk ___ with your God.","humbly","Micah 6:8"],
+ ["The fear of the LORD is the beginning of ___.","knowledge (Proverbs 1:7) or wisdom (Proverbs 9:10)","Proverbs 1:7; 9:10","Accept either answer."],
+ ["Be strong and ___. Do not be afraid; do not be discouraged.","courageous","Joshua 1:9"],
+ ["Love the Lord your God with all your heart and with all your soul and with all your ___.","mind","Matthew 22:37"],
+ ["Jesus ___.","wept","John 11:35","The shortest verse in most English Bibles."],
+ ["You are the ___ of the earth… You are the light of the world.","salt","Matthew 5:13–14"]
+],
+book: [
+ ["Which book tells the story of the tower of Babel?",["Genesis","Exodus","Numbers","Job"],"Genesis 11"],
+ ["Which book contains the 'love chapter' (Love is patient, love is kind…)?",["1 Corinthians","Romans","1 John","Ephesians"],"1 Corinthians 13"],
+ ["Which book has 150 chapters?",["Psalms","Isaiah","Proverbs","Genesis"],"Psalms 1–150"],
+ ["The 'armor of God' passage is found in which letter?",["Ephesians","Galatians","Colossians","Hebrews"],"Ephesians 6:10–18"],
+ ["Which book contains the 'hall of faith' chapter?",["Hebrews","Romans","James","Jude"],"Hebrews 11"],
+ ["Which book never directly mentions the word 'God'?",["Esther","Ruth","Jonah","Nehemiah"],"The book of Esther"],
+ ["'Blessed are the poor in spirit' opens the Beatitudes in which Gospel?",["Matthew","Mark","John","Acts"],"Matthew 5:3"],
+ ["Where is Ezekiel's vision of the valley of dry bones?",["Ezekiel","Daniel","Isaiah","Zechariah"],"Ezekiel 37"],
+ ["Which letter says 'faith without deeds is dead'?",["James","Romans","Galatians","1 Peter"],"James 2:26"],
+ ["The Ten Commandments are first given in which book?",["Exodus","Leviticus","Numbers","Joshua"],"Exodus 20"],
+ ["The parable of the prodigal son appears in which Gospel?",["Luke","Matthew","Mark","John"],"Luke 15:11–32"],
+ ["Which book says 'There is a time for everything'?",["Ecclesiastes","Proverbs","Psalms","Job"],"Ecclesiastes 3:1"],
+ ["Which book describes the New Jerusalem coming down out of heaven?",["Revelation","Ezekiel","Daniel","Hebrews"],"Revelation 21:2"],
+ ["Which book tells the story of Paul's conversion on the road to Damascus?",["Acts","Romans","Hebrews","1 Peter"],"Acts 9"],
+ ["Where do you find the story of the good Samaritan?",["Luke","Matthew","John","Acts"],"Luke 10:25–37"]
+],
+final: [
+ ["Old Testament people","Who is the oldest person recorded in the Bible?","Methuselah (969 years)","Genesis 5:27"],
+ ["Old Testament people","Name the two men in the Old Testament who were taken by God without dying.","Enoch and Elijah","Genesis 5:24; 2 Kings 2:11"],
+ ["Exile in Babylon","What Babylonian names were Daniel's three friends given? (All three needed.)","Shadrach, Meshach and Abednego","Daniel 1:7"],
+ ["Books of the Bible","Which two books of the Bible are named after women?","Ruth and Esther","Ruth; Esther"],
+ ["New Testament families","Name both parents of John the Baptist.","Zechariah and Elizabeth","Luke 1:5–13"],
+ ["The disciples","Name the three disciples Jesus took up the mountain of the Transfiguration.","Peter, James and John","Matthew 17:1"],
+ ["Old Testament people","What was the name of the king of Salem, a priest, who blessed Abram?","Melchizedek","Genesis 14:18"],
+ ["Old Testament families","What was the name of Moses' wife?","Zipporah","Exodus 2:21"],
+ ["The life of Jesus","What was the name of the elderly prophetess who spoke about baby Jesus at the temple?","Anna","Luke 2:36–38"],
+ ["Bible languages","In what language was most of the New Testament originally written?","Greek","Koine Greek"]
+]
+};
+
+/* =====================================================================
+   GAME CONFIG
+   ===================================================================== */
+const ROUNDS = [
+ {id:"rapid", name:"Rapid Fire", time:20, special:"first", ptsLabel:"100 · 150 · 200",
+  rules:["Every team writes A, B, C or D and holds it up when time is called.","Easy questions are worth 100, medium 150, hard 200.","The first team to hold up the right answer earns +50 (tap their card twice)."]},
+ {id:"who", name:"Who Said It?", time:20, pts:150, ptsLabel:"150",
+  rules:["A real quote from Scripture appears. Who said it?","Every team writes A, B, C or D.","150 points per correct answer."]},
+ {id:"order", name:"Put It In Order", time:45, pts:200, special:"half", ptsLabel:"200",
+  rules:["Four events, people or books appear out of order.","Write the four letters in the correct order, like  C A D B.","200 for a perfect order. The leader can give half (100) for three in the right place."]},
+ {id:"verse", name:"Finish the Verse", time:30, pts:200, special:"half", ptsLabel:"200",
+  rules:["Fill in the missing words, or pick the book where a passage is found.","Write your answer on the board. Close enough counts, the leader decides.","200 per correct answer, half points when the leader allows it."]},
+ {id:"final", name:"Final Wager", time:60, wager:true, ptsLabel:"Your wager",
+  rules:["Each team secretly writes a wager from 0 up to its current score.","You see the category first, then the question.","Right answer: add your wager. Wrong answer: lose it. Power-ups are off."]}
+];
+const LENGTHS = {
+ short:{label:"Short", mins:"≈ 30 min", rapid:6, who:4, order:3, verse:4},
+ standard:{label:"Standard", mins:"≈ 50 min", rapid:10, who:6, order:4, verse:6},
+ long:{label:"Long", mins:"≈ 75 min", rapid:14, who:8, order:6, verse:9}
+};
+const PTS = {e:100, m:150, h:200};
+const DIFFNAME = {e:"Easy", m:"Medium", h:"Hard"};
+const STEAL_AMT = 150, STREAK_BONUS = 100, FIRST_BONUS = 50;
+const COLORS = ["#ff6b6b","#4dabf7","#51cf66","#fcc419","#cc5de8","#ff922b","#22b8cf","#f06595","#94d82d","#a5a0ff"];
+const NAMES = ["Lions of Judah","Fishers of Men","Mustard Seeds","Slingshots","Burning Bushes","Salt & Light","Chariots of Fire","Jericho Wall Breakers","Loaves & Fishes","Living Stones"];
+const LET = "ABCD";
+
+const ICON = {
+ flame:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2c1 3.5 5 6 5 11a5 5 0 0 1-10 0c0-2 1-3.5 2-4.5.2 1.6 1 2.6 2 3 0-3 1-6 1-9.5z"/></svg>',
+ shield:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 4 5v6c0 5 3.4 9.3 8 11 4.6-1.7 8-6 8-11V5z"/></svg>',
+ hand:'<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M7 11V5.5a1.5 1.5 0 0 1 3 0V10h.5V3.5a1.5 1.5 0 0 1 3 0V10h.5V5a1.5 1.5 0 0 1 3 0v8.5c0 4.5-3 8.5-7.5 8.5C6.5 22 4 18.5 4 15v-2.5a1.5 1.5 0 0 1 3 0z"/></svg>'
+};
+
+/* =====================================================================
+   HELPERS
+   ===================================================================== */
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt = n => Number(n).toLocaleString("en-US");
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function store(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function recall(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null}catch(e){return null}}
+
+function mcQ(q, opts, ref){
+  const ord = shuffle([0,1,2,3]);
+  return {type:"mc", q, options:ord.map(i=>opts[i]), correct:ord.indexOf(0), ref};
+}
+function orderQ(prompt, items, ref){
+  let ord; do { ord = shuffle([0,1,2,3]); } while (ord.every((v,i)=>v===i));
+  return {type:"order", q:prompt, options:ord.map(i=>items[i]), seq:[0,1,2,3].map(i=>LET[ord.indexOf(i)]), items, ref};
+}
+let used = new Set(recall("bs-used") || []);
+function pick(pool, n, keyFn){
+  let fresh = pool.filter(x=>!used.has(keyFn(x)));
+  if (fresh.length < n) { pool.forEach(x=>used.delete(keyFn(x))); fresh = pool.slice(); }
+  const out = shuffle(fresh).slice(0,n);
+  out.forEach(x=>used.add(keyFn(x)));
+  store("bs-used",[...used]);
+  return out;
+}
+
+function buildRounds(lenKey){
+  const n = LENGTHS[lenKey], D = {e:0,m:1,h:2};
+  const rapid = pick(BANK.rapid, n.rapid, x=>x[1]).sort((a,b)=>D[a[0]]-D[b[0]])
+    .map(r=>({...mcQ(r[1],r[2],r[3]), diff:r[0], pts:PTS[r[0]]}));
+  const who = pick(BANK.who, n.who, x=>x[0]).map(r=>({...mcQ(r[0],r[1],r[2]), quote:true, pts:150}));
+  const order = pick(BANK.order, n.order, x=>x[0]+x[1][0]).map(r=>({...orderQ(r[0],r[1],r[2]), pts:200}));
+  const nb = Math.round(n.verse/3);
+  const verse = shuffle([
+    ...pick(BANK.verse, n.verse-nb, x=>x[0]).map(r=>({type:"verse", q:r[0], answer:r[1], ref:r[2], note:r[3]||"", pts:200})),
+    ...pick(BANK.book, nb, x=>x[0]).map(r=>({...mcQ(r[0],r[1],r[2]), pts:200}))
+  ]);
+  const f = pick(BANK.final, 1, x=>x[1])[0];
+  const final = [{type:"open", category:f[0], q:f[1], answer:f[2], ref:f[3], pts:0}];
+  const qs = {rapid, who, order, verse, final};
+  return ROUNDS.map((def,i)=>({idx:i, qs:qs[def.id]}));
+}
+
+/* =====================================================================
+   STATE
+   ===================================================================== */
+function blankSetup(){
+  return {screen:"setup", setup:{count:7, names:NAMES.slice(), len:"standard"}, muted:false};
+}
+let S = blankSetup();
+let hist = [];
+const SNAP_KEYS = ["teams","screen","ri","qi","phase","marks","armed","wagers","lastDeltas","timer","roundStart"];
+function pushHist(){ hist.push(JSON.stringify(SNAP_KEYS.reduce((o,k)=>(o[k]=S[k],o),{}))); if(hist.length>60) hist.shift(); }
+function undo(){
+  if(!hist.length){ toast("Nothing to undo"); return; }
+  const snap = JSON.parse(hist.pop()); Object.assign(S, snap);
+  if(S.timer) S.timer.running=false; clearInterval(tick);
+  save(); render(); toast("Undone");
+}
+function save(){ const {modal, ...rest} = S; store("bs-state", rest); }
+function round(){ return S.rounds[S.ri]; }
+function rdef(){ const r = round(); return r.customDef || ROUNDS[r.idx]; }
+function curQ(){ return round().qs[S.qi]; }
+
+function startGame(again){
+  const names = S.setup.names.slice(0, S.setup.count).map((n,i)=>(n||"").trim()||`Team ${i+1}`);
+  S.teams = again ? S.teams.map(t=>freshTeam(t.name,t.color)) : names.map((n,i)=>freshTeam(n, COLORS[i%COLORS.length]));
+  S.rounds = buildRounds(S.setup.len);
+  S.ri = 0; S.qi = 0; S.screen = "intro"; S.wagers = []; S.lastDeltas=null;
+  S.roundStart = S.teams.map(t=>t.score);
+  hist = []; save(); render();
+}
+function freshTeam(name,color){ return {name, color, score:0, streak:0, powers:{double:true, steal:true, shield:true}}; }
+
+function beginRound(){
+  if (rdef().wager){ S.screen="wager"; S.wagers = S.teams.map(()=>0); save(); render(); return; }
+  S.screen = "q"; S.qi = 0; startQ();
+}
+function startQ(){
+  const t = rdef().time;
+  S.phase = "ask"; S.marks = {}; S.armed = {}; S.lastDeltas = null;
+  S.timer = {left:t, total:t, running:false};
+  clearInterval(tick); save(); render(); tone(520,.12,"triangle",.08);
+}
+function reveal(){
+  if (S.phase!=="ask") return;
+  pushHist(); pauseTimer(); S.phase = "reveal"; save(); render();
+  tone(660,.14,"sine",.14); tone(990,.3,"sine",.14,.12);
+}
+function cycleMark(i){
+  if (S.phase!=="reveal") return;
+  const max = rdef().special ? 2 : 1;
+  S.marks[i] = ((S.marks[i]||0)+1) % (max+1);
+  save(); renderTeams(); updateHost();
+}
+function award(){
+  if (S.phase!=="reveal") return;
+  pushHist(); pauseTimer();
+  const d0 = rdef(), q = curQ(); S.lastDeltas = {};
+  let anyHot = false;
+  S.teams.forEach((t,i)=>{
+    const m = S.marks[i]||0; let d = 0; const notes = [];
+    if (d0.wager){
+      const w = S.wagers[i]||0; d = m ? w : -w;
+    } else if (m){
+      d = q.pts;
+      if (m===2 && d0.special==="first"){ d += FIRST_BONUS; notes.push("fast"); }
+      if (m===2 && d0.special==="half"){ d = Math.round(q.pts/2); notes.push("half"); }
+      if (S.armed[i]){ d *= 2; notes.push("×2"); }
+      t.streak++;
+      if (t.streak % 3 === 0){ d += STREAK_BONUS; notes.push("hot"); anyHot = true; }
+    } else {
+      if (S.armed[i]) notes.push("×2 lost");
+      t.streak = 0;
+    }
+    if (S.armed[i]) t.powers.double = false;
+    t.score += d;
+    S.lastDeltas[i] = {d, notes};
+  });
+  S.armed = {}; S.phase = "awarded"; save(); render();
+  tone(523,.12,"triangle",.12); tone(784,.2,"triangle",.12,.1);
+  if (anyHot){ tone(1046,.25,"square",.06,.25); toast("Hot streak! +100 for three in a row"); }
+}
+function nextQ(){
+  if (S.phase==="ask" || S.phase==="reveal"){
+    // skipping without awarding
+    pushHist();
+  }
+  const r = round();
+  if (S.qi < r.qs.length-1){ S.qi++; startQ(); return; }
+  pauseTimer(); S.lastDeltas=null;
+  if (S.ri >= S.rounds.length-1 || rdef().wager || rdef().tie){ S.screen = "end"; save(); render(); fanfare(); return; }
+  S.screen = "board"; save(); render();
+}
+function nextRound(){
+  S.ri++; S.qi = 0; S.roundStart = S.teams.map(t=>t.score); S.screen = "intro"; save(); render();
+}
+function lockWagers(){
+  S.wagers = S.teams.map((t,i)=>Math.max(0, Math.min(Math.max(t.score,0), Math.floor(+S.wagers[i]||0))));
+  S.screen = "q"; S.qi = 0; S.armed = {}; startQ();
+}
+function tiebreak(){
+  const hard = BANK.rapid.filter(r=>r[0]==="h");
+  const r = pick(hard, 1, x=>x[1])[0];
+  S.rounds.push({customDef:{id:"tie", name:"Sudden Death", time:20, pts:200, tie:true, ptsLabel:"200",
+    rules:["Only the tied teams play.","One hard question. Write A, B, C or D.","First correct answer takes the crown. Still tied? Run it again."]},
+    qs:[{...mcQ(r[1],r[2],r[3]), diff:"h", pts:200}]});
+  S.ri = S.rounds.length-1; S.qi=0; S.roundStart = S.teams.map(t=>t.score); S.screen="intro"; save(); render();
+}
+function toggleDouble(i){
+  const t = S.teams[i]; if(!t.powers.double || S.phase==="awarded" || rdef().wager) return;
+  S.armed[i] = !S.armed[i]; save(); renderTeams();
+  if (S.armed[i]){ tone(880,.1,"square",.05); toast(`${t.name} armed Double Points`); }
+}
+function doSteal(from,to){
+  pushHist();
+  const a = S.teams[from], b = S.teams[to]; a.powers.steal = false;
+  if (b.powers.shield){
+    b.powers.shield = false; toast(`Blocked! ${b.name}'s Shield stopped the steal`); tone(300,.3,"square",.08);
+  } else {
+    const amt = Math.max(0, Math.min(STEAL_AMT, b.score)); b.score -= amt; a.score += amt;
+    toast(`${a.name} stole ${amt} from ${b.name}`); tone(700,.1,"sawtooth",.07); tone(400,.25,"sawtooth",.07,.1);
+  }
+  S.modal = null; save(); render();
+}
+
+/* =====================================================================
+   TIMER + SOUND
+   ===================================================================== */
+let tick = null;
+function startTimer(){
+  if (!S.timer || S.timer.left<=0 || S.phase!=="ask") return;
+  ac();
+  S.timer.running = true; S.timer.end = Date.now() + S.timer.left*1000;
+  clearInterval(tick); tick = setInterval(step, 150); updTimer();
+}
+function pauseTimer(){
+  if (!S.timer || !S.timer.running) return;
+  S.timer.left = Math.max(0,(S.timer.end-Date.now())/1000); S.timer.running=false; clearInterval(tick); updTimer();
+}
+function toggleTimer(){ S.timer && S.timer.running ? pauseTimer() : startTimer(); updateHost(); }
+function addTime(s){ if(!S.timer) return; if(S.timer.running) S.timer.end += s*1000; S.timer.left += s; S.timer.total = Math.max(S.timer.total, S.timer.left); updTimer(); updateHost(); }
+function step(){
+  const prev = Math.ceil(S.timer.left);
+  const left = Math.max(0,(S.timer.end-Date.now())/1000); S.timer.left = left;
+  const sec = Math.ceil(left);
+  if (sec!==prev && sec<=5 && sec>0) tone(sec===1?1100:880,.09,"square",.06);
+  if (left<=0){ S.timer.running=false; clearInterval(tick); tone(150,.7,"sawtooth",.13); updateHost(); }
+  updTimer();
+}
+function updTimer(){
+  const el = $(".timer"); if(!el || !S.timer) return;
+  const {left,total} = S.timer, C = 2*Math.PI*54;
+  el.querySelector(".bar").style.strokeDashoffset = C*(1-left/total);
+  el.querySelector(".t").textContent = left<=0 ? "TIME" : Math.ceil(left);
+  el.classList.toggle("low", left>0 && left<=5);
+  el.classList.toggle("out", left<=0);
+  const b = $("#tbtn"); if(b) b.innerHTML = S.timer.running ? 'Pause <kbd>Space</kbd>' : (left<=0?'Time is up':(left<total?'Resume <kbd>Space</kbd>':'Start timer <kbd>Space</kbd>'));
+  if (b) b.disabled = left<=0 || S.phase!=="ask";
+}
+let actx = null;
+function ac(){ if(!actx){ try{ actx = new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } if(actx && actx.state==="suspended") actx.resume(); return actx; }
+function tone(f,d,type="sine",vol=.12,when=0){
+  if (S.muted) return; const c = actx; if(!c) return;
+  try{
+    const o=c.createOscillator(), g=c.createGain(), t0=c.currentTime+when;
+    o.type=type; o.frequency.setValueAtTime(f,t0);
+    g.gain.setValueAtTime(vol,t0); g.gain.exponentialRampToValueAtTime(.0001,t0+d);
+    o.connect(g); g.connect(c.destination); o.start(t0); o.stop(t0+d+.05);
+  }catch(e){}
+}
+function fanfare(){ [523,659,784,1046].forEach((f,i)=>tone(f,.35,"triangle",.12,i*.16)); tone(1046,.9,"triangle",.12,.7); }
+
+let toastT;
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),2600); }
+
+/* =====================================================================
+   VIEWS
+   ===================================================================== */
+function render(){
+  const app = $("#app");
+  const v = {setup:vSetup, intro:vIntro, q:vQuestion, board:vBoard, wager:vWager, end:vEnd}[S.screen] || vSetup;
+  app.innerHTML = v() + vModal();
+  if (S.screen==="q") updTimer();
+  if (S.screen==="board") requestAnimationFrame(()=>requestAnimationFrame(()=>document.querySelectorAll(".barfill").forEach(b=>b.style.width=b.dataset.to)));
+  if (S.screen==="end") confetti(); else stopConfetti();
+  const f = app.querySelector("[data-autofocus]"); if (f) f.focus();
+}
+
+function toolsHTML(){
+  return `<div class="tools">
+    <button class="btn sm ghost" data-act="scores">Scores &amp; teams</button>
+    <button class="btn sm ghost" data-act="undo" ${hist.length?"":"disabled"}>Undo <kbd>U</kbd></button>
+    <button class="btn sm ghost" data-act="mute" aria-pressed="${S.muted}">${S.muted?"Sound off":"Sound on"}</button>
+  </div>`;
+}
+
+function vSetup(){
+  const st = S.setup, saved = recall("bs-state");
+  const canResume = saved && saved.screen && saved.screen!=="setup" && saved.teams;
+  return `<div class="setup">
+    <section class="hero">
+      <div class="eyebrow">Youth group game night</div>
+      <h1 class="wordmark">Bible<span>Show</span><em>down</em></h1>
+      <p>Up to ten teams. Five rounds. One leader on the projector. Teams write answers on whiteboards, the leader taps who got it right, and the scoreboard does the rest.</p>
+      <ol class="roundlist">
+        ${ROUNDS.map(r=>`<li><div><b>${r.name}</b><small>${esc(r.rules[0])}</small></div><span class="pts">${r.ptsLabel}</span></li>`).join("")}
+      </ol>
+      <div class="powers-explain">
+        <div><b><span class="tag x2">×2</span> Double</b>Arm it before the answer is revealed. Right answer pays double, wrong answer and it's gone.</div>
+        <div><b>${ICON.hand} Steal</b>Take ${STEAL_AMT} points from any team, once per game, at any moment.</div>
+        <div><b>${ICON.shield} Shield</b>Blocks the first steal against your team. It's used up when it blocks.</div>
+      </div>
+    </section>
+    <section class="panel" aria-label="Game setup">
+      ${canResume?`<div class="resume"><span>A game is still in progress on this device.</span><button class="btn sm primary" data-act="resume">Resume game</button></div>`:""}
+      <div class="field">
+        <span class="label">Number of teams</span>
+        <div class="stepper">
+          <button class="btn" data-act="count" data-d="-1" aria-label="Fewer teams">−</button>
+          <output class="num" id="countOut">${st.count}</output>
+          <button class="btn" data-act="count" data-d="1" aria-label="More teams">+</button>
+          <span class="muted">${Math.ceil(35/st.count)}–${Math.ceil(45/st.count)} students per team for a group of 35–45</span>
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Team names</span>
+        <div class="teaminputs">
+          ${st.names.slice(0,st.count).map((n,i)=>`<label style="--c:${COLORS[i]}"><span class="dot"></span><input id="tn${i}" data-name="${i}" value="${esc(n)}" maxlength="28" aria-label="Team ${i+1} name"></label>`).join("")}
+        </div>
+      </div>
+      <div class="field">
+        <span class="label">Game length</span>
+        <div class="seg">
+          ${Object.entries(LENGTHS).map(([k,l])=>`<button data-act="len" data-k="${k}" aria-pressed="${st.len===k}">${l.label}<small>${l.mins} · ${l.rapid+l.who+l.order+l.verse+1} questions</small></button>`).join("")}
+        </div>
+      </div>
+      <button class="btn primary big" data-act="start">Start the showdown</button>
+      <details class="howto">
+        <summary>Leader checklist</summary>
+        <ol>
+          <li>Split students into teams of 5–7. Give each team a whiteboard or paper and a marker.</li>
+          <li>Put this page on the projector. Use full screen (F11) so the scoreboard is easy to read.</li>
+          <li>Read each question aloud, then press <kbd>Space</kbd> to start the clock.</li>
+          <li>When time is up, teams hold up their answers. Press <kbd>R</kbd> to reveal.</li>
+          <li>Tap each team that got it right (or press their number key), then press <kbd>A</kbd> to award points.</li>
+          <li>Press <kbd>N</kbd> for the next question. <kbd>U</kbd> undoes the last action.</li>
+          <li>Teams shout "Double!" before a reveal to arm it, or "Steal!" any time. Tap the button on their card.</li>
+          <li>Three right answers in a row earns a +${STREAK_BONUS} hot streak bonus.</li>
+        </ol>
+      </details>
+    </section>
+  </div>`;
+}
+
+function vIntro(){
+  const d = rdef(), r = round();
+  const label = d.tie ? "Tiebreaker" : `Round ${S.ri+1} of ${ROUNDS.length}`;
+  return `<div class="topbar"><div class="where"><span class="eyebrow">${label}</span></div>${toolsHTML()}</div>
+  <section class="splash">
+    <div class="rn">${label}</div>
+    <h1>${d.name}</h1>
+    <ul class="rules">${d.rules.map(x=>`<li>${esc(x)}</li>`).join("")}</ul>
+    <div class="stats">
+      <div><b class="num">${r.qs.length}</b><span>${r.qs.length===1?"Question":"Questions"}</span></div>
+      <div><b class="num">${d.time}s</b><span>Per question</span></div>
+      <div><b>${d.ptsLabel}</b><span>Points</span></div>
+    </div>
+    <div><button class="btn primary big" data-act="begin" data-autofocus>${d.wager?"Enter wagers":"Begin round"} <kbd>N</kbd></button></div>
+  </section>
+  ${teamsHTML()}`;
+}
+
+function vQuestion(){
+  const d = rdef(), r = round(), q = curQ();
+  const revealed = S.phase!=="ask";
+  const pips = r.qs.map((_,i)=>`<i class="${i<S.qi?"done":i===S.qi?"now":""}"></i>`).join("");
+  const C = 2*Math.PI*54;
+  let body = "";
+  if (q.type==="mc"){
+    body = `${q.quote?`<p class="quote">${esc(q.q)}</p>`:`<p class="qtext">${esc(q.q)}</p>`}
+      <div class="opts ${revealed?"revealed":""}">${q.options.map((o,i)=>`<div class="opt ${i===q.correct?"right":""}"><span class="L">${LET[i]}</span><span>${esc(o)}</span></div>`).join("")}</div>
+      ${revealed?`<div class="answer"><span class="label">Answer</span><strong>${LET[q.correct]}. ${esc(q.options[q.correct])}</strong><span class="ref">${esc(q.ref)}</span></div>`:""}`;
+  } else if (q.type==="order"){
+    body = `<p class="qtext">${esc(q.q)}</p>
+      <div class="opts">${q.options.map((o,i)=>`<div class="opt"><span class="L">${LET[i]}</span><span>${esc(o)}</span></div>`).join("")}</div>
+      ${revealed?`<div class="answer"><span class="label">Correct order</span><div class="seq">${q.seq.map((l,i)=>`${i?"<i>→</i>":""}<b>${l}</b>`).join("")}</div><span class="ref">${esc(q.ref)}</span>
+        <ol class="ordered" style="flex-basis:100%">${q.items.map(x=>`<li>${esc(x)}</li>`).join("")}</ol></div>`:""}`;
+  } else if (q.type==="verse"){
+    const parts = esc(q.q).split("___");
+    const blank = revealed ? `<span class="blank filled">${esc(q.answer)}</span>` : `<span class="blank">&nbsp;</span>`;
+    body = `<span class="eyebrow">Finish the verse</span>
+      <p class="verse">${parts[0]}${blank}${parts[1]||""}</p>
+      ${revealed?`<div class="answer"><span class="label">Answer</span><strong>${esc(q.answer)}</strong><span class="ref">${esc(q.ref)}</span></div>${q.note?`<p class="note">${esc(q.note)}</p>`:""}`:`<p class="ref">${esc(q.ref)}</p>`}`;
+  } else {
+    body = `<span class="eyebrow">Category: ${esc(q.category)}</span>
+      <p class="qtext">${esc(q.q)}</p>
+      ${revealed?`<div class="answer"><span class="label">Answer</span><strong>${esc(q.answer)}</strong><span class="ref">${esc(q.ref)}</span></div>`:""}`;
+  }
+  const meta = d.wager ? `<span class="pill m">Wager</span>` :
+    q.diff ? `<span class="pill ${q.diff}">${DIFFNAME[q.diff]} · ${q.pts}</span>` : `<span class="pill m">${q.pts} pts</span>`;
+  return `<div class="topbar">
+      <div class="where"><span class="eyebrow">${d.tie?"Tiebreaker":`Round ${S.ri+1}`}</span><h2>${d.name}</h2>
+        <span class="muted num">Q ${S.qi+1}/${r.qs.length}</span><div class="pips" aria-hidden="true">${pips}</div>${meta}</div>
+      ${toolsHTML()}
+    </div>
+    <section class="stage">
+      <div class="qcol">${body}</div>
+      <div class="timecol">
+        <div class="timer" role="timer" aria-label="Time left">
+          <svg viewBox="0 0 120 120"><circle class="track" cx="60" cy="60" r="54"/><circle class="bar" cx="60" cy="60" r="54" stroke-dasharray="${C}" stroke-dashoffset="0"/></svg>
+          <div class="t num">${Math.ceil(S.timer.left)}</div>
+        </div>
+        <button class="btn sm ghost" data-act="add10" ${S.phase!=="ask"?"disabled":""}>+10 s</button>
+      </div>
+    </section>
+    <div class="hostbar" id="hostbar">${hostInner()}</div>
+    ${teamsHTML()}`;
+}
+function hostInner(){
+  const d = rdef(), last = S.qi >= round().qs.length-1;
+  const nextLabel = last ? (d.wager||d.tie||S.ri>=S.rounds.length-1 ? "Final results" : "See standings") : "Next question";
+  if (S.phase==="ask"){
+    return `<span class="hint">Read it aloud, then start the clock.</span>
+      <button class="btn" id="tbtn" data-act="timer">Start timer <kbd>Space</kbd></button>
+      <button class="btn primary" data-act="reveal">Reveal answer <kbd>R</kbd></button>
+      <button class="btn sm ghost" data-act="next">Skip</button>`;
+  }
+  if (S.phase==="reveal"){
+    const n = Object.values(S.marks).filter(Boolean).length;
+    const hint = d.wager ? `Tap every team that got it <em>right</em>. Untapped teams lose their wager.` :
+      d.special==="first" ? `Tap teams that got it right. Tap again for <em>⚡ first</em> (+${FIRST_BONUS}).` :
+      d.special==="half" ? `Tap teams that got it right. Tap again for <em>½ points</em>.` : `Tap every team that got it right.`;
+    return `<span class="hint">${hint} <span class="muted num">(${n} marked)</span></span>
+      <button class="btn primary" data-act="award">Award points <kbd>A</kbd></button>`;
+  }
+  return `<span class="hint">Points are in.</span>
+    <button class="btn primary" data-act="next" data-autofocus>${nextLabel} <kbd>N</kbd></button>`;
+}
+function updateHost(){ const h=$("#hostbar"); if(h){ h.innerHTML = hostInner(); updTimer(); } }
+
+function teamsHTML(){
+  const inQ = S.screen==="q", d = S.rounds ? rdef() : {};
+  const markable = inQ && S.phase==="reveal";
+  const showPw = !d.wager && !d.tie;
+  return `<section class="teams" id="teams" aria-label="Scoreboard">${S.teams.map((t,i)=>{
+    const m = inQ ? (S.marks?.[i]||0) : 0;
+    const mk = m===1 ? "✓" : m===2 ? (d.special==="first"?"⚡":"½") : "";
+    const ld = inQ && S.phase==="awarded" && S.lastDeltas ? S.lastDeltas[i] : null;
+    const delta = ld ? `<span class="delta ${ld.d>0?"up":ld.d<0?"down":"zero"} num">${ld.d>0?"+":""}${fmt(ld.d)}</span>${ld.notes.map(n=>`<span class="tag ${n==="hot"?"hot":n.startsWith("×2")?"x2":""}">${n==="hot"?"Hot streak":n==="fast"?"First":esc(n)}</span>`).join("")}` : "";
+    const flame = t.streak>=2 ? `<span class="flame" title="${t.streak} in a row">${ICON.flame}${t.streak}</span>` : "";
+    const armed = S.armed?.[i];
+    const pw = showPw ? `<div class="pw">
+        <button data-act="double" data-i="${i}" class="${armed?"armed":""}" ${!t.powers.double||(inQ&&S.phase==="awarded")||!inQ?"disabled":""} aria-pressed="${!!armed}" title="Double points on this question">×2</button>
+        <button data-act="steal" data-i="${i}" ${!t.powers.steal?"disabled":""} title="Steal ${STEAL_AMT} points">${ICON.hand}Steal</button>
+        <span class="sh ${t.powers.shield?"on":"off"}" title="${t.powers.shield?"Shield ready":"Shield used"}">${ICON.shield}Shield</span>
+      </div>` : "";
+    const wl = d.wager && inQ ? `<div class="wagerline">Wager <b class="num">${fmt(S.wagers[i]||0)}</b></div>` : "";
+    return `<div class="team ${markable?"markable":""} ${m?"m"+m:""}" style="--c:${t.color}" ${markable?`data-act="mark" data-i="${i}" role="button" tabindex="0" aria-pressed="${!!m}"`:""}>
+      <span class="mk">${mk}</span>
+      <div class="tn">${i<10?`<kbd>${(i+1)%10}</kbd> `:""}${esc(t.name)}</div>
+      <div class="ts num">${fmt(t.score)}</div>
+      <div class="meta">${delta}${flame}</div>
+      ${wl}${pw}
+    </div>`;}).join("")}</section>`;
+}
+function renderTeams(){ const el=$("#teams"); if(el) el.outerHTML = teamsHTML(); }
+
+function ranked(scores){
+  return S.teams.map((t,i)=>({...t,i,score:scores?scores[i]:t.score})).sort((a,b)=>b.score-a.score);
+}
+function vBoard(){
+  const before = ranked(S.roundStart), now = ranked();
+  const max = Math.max(1, ...S.teams.map(t=>t.score), ...S.roundStart);
+  const prevRank = {}; before.forEach((t,k)=>prevRank[t.i]=k);
+  const nextDef = ROUNDS[S.ri+1];
+  return `<div class="topbar"><div class="where"><span class="eyebrow">Standings</span><h2>After round ${S.ri+1}</h2></div>${toolsHTML()}</div>
+  <section class="board">${now.map((t,k)=>{
+    const mv = prevRank[t.i]-k, gain = t.score - S.roundStart[t.i];
+    return `<div class="row" style="--c:${t.color};animation-delay:${k*.07}s">
+      <span class="rk num">${k+1}</span>
+      <span class="nm"><span class="dot"></span>${esc(t.name)}</span>
+      <div class="barwrap"><div class="barfill" style="--from:${Math.max(0,S.roundStart[t.i])/max*100}%" data-to="${Math.max(0,t.score)/max*100}%"></div></div>
+      <span class="sc num">${fmt(t.score)}</span>
+      <span class="mv ${mv>0?"up":mv<0?"down":"same"} num">${mv>0?`▲ ${mv}`:mv<0?`▼ ${-mv}`:"–"} <span class="muted">${gain>=0?"+":""}${fmt(gain)}</span></span>
+    </div>`;}).join("")}</section>
+  <div class="center"><button class="btn primary big" data-act="nextround" data-autofocus>Next: ${nextDef?nextDef.name:"Final"} <kbd>N</kbd></button></div>`;
+}
+
+function vWager(){
+  const q = round().qs[0];
+  return `<div class="topbar"><div class="where"><span class="eyebrow">Round ${S.ri+1}</span><h2>Final Wager</h2></div>${toolsHTML()}</div>
+  <section class="splash" style="max-width:none;padding-block:0">
+    <div class="rn">The category is</div>
+    <h1 style="font-size:clamp(48px,7vw,130px)">${esc(q.category)}</h1>
+    <p class="muted" style="margin:0">Each team writes a secret wager, from 0 up to its score. Collect them and type them in below.</p>
+  </section>
+  <section class="wagers">${S.teams.map((t,i)=>`<label style="--c:${t.color}"><span>${esc(t.name)}</span><small class="num">Score ${fmt(t.score)} · max wager ${fmt(Math.max(0,t.score))}</small>
+    <input type="number" inputmode="numeric" id="wg${i}" data-wager="${i}" min="0" max="${Math.max(0,t.score)}" step="50" value="${S.wagers[i]||0}"></label>`).join("")}</section>
+  <div class="center"><button class="btn primary big" data-act="lockwagers">Lock wagers and show the question</button></div>`;
+}
+
+function vEnd(){
+  const r = ranked(), top = r[0], tied = r.length>1 && r[1].score===top.score;
+  const pod = [r[1],r[0],r[2]].map((t,k)=>t?`<div class="pod p${[2,1,3][k]}" style="--c:${t.color}"><div class="who">${esc(t.name)}</div><div class="block"><div class="place">${[2,1,3][k]}</div><div class="pts num">${fmt(t.score)}</div></div></div>`:`<div></div>`).join("");
+  return `<div class="topbar"><div class="where"><span class="eyebrow">Final results</span></div>${toolsHTML()}</div>
+  <section class="champ">
+    <span class="eyebrow">${tied?"It's a tie at the top":"Champions"}</span>
+    <h1>${tied?"Sudden death!":esc(top.name)}</h1>
+  </section>
+  <section class="podium">${pod}</section>
+  <section class="board rest">${r.slice(3).map((t,k)=>`<div class="row" style="--c:${t.color}"><span class="rk num">${k+4}</span><span class="nm"><span class="dot"></span>${esc(t.name)}</span><div class="barwrap"><div class="barfill" style="width:${Math.max(0,t.score)/Math.max(1,top.score)*100}%"></div></div><span class="sc num">${fmt(t.score)}</span><span></span></div>`).join("")}</section>
+  <div class="center">
+    ${tied?`<button class="btn primary big" data-act="tiebreak">Play a sudden-death question</button>`:""}
+    <button class="btn ${tied?"":"primary"} big" data-act="again">Rematch with new questions</button>
+    <button class="btn big ghost" data-act="newgame">New game setup</button>
+  </div>`;
+}
+
+function vModal(){
+  if (!S.modal) return "";
+  if (S.modal.kind==="steal"){
+    const a = S.teams[S.modal.from];
+    return `<div class="scrim" data-act="close"><div class="modal" role="dialog" aria-modal="true" aria-label="Choose a team to steal from">
+      <span class="eyebrow">Steal ${STEAL_AMT} points</span><h3>Who does ${esc(a.name)} steal from?</h3>
+      <div class="pick">${S.teams.map((t,i)=>i===S.modal.from?"":`<button data-act="stealto" data-i="${i}" style="--c:${t.color}"><span>${esc(t.name)}</span><small class="num">${fmt(t.score)}${t.powers.shield?` ${ICON.shield}`:""}</small></button>`).join("")}</div>
+      <p class="note">Teams showing a shield icon will block the steal, and their Shield is used up.</p>
+      <div class="foot"><button class="btn" data-act="close">Cancel</button></div></div></div>`;
+  }
+  if (S.modal.kind==="scores"){
+    return `<div class="scrim" data-act="close"><div class="modal" role="dialog" aria-modal="true" aria-label="Edit scores and teams">
+      <span class="eyebrow">Leader controls</span><h3>Scores &amp; teams</h3>
+      <div class="adj">${S.teams.map((t,i)=>`<div><span class="dot" style="--c:${t.color}"></span><input id="ed${i}" data-rename="${i}" value="${esc(t.name)}" aria-label="Team ${i+1} name" maxlength="28">
+        <button class="btn sm" data-act="adj" data-i="${i}" data-d="-50" aria-label="Subtract 50 from ${esc(t.name)}">−50</button>
+        <span class="num">${fmt(t.score)}</span>
+        <button class="btn sm" data-act="adj" data-i="${i}" data-d="50" aria-label="Add 50 to ${esc(t.name)}">+50</button></div>`).join("")}</div>
+      <div class="foot"><button class="btn ghost" data-act="quit">End game and go to setup</button><button class="btn primary" data-act="close">Done</button></div></div></div>`;
+  }
+  if (S.modal.kind==="quit"){
+    return `<div class="scrim" data-act="close"><div class="modal" role="dialog" aria-modal="true" aria-label="End game">
+      <h3>End this game?</h3><p>The scores will be cleared. This can't be undone.</p>
+      <div class="foot"><button class="btn" data-act="close">Keep playing</button><button class="btn primary" data-act="quityes">End game</button></div></div></div>`;
+  }
+  return "";
+}
+
+/* =====================================================================
+   CONFETTI
+   ===================================================================== */
+let confRAF = null;
+function confetti(){
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const cv = $("#confetti"), cx = cv.getContext("2d"); cv.hidden = false;
+  const W = cv.width = innerWidth, H = cv.height = innerHeight;
+  const cols = S.teams ? [ranked()[0].color, "#f4b942", "#f5f0e2"] : COLORS;
+  const P = Array.from({length:180},()=>({x:Math.random()*W, y:-20-Math.random()*H, r:4+Math.random()*6, c:cols[Math.floor(Math.random()*cols.length)], vy:2+Math.random()*3, vx:-1+Math.random()*2, a:Math.random()*6, va:-.1+Math.random()*.2}));
+  const t0 = performance.now();
+  cancelAnimationFrame(confRAF);
+  (function f(t){
+    cx.clearRect(0,0,W,H);
+    P.forEach(p=>{ p.y+=p.vy; p.x+=p.vx+Math.sin(p.a)*.6; p.a+=p.va; if(p.y>H+20 && t-t0<6000){p.y=-20;p.x=Math.random()*W;}
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.a); cx.fillStyle=p.c; cx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2); cx.restore(); });
+    if (t-t0 < 10000) confRAF = requestAnimationFrame(f); else stopConfetti();
+  })(t0);
+}
+function stopConfetti(){ cancelAnimationFrame(confRAF); const cv=$("#confetti"); if(cv){ cv.hidden=true; } }
+
+/* =====================================================================
+   EVENTS
+   ===================================================================== */
+document.addEventListener("click", e=>{
+  const el = e.target.closest("[data-act]"); if(!el) return;
+  const act = el.dataset.act, i = +el.dataset.i;
+  if (act==="close" && el.classList.contains("scrim") && e.target!==el) return;
+  ac();
+  switch(act){
+    case "count": S.setup.count = Math.max(2, Math.min(10, S.setup.count + +el.dataset.d)); render(); break;
+    case "len": S.setup.len = el.dataset.k; render(); break;
+    case "start": startGame(false); break;
+    case "resume": { const sv = recall("bs-state"); if (sv){ S = {...blankSetup(), ...sv}; if(S.timer) S.timer.running=false; hist=[]; render(); } break; }
+    case "begin": beginRound(); break;
+    case "timer": toggleTimer(); break;
+    case "add10": addTime(10); break;
+    case "reveal": reveal(); break;
+    case "mark": cycleMark(i); break;
+    case "award": award(); break;
+    case "next": nextQ(); break;
+    case "nextround": nextRound(); break;
+    case "double": toggleDouble(i); break;
+    case "steal": if (S.teams[i].powers.steal){ S.modal = {kind:"steal", from:i}; render(); } break;
+    case "stealto": doSteal(S.modal.from, i); break;
+    case "scores": S.modal = {kind:"scores"}; render(); break;
+    case "adj": pushHist(); S.teams[i].score += +el.dataset.d; save(); render(); break;
+    case "quit": S.modal = {kind:"quit"}; render(); break;
+    case "quityes": { const keep = S.setup; S = blankSetup(); S.setup = keep; store("bs-state", null); hist=[]; clearInterval(tick); render(); break; }
+    case "close": S.modal = null; render(); break;
+    case "undo": undo(); break;
+    case "mute": S.muted = !S.muted; save(); render(); break;
+    case "lockwagers": lockWagers(); break;
+    case "tiebreak": tiebreak(); break;
+    case "again": startGame(true); break;
+    case "newgame": { const keep = S.setup; keep.names = S.teams ? S.teams.map(t=>t.name).concat(NAMES.slice(S.teams.length)) : keep.names; S = blankSetup(); S.setup = keep; store("bs-state", null); render(); break; }
+  }
+});
+document.addEventListener("input", e=>{
+  const t = e.target;
+  if (t.dataset.name!==undefined){ S.setup.names[+t.dataset.name] = t.value; }
+  if (t.dataset.wager!==undefined){ S.wagers[+t.dataset.wager] = t.value; save(); }
+  if (t.dataset.rename!==undefined){ S.teams[+t.dataset.rename].name = t.value; save(); }
+});
+document.addEventListener("change", e=>{ if (e.target.dataset.rename!==undefined) { renderTeams(); } });
+document.addEventListener("keydown", e=>{
+  if (e.target.matches("input,textarea,select")) { if(e.key==="Escape") e.target.blur(); return; }
+  if (S.modal){ if (e.key==="Escape"){ S.modal=null; render(); } return; }
+  if (e.metaKey||e.ctrlKey||e.altKey) return;
+  const k = e.key.toLowerCase();
+  if ((k==="enter"||k===" ") && e.target.dataset && e.target.dataset.act==="mark"){ e.preventDefault(); cycleMark(+e.target.dataset.i); return; }
+  if (S.screen==="q"){
+    if (k===" "){ e.preventDefault(); ac(); toggleTimer(); }
+    else if (k==="r") reveal();
+    else if (k==="a") award();
+    else if (k==="n" && S.phase==="awarded") nextQ();
+    else if (/^[0-9]$/.test(k)){ const i = k==="0"?9:+k-1; if (i<S.teams.length) cycleMark(i); }
+    else if (k==="u") undo();
+  } else if (S.screen==="intro" && k==="n") beginRound();
+  else if (S.screen==="board" && k==="n") nextRound();
+  else if (k==="u" && S.screen!=="setup") undo();
+});
+addEventListener("resize", ()=>{ if(S.screen==="end"){ const cv=$("#confetti"); if(cv && !cv.hidden){ cv.width=innerWidth; cv.height=innerHeight; } } });
+
+/* =====================================================================
+   BOOT
+   ===================================================================== */
+function boot(data){
+  if (data && data.S){ S = data.S; if (S.timer) S.timer.running = false; }
+  render();
+}
+window.claude?.hot?.snapshot?.(()=>({S}));
+window.claude?.hot?.ready ? window.claude.hot.ready(boot) : boot(window.claude?.hot?.data ?? {});
+</script>
+</body>
+</html>
