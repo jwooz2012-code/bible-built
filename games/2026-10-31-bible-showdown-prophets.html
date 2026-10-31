@@ -318,7 +318,7 @@ rapid: [
  ["h","In Hosea 2:15, which valley becomes 'a door of hope'?",["Achor","Jezreel","Jehoshaphat","Shittim"],"Hosea 2:15"],
  ["h","Who was Joel's father?",["Pethuel","Beeri","Amittai","Tekoa"],"Joel 1:1"],
  ["m","What disaster opens the book of Joel?",["A locust plague","An earthquake","A great fish","An Assyrian siege"],"Joel 1:4 · Part I: A Nation Shaken"],
- ["h","Which of these is NOT one of the four devourers in Joel 1:4 (KJV)?",["Hornet","Palmerworm","Cankerworm","Caterpiller"],"Joel 1:4"],
+ ["h","Which of these is NOT one of the four devourers in Joel 1:4?",["Hornet","Palmerworm","Cankerworm","Caterpiller"],"Joel 1:4"],
  ["m","Joel 2:13 says rend your heart, and not your what?",["Garments","Sackcloth","Altars","Bread"],"Joel 2:13 · Part II: A Call to Return"],
  ["h","In Joel 3:2, God gathers all nations into which valley?",["The valley of Jehoshaphat","The valley of Achor","The valley of Jezreel","The valley of Shittim"],"Joel 3:2 · A Future Day Coming"],
  ["x","Joel 3:10 says to beat your plowshares into what?",["Swords","Spears","Sickles","Shields"],"Joel 3:10"],
@@ -473,13 +473,13 @@ book: [
 final: [
  ["Hosea's family","Name all three of Hosea's children, in birth order.","Jezreel, Loruhamah, Loammi","Hosea 1:3–9"],
  ["Amos's visions","Name all five of Amos's visions, in order.","Grasshoppers, fire, a plumbline, a basket of summer fruit, the LORD standing upon the altar","Amos 7:1–9:1"],
- ["Joel's devourers","Name the four devourers of Joel 1:4, in order (KJV).","Palmerworm, locust, cankerworm, caterpiller","Joel 1:4"],
+ ["Joel's devourers","Name the four devourers of Joel 1:4, in order.","Palmerworm, locust, cankerworm, caterpiller","Joel 1:4"],
  ["The book of Jonah","Name the four things God 'prepared' in the book of Jonah.","A great fish, a gourd, a worm, a vehement east wind","Jonah 1:17; 4:6–8"],
  ["The nations in Amos","Amos pronounced judgment on eight peoples. Name at least six.","Damascus, Gaza, Tyrus, Edom, Ammon, Moab, Judah, Israel","Amos 1:3–2:6"],
  ["The prophets' fathers","Name the fathers of Hosea, Joel and Jonah.","Beeri, Pethuel, Amittai","Hosea 1:1; Joel 1:1; Jonah 1:1"],
  ["New Testament connections","Which apostle quoted Joel 2:28–32, and on what day?","Peter, on the day of Pentecost","Acts 2:16–21"],
  ["Obadiah","Edom is judged for violence against whom, and how was he related to Edom?","Jacob, Edom's brother","Obadiah 1:10"],
- ["Jonah 4","In KJV wording, how many persons in Nineveh could not discern between their right hand and their left?","More than sixscore thousand (120,000)","Jonah 4:11"],
+ ["Jonah 4","In the words of Jonah 4:11, how many persons in Nineveh could not discern between their right hand and their left?","More than sixscore thousand (120,000)","Jonah 4:11"],
  ["Hosea's names","What did the names Loruhamah and Loammi announce?","God would no more have mercy upon Israel, and 'ye are not my people'","Hosea 1:6–9"]
 ]
 };
@@ -491,11 +491,11 @@ const ROUNDS = [
  {id:"rapid", name:"Rapid Fire", time:15, special:"first", ptsLabel:"150 · 200 · 250",
   rules:["Every team writes A, B, C or D and holds it up when time is called.","Medium 150, hard 200, expert 250. Only 15 seconds a question.","The first team to hold up the right answer earns +50 (tap their card twice)."]},
  {id:"who", name:"Which Prophet?", time:20, pts:150, ptsLabel:"150",
-  rules:["A King James quote appears. Which of the five books is it from, or who said it?","Every team writes A, B, C or D. The wrong choices come from the same five books.","150 points per correct answer."]},
+  rules:["A quote appears. Which of the five books is it from, or who said it?","Every team writes A, B, C or D. The wrong choices come from the same five books.","150 points per correct answer."]},
  {id:"order", name:"Put It In Order", time:40, pts:200, special:"half", ptsLabel:"200",
   rules:["Four visions, events, nations or outline points appear out of order.","Write the four letters in the correct order, like  C A D B.","200 for a perfect order. The leader can give half (100) for three in the right place."]},
  {id:"verse", name:"Finish the Verse", time:30, pts:200, special:"half", ptsLabel:"200",
-  rules:["Fill in the missing words, exactly as the King James reads, or name the chapter.","Write it on the board. The leader decides if it's close enough.","200 per correct answer, half points when the leader allows it."]},
+  rules:["Fill in the missing words exactly, or name the chapter.","Write it on the board. The leader decides if it's close enough.","200 per correct answer, half points when the leader allows it."]},
  {id:"final", name:"Final Wager", time:45, wager:true, ptsLabel:"Your wager",
   rules:["Each team secretly writes a wager from 0 up to its current score.","You see the category first, then an expert-level question.","Right answer: add your wager. Wrong answer: lose it. Power-ups are off."]}
 ];
@@ -765,7 +765,7 @@ function vSetup(){
     <section class="hero">
       <div class="eyebrow">12 Voices, One Holy God</div>
       <h1 class="wordmark">Prophets<span>Show</span><em>down</em></h1>
-      <p>Hosea, Joel, Amos, Obadiah and Jonah, in the words of the King James Bible. No easy questions: wrong choices come from the same five books, and every Scripture quote is word for word.</p>
+      <p>Hosea, Joel, Amos, Obadiah and Jonah. No easy questions: wrong choices come from the same five books, and every Scripture quote is word for word.</p>
       <p class="muted" style="font-family:var(--f-verse);font-style:italic">Holy Heart Broken · Judah’s Judgment Day · Attitudes toward Law · Overthrow of Edom · Judgment spared Nineveh</p>
       <ol class="roundlist">
         ${ROUNDS.map(r=>`<li><div><b>${r.name}</b><small>${esc(r.rules[0])}</small></div><span class="pts">${r.ptsLabel}</span></li>`).join("")}
