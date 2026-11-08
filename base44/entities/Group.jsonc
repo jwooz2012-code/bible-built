@@ -43,6 +43,10 @@
     "avatarUrl": {
       "type": "string",
       "description": "URL of the group's profile picture"
+    },
+    "boardActivity": {
+      "type": "object",
+      "description": "When each group board last got a new post ({ takeaway, prayer } as ISO times), for the \"new\" dot"
     }
   },
   "required": [

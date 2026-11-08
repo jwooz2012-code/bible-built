@@ -30,7 +30,8 @@ import {
   GraduationCap,
   HandHeart,
   Megaphone,
-  Trophy
+  Trophy,
+  ShieldCheck
 } from 'lucide-react';
 
 export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
@@ -108,6 +109,8 @@ export const getAchievementIcon = (title, achieved, iconSize = 'default') => {
       return <Megaphone {...iconProps} style={{ color }} />;
     case 'Iron Sharpens Iron':
       return <Swords {...iconProps} style={{ color }} />;
+    case 'Prayer Warrior':
+      return <ShieldCheck {...iconProps} style={{ color }} />;
     default:
       return <Circle {...iconProps} style={{ color }} />;
   }
@@ -151,6 +154,7 @@ export const getAchievementColor = (title) => {
     case 'Encourager':          return 'from-[#F472B6] to-[#DB2777]';
     case 'Son of Encouragement': return 'from-[#FB923C] to-[#EA580C]';
     case 'Iron Sharpens Iron':  return 'from-[#64748B] to-[#334155]';
+    case 'Prayer Warrior':      return 'from-[#818CF8] to-[#4F46E5]';
     default: return 'from-[#F59E0B] to-[#D97706]';
   }
 };

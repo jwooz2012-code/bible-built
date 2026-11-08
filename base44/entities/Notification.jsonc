@@ -15,7 +15,8 @@
         "league_promotion",
         "high_five",
         "cheer",
-        "weekly_recap"
+        "weekly_recap",
+        "group_prayer"
       ],
       "description": "Type of notification"
     },

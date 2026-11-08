@@ -1,0 +1,80 @@
+{
+  "name": "GroupPost",
+  "type": "object",
+  "properties": {
+    "groupId": {
+      "type": "string",
+      "description": "Group the post belongs to"
+    },
+    "authorId": {
+      "type": "string",
+      "description": "Who wrote it. Never sent to other members for anonymous prayers."
+    },
+    "board": {
+      "type": "string",
+      "enum": [
+        "takeaway",
+        "prayer"
+      ],
+      "description": "takeaway: a reading takeaway. prayer: a prayer request."
+    },
+    "text": {
+      "type": "string",
+      "description": "Post text, up to 1,000 characters"
+    },
+    "passage": {
+      "type": "string",
+      "description": "Optional passage, e.g. John 3:16"
+    },
+    "anonymous": {
+      "type": "boolean",
+      "default": false,
+      "description": "Prayer requests only: hide the author's name from other members"
+    },
+    "answered": {
+      "type": "boolean",
+      "default": false,
+      "description": "Prayer requests only: marked answered by the author"
+    },
+    "answeredAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reactorIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Members who tapped Amen (takeaways) or I prayed (prayers)"
+    },
+    "notifiedIds": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [],
+      "description": "Members whose I prayed already notified the author and counted toward their badge (once per post)"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "editedAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "groupId",
+    "authorId",
+    "board",
+    "text"
+  ],
+  "rls": {
+    "create": false,
+    "update": false,
+    "delete": false,
+    "read": false
+  }
+}
