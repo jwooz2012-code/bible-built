@@ -33,6 +33,26 @@ export function useCheersFor(userIds) {
 const inFlight = new Set();
 const queued = new Map();
 
+const statusOf = (err) => err?.response?.status ?? err?.status;
+const serverError = (err) => err?.data?.error ?? err?.response?.data?.error;
+const isDailyLimit = (err) => statusOf(err) === 429 && /daily cheer limit/i.test(serverError(err) || '');
+// A busy or dropped connection, not a real "no" from the server.
+const isTemporary = (err) => {
+  const status = statusOf(err);
+  return status === undefined || status >= 500 || (status === 429 && !isDailyLimit(err));
+};
+
+// Try once more, quietly, before telling the user it didn't go through.
+async function invokeSendCheer(payload) {
+  try {
+    return await base44.functions.invoke('sendCheer', payload);
+  } catch (err) {
+    if (!isTemporary(err)) throw err;
+    await new Promise((r) => setTimeout(r, 1200));
+    return base44.functions.invoke('sendCheer', payload);
+  }
+}
+
 /** Send (or switch) a reaction, updating every visible feed right away. */
 export function useSendCheer() {
   const queryClient = useQueryClient();
@@ -60,7 +80,7 @@ export function useSendCheer() {
     showMine();
 
     try {
-      const res = await base44.functions.invoke('sendCheer', { toUserId, kind, targetType, targetKey, label });
+      const res = await invokeSendCheer({ toUserId, kind, targetType, targetKey, label });
       const stats = res.data?.stats;
       if (stats) {
         const before = { cheersSent: user.cheersSent ?? 0, cheerRecipients: user.cheerRecipients ?? 0 };
@@ -80,10 +100,9 @@ export function useSendCheer() {
       return res.data;
     } catch (err) {
       snapshot.forEach(([key, data]) => queryClient.setQueryData(key, data));
-      const status = err?.response?.status ?? err?.status;
-      toast.error(status === 429 ? "You've sent a lot of cheers today. Try again tomorrow!"
-        : status === 403 ? 'You can cheer friends and group members'
-        : 'Could not send. Try again.');
+      toast.error(isDailyLimit(err) ? "You've sent a lot of cheers today. Try again tomorrow!"
+        : statusOf(err) === 403 ? 'You can cheer friends and group members'
+        : "Couldn't send right now. Check your connection and try again.");
       return null;
     } finally {
       inFlight.delete(targetKey);

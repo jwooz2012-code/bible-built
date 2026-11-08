@@ -110,23 +110,51 @@ const ARTIFACT_BOOSTS = {
 
 async function getOrCreateWallet(base44, userId) {
   // Always use the oldest wallet as canonical (consistent with auditSingleUser)
-  const wallets = await base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10);
+  const wallets = await readWithRetry(() => base44.asServiceRole.entities.UserWallet.filter({ 'data.userId': userId }, 'created_date', 10));
   if (wallets.length > 0) return wallets[0];
-  return await base44.asServiceRole.entities.UserWallet.create({
+  return await writeWithRetry(() => base44.asServiceRole.entities.UserWallet.create({
     userId,
     xpBalance: 0,
     level: 1,
     updatedAt: new Date().toISOString(),
-  });
+  }));
 }
 
 async function getEquippedMultiplier(base44, userId) {
-  const equipped = await base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.isEquipped': true });
+  const equipped = await readWithRetry(() => base44.asServiceRole.entities.ArtifactOwnership.filter({ 'data.userId': userId, 'data.isEquipped': true }));
   let multiplier = 1.0;
   for (const artifact of equipped) {
     multiplier *= ARTIFACT_BOOSTS[artifact.artifactId] ?? 1.0;
   }
   return multiplier;
+}
+
+// Base44 answers 429 when too many requests arrive at once. Reads are retried on
+// any temporary failure; writes only on 429 (rejected before anything was saved),
+// so a retry can never save the same reading twice.
+const statusOf = (err) => err?.status ?? err?.response?.status;
+const pause = (attempt) => new Promise((r) => setTimeout(r, 400 * 2 ** attempt + Math.random() * 250));
+async function readWithRetry(fn, tries = 4) {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const status = statusOf(err);
+      const temporary = status === 429 || status === undefined || status >= 500;
+      if (!temporary || i >= tries - 1) throw err;
+      await pause(i);
+    }
+  }
+}
+async function writeWithRetry(fn, tries = 4) {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (statusOf(err) !== 429 || i >= tries - 1) throw err;
+      await pause(i);
+    }
+  }
 }
 
 Deno.serve(async (req) => {
@@ -148,37 +176,38 @@ Deno.serve(async (req) => {
     }
 
     const userId = user.id;
+    const db = base44.asServiceRole.entities;
 
     const dateKeys = [...new Set(chapters.map(c => c.dateKey))];
     // No deduplication — every tap is a valid new log entry
     const toCreate = chapters;
     const skipped = [];
+    const dailyBonusKeys = dateKeys.map(dk => `daily_bonus:${userId}:${dk}`);
 
-    if (toCreate.length === 0) {
-      const wallet = await getOrCreateWallet(base44, userId);
-      return Response.json({ created: [], skipped, wallet });
-    }
+    // Everything we need to look up is independent, so fetch it all at once
+    // instead of one after another: equipped artifacts (XP multiplier), the
+    // wallet, which daily bonuses were already given, and the day's earlier
+    // readings (for the daily bonus total).
+    const [multiplier, wallet, existingTxBatch, earlierDayLogArrays] = await Promise.all([
+      getEquippedMultiplier(base44, userId),
+      getOrCreateWallet(base44, userId),
+      Promise.all(dailyBonusKeys.map(key =>
+        readWithRetry(() => db.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': key }))
+      )),
+      Promise.all(dateKeys.map(dk =>
+        readWithRetry(() => db.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
+      )),
+    ]);
 
-    // Get equipped artifact multiplier
-    const multiplier = await getEquippedMultiplier(base44, userId);
-    
     // Bulk create reading logs — attach xpEarned to each
     const logsWithXp = toCreate.map(ch => {
       const verses = getVerseCount(ch.book, ch.chapter);
       const xpEarned = Math.floor(verses * XP_PER_VERSE * multiplier);
       return { ...ch, xpEarned };
     });
-    const createdLogs = await base44.asServiceRole.entities.ReadingLog.bulkCreate(logsWithXp);
+    const createdLogs = await writeWithRetry(() => db.ReadingLog.bulkCreate(logsWithXp));
     const now = new Date().toISOString();
-    const wallet = await getOrCreateWallet(base44, userId);
 
-    // Build idempotency keys — only daily bonus is deduplicated (one per day)
-    const dailyBonusKeys = dateKeys.map(dk => `daily_bonus:${userId}:${dk}`);
-    const existingTxBatch = await Promise.all(
-      dailyBonusKeys.map(key =>
-        base44.asServiceRole.entities.XPTransaction.filter({ 'data.userId': userId, 'data.idempotencyKey': key })
-      )
-    );
     const existingBonusKeySet = new Set(
       existingTxBatch.flatMap((txs, i) => txs.length > 0 ? [dailyBonusKeys[i]] : [])
     );
@@ -203,19 +232,13 @@ Deno.serve(async (req) => {
       totalXpGained += xpAmount;
     }
 
-    // Daily bonus: 100 XP * multiplier if total verses read on that day >= 30 (awarded once per day)
-    // Re-fetch all logs for the day to get accurate verse totals
-    const allDayLogArrays = await Promise.all(
-      dateKeys.map(dk => base44.asServiceRole.entities.ReadingLog.filter({ 'data.userId': userId, 'data.dateKey': dk }))
-    );
-    const allDayLogsByDate = {};
-    dateKeys.forEach((dk, i) => { allDayLogsByDate[dk] = allDayLogArrays[i]; });
-
-    for (const dk of dateKeys) {
+    // Daily bonus: 100 XP * multiplier if total verses read on that day >= 30 (awarded once per day).
+    // The day's total is its earlier readings plus the ones just saved.
+    for (const [i, dk] of dateKeys.entries()) {
       const bonusKey = `daily_bonus:${userId}:${dk}`;
       if (existingBonusKeySet.has(bonusKey)) continue;
 
-      const allDayChapters = allDayLogsByDate[dk] ?? [];
+      const allDayChapters = [...(earlierDayLogArrays[i] ?? []), ...toCreate.filter(ch => ch.dateKey === dk)];
       const totalVersesToday = allDayChapters.reduce((sum, c) => sum + getVerseCount(c.book, c.chapter), 0);
 
       if (totalVersesToday >= DAILY_BONUS_VERSE_THRESHOLD) {
@@ -234,17 +257,19 @@ Deno.serve(async (req) => {
     }
 
     if (xpTransactions.length > 0) {
-      await base44.asServiceRole.entities.XPTransaction.bulkCreate(xpTransactions);
-
       // Use whichever balance field exists (migration: some wallets still use spendableXp)
       const currentBalance = wallet.xpBalance ?? wallet.spendableXp ?? wallet.progressXpTotal ?? 0;
       const newXpBalance = currentBalance + totalXpGained;
       const newLevel = Math.floor(newXpBalance / 1000) + 1;
-      await base44.asServiceRole.entities.UserWallet.update(wallet.id, {
-        xpBalance: newXpBalance,
-        level: newLevel,
-        updatedAt: now,
-      });
+      // The XP records and the wallet total don't depend on each other: save both at once.
+      await Promise.all([
+        writeWithRetry(() => db.XPTransaction.bulkCreate(xpTransactions)),
+        writeWithRetry(() => db.UserWallet.update(wallet.id, {
+          xpBalance: newXpBalance,
+          level: newLevel,
+          updatedAt: now,
+        })),
+      ]);
       wallet.xpBalance = newXpBalance;
       wallet.level = newLevel;
     }

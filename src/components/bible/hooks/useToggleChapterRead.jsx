@@ -6,6 +6,18 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import { useCelebration } from '@/components/celebration/CelebrationContext';
 import { detectNewCelebrations } from '@/components/celebration/useCelebrationTrigger';
 
+// Saving or undoing a chapter already updates the screen. Instead of re-downloading the
+// whole reading history after every tap, check back with the server once tapping stops.
+const refreshTimers = new Map();
+function refreshSoon(queryClient, userId) {
+  clearTimeout(refreshTimers.get(userId));
+  refreshTimers.set(userId, setTimeout(() => {
+    refreshTimers.delete(userId);
+    queryClient.invalidateQueries({ queryKey: ['dayLogs', userId] });
+    queryClient.invalidateQueries({ queryKey: ['readingLogs', userId] });
+  }, 4000));
+}
+
 export function useToggleChapterRead({ user, allLogs } = {}) {
   const queryClient = useQueryClient();
   const { triggerCelebration } = useCelebration();
@@ -77,10 +89,7 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         );
       });
 
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, variables.dateKey] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
-      });
+      refreshSoon(queryClient, variables.userId);
       // Refresh wallet so XPBar shows updated balance
       queryClient.invalidateQueries({ queryKey: ['userWallet', variables.userId] });
       
@@ -162,11 +171,8 @@ export function useToggleChapterRead({ user, allLogs } = {}) {
         );
       });
       
-      queryClient.invalidateQueries({ queryKey: ['dayLogs', variables.userId, affectedDateKey] });
-      queryClient.invalidateQueries({ 
-        predicate: (query) => query.queryKey[0] === 'readingLogs' && query.queryKey[1] === variables.userId
-      });
-      
+      refreshSoon(queryClient, variables.userId);
+
       toast('Chapter unmarked');
     },
     onError: (error) => {

@@ -8,21 +8,40 @@ const KINDS: Record<string, string> = {
 };
 const TARGET_TYPES = ['session', 'milestone', 'profile'];
 const DAILY_LIMIT = 200;
+// Enough recent cheers to enforce the daily limit; badge totals are kept on the
+// sender's profile, so they don't need the full history.
+const RECENT_WINDOW = DAILY_LIMIT + 50;
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const reply = (status: number, body: Record<string, unknown>) => ({ status, body });
 
-// Base44 answers 429 when too many requests arrive at once; back off and try again.
-async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): Promise<T> {
+const statusOf = (err: any) => err?.status ?? err?.response?.status;
+const pause = (attempt: number) => new Promise((r) => setTimeout(r, 400 * 2 ** attempt + Math.random() * 250));
+
+// Base44 answers 429 when too many requests arrive at once, and a busy moment can
+// also drop a request (5xx or no answer). Reads are safe to repeat, so retry both.
+async function fetchWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
   for (let i = 0; ; i++) {
     try {
       return await fn();
     } catch (err) {
-      if ((err as any)?.status === 429 && i < maxRetries - 1) {
-        await new Promise((r) => setTimeout(r, Math.pow(2, i) * 1000));
-      } else {
-        throw err;
-      }
+      const status = statusOf(err);
+      const transient = status === 429 || status === undefined || status >= 500;
+      if (!transient || i >= tries - 1) throw err;
+      await pause(i);
+    }
+  }
+}
+
+// Writes are only repeated on 429 (rejected before anything was saved), so a
+// retry can never save the same thing twice.
+async function writeWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+  for (let i = 0; ; i++) {
+    try {
+      return await fn();
+    } catch (err) {
+      if (statusOf(err) !== 429 || i >= tries - 1) throw err;
+      await pause(i);
     }
   }
 }
@@ -108,7 +127,7 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
     areConnected(db, user.id, toUserId),
     fetchWithRetry(() => db.entities.User.filter({ id: user.id })),
     fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id, targetKey })),
-    fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', 1000)),
+    fetchWithRetry(() => db.entities.Cheer.filter({ fromUserId: user.id }, '-created_date', RECENT_WINDOW)),
   ]);
   if (!connected) return reply(403, { error: 'You can only cheer friends and group members' });
   const senderProfile = senderRows[0];
@@ -125,7 +144,7 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
   const existing = existingRows[0];
   if (existing) {
     if (existing.kind === kind) return reply(200, { cheer: existing, duplicate: true, stats: countOf(recent) });
-    const updated = await db.entities.Cheer.update(existing.id, { kind });
+    const updated = await writeWithRetry(() => db.entities.Cheer.update(existing.id, { kind }));
     return reply(200, { cheer: { ...existing, ...updated, kind }, changed: true, stats: countOf(recent) });
   }
 
@@ -134,7 +153,7 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
   if (sentToday >= DAILY_LIMIT) return reply(429, { error: 'Daily cheer limit reached' });
 
   const now = new Date().toISOString();
-  const cheer = await db.entities.Cheer.create({
+  const cheer = await writeWithRetry(() => db.entities.Cheer.create({
     fromUserId: user.id,
     toUserId,
     kind,
@@ -142,22 +161,27 @@ export async function handleSendCheer(base44: any, user: any, body: any) {
     targetKey,
     label,
     createdAt: now,
-  });
+  }));
 
   const senderName = senderProfile?.displayName || senderProfile?.full_name || user.full_name || user.email?.split('@')[0] || 'Someone';
-  await db.entities.Notification.create({
-    userId: toUserId,
-    type: 'cheer',
-    message: `${senderName} ${KINDS[kind]}${label ? ` · ${label}` : ''}`,
-    relatedId: user.id,
-    isRead: false,
-    createdAt: now,
-    payload: { kind, label, targetKey, targetType, ...(replyTo ? { reply: true } : {}) },
-  });
+  // The cheer is saved at this point; a failed notification shouldn't report the cheer as failed.
+  try {
+    await writeWithRetry(() => db.entities.Notification.create({
+      userId: toUserId,
+      type: 'cheer',
+      message: `${senderName} ${KINDS[kind]}${label ? ` · ${label}` : ''}`,
+      relatedId: user.id,
+      isRead: false,
+      createdAt: now,
+      payload: { kind, label, targetKey, targetType, ...(replyTo ? { reply: true } : {}) },
+    }));
+  } catch (err) {
+    console.error('[sendCheer] Could not create notification:', (err as Error)?.message);
+  }
 
   const newStats = countOf([cheer, ...recent], true);
   try {
-    await db.entities.User.update(user.id, { cheersSent: newStats.sent, cheerRecipients: newStats.recipients });
+    await writeWithRetry(() => db.entities.User.update(user.id, { cheersSent: newStats.sent, cheerRecipients: newStats.recipients }));
   } catch (err) {
     console.error('[sendCheer] Could not update cheer counts:', (err as Error)?.message);
   }
