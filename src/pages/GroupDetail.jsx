@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, Users, Check, Flame, BookOpen, Target, UserPlus, Share2, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
@@ -15,6 +16,7 @@ import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import GroupBoards from '@/components/group/GroupBoards';
 import GroupSectionTabs from '@/components/group/GroupSectionTabs';
 import { boardHasNew } from '@/components/group/boardSeen';
+import { useGroupData, groupDataKey, myGroupsKey } from '@/components/group/useGroupData';
 
 // The section each group last had open, remembered on this device.
 const SECTIONS = ['leaders', 'takeaway', 'prayer', 'activity'];
@@ -24,6 +26,61 @@ function rememberedSection(groupId) {
 }
 function rememberSection(groupId, section) {
   try { localStorage.setItem(sectionKey(groupId), section); } catch { /* storage unavailable */ }
+}
+
+// Shown while a group loads for the first time: the real header right away, then
+// placeholders shaped like the page, so nothing jumps when the data arrives.
+function GroupHeaderShell({ name, avatarUrl, memberCount, onBack, children }) {
+  return (
+    <div className="min-h-screen bg-background pb-28">
+      <div className="max-w-lg mx-auto px-5 pt-[max(4rem,env(safe-area-inset-top))]">
+        <div className="flex items-center gap-3 mb-1">
+          <button onClick={onBack} className="h-9 w-9 flex items-center justify-center rounded-xl hover:bg-muted transition-colors shrink-0">
+            <ArrowLeft className="w-5 h-5" />
+          </button>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt="group" className="w-10 h-10 rounded-xl object-cover border border-border shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-xl bg-muted border border-border flex items-center justify-center text-lg font-bold text-muted-foreground shrink-0">
+              {name[0]?.toUpperCase()}
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h1 className="text-xl font-bold text-foreground truncate">{name}</h1>
+            {memberCount != null
+              ? <p className="text-xs text-muted-foreground">👥 {memberCount} members</p>
+              : <div className="h-3 w-20 mt-1 rounded bg-muted animate-pulse" />}
+          </div>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+function GroupSkeleton() {
+  return (
+    <div className="mt-5" aria-busy="true" aria-label="Loading group">
+      <div className="py-2">
+        <div className="h-14 rounded-2xl bg-muted animate-pulse" />
+      </div>
+      <div className="pt-3 space-y-3">
+        <div className="h-10 rounded-xl bg-muted/70 animate-pulse" />
+        <div className="rounded-2xl border border-border bg-card overflow-hidden">
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="flex items-center gap-3 px-4 py-3 border-b border-border last:border-0">
+              <div className="w-7 h-5 rounded bg-muted animate-pulse" />
+              <div className="w-9 h-9 rounded-full bg-muted animate-pulse" />
+              <div className="flex-1 space-y-1.5">
+                <div className="h-3 w-28 rounded bg-muted animate-pulse" />
+                <div className="h-2.5 w-14 rounded bg-muted/70 animate-pulse" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 function RankBadge({ rank }) {
@@ -70,15 +127,17 @@ export default function GroupDetail() {
   });
   const tabsRef = useRef(null);
 
-  const [group, setGroup] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [allLogs, setAllLogs] = useState([]);
-  const [feedUsers, setFeedUsers] = useState({});
+  const queryClient = useQueryClient();
+  // Remembered between visits: a group opened in the last few minutes shows instantly and refreshes quietly.
+  const { data: groupData, isLoading: loading, isError: loadFailed, refetch } = useGroupData(groupId);
+  const group = groupData?.group ?? null;
+  const members = useMemo(() => groupData?.members ?? [], [groupData]);
+  const allLogs = useMemo(() => groupData?.logs ?? [], [groupData]);
+  const feedUsers = useMemo(() => Object.fromEntries(members.map((u) => [u.id, u])), [members]);
+  const setGroup = (updated) => queryClient.setQueryData(groupDataKey(groupId), (d) => (d ? { ...d, group: updated } : d));
   const [recap, setRecap] = useState(null);
   const [tab, setTab] = useState('streak');
   const [copied, setCopied] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [graceDayRecords, setGraceDayRecords] = useState({});
   const [friends, setFriends] = useState([]);
   const [showInviteFriends, setShowInviteFriends] = useState(false);
   const [friendSearch, setFriendSearch] = useState('');
@@ -86,28 +145,8 @@ export default function GroupDetail() {
   const [confirmRemove, setConfirmRemove] = useState(null); // member object to remove
   const [showEditSheet, setShowEditSheet] = useState(false);
 
-  const load = useCallback(async () => {
-    if (!groupId) return;
-    setLoading(true);
-    const res = await base44.functions.invoke('getGroupData', { groupId });
-    const { group: grp, members: grpMembers, logs: memberLogs, graceDays } = res.data ?? {};
-    if (!grp) { setLoading(false); return; }
-    setGroup(grp);
-    setMembers(grpMembers ?? []);
-    const uMap = {};
-    (grpMembers ?? []).forEach(u => { uMap[u.id] = u; });
-    setAllLogs(memberLogs ?? []);
-    const graceMap = {};
-    (graceDays ?? []).forEach(g => {
-      if (!graceMap[g.userId]) graceMap[g.userId] = [];
-      graceMap[g.userId].push(g);
-    });
-    setGraceDayRecords(graceMap);
-    setFeedUsers(uMap);
-    setLoading(false);
-  }, [groupId]);
-
-  useEffect(() => { load(); }, [load]);
+  // After joining or removing someone, fetch the group again (the page keeps showing meanwhile).
+  const load = useCallback(() => queryClient.invalidateQueries({ queryKey: groupDataKey(groupId) }), [queryClient, groupId]);
 
   // This week's recap stays on the group page (even after the notification is opened)
   // until it's a week old or the reader dismisses it here or on the Friends tab.
@@ -255,11 +294,24 @@ export default function GroupDetail() {
     return () => clearTimeout(t);
   }, [loading, openBoard]);
 
-  if (loading) {
+  if (loading || (loadFailed && !groupData)) {
+    // The Groups list already knows the name, picture and size, so the header can show straight away.
+    const listed = queryClient.getQueryData(myGroupsKey(user?.id))?.find((g) => g.id === groupId);
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="w-7 h-7 border-4 border-muted border-t-foreground rounded-full animate-spin" />
-      </div>
+      <GroupHeaderShell
+        name={listed?.name ?? groupName}
+        avatarUrl={listed?.avatarUrl}
+        memberCount={listed ? (listed.memberIds ?? []).length : null}
+        onBack={() => navigate(-1)}
+      >
+        {loading ? <GroupSkeleton /> : (
+          <div className="mt-8 rounded-2xl border border-border bg-card py-8 px-6 flex flex-col items-center gap-3 text-center">
+            <p className="text-sm font-semibold text-foreground">Couldn't load this group</p>
+            <p className="text-xs text-muted-foreground">Check your connection and try again.</p>
+            <button onClick={() => refetch()} className="h-9 px-5 rounded-xl text-sm font-semibold bg-muted text-foreground">Try again</button>
+          </div>
+        )}
+      </GroupHeaderShell>
     );
   }
 
