@@ -10,7 +10,7 @@ import { triggerHaptic } from '@/components/utils/haptics';
 import { useCelebration, CELEBRATION_TYPES } from '@/components/celebration/CelebrationContext';
 import { PRAYER_BADGES } from '@/components/badges/badgeEngine';
 import { useGroupBoard, useBoardActions, boardError } from './useGroupBoard';
-import { boardHasNew, markBoardSeen } from './boardSeen';
+import { markBoardSeen } from './boardSeen';
 
 const MAX_TEXT = 1000;
 const MAX_PASSAGE = 60;
@@ -19,7 +19,6 @@ const LONG_POST = 320;
 
 const BOARD_INFO = {
   takeaway: {
-    tab: '💡 Takeaways',
     cta: 'Share a takeaway',
     title: 'Share a takeaway',
     placeholder: 'What stood out to you in your reading?',
@@ -28,7 +27,6 @@ const BOARD_INFO = {
     react: { emoji: '❤️', label: 'Amen' },
   },
   prayer: {
-    tab: '🙏 Prayers',
     cta: 'Share a prayer request',
     title: 'Prayer request',
     placeholder: 'How can the group pray for you?',
@@ -262,35 +260,23 @@ function PostCard({ post, onReact, onEdit, onAnswered, onDelete }) {
   );
 }
 
-export default function GroupBoards({ group, initialBoard }) {
+/** One board (takeaways or prayers) of a group. The group page's tabs choose which. */
+export default function GroupBoards({ group, board }) {
   const { user, updateUser } = useAuth();
   const { triggerCelebration } = useCelebration();
   const groupId = group?.id;
-  const [board, setBoard] = useState(initialBoard === 'prayer' ? 'prayer' : 'takeaway');
   const [composer, setComposer] = useState(null); // { post?: existing post when editing }
   const [confirm, setConfirm] = useState(null);
   const [shown, setShown] = useState(PAGE);
-  const [, setSeenTick] = useState(0);
-  const sectionRef = useRef(null);
   const { data: posts = [], isLoading, isError, refetch } = useGroupBoard(groupId, board);
   const actions = useBoardActions(groupId, board);
   const info = BOARD_INFO[board];
-
-  // Opened from a notification: bring the board into view.
-  useEffect(() => {
-    if (!initialBoard) return undefined;
-    const t = setTimeout(() => sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
-    return () => clearTimeout(t);
-  }, [initialBoard]);
 
   // Viewing a board clears its "new" dot.
   useEffect(() => {
     if (isLoading || isError || !user?.id) return;
     markBoardSeen(user.id, groupId, board);
-    setSeenTick((n) => n + 1);
   }, [isLoading, isError, user?.id, groupId, board]);
-
-  useEffect(() => { setShown(PAGE); }, [board]);
 
   const submit = async ({ text, passage, anonymous }) => {
     try {
@@ -351,30 +337,7 @@ export default function GroupBoards({ group, initialBoard }) {
   const visible = posts.slice(0, shown);
 
   return (
-    <div className="mt-6 scroll-mt-6" ref={sectionRef}>
-      <h2 className="text-base font-semibold text-foreground mb-3">Group Board</h2>
-      <div className="flex gap-1 mb-3 bg-muted rounded-xl p-1" role="tablist">
-        {Object.entries(BOARD_INFO).map(([key, { tab }]) => {
-          const active = board === key;
-          const dot = !active && boardHasNew(user?.id, group, key);
-          return (
-            <button
-              key={key}
-              role="tab"
-              aria-selected={active}
-              onClick={() => setBoard(key)}
-              className="relative flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-semibold transition-all"
-              style={active
-                ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                : { color: 'hsl(var(--muted-foreground))' }}
-            >
-              {tab}
-              {dot && <span aria-label="New posts" className="w-2 h-2 rounded-full bg-red-500" />}
-            </button>
-          );
-        })}
-      </div>
-
+    <div>
       <button
         onClick={() => setComposer({})}
         className="w-full flex items-center gap-3 px-4 h-12 mb-3 rounded-2xl border border-dashed border-border bg-card text-left text-sm text-muted-foreground hover:bg-muted/40 transition-colors"
