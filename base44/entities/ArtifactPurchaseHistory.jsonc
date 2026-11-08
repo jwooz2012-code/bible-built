@@ -27,7 +27,7 @@
     "purchasedAt"
   ],
   "rls": {
-    "create": true,
+    "create": false,
     "update": false,
     "delete": false,
     "read": true

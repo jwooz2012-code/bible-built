@@ -4,6 +4,13 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
+    // Runs from the Daily Stats Report schedule. A signed-in user who isn't an
+    // admin can't trigger it (it emails the owner and reads every reading log).
+    const caller = await base44.auth.me().catch(() => null);
+    if (caller && caller.role !== 'admin') {
+      return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
+    }
+
     // Calculate yesterday's date key in CT (UTC-5/UTC-6)
     const now = new Date();
     const ctOffset = -6 * 60; // CST (adjust to -5 for CDT if needed)

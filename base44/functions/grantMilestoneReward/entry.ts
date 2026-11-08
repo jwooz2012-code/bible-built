@@ -49,6 +49,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const user = await base44.auth.me();
     if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+    // The app doesn't use this, and the server can't verify the milestone itself,
+    // so ordinary users can't call it to award themselves currency.
+    if (user.role !== 'admin') return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
 
     const body = await req.json().catch(() => ({}));
     const { milestoneKey, source, metadataJson } = body;

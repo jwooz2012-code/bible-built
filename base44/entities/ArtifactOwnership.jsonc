@@ -32,11 +32,9 @@
     "acquiredAt"
   ],
   "rls": {
-    "create": true,
-    "update": true,
-    "delete": {
-      "data.userId": "{{user.id}}"
-    },
+    "create": false,
+    "update": false,
+    "delete": false,
     "read": true
   }
 }

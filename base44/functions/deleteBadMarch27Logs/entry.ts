@@ -3,6 +3,8 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.23';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    const user = await base44.auth.me().catch(() => null);
+    if (user?.role !== 'admin') return Response.json({ error: 'Forbidden — admin only' }, { status: 403 });
 
     // Fetch all march 27 logs (up to 10000)
     const raw = await base44.asServiceRole.entities.ReadingLog.filter(
