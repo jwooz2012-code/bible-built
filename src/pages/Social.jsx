@@ -14,6 +14,7 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import CommunityFeed from '@/components/community/CommunityFeed';
 import CheerButton from '@/components/community/CheerButton';
 import { readOnDay, latestBookByUser } from '@/components/community/buildFeed';
+import { boardHasNew } from '@/components/group/boardSeen';
 
 // ── Friend Card with Dynamic Streak ────────────────────────────
 function FriendCard({ friend, index, readToday, book }) {
@@ -498,7 +499,10 @@ export default function Social() {
                         </div>
                       )}
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-foreground truncate">{g.name}</p>
+                        <p className="text-sm font-bold text-foreground truncate flex items-center gap-1.5">
+                          <span className="truncate">{g.name}</span>
+                          {boardHasNew(user?.id, g) && <span aria-label="New posts" className="w-2 h-2 rounded-full bg-red-500 shrink-0" />}
+                        </p>
                         <p className="text-xs text-muted-foreground">👥 {(g.memberIds ?? []).length} members</p>
                       </div>
                       <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />

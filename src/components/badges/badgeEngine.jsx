@@ -19,6 +19,11 @@ export const ENCOURAGEMENT_BADGES = [
   { id: 32, title: 'Iron Sharpens Iron', subtitle: 'Cheered on 10 different people', metric: 'cheerRecipients', target: 10 },
 ];
 
+// Praying for group members' prayer requests. Also used by the group Prayers board to celebrate the moment it's earned.
+export const PRAYER_BADGES = [
+  { id: 33, title: 'Prayer Warrior', subtitle: 'Prayed for 10 prayer requests', metric: 'prayersPrayed', target: 10 },
+];
+
 /**
  * Computes canonical metrics from reading logs
  * These are the ONLY metrics badges can reference
@@ -91,6 +96,7 @@ function computeCanonicalMetrics(logs, user = null) {
   const challengePerfects = user?.challengePerfects || 0;
   const cheersSent = user?.cheersSent || 0;
   const cheerRecipients = user?.cheerRecipients || 0;
+  const prayersPrayed = user?.prayersPrayed || 0;
   const challengeUnlocked = hasUnlockedChallenge(logs, challengeAttempts);
   
   // Grace-aware streak computation — consistent with Home, Profile, Stats, GroupDetail
@@ -129,6 +135,7 @@ function computeCanonicalMetrics(logs, user = null) {
     challengeUnlocked,
     cheersSent,
     cheerRecipients,
+    prayersPrayed,
     longestStreak,
     currentStreak
   };
@@ -427,7 +434,7 @@ function getBadgeDefinitions(metrics) {
     // ============================================
     // ENCOURAGEMENT (cheering on friends and group members)
     // ============================================
-    ...ENCOURAGEMENT_BADGES.map((b) => ({
+    ...[...ENCOURAGEMENT_BADGES, ...PRAYER_BADGES].map((b) => ({
       ...b,
       achieved: metrics[b.metric] >= b.target,
       current: metrics[b.metric],

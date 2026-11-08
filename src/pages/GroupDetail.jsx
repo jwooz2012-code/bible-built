@@ -12,6 +12,7 @@ import { getDateKey } from '@/components/bible/utils/dateUtils';
 import CommunityFeed from '@/components/community/CommunityFeed';
 import CheerButton from '@/components/community/CheerButton';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
+import GroupBoards from '@/components/group/GroupBoards';
 
 function RankBadge({ rank }) {
   if (rank === 1) return <span className="text-lg">🥇</span>;
@@ -48,6 +49,7 @@ export default function GroupDetail() {
   const groupId = params.get('id');
   const groupName = params.get('name') ?? 'Group';
   const shouldAutoJoin = params.get('join') === 'true';
+  const openBoard = params.get('board');
 
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
@@ -414,6 +416,9 @@ export default function GroupDetail() {
             </div>
           )}
         </div>
+
+        {/* Takeaways and prayer requests (members only; the server enforces the same rule) */}
+        {isMember && <GroupBoards group={group} initialBoard={openBoard} />}
 
         {/* Group Activity Feed */}
         <div className="mt-6">

@@ -17,6 +17,7 @@ const TYPE_EMOJI = {
   group_invite: '✨',
   league_promotion: '🏆',
   weekly_recap: '🏆',
+  group_prayer: '🙏',
 };
 
 const emojiFor = (n) => (n.type === 'cheer' ? cheerKind(n.payload?.kind).emoji : TYPE_EMOJI[n.type] ?? '🔔');
@@ -98,6 +99,7 @@ export default function NotificationsSheet({ open, onClose, notifications, markR
       nudge: `/user-detail?id=${n.relatedId}`,
       weekly_recap: `/group-detail?id=${n.relatedId}`,
       league_promotion: `/group-detail?id=${n.relatedId}`,
+      group_prayer: `/group-detail?id=${n.relatedId}&board=prayer`,
     }[n.type];
     if (target && n.relatedId) { onClose(); navigate(target); }
   };
