@@ -23,7 +23,7 @@
   "rls": {
     "create": false,
     "update": false,
-    "delete": true,
-    "read": true
+    "delete": false,
+    "read": false
   }
 }

@@ -1,8 +1,7 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
+import { useReadingLogsRange } from '@/components/bible/hooks/useReadingLogsRange';
 import html2canvas from 'html2canvas';
 import { Loader2, ChevronLeft, ChevronRight, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -145,27 +144,10 @@ export default function ShareSummary() {
     displaySubtitle = 'Reading Summary';
   }
 
-  // Fetch reading logs for the period (for display stats)
-  const { data: readingLogs = [] } = useQuery({
-    queryKey: ['readingLogs', startDate, endDate],
-    queryFn: async () => {
-      const logs = await base44.entities.ReadingLog.filter(
-        { dateKey: { $gte: startDate, $lte: endDate } },
-        '-dateKey',
-        1000
-      );
-      return logs || [];
-    },
-  });
-
-  // Fetch LIFETIME reading logs (for accurate badge determination)
-  const { data: lifetimeLogs = [] } = useQuery({
-    queryKey: ['lifetimeReadingLogs'],
-    queryFn: async () => {
-      const logs = await base44.entities.ReadingLog.list('-dateKey', 10000);
-      return logs || [];
-    },
-  });
+  // The signed-in person's own reading only (the same shared download Home uses).
+  // For the period shown, and lifetime for accurate badge determination.
+  const { data: readingLogs = [] } = useReadingLogsRange(user?.id, startDate, endDate);
+  const { data: lifetimeLogs = [] } = useReadingLogsRange(user?.id, '2000-01-01', '2099-12-31');
 
   // Calculate stats
   const totalChapters = readingLogs.length;
