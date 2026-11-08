@@ -15,6 +15,8 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import CheerButton from '@/components/community/CheerButton';
 import { readOnDay, latestBookByUser } from '@/components/community/buildFeed';
 import { boardHasNew } from '@/components/group/boardSeen';
+import { useQueryClient } from '@tanstack/react-query';
+import { myGroupsKey, prefetchGroupData } from '@/components/group/useGroupData';
 
 // ── Friend Card with Dynamic Streak ────────────────────────────
 function FriendCard({ friend, index, readToday, book }) {
@@ -78,8 +80,16 @@ function EmptyState({ icon: Icon, text }) {
 export default function Social() {
   const { user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [tab, setTab] = useState('friends'); // 'friends' | 'groups' | 'feed'
+  // 'friends' | 'groups' | 'feed'. Remembered while the app is open, so coming back from a group lands on Groups.
+  const [tab, setTabState] = useState(() => {
+    try { const saved = sessionStorage.getItem('bb.socialTab'); return ['friends', 'groups', 'feed'].includes(saved) ? saved : 'friends'; } catch { return 'friends'; }
+  });
+  const setTab = useCallback((next) => {
+    setTabState(next);
+    try { sessionStorage.setItem('bb.socialTab', next); } catch { /* storage unavailable */ }
+  }, []);
 
   // Friends state
   const [friends, setFriends] = useState([]);
@@ -90,7 +100,9 @@ export default function Social() {
   const [searching, setSearching] = useState(false);
 
   // Groups state
-  const [groups, setGroups] = useState([]);
+  // null until the first load; the last list is remembered so returning to this tab is instant.
+  const [groups, setGroups] = useState(() => queryClient.getQueryData(myGroupsKey(user?.id)) ?? null);
+  const groupList = groups ?? [];
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
   const [joinGroupId, setJoinGroupId] = useState('');
@@ -150,12 +162,24 @@ export default function Social() {
 
   const loadGroups = useCallback(async () => {
     if (!user?.id) return;
-    const all = await base44.entities.Group.filter({}, '-created_date', 1000);
-    const myGroups = all.filter(g =>
-      (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id
-    );
-    setGroups(myGroups);
-  }, [user?.id]);
+    try {
+      const all = await base44.entities.Group.filter({}, '-created_date', 1000);
+      const myGroups = all.filter(g =>
+        (g.memberIds ?? []).includes(user.id) || g.ownerId === user.id
+      );
+      setGroups(myGroups);
+      queryClient.setQueryData(myGroupsKey(user.id), myGroups);
+    } catch {
+      setGroups((prev) => prev ?? []); // keep what's showing; the next visit or refresh retries
+    }
+  }, [user?.id, queryClient]);
+
+  // Get a head start on your first few groups, so opening one is quick.
+  useEffect(() => {
+    if (tab !== 'groups' || !groups?.length) return undefined;
+    const t = setTimeout(() => groups.slice(0, 3).forEach((g) => prefetchGroupData(queryClient, g.id)), 600);
+    return () => clearTimeout(t);
+  }, [tab, groups, queryClient]);
 
   // Friends and Activity tabs share this data; reuse it for a minute unless refreshed.
   const feedLoadedAt = useRef(0);
@@ -406,7 +430,7 @@ export default function Social() {
 
   const renderGroups = () => (
     <div className="space-y-5">
-      {groups.length === 0 && !showCreateGroup && (
+      {groups !== null && groupList.length === 0 && !showCreateGroup && (
         <div className="rounded-2xl border border-dashed border-border bg-card p-6 flex flex-col items-center gap-2 mb-1">
           <span className="text-3xl">✨</span>
           <p className="text-sm font-semibold text-foreground">Create a Spiritual Circle</p>
@@ -462,7 +486,19 @@ export default function Social() {
           </div>
         )}
 
-        {groups.length === 0 ? (
+        {groups === null ? (
+          <div className="space-y-2" aria-busy="true" aria-label="Loading groups">
+            {[0, 1].map((i) => (
+              <div key={i} className="rounded-2xl border border-border bg-card flex items-center gap-3 px-4 py-3.5">
+                <div className="w-10 h-10 rounded-xl bg-muted animate-pulse shrink-0" />
+                <div className="flex-1 space-y-1.5">
+                  <div className="h-3.5 w-32 rounded bg-muted animate-pulse" />
+                  <div className="h-2.5 w-20 rounded bg-muted/70 animate-pulse" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : groupList.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card py-10 flex flex-col items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
               <Users className="w-6 h-6 text-muted-foreground/40" />
@@ -474,7 +510,7 @@ export default function Social() {
           </div>
         ) : (
           <div className="space-y-2">
-            {groups.map((g, i) => {
+            {groupList.map((g, i) => {
               const isOwner = g.ownerId === user?.id;
               const isCopied = copiedGroupId === g.id;
               const copyGroupId = (e) => {
@@ -488,6 +524,7 @@ export default function Social() {
                 <motion.div key={g.id} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }}>
                   <div className="rounded-2xl border border-border bg-card overflow-hidden">
                     <button
+                      onPointerDown={() => prefetchGroupData(queryClient, g.id)}
                       onClick={() => navigate(`/group-detail?id=${g.id}&name=${encodeURIComponent(g.name)}`)}
                       className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-muted/40 transition-colors text-left"
                     >
