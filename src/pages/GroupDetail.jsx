@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Check, Flame, BookOpen, Target, UserPlus, Share2, Sparkles, Pencil } from 'lucide-react';
+import { ArrowLeft, Users, Check, Flame, BookOpen, Target, UserPlus, Share2, Pencil } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/lib/AuthContext';
 import { useTheme } from '@/components/ThemeProvider';
@@ -13,6 +13,18 @@ import CommunityFeed from '@/components/community/CommunityFeed';
 import CheerButton from '@/components/community/CheerButton';
 import WeeklyRecapCard from '@/components/social/WeeklyRecapCard';
 import GroupBoards from '@/components/group/GroupBoards';
+import GroupSectionTabs from '@/components/group/GroupSectionTabs';
+import { boardHasNew } from '@/components/group/boardSeen';
+
+// The section each group last had open, remembered on this device.
+const SECTIONS = ['leaders', 'takeaway', 'prayer', 'activity'];
+const sectionKey = (groupId) => `bb.groupTab.${groupId}`;
+function rememberedSection(groupId) {
+  try { return localStorage.getItem(sectionKey(groupId)); } catch { return null; }
+}
+function rememberSection(groupId, section) {
+  try { localStorage.setItem(sectionKey(groupId), section); } catch { /* storage unavailable */ }
+}
 
 function RankBadge({ rank }) {
   if (rank === 1) return <span className="text-lg">🥇</span>;
@@ -50,6 +62,13 @@ export default function GroupDetail() {
   const groupName = params.get('name') ?? 'Group';
   const shouldAutoJoin = params.get('join') === 'true';
   const openBoard = params.get('board');
+  // A link to a board (e.g. from a prayer notification) opens it; otherwise the last section viewed here.
+  const [section, setSection] = useState(() => {
+    if (openBoard === 'prayer' || openBoard === 'takeaway') return openBoard;
+    const saved = rememberedSection(groupId);
+    return SECTIONS.includes(saved) ? saved : 'leaders';
+  });
+  const tabsRef = useRef(null);
 
   const [group, setGroup] = useState(null);
   const [members, setMembers] = useState([]);
@@ -210,6 +229,31 @@ export default function GroupDetail() {
   const isOwner = group?.ownerId === user?.id;
   // Only members can cheer here (the server enforces the same rule).
   const isMember = isOwner || (group?.memberIds ?? []).includes(user?.id);
+
+  // Board tabs are for members; anyone else lands on the leaderboard.
+  const activeSection = !isMember && (section === 'takeaway' || section === 'prayer') ? 'leaders' : section;
+
+  const changeSection = (next) => {
+    if (next === activeSection) return;
+    setSection(next);
+    rememberSection(groupId, next);
+    // When the tabs are pinned, start the new section at its top rather than mid-way down.
+    const bar = tabsRef.current;
+    if (bar) {
+      const pinnedAt = parseFloat(getComputedStyle(bar).top) || 0;
+      const barTop = bar.getBoundingClientRect().top;
+      if (barTop <= pinnedAt + 0.5) {
+        requestAnimationFrame(() => window.scrollTo({ top: window.scrollY + bar.parentElement.getBoundingClientRect().top - pinnedAt }));
+      }
+    }
+  };
+
+  // Opened from a link to a board (e.g. a prayer notification): bring the tabs into view.
+  useEffect(() => {
+    if (loading || !openBoard) return undefined;
+    const t = setTimeout(() => tabsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 250);
+    return () => clearTimeout(t);
+  }, [loading, openBoard]);
 
   if (loading) {
     return (
@@ -385,58 +429,74 @@ export default function GroupDetail() {
           );
         })()}
 
-        {/* Leaderboard */}
-        <div className="mt-5 mb-2">
-          <h2 className="text-base font-semibold text-foreground mb-3">Leaderboard</h2>
-          <div className="flex gap-1 mb-4 bg-muted rounded-xl p-1">
-            {Object.entries(tabConfig).map(([key, { label, icon: Icon }]) => (
-              <button key={key} onClick={() => setTab(key)}
-                className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-semibold transition-all"
-                style={tab === key
-                  ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
-                  : { color: 'hsl(var(--muted-foreground))' }}>
-                <Icon className="w-3.5 h-3.5" /> {label}
-              </button>
-            ))}
-          </div>
-          {rows.length === 0 ? (
-            <div className="rounded-2xl border border-border bg-card py-8 flex flex-col items-center gap-2">
-              <Users className="w-6 h-6 text-muted-foreground/40" />
-              <p className="text-sm text-muted-foreground">No members yet</p>
-            </div>
-          ) : (
-            <div className="rounded-2xl border border-border bg-card overflow-hidden">
-              {rows.map((row, idx) => (
-                <LeaderRow key={row.member.id} rank={idx + 1} member={row.member}
-                  stat={cfg.stat(row)} unit={cfg.unit(row)}
-                  isMe={row.member.id === user?.id}
-                  canCheer={isMember}
-                  onViewProfile={() => navigate(`/user-detail?id=${row.member.id}&groupId=${groupId}`)} />
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Takeaways and prayer requests (members only; the server enforces the same rule) */}
-        {isMember && <GroupBoards group={group} initialBoard={openBoard} />}
-
-        {/* Group Activity Feed */}
-        <div className="mt-6">
-          <div className="flex items-center gap-2 mb-3">
-            <h2 className="text-base font-bold text-foreground flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-amber-500" /> Group Activity
-            </h2>
-          </div>
-          <CommunityFeed
-            logs={allLogs}
-            usersById={feedUsers}
-            people={members}
-            meId={user?.id}
-            historyCap={2000}
-            canCheer={isMember}
-            emptyTitle="No activity yet"
-            emptyText="Start reading to see activity here"
+        {/* Sections: one at a time, behind tabs that stay pinned while scrolling */}
+        <div className="mt-5">
+          <GroupSectionTabs
+            barRef={tabsRef}
+            active={activeSection}
+            onChange={changeSection}
+            tabs={[
+              { key: 'leaders', emoji: '🏆', label: 'Leaders' },
+              ...(isMember ? [
+                { key: 'takeaway', emoji: '💡', label: 'Takeaways', dot: activeSection !== 'takeaway' && boardHasNew(user?.id, group, 'takeaway') },
+                { key: 'prayer', emoji: '🙏', label: 'Prayers', dot: activeSection !== 'prayer' && boardHasNew(user?.id, group, 'prayer') },
+              ] : []),
+              { key: 'activity', emoji: '✨', label: 'Activity' },
+            ]}
           />
+
+          {/* Keeps the page from jumping when switching to a shorter section while the tabs are pinned. */}
+          <div className="pt-3 min-h-[calc(100dvh-11rem)]" role="tabpanel">
+            {activeSection === 'leaders' && (
+              <>
+                <div className="flex gap-1 mb-4 bg-muted rounded-xl p-1">
+                  {Object.entries(tabConfig).map(([key, { label, icon: Icon }]) => (
+                    <button key={key} onClick={() => setTab(key)}
+                      className="flex-1 flex items-center justify-center gap-1.5 h-8 rounded-lg text-xs font-semibold transition-all"
+                      style={tab === key
+                        ? { background: 'hsl(var(--card))', color: 'hsl(var(--foreground))', boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }
+                        : { color: 'hsl(var(--muted-foreground))' }}>
+                      <Icon className="w-3.5 h-3.5" /> {label}
+                    </button>
+                  ))}
+                </div>
+                {rows.length === 0 ? (
+                  <div className="rounded-2xl border border-border bg-card py-8 flex flex-col items-center gap-2">
+                    <Users className="w-6 h-6 text-muted-foreground/40" />
+                    <p className="text-sm text-muted-foreground">No members yet</p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-border bg-card overflow-hidden">
+                    {rows.map((row, idx) => (
+                      <LeaderRow key={row.member.id} rank={idx + 1} member={row.member}
+                        stat={cfg.stat(row)} unit={cfg.unit(row)}
+                        isMe={row.member.id === user?.id}
+                        canCheer={isMember}
+                        onViewProfile={() => navigate(`/user-detail?id=${row.member.id}&groupId=${groupId}`)} />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Takeaways and prayer requests (members only; the server enforces the same rule) */}
+            {(activeSection === 'takeaway' || activeSection === 'prayer') && (
+              <GroupBoards key={activeSection} group={group} board={activeSection} />
+            )}
+
+            {activeSection === 'activity' && (
+              <CommunityFeed
+                logs={allLogs}
+                usersById={feedUsers}
+                people={members}
+                meId={user?.id}
+                historyCap={2000}
+                canCheer={isMember}
+                emptyTitle="No activity yet"
+                emptyText="Start reading to see activity here"
+              />
+            )}
+          </div>
         </div>
       </div>
     </div>
