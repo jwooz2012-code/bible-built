@@ -18,18 +18,43 @@ export async function fetchWithRetry<T>(fn: () => Promise<T>, maxRetries = 3): P
   }
 }
 
+const isMemberOf = (g: any, id: string) => g?.ownerId === id || (g?.memberIds ?? []).includes(id);
+
+/**
+ * The groups someone belongs to. Asks only for their groups; if Base44 can't answer that
+ * reliably (every owned group must also come back as a membership), scans the group list as before.
+ */
+export async function groupsOf(db: any, userId: string) {
+  try {
+    const [asMember, asOwner] = await Promise.all([
+      fetchWithRetry(() => db.entities.Group.filter({ memberIds: userId }, '-created_date', 1000)),
+      fetchWithRetry(() => db.entities.Group.filter({ ownerId: userId }, '-created_date', 1000)),
+    ]);
+    const memberOf = ((asMember as any[]) ?? []).filter((g: any) => isMemberOf(g, userId));
+    const owned = ((asOwner as any[]) ?? []).filter((g: any) => g?.ownerId === userId);
+    if (memberOf.length > 0 && owned.every((g: any) => memberOf.some((m: any) => m.id === g.id))) {
+      const byId = new Map<string, any>();
+      [...memberOf, ...owned].forEach((g: any) => byId.set(g.id, g));
+      return [...byId.values()];
+    }
+  } catch {
+    /* fall back below */
+  }
+  const all = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
+  return ((all as any[]) ?? []).filter((g: any) => isMemberOf(g, userId));
+}
+
 // People the caller may see cheers for: themselves, friends, and members of their groups.
 async function circleOf(db: any, userId: string) {
   const [sent, received, groups] = await Promise.all([
     fetchWithRetry(() => db.entities.Friendship.filter({ user1Id: userId, status: 'accepted' })),
     fetchWithRetry(() => db.entities.Friendship.filter({ user2Id: userId, status: 'accepted' })),
-    fetchWithRetry(() => db.entities.Group.list('-created_date', 1000)),
+    groupsOf(db, userId),
   ]);
   const circle = new Set<string>([userId]);
   sent.forEach((f: any) => circle.add(f.user2Id));
   received.forEach((f: any) => circle.add(f.user1Id));
   groups
-    .filter((g: any) => g.ownerId === userId || (g.memberIds ?? []).includes(userId))
     .forEach((g: any) => [g.ownerId, ...(g.memberIds ?? [])].forEach((id: string) => id && circle.add(id)));
   return circle;
 }
