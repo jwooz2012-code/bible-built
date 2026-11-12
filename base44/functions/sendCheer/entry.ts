@@ -16,11 +16,12 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const reply = (status: number, body: Record<string, unknown>) => ({ status, body });
 
 const statusOf = (err: any) => err?.status ?? err?.response?.status;
-const pause = (attempt: number) => new Promise((r) => setTimeout(r, 400 * 2 ** attempt + Math.random() * 250));
+// Waits 0.5s, 1s, 2s, 4s (plus a little jitter) between tries, giving a busy moment time to pass.
+const pause = (attempt: number) => new Promise((r) => setTimeout(r, 500 * 2 ** attempt + Math.random() * 250));
 
 // Base44 answers 429 when too many requests arrive at once, and a busy moment can
 // also drop a request (5xx or no answer). Reads are safe to repeat, so retry both.
-async function fetchWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+async function fetchWithRetry<T>(fn: () => Promise<T>, tries = 5): Promise<T> {
   for (let i = 0; ; i++) {
     try {
       return await fn();
@@ -35,7 +36,7 @@ async function fetchWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
 
 // Writes are only repeated on 429 (rejected before anything was saved), so a
 // retry can never save the same thing twice.
-async function writeWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
+async function writeWithRetry<T>(fn: () => Promise<T>, tries = 5): Promise<T> {
   for (let i = 0; ; i++) {
     try {
       return await fn();
@@ -46,7 +47,30 @@ async function writeWithRetry<T>(fn: () => Promise<T>, tries = 4): Promise<T> {
   }
 }
 
-// Cheers are only allowed between friends or members of a shared group.
+const inGroup = (g: any, id: string) => g?.ownerId === id || (g?.memberIds ?? []).includes(id);
+
+/**
+ * The groups someone belongs to. Asks only for their groups; if Base44 can't answer that
+ * reliably (every owned group must also come back as a membership), scans the group list.
+ */
+export async function groupsOf(db: any, userId: string) {
+  try {
+    const [asMember, asOwner] = await Promise.all([
+      fetchWithRetry(() => db.entities.Group.filter({ memberIds: userId }, '-created_date', 1000)),
+      fetchWithRetry(() => db.entities.Group.filter({ ownerId: userId }, '-created_date', 1000)),
+    ]);
+    const memberOf = ((asMember as any[]) ?? []).filter((g: any) => inGroup(g, userId));
+    const owned = ((asOwner as any[]) ?? []).filter((g: any) => g?.ownerId === userId);
+    if (memberOf.length > 0 && owned.every((g: any) => memberOf.some((m: any) => m.id === g.id))) return memberOf;
+  } catch {
+    /* fall back below */
+  }
+  const all = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
+  return ((all as any[]) ?? []).filter((g: any) => inGroup(g, userId));
+}
+
+// Cheers are only allowed between friends or members of a shared group. Friendship is checked
+// first (two quick lookups settle most cheers); groups only when they aren't friends.
 export async function areConnected(db: any, a: string, b: string) {
   const [ab, ba] = await Promise.all([
     fetchWithRetry(() => db.entities.Friendship.filter({ user1Id: a, user2Id: b, status: 'accepted' })),
@@ -54,9 +78,8 @@ export async function areConnected(db: any, a: string, b: string) {
   ]);
   if (ab.length || ba.length) return true;
 
-  const groups = await fetchWithRetry(() => db.entities.Group.list('-created_date', 1000));
-  const inGroup = (g: any, id: string) => g.ownerId === id || (g.memberIds ?? []).includes(id);
-  return groups.some((g: any) => inGroup(g, a) && inGroup(g, b));
+  const groups = await groupsOf(db, a);
+  return groups.some((g: any) => inGroup(g, b));
 }
 
 const DATE = '\\d{4}-\\d{2}-\\d{2}';

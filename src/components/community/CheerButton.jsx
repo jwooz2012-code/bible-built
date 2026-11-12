@@ -23,9 +23,10 @@ export function CheerTiles({ toUser, onSent, compact }) {
             key={k.id}
             whileTap={{ scale: 0.88 }}
             aria-pressed={active}
-            onClick={async () => {
-              const res = await sendCheer({ toUserId: toUser.id, kind: k.id, targetType: 'profile', targetKey: key, label: '' });
-              if (res) onSent?.(k);
+            onClick={() => {
+              // Shows as sent right away and finishes in the background (with quiet retries).
+              sendCheer({ toUserId: toUser.id, kind: k.id, targetType: 'profile', targetKey: key, label: '' });
+              onSent?.(k);
             }}
             className="rounded-2xl flex flex-col items-center justify-center gap-1 py-3 px-1 transition-colors"
             style={active
