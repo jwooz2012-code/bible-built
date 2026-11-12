@@ -167,19 +167,7 @@ export default function Social() {
     }
   }, [user?.id]);
 
-  // Once fresh data is in, get a head start on every group, one at a time, so opening any of them is quick.
-  useEffect(() => {
-    if (!pageData || page.isPlaceholderData || !groups?.length) return undefined;
-    let cancelled = false;
-    (async () => {
-      for (const g of groups.slice(0, 12)) {
-        if (cancelled) return;
-        await prefetchGroupData(queryClient, g.id);
-        await new Promise((r) => setTimeout(r, 250));
-      }
-    })();
-    return () => { cancelled = true; };
-  }, [pageData, page.isPlaceholderData, groups, queryClient]);
+  // Groups start loading when a finger touches one (see the Groups list), not all at once in the background.
 
   useEffect(() => { loadRecap(); }, [loadRecap]);
 

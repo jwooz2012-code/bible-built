@@ -42,14 +42,17 @@ const isTemporary = (err) => {
   return status === undefined || status >= 500 || (status === 429 && !isDailyLimit(err));
 };
 
-// Try once more, quietly, before telling the user it didn't go through.
+// A busy server or a dropped connection is retried quietly for about 15 seconds before the
+// user is told it didn't go through. Repeats are safe: the server keeps one cheer per item.
+const RETRY_DELAYS_MS = [1000, 2000, 4000, 6000];
 async function invokeSendCheer(payload) {
-  try {
-    return await base44.functions.invoke('sendCheer', payload);
-  } catch (err) {
-    if (!isTemporary(err)) throw err;
-    await new Promise((r) => setTimeout(r, 1200));
-    return base44.functions.invoke('sendCheer', payload);
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await base44.functions.invoke('sendCheer', payload);
+    } catch (err) {
+      if (!isTemporary(err) || attempt >= RETRY_DELAYS_MS.length) throw err;
+      await new Promise((r) => setTimeout(r, RETRY_DELAYS_MS[attempt]));
+    }
   }
 }
 
@@ -77,7 +80,14 @@ export function useSendCheer() {
     inFlight.add(targetKey);
 
     const snapshot = queryClient.getQueriesData({ queryKey: ['cheers'] });
+    const previous = snapshot.flatMap(([, data]) => (Array.isArray(data) ? data : []))
+      .find((c) => c.fromUserId === user.id && c.targetKey === targetKey);
     showMine();
+    // Confirmed straight away; it finishes in the background and is undone with a message if it can't.
+    if (!silent && previous?.kind !== kind) {
+      const k = cheerKind(kind);
+      toast(`${k.emoji} ${previous ? 'Reaction updated' : `${k.label} sent!`}`, { duration: 1400 });
+    }
 
     try {
       const res = await invokeSendCheer({ toUserId, kind, targetType, targetKey, label });
@@ -92,17 +102,13 @@ export function useSendCheer() {
           }
         });
       }
-      if (!silent && !res.data?.duplicate) {
-        const k = cheerKind(kind);
-        toast(`${k.emoji} ${res.data?.changed ? 'Reaction updated' : `${k.label} sent!`}`, { duration: 1400 });
-      }
       queryClient.invalidateQueries({ queryKey: ['cheers'] });
       return res.data;
     } catch (err) {
       snapshot.forEach(([key, data]) => queryClient.setQueryData(key, data));
       toast.error(isDailyLimit(err) ? "You've sent a lot of cheers today. Try again tomorrow!"
         : statusOf(err) === 403 ? 'You can cheer friends and group members'
-        : "Couldn't send right now. Check your connection and try again.");
+        : "Your cheer didn't go through. Check your connection and try again.");
       return null;
     } finally {
       inFlight.delete(targetKey);
